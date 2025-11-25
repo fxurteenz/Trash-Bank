@@ -1,26 +1,56 @@
 <?php
 namespace App\Router;
 use App\Router\RouterDispatcher;
-use App\Controller\HomeController;
-use AltoRouter;
-
+use App\Controller\PagesController;
+use App\Controller\Api\UsersController;
+use App\Middleware\AuthMiddleware;
 class RouterController
 {
     public function __construct(
-        private $router,
-        private RouterDispatcher $dispatcher
+        private $Router,
+        private RouterDispatcher $Dispatcher
     ) {
-        $this->defineRoutes();
-        $match = $this->router->match();
-        $this->dispatcher->dispatch($match);
+        $this->DefineRoutes();
+        $match = $this->Router->match();
+        $this->Dispatcher->dispatch($match);
     }
 
-    private function defineRoutes(): void
+    private function addPrefixedRoutes(string $prefix, array $routes): void
     {
-        // หน้าแรก
-        $this->router->map('GET', '/', [HomeController::class, 'homePage']);
+        $prefixed = array_map(function ($route) use ($prefix) {
+            $route[1] = $prefix . $route[1];
+            return $route;
+        }, $routes);
 
-        // เพิ่ม route อื่นได้ เช่น
-        // $this->router->map('GET', '/about', [PagesController::class, 'about']);
+        $this->Router->addRoutes($prefixed);
+    }
+
+    private function DefineRoutes(): void
+    {
+        $this->Router->map(
+            'GET',
+            '/admin',
+            [PagesController::class],
+            'AdminDashboardPage'
+        );
+
+        $this->Router->map(
+            'GET',
+            '/',
+            [PagesController::class, 'LoginPage']
+        );
+
+        $this->addPrefixedRoutes('/api', [
+            ['POST', '/login', [UsersController::class, 'Login']]
+        ]);
+
+        $this->addPrefixedRoutes('/api/user', [
+            ['POST', '/create', [UsersController::class, 'CreateUser']],
+            // ['GET', '/me', [UsersController::class, 'GetMe']],
+            // ['PUT', '/profile', [UsersController::class, 'UpdateProfile']],
+            // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
+            // ['GET', '/all', [UsersController::class, 'GetAllUsers']],
+            // ['DELETE', '/[i:id]', [UsersController::class, 'DeleteUser']],
+        ]);
     }
 }

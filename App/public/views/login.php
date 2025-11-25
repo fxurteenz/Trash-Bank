@@ -1,0 +1,19 @@
+<div class="flex justify-center items-center min-h-screen">
+    <div class="bg-white p-4 rounded-md shadow-md w-80">
+        <h1 class="text-center text-xl font-bold">เข้าสู่ระบบ</h1>
+        <div class="space-y-2">
+            <div class="flex flex-col">
+                <label for="email">อีเมล์</label>
+                <input type="email" name="email" id="email" class="p-2 rounded-md border-gray-200 border-1">
+            </div>
+
+            <div class="flex flex-col">
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" name="password" id="password" class="p-2 rounded-md border-gray-200 border-1">
+            </div>
+
+            <button class="w-full font-semibold text-white py-2 px-4 rounded-md bg-orange-400 cursor-pointer" onClick="OnSubmit()">เข้าสู่ระบบ</button>
+        </div>
+    </div>
+</div>
+
