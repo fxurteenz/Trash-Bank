@@ -29,9 +29,8 @@ class RouterController
     {
         $this->Router->map(
             'GET',
-            '/admin',
-            [PagesController::class],
-            'AdminDashboardPage'
+            '/admin/dashboard',
+            [PagesController::class, 'AdminDashboardPage']
         );
 
         $this->Router->map(

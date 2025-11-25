@@ -23,9 +23,11 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: Trash-Bank
+      MYSQL_DATABASE: trash_bank
       MYSQL_USER: MYSQL_USER
       MYSQL_PASSWORD: MYSQL_PASSWORD
+    volumes:
+      - ./.docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "9906:3306"
   ################################################

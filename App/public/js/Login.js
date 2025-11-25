@@ -41,7 +41,7 @@ async function OnSubmit(e) {
         //     localStorage.setItem("token", result.token);
         // }
         // ไปหน้าหลักหรือ dashboard
-        // window.location.href = "/dashboard";
+        window.location.href = "/admin/dashboard";
 
     } catch (error) {
         console.error("Login failed:", error);
