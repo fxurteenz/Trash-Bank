@@ -43,13 +43,13 @@ class RouterController
             ['POST', '/login', [UsersController::class, 'Login']]
         ]);
 
-        $this->addPrefixedRoutes('/api/user', [
-            ['POST', '/create', [UsersController::class, 'CreateUser']],
+        $this->addPrefixedRoutes('/api/users', [
             // ['GET', '/me', [UsersController::class, 'GetMe']],
-            // ['PUT', '/profile', [UsersController::class, 'UpdateProfile']],
+            ['GET', '', [UsersController::class, 'GetAll']],
             // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
-            // ['GET', '/all', [UsersController::class, 'GetAllUsers']],
-            // ['DELETE', '/[i:id]', [UsersController::class, 'DeleteUser']],
+            ['POST', '', [UsersController::class, 'Create']],
+            ['POST', '/[*:uid]', [UsersController::class, 'Update']],
+            ['DELETE', '/[*:uid]', [UsersController::class, 'Delete']],
         ]);
     }
 }

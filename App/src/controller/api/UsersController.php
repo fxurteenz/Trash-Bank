@@ -2,40 +2,58 @@
 namespace App\Controller\Api;
 
 use App\Router\RouterBase;
-use App\Services\UserService;
+use App\Model\UserModel;
 use App\Utils\Database;
 use App\Utils\CookieBaker;
 use App\Utils\Jwt;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 use Exception;
+use PhpParser\Node\Stmt\TryCatch;
 
 class UsersController extends RouterBase
 {
-    private $data, $UserService, $Database, $Jwt, $CookieBaker;
+    private $data, $UserModel, $Database, $Jwt, $CookieBaker;
     public function __construct()
     {
         $input = file_get_contents('php://input');
-        $this->data = json_decode($input, true);
-        if (!$this->data) {
-            $this->data = $_POST;
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $contentType = strtolower($_SERVER['CONTENT_TYPE'] ?? '');
+
+        switch (true) {
+            case str_contains($contentType, 'application/json'):
+                $this->data = json_decode($input, true);
+                break;
+            case str_contains($contentType, 'application/x-www-form-urlencoded'):
+                parse_str($input, $this->data);
+                break;
+            case str_contains($contentType, 'multipart/form-data'):
+                if ($_FILES) {
+                    $this->data = array_merge($_POST, $_FILES);
+                } else {
+                    $this->data = $_POST;
+                }
+                break;
+            default:
+                $this->data = $input;
         }
+
         $this->Database = new Database();
-        $this->UserService = new UserService($this->Database);
+        $this->UserModel = new UserModel($this->Database);
         $this->CookieBaker = new CookieBaker();
     }
 
     public function Login()
     {
         try {
-            $user = $this->UserService->Login(data: $this->data);
+            $user = $this->UserModel->Login(data: $this->data);
             $token = Jwt::jwt_encode($user);
             $cookieToken = $this->CookieBaker->BakeUserCookie($token);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
-                'status' => TRUE,
+                'success' => TRUE,
                 'result' => $cookieToken,
                 'message' => 'login successfully =)'
             ]);
@@ -43,27 +61,52 @@ class UsersController extends RouterBase
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
-                'status' => false,
+                'success' => false,
                 'message' => $e->getMessage(),
                 'data' => $this->data
             ]);
         }
     }
 
-    public function CreateUser()
+    public function GetAll()
     {
         try {
-            $authenticated = Authentication::Auth();
-            if ($authenticated->account_role !== 0) {
-                throw new AuthenticationException('Forbidden', 403);
-            }
-
-            $user = $this->UserService->CreateUser($this->data);
+            Authentication::AdminAuth();
+            $users = $this->UserModel->GetAllUsers();
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
-                'status' => TRUE,
+                'success' => TRUE,
+                'result' => $users,
+                'message' => 'successfully =)'
+            ]);
+            return;
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function Create()
+    {
+        try {
+            Authentication::AdminAuth();
+            $user = $this->UserModel->CreateUser($this->data);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
                 'result' => $user,
                 'message' => 'user created successfully =)'
             ]);
@@ -71,16 +114,72 @@ class UsersController extends RouterBase
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
-                'status' => false,
+                'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
-                'status' => false,
+                'success' => false,
                 'message' => $e->getMessage()
             ]);
         }
     }
 
+    public function Update($uid)
+    {
+        try {
+            Authentication::AdminAuth();
+            $user = $this->UserModel->UpdateUser($uid, $this->data);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $user,
+                'message' => 'user updated successfully =)'
+            ]);
+            return;
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function Delete($uid)
+    {
+        try {
+            Authentication::AdminAuth();
+            $affectedRows = $this->UserModel->DeleteUser($uid);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $affectedRows,
+                'message' => $affectedRows > 0 ? 'user deleted successfully =)' : 'not found this user Id'
+            ]);
+            return;
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }
