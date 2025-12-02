@@ -52,7 +52,7 @@
                 <button @click="profileDropdownOpen = !profileDropdownOpen"
                     class="flex items-center focus:outline-none">
                     <img class="h-10 w-10 rounded-full object-cover border-2 border-indigo-500"
-                        src="https://via.placeholder.com/150/50081C/FFFFFF?text=P" alt="Profile">
+                        src="/assets/images/4042171.png" alt="Profile">
                 </button>
 
                 <div x-show="profileDropdownOpen" x-transition:enter="transition ease-out duration-100"

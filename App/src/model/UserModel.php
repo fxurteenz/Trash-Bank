@@ -55,22 +55,35 @@ class UserModel
         }
     }
 
-    public function GetAllUsers(): array
+    public function GetAllUsers($query): array
     {
         try {
+            $page = isset($query['page']) ? (int) $query['page'] : 1;
+            $limit = isset($query['limit']) ? (int) $query['limit'] : 0;
+            $offset = ($page - 1) * $limit;
             $sql =
                 'SELECT 
                     * 
                 FROM 
-                    account_tb;';
+                    account_tb
+                LIMIT :limit OFFSET :offset;
+                ';
 
             $stmt = $this->Conn->prepare($sql);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return $users;
+            $sqlCount = 'SELECT COUNT(*) AS allUser FROM account_tb';
+            $stmt = $this->Conn->prepare($sqlCount);
+            $stmt->execute();
+            $total = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $result = [$users, $total['allUser']];
+            return $result;
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -126,8 +139,12 @@ class UserModel
             // );
 
             $setClauses = [];
+            $updateData = [];
             foreach ($data as $column => $value) {
-                $setClauses[] = "`{$column}` = :{$column}";
+                if (!empty($value)) {
+                    $setClauses[] = "`{$column}` = :{$column}";
+                    $updateData[$column] = $value;
+                }
             }
             $setClauseString = implode(', ', $setClauses);
 
@@ -140,18 +157,18 @@ class UserModel
                 ";
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute(array_merge($data, ['account_id' => $uid]));
+            $stmt->execute(array_merge($updateData, ['account_id' => $uid]));
 
             $result = $stmt->rowCount();
             return $result;
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+            throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
-    public function DeleteUser($uid):int
+    public function DeleteUser($uid): int
     {
         try {
             if (empty($uid)) {

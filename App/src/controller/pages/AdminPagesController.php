@@ -24,13 +24,9 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $model = new UserModel();
-            $AllUsersData = $model->GetAllUsers();
-
             $this->render('admin/manages/users', [
                 'pages' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
-                'AllUsersData' => $AllUsersData,
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');

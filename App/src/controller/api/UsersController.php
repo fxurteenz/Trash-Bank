@@ -13,13 +13,15 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class UsersController extends RouterBase
 {
-    private $data, $UserModel, $Database, $Jwt, $CookieBaker;
+    private $data, $UserModel, $Database, $Jwt, $CookieBaker, $queryString;
     public function __construct()
     {
         $input = file_get_contents('php://input');
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $contentType = strtolower($_SERVER['CONTENT_TYPE'] ?? '');
-
+        if ($requestMethod == "GET") {
+            $this->queryString = $_GET;
+        }
         switch (true) {
             case str_contains($contentType, 'application/json'):
                 $this->data = json_decode($input, true);
@@ -72,16 +74,18 @@ class UsersController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $users = $this->UserModel->GetAllUsers();
+            $result = $this->UserModel->GetAllUsers($this->queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $users,
+                'result' => $result[0],
+                'total' => $result[1],
+                'page' => (int) $this->queryString['page'],
+                'limmit' => (int) $this->queryString['limit'],
                 'message' => 'successfully =)'
             ]);
-            return;
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
@@ -94,6 +98,8 @@ class UsersController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
+        } finally {
+            exit;
         }
     }
 
@@ -139,7 +145,6 @@ class UsersController extends RouterBase
                 'result' => $user,
                 'message' => 'user updated successfully =)'
             ]);
-            return;
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
@@ -152,6 +157,8 @@ class UsersController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
+        } finally {
+            exit;
         }
     }
 
