@@ -1,9 +1,10 @@
 <?php
 namespace App\Router;
 use App\Router\RouterDispatcher;
-use App\Controller\PagesController;
+use App\Controller\Pages\PagesController;
+use App\Controller\Pages\AdminPagesController;
 use App\Controller\Api\UsersController;
-use App\Middleware\AuthMiddleware;
+
 class RouterController
 {
     public function __construct(
@@ -27,24 +28,15 @@ class RouterController
 
     private function DefineRoutes(): void
     {
-        $this->Router->map(
-            'GET',
-            '/admin/dashboard',
-            [PagesController::class, 'AdminDashboardPage']
-        );
+        $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
+        $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
 
-        $this->Router->map(
-            'GET',
-            '/',
-            [PagesController::class, 'LoginPage']
-        );
-
-        $this->addPrefixedRoutes('/api', [
-            ['POST', '/login', [UsersController::class, 'Login']]
+        $this->addPrefixedRoutes('/admin', [
+            ['GET', '', [AdminPagesController::class, 'Dashboard']],
+            ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']]
         ]);
 
         $this->addPrefixedRoutes('/api/users', [
-            // ['GET', '/me', [UsersController::class, 'GetMe']],
             ['GET', '', [UsersController::class, 'GetAll']],
             // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
             ['POST', '', [UsersController::class, 'Create']],

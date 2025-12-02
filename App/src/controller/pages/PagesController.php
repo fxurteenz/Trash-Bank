@@ -1,5 +1,5 @@
 <?php
-namespace App\Controller;
+namespace App\Controller\Pages;
 
 use App\Router\RouterBase;
 
@@ -11,14 +11,6 @@ class PagesController extends RouterBase
             'title' => 'เข้าสู่ระบบ',
             'script' => '../js/Login.js'
         ]);
-    }
-
-    public function AdminDashBoardPage()
-    {
-        $this->render('admin/adminDashboard', [
-            'title' => 'ผู้ดูแลระบบ',
-            'script' => '../js/Dashboard.js'
-        ], 'adminDashboard');
     }
 
 }

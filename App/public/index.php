@@ -2,6 +2,7 @@
 require "../vendor/autoload.php";
 use App\Router\RouterController;
 use App\Router\RouterDispatcher;
+use App\Utils\Database;
 use AltoRouter;
 
 

@@ -1,18 +1,19 @@
 <?php
 namespace App\Model;
+use App\Utils\Database;
 use Exception;
 use PDO;
 use PDOException;
 
 class UserModel
 {
-    private $Conn;
-    private $Jwt;
+    private static $Database;
     private static $SaltRound;
-    public function __construct($database)
+    private $Conn;
+    public function __construct()
     {
-        $this->Conn = $database->connect();
-        // $this->Jwt = new Jwt();
+        self::$Database = new Database();
+        $this->Conn = self::$Database->connect();
         self::$SaltRound = $_ENV['SALT_ROUND'];
     }
 
@@ -150,7 +151,7 @@ class UserModel
         }
     }
 
-    public function DeleteUser($uid)
+    public function DeleteUser($uid):int
     {
         try {
             if (empty($uid)) {

@@ -39,7 +39,7 @@ class UsersController extends RouterBase
         }
 
         $this->Database = new Database();
-        $this->UserModel = new UserModel($this->Database);
+        $this->UserModel = new UserModel();
         $this->CookieBaker = new CookieBaker();
     }
 
