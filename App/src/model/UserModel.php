@@ -92,29 +92,34 @@ class UserModel
     public function CreateUser(array $data)
     {
         try {
-            if (empty($data['email']) || empty($data['password'])) {
+            if (empty($data['account_email']) || empty($data['account_password'])) {
                 throw new Exception('Email or password not provided', 500);
             }
 
             $encodedPassword = password_hash(
-                $data['password'],
+                $data['account_password'],
                 PASSWORD_DEFAULT,
                 ['cost' => self::$SaltRound]
             );
 
+            $setClauses = [];
+            $updateData = [];
+            foreach ($data as $column => $value) {
+                if (!empty($value)) {
+                    $setClauses[] = "`{$column}` = :{$column}";
+                    $updateData[$column] = $value;
+                }
+            }
+            $setClauseString = implode(', ', $setClauses);
+
             $sql =
-                'INSERT INTO account_tb
-                    (account_email,account_password,account_role)
-                VALUES
-                    (:email,:encodedPassword,:role)
-                ';
+                "INSERT INTO account_tb 
+                SET
+                    {$setClauseString}
+                ";
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute([
-                'email' => $data['email'],
-                'encodedPassword' => $encodedPassword,
-                'role' => 2,
-            ]);
+            $stmt->execute($updateData);
 
             $acc_id = $stmt->rowCount();
             return $acc_id;
@@ -168,25 +173,36 @@ class UserModel
         }
     }
 
-    public function DeleteUser($uid): int
+    public function DeleteUser(array $data): int
     {
-        try {
-            if (empty($uid)) {
-                throw new Exception('Bad Request =(', 400);
-            }
+        if (empty($data['account_ids'] ?? []) || !is_array($data['account_ids'])) {
+            throw new Exception('Bad Request: account_ids is required and must be an array', 400);
+        }
 
-            $sql = 'DELETE FROM 
-                        account_tb
-                    WHERE account_id = :account_id';
+        $ids = $data['account_ids'];
+        $ids = array_filter($ids);
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        try {
+            $this->Conn->beginTransaction();
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $sql = "DELETE FROM account_tb WHERE account_id IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute([
-                'account_id' => $uid
-            ]);
-            $affectedRows = $stmt->rowCount();
-            return $affectedRows;
+
+            foreach ($ids as $index => $uuid) {
+                $stmt->bindValue($index + 1, $uuid, PDO::PARAM_STR);
+            }
+
+            $stmt->execute();
+            $this->Conn->commit();
+            return $stmt->rowCount();
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $this->Conn->rollBack();
+            throw new Exception("Database error: " . $e->getMessage() . $ids, 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }

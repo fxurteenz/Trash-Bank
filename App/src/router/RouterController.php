@@ -40,8 +40,8 @@ class RouterController
             ['GET', '', [UsersController::class, 'GetAll']],
             // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
             ['POST', '', [UsersController::class, 'Create']],
-            ['POST', '/[*:uid]', [UsersController::class, 'Update']],
-            ['DELETE', '/[*:uid]', [UsersController::class, 'Delete']],
+            ['POST', '/update/[*:uid]', [UsersController::class, 'Update']],
+            ['POST', '/bulk-del', [UsersController::class, 'Delete']],
         ]);
     }
 }

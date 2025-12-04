@@ -98,7 +98,7 @@
         </div>
 
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
 </body>
 

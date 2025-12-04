@@ -162,11 +162,11 @@ class UsersController extends RouterBase
         }
     }
 
-    public function Delete($uid)
+    public function Delete()
     {
         try {
             Authentication::AdminAuth();
-            $affectedRows = $this->UserModel->DeleteUser($uid);
+            $affectedRows = $this->UserModel->DeleteUser($this->data);
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([

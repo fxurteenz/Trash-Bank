@@ -27,6 +27,7 @@ class AdminPagesController extends RouterBase
             $this->render('admin/manages/users', [
                 'pages' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
+                'script' => '../../js/ManageUsers.js'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
