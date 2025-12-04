@@ -203,7 +203,7 @@
             </thead>
             <template x-for="user in users" :key="user.account_id">
                 <tr class="hover:bg-sky-100 cursor-pointer"
-                    :class="selectedUser && selectedUser.account_id == user.account_id ? 'bg-blue-100' : ''">
+                    :class="editUserForm && editUserForm.account_id == user.account_id ? 'bg-blue-100' : ''">
                     <td class="border border-gray-300 px-2 py-2 text-center">
                         <input type="checkbox" class="p-1" :id="user.account_id" :value="user.account_id"
                             x-model="checkedUser.account_ids" @click.stop>
@@ -258,10 +258,9 @@
         </div>
 
         <!-- Edit User Data Dialog -->
-        <dialog x-ref="userDialog" x-show="selectedUser"
-            x-init="$watch('selectedUser', value => {if (value) $refs.userDialog.showModal();else $refs.userDialog.close();})"
-            @click.self="selectedUser = null" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent">
-
+        <dialog x-ref="editUserDialog" x-show="editUserDialogShow" @click.self="editUserDialogShow = false"
+            @close="editUserDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent"
+            x-init="$watch('editUserDialogShow', value => {if (value) $refs.editUserDialog.showModal();else $refs.editUserDialog.close();})">
             <div class="bg-white p-6 rounded-lg shadow-xl w-80">
                 <h3 class="font-bold text-lg mb-3">แก้ไขข้อมูล</h3>
 
@@ -301,7 +300,7 @@
                     <button @click="submitEdit" class="px-3 py-1 bg-sky-300 rounded hover:bg-sky-400 cursor-pointer">
                         ยืนยัน
                     </button>
-                    <button @click="selectedUser = null"
+                    <button @click="editUserDialogShow = false"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer">
                         ยกเลิก
                     </button>
@@ -309,9 +308,9 @@
             </div>
         </dialog>
 
-        <dialog x-ref="createUserDialog" x-show="createUserDialogShow"
-            x-init="$watch('createUserDialogShow', value => {if (value) $refs.createUserDialog.showModal();else $refs.createUserDialog.close();})"
-            @click.self="createUserDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent">
+        <dialog x-show="createUserDialogShow" x-ref="createUserDialog" @click.self="createUserDialogShow = false"
+            @close="createUserDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent"
+            x-init="$watch('createUserDialogShow', value => {if (value) $refs.createUserDialog.showModal();else $refs.createUserDialog.close();})">
 
             <div class="bg-white p-6 rounded-lg shadow-xl w-80">
                 <div class="flex justify-between">

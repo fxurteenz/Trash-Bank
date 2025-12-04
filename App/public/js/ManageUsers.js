@@ -21,6 +21,7 @@ function UserTable() {
         },
         filterRoleDropdown: false,
         createUserDialogShow: false,
+        editUserDialogShow:false,
         async loadUsers() {
             try {
                 this.offset = (this.page - 1) * this.limit;
@@ -41,32 +42,68 @@ function UserTable() {
                 faculty_id: user.faculty_id ?? '',
                 major_id: user.major_id ?? '',
             };
+            this.editUserDialogShow = true;
             // console.log(this.selectedUser);
         },
         async submitEdit() {
-            try {
-                const res = await fetch(`/api/users/${this.selectedUser.account_id}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(this.editUserForm)
-                    })
-                const response = await res.json();
-                if (response.success) {
-                    this.loadUsers();
-                    this.selectedUser = null;
-                    this.editUserForm = {
-                        account_name: '',
-                        account_email: '',
-                        faculty_id: '',
-                        major_id: '',
-                    };
+            this.editUserDialogShow = false;
+            const result = await Swal.fire({
+                title: 'แก้ไขข้อมูล',
+                text: 'คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?',
+                icon:'info',
+                theme: 'material-ui',
+                showConfirmButton: true,
+                confirmButtonText: "ยืนยัน",
+                confirmButtonColor: "#ff8f4eff",
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                cancelButtonColor:"#8a8a8aff"
+            })
+
+            if (result.isConfirmed) {
+                try {
+                    this.editUserDialogShow = false;
+                    const res = await fetch(`/api/users/update/${this.selectedUser.account_id}`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(this.editUserForm)
+                        })
+                    const response = await res.json();
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'แก้ไขสำเร็จ',
+                            text: `แก้ไขข้อมูลเรียบร้อยแล้ว`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        this.selectedUser = null;
+                        this.loadUsers();
+                        this.editUserForm = {
+                            account_name: '',
+                            account_email: '',
+                            faculty_id: '',
+                            major_id: '',
+                        };
+                    } else {
+                        throw "something wrong !";
+                    }
+                    console.log(response);
+                } catch (error) {
+                    const errAlert = await Swal.fire({
+                            icon: 'error',
+                            title: 'ผิดพลาด',
+                            text: 'ลบรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+                            timer: 2000,
+                            showConfirmButton: false
+                    });
+                    console.log(errAlert);
+                    this.editUserDialogShow = true;
+                    console.error(error);
                 }
-                console.log(response);
-            } catch (error) {
-                console.error(error);
             }
         },
         async submitCreate() {
@@ -82,17 +119,34 @@ function UserTable() {
                 const response = await res.json();
                 if (response.success) {
                     this.createUserDialogShow = false;
-                    this.loadUsers();
                     this.createUserForm = {
                         account_name: '',
                         account_email: '',
                         faculty_id: '',
                         major_id: '',
                     };
+                    Swal.fire({
+                            icon: 'success',
+                            title: 'เพิ่มสำเร็จ',
+                            text: `เพ่ิมผู้ใช้งานเรียบร้อย`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                    this.loadUsers();
+                    
+                } else {
+                    throw "some thing wrong !";
                 }
-                console.log(response);
             } catch (error) {
                 console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ผิดพลาด',
+                    text: 'เพิ่มรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
         },
         async deleteCheckedUser() {
@@ -135,10 +189,19 @@ function UserTable() {
 
                         this.checkedUser.account_ids = [];
                         this.loadUsers();
+                    } else {
+                        throw "some thing wrong !";
                     }
 
                 } catch (error) {
                     console.error(error);
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'ผิดพลาด',
+                            text: 'ลบรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                 }
             }
         },
