@@ -4,45 +4,11 @@ use App\Utils\Jwt;
 use Exception;
 class AuthenticationException extends Exception
 {
-    // สามารถสร้าง custom exception เพื่อแยกจาก Exception ทั่วไปได้
+
 }
 
 class Authentication
 {
-    // private static function getBearerToken(): ?string
-    // {
-    //     if (function_exists('getallheaders')) {
-    //         $headers = getallheaders();
-    //         if ($headers && (isset($headers['Authorization']) || isset($headers['authorization']))) {
-    //             $authHeader = $headers['Authorization'] ?? $headers['authorization'];
-    //             if ($authHeader && preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
-    //                 return $matches[1];
-    //             }
-    //         }
-    //     }
-
-    //     $authHeader = null;
-
-    //     if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
-    //         $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
-    //     } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
-    //         $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
-    //     }
-
-    //     if ($authHeader) {
-    //         if (preg_match('/^Bearer\s+(\S+)/i', $authHeader, $matches)) {
-    //             $token = $matches[1];
-    //             if (!empty($token)) {
-    //                 return $token;
-    //             }
-    //             throw new AuthenticationException('Bearer token is empty', 401);
-    //         }
-    //         throw new AuthenticationException('Invalid or malformed Bearer token', 401);
-    //     }
-
-    //     throw new AuthenticationException('Missing Authorization header', 401);
-    // }
-
     private static function getAuthorizationHeader()
     {
         $headers = null;
@@ -92,13 +58,48 @@ class Authentication
         } catch (AuthenticationException $e) {
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
-            throw new AuthenticationException('Invalid or expired token', 401, $e);
+            throw new AuthenticationException('Authentication : Invalid or expired token', 401, $e);
         }
 
         if (!$decoded) {
-            throw new AuthenticationException('Invalid or expired token', 401);
+            throw new AuthenticationException('Authentication : Invalid or expired token', 401);
         }
 
         return is_array($decoded) ? (object) $decoded : $decoded;
+    }
+    public static function CookieAuth(): object
+    {
+        if (!isset($_COOKIE['user_token'])) {
+            throw new AuthenticationException('Authentication : Please Login !', 401);
+        }
+
+        $token = $_COOKIE['user_token'];
+        try {
+            $decoded = Jwt::jwt_decode($token);
+        } catch (AuthenticationException $e) {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        } catch (Exception $e) {
+            throw new AuthenticationException('Authentication : Invalid or expired token', 401, $e);
+        }
+
+        if (!$decoded) {
+            throw new AuthenticationException('Authentication : Invalid or expired token', 401);
+        }
+
+        return is_array($decoded) ? (object) $decoded : $decoded;
+    }
+
+    public static function AdminAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            if ($authenticated->account_role !== "admin") {
+                throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            } else {
+                return ['success' => true, 'user_data' => $authenticated];
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), $th->getCode() || 401);
+        }
     }
 }

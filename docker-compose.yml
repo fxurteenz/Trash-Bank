@@ -1,4 +1,4 @@
-name: Trash-Bank
+name: waste-bank
 services:
   apache2-composer-maria-pma:
     container_name: apache2
@@ -23,9 +23,11 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: Trash-Bank
+      MYSQL_DATABASE: waste_bank
       MYSQL_USER: MYSQL_USER
       MYSQL_PASSWORD: MYSQL_PASSWORD
+    volumes:
+      - ./.docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "9906:3306"
   ################################################

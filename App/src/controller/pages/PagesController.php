@@ -1,9 +1,10 @@
 <?php
-namespace App\Controller;
+namespace App\Controller\Pages;
 
 use App\Router\RouterBase;
 
-class PagesController extends RouterBase{
+class PagesController extends RouterBase
+{
     public function LoginPage()
     {
         $this->render('login', [
