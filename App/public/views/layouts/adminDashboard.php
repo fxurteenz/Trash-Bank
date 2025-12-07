@@ -42,10 +42,11 @@
                 </button>
 
                 <a href="#" class="flex items-center space-x-2">
-                    <span class="text-xl font-bold text-indigo-600">SiteName</span>
+                    <span class="text-xl font-bold text-indigo-600">Waste-Bank</span>
                 </a>
 
-                <span class="hidden md:block text-lg text-gray-700 ml-6 border-l pl-4 font-semibold">หน้าหลัก</span>
+                <span
+                    class="hidden md:block text-lg text-gray-700 ml-6 border-l pl-4 font-semibold"><?= $title ?></span>
             </div>
 
             <div class="relative" @click.away="profileDropdownOpen = false">
@@ -82,7 +83,11 @@
                         </a>
                         <a href="/admin/manage/users"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
-                            <span>หน้าจัดการผู้ใช้</span>
+                            <span>จัดการผู้ใช้</span>
+                        </a>
+                        <a href="/admin/manage/faculty_major"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFacultyMajor" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>จัดการคณะ/สาขา</span>
                         </a>
                     </nav>
                 </div>
