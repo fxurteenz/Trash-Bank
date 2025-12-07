@@ -16,7 +16,6 @@ class AdminPagesController extends RouterBase
         $this->render('admin/adminDashboard', [
             'pages' => 'dashboard',
             'title' => 'ผู้ดูแลระบบ',
-            'script' => '../js/Dashboard.js'
         ], self::$AdminTemplate);
     }
 
@@ -28,6 +27,24 @@ class AdminPagesController extends RouterBase
                 'pages' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
                 'script' => '../../js/ManageUsers.js'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            $this->errorPage(403, '403');
+            header('location: /');
+            exit;
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageFacultyMajor()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('admin/manages/faculty_major', [
+                'pages' => "manageFacultyMajor",
+                'title' => 'จัดการคณะ/สาขา',
+                'script' => '../../js/ManageFacultyMajor.js'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');

@@ -102,6 +102,7 @@ class UserModel
                 ['cost' => self::$SaltRound]
             );
 
+            $data['account_password'] = $encodedPassword;
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
@@ -121,8 +122,8 @@ class UserModel
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute($updateData);
 
-            $acc_id = $stmt->rowCount();
-            return $acc_id;
+            $updated_row = $stmt->rowCount();
+            return $updated_row;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {

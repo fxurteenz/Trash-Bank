@@ -1,5 +1,7 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\FacultyController;
+use App\Controller\Api\MajorController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
@@ -33,15 +35,32 @@ class RouterController
 
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
-            ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']]
+            ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
+            ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']]
         ]);
 
+        // API //
+        /// users ///
         $this->addPrefixedRoutes('/api/users', [
             ['GET', '', [UsersController::class, 'GetAll']],
             // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
             ['POST', '', [UsersController::class, 'Create']],
             ['POST', '/update/[*:uid]', [UsersController::class, 'Update']],
             ['POST', '/bulk-del', [UsersController::class, 'Delete']],
+        ]);
+        /// faculties ///
+        $this->addPrefixedRoutes('/api/faculties', [
+            ['GET', '', [FacultyController::class, 'GetAll']],
+            // ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
+            ['POST', '', [FacultyController::class, 'Create']],
+            ['POST', '/update/[*:fid]', [FacultyController::class, 'Update']],
+
+        ]);
+        /// majors ///
+        $this->addPrefixedRoutes('/api/majors', [
+            ['GET', '/[i:fid]', [MajorController::class, 'Get']],
+            ['POST', '', [MajorController::class, 'Create']],
+
         ]);
     }
 }
