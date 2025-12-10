@@ -29,7 +29,7 @@ class MajorModel
                     m.major_name,
                     SUM(CASE WHEN a.account_role = 'user' THEN 1 ELSE 0 END) AS count_user,
                     SUM(CASE WHEN a.account_role = 'staff' THEN 1 ELSE 0 END) AS count_staff,
-                    COUNT(a.account_id) AS total_all -- นับรวมทุกบทบาทในสาขานั้น
+                    COUNT(a.account_id) AS total_all
                 FROM 
                     major_tb m
                 LEFT JOIN 
