@@ -8,13 +8,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
-        integrity="sha256-SERKgtTty1vsDxll+qzd4Y2cF9swY9BCq62i9wXJ9Uo=" crossorigin="anonymous"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
         .h-screen-minus-nav {
-            height: calc(100vh - 4rem);
             min-height: calc(100vh - 4rem);
         }
 
@@ -28,8 +25,8 @@
     </style>
 </head>
 
-<body class="h-full">
-    <div class="bg-gray-100 noto-sans-thai h-full overflow-auto"
+<body>
+    <div class="bg-gray-100 noto-sans-thai"
         x-data="{ sidebarOpen: window.innerWidth >= 1024, profileDropdownOpen: false }">
 
         <header
@@ -76,7 +73,7 @@
 
         <div class="flex pt-16 w-full">
             <aside :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
-                class="fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:h-screen lg:block lg:shadow-none shadow-xl">
+                class="fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block lg:shadow-none shadow-xl">
                 <div class="p-4 mt-16 lg:mt-0">
                     <nav class="space-y-2">
                         <a href="/admin"
@@ -107,6 +104,9 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
+    <script type="module" src="<?= $module ?? "" ?>">
+        // import chartJs from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm' 
+    </script>
 </body>
 
 </html>
