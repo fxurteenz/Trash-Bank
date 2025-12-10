@@ -234,11 +234,11 @@
                     </td>
                     <td @click="selectingRow(user)"
                         class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                        x-text="user.account_faculty ?? 'ไม่ระบุ'">
+                        x-text="user.faculty_name ?? 'ไม่ระบุ'">
                     </td>
                     <td @click="selectingRow(user)"
                         class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                        x-text="user.account_major ?? 'ไม่ระบุ'">
+                        x-text="user.major_name ?? 'ไม่ระบุ'">
                     </td>
                     <td @click="selectingRow(user)"
                         class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
