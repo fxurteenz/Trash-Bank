@@ -2,14 +2,13 @@
 namespace App\Controller\Pages;
 
 use Exception;
-use App\Model\UserModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 
 class AdminPagesController extends RouterBase
 {
-    private static $AdminTemplate = "adminDashboard";
+    private static $AdminTemplate = "adminLayout";
 
     public function DashBoard()
     {

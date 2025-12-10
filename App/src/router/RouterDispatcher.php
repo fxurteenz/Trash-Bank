@@ -3,16 +3,16 @@ namespace App\Router;
 
 class RouterDispatcher
 {
-    public function dispatch($match)
+    public static function dispatch($match)
     {
         if (!$match || !isset($match['target'])) {
-            return $this->renderNotFound();
+            return self::renderNotFound();
         }
 
         [$class, $method] = $match['target'];
 
         if (!class_exists($class) || !method_exists($class, $method)) {
-            return $this->renderNotFound();
+            return self::renderNotFound();
         }
 
         $controller = new $class();
@@ -21,9 +21,8 @@ class RouterDispatcher
         return call_user_func_array([$controller, $method], $params);
     }
 
-    private function renderNotFound()
+    public static function renderNotFound()
     {
         http_response_code(404);
-        // require 'pages/errors/404.php';
     }
 }
