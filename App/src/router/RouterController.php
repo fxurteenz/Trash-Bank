@@ -1,6 +1,7 @@
 <?php
 namespace App\Router;
 use App\Controller\Api\FacultyController;
+use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
@@ -10,12 +11,11 @@ use App\Controller\Api\UsersController;
 class RouterController
 {
     public function __construct(
-        private $Router,
-        private RouterDispatcher $Dispatcher
+        private $Router
     ) {
         $this->DefineRoutes();
         $match = $this->Router->match();
-        $this->Dispatcher->dispatch($match);
+        RouterDispatcher::dispatch($match);
     }
 
     private function addPrefixedRoutes(string $prefix, array $routes): void
@@ -30,17 +30,17 @@ class RouterController
 
     private function DefineRoutes(): void
     {
+        // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']]
         ]);
 
-        // API //
-        /// users ///
+        /* API */
+        /* api/users */
         $this->addPrefixedRoutes('/api/users', [
             ['GET', '', [UsersController::class, 'GetAll']],
             // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
@@ -48,7 +48,7 @@ class RouterController
             ['POST', '/update/[*:uid]', [UsersController::class, 'Update']],
             ['POST', '/bulk-del', [UsersController::class, 'Delete']],
         ]);
-        /// faculties ///
+        /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
             // ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
@@ -56,11 +56,14 @@ class RouterController
             ['POST', '/update/[*:fid]', [FacultyController::class, 'Update']],
 
         ]);
-        /// majors ///
+        /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
             ['GET', '/[i:fid]', [MajorController::class, 'Get']],
             ['POST', '', [MajorController::class, 'Create']],
+        ]);
 
+        $this->addPrefixedRoutes("/api/leaders", [
+            ['GET', "", [LeaderController::class, "GetUsersLeaderByRole"]],
         ]);
     }
 }

@@ -68,7 +68,6 @@
         <div class="mt-2 text-lg text-gray-700 space-y-4 border-t border-gray-100 py-2">
             <h3 class="font-semibold">ดูข้อมูลคณะ</h3>
             <div class="grid grid-cols-2 md:grid-cols-3  gap-2">
-
                 <template x-for="faculty in AllFacultyData" :key="faculty.faculty_id">
                     <div class="px-4 py-3 border border-gray-100 shadow-xs rounded transition duration-200 text-center hover:shadow-md hover:cursor-pointer hover:scale-105"
                         @click="SelectFaculty(faculty)">
@@ -85,7 +84,7 @@
 
                 <div class="flex justify-between items-start px-2">
                     <h3 class="text-xl font-bold text-blue-700 text-shadow-xs"
-                        x-text="`คณะ ${selectedFaculty?.faculty_name}`"></h3>
+                        x-text="`คณะ ${selectedFaculty ? selectedFaculty.faculty_name: 'กรุณาเลือกคณะ'}`"></h3>
                     <button @click="CloseFacultyDetail()"
                         class="text-gray-500 hover:text-gray-900 hover:cursor-pointer transition duration-200 hover:scale-105">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -159,48 +158,108 @@
 
                         </div>
                     </div>
+                    <div class="table-container">
 
-                    <table class="w-full table-fixed border-collapse border border-gray-300 text-sm">
-                        <thead class="bg-gray-200 text-xs">
-                            <tr>
-                                <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">เลือก</th>
-                                <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-4/12  lg:w-4/12">ชื่อสาขา
-                                </th>
-                                <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">ผู้ใช้งาน
-                                </th>
-                                <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
-                                    เจ้าหน้าที่</th>
-                                <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/10">รวม</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="major in FacultyMajorData">
-                                <tr class="hover:bg-sky-100 cursor-pointer">
-                                    <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
-                                        <input type="checkbox" class="p-1" :id="major.major_id">
-                                    </td>
-                                    <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis"
-                                        x-text="major.major_name"></td>
-                                    <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
-                                        x-text="major.count_user"></td>
-                                    <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
-                                        x-text="major.count_staff"></td>
-                                    <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
-                                        x-text="major.total_all"></td>
-                                </tr>
-                            </template>
-                            <tr x-show="FacultyMajorData?.length == 0">
-                                <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
-                                    colspan="5">
-                                    ไม่พบข้อมูลสาขา</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <template x-if="FacultyMajorDataLoading" x-transition:enter="transition fade-out duration-20"
+                            x-transition:enter-start="opacity-0 translate-y-3"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition fade-in duration-20"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-3">
+                            <table class="w-full table-fixed border-collapse border border-gray-300 text-sm">
+                                <thead class="bg-gray-200 text-xs">
+                                    <tr>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            เลือก</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-4/12  lg:w-4/12">
+                                            ชื่อสาขา</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            ผู้ใช้งาน</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            เจ้าหน้าที่</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/10">
+                                            รวม</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="i in 5" :key="i">
+                                        <tr>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
+                                                <div class="h-3 bg-gray-300 rounded mx-auto animate-pulse w-4"></div>
+                                            </td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2">
+                                                <div class="h-3 bg-gray-300 rounded animate-pulse w-10/12"></div>
+                                            </td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
+                                                <div class="h-3 bg-gray-300 rounded mx-auto animate-pulse w-3/4"></div>
+                                            </td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
+                                                <div class="h-3 bg-gray-300 rounded mx-auto animate-pulse w-3/4"></div>
+                                            </td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
+                                                <div class="h-3 bg-gray-300 rounded mx-auto animate-pulse w-3/4"></div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </template>
+
+                        <div x-show="!FacultyMajorDataLoading" x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 translate-y-3"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-3">
+                            <table class="w-full table-fixed border-collapse border border-gray-300 text-sm">
+                                <thead class="bg-gray-200 text-xs">
+                                    <tr>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            เลือก
+                                        </th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-4/12  lg:w-4/12">
+                                            ชื่อสาขา
+                                        </th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            ผู้ใช้งาน
+                                        </th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/12">
+                                            เจ้าหน้าที่</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-2/12 lg:w-2/10">
+                                            รวม
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="major in FacultyMajorData">
+                                        <tr class="hover:bg-sky-100 cursor-pointer">
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center">
+                                                <input type="checkbox" class="p-1" :id="major.major_id">
+                                            </td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis"
+                                                x-text="major.major_name"></td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
+                                                x-text="major.count_user"></td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
+                                                x-text="major.count_staff"></td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
+                                                x-text="major.total_all"></td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="FacultyMajorData?.length == 0">
+                                        <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-center"
+                                            colspan="5">
+                                            ไม่พบข้อมูลสาขา</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
-
         </div>
 
         <!-- create Faculty Dialog -->
@@ -271,14 +330,14 @@
                 </div>
                 <!-- dialog form -->
                 <div class="grid grid-1 space-y-2 text-sm">
-
-                    <div class="flex items-center justify-between text-sm">
-                        <label for="create_maj_fac_name">สังกัดคณะ</label>
-                        <input
-                            class="border border-gray-300 rounded p-1 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="create_maj_fac_name" x-model="selectedFaculty?.faculty_name" disabled>
-                    </div>
-
+                    <template x-if="selectedFaculty">
+                        <div class="flex items-center justify-between text-sm">
+                            <label for="create_maj_fac_name">สังกัดคณะ</label>
+                            <input
+                                class="border border-gray-300 rounded p-1 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                                type="text" id="create_maj_fac_name" x-model="selectedFaculty.faculty_name" disabled>
+                        </div>
+                    </template>
                     <div class="flex items-center justify-between text-sm">
                         <label for="create_maj_name">ชื่อสาขา</label>
                         <input
@@ -310,6 +369,7 @@
             selectedFaculty: null,
             selectedFacultyShow: false,
             AllFacultyData: [],
+            FacultyMajorDataLoading: false,
             FacultyMajorData: [],
             createFacultyDialogShow: false,
             createFacForm: {
@@ -346,6 +406,7 @@
                 }
             },
             async fetchFacultyMajor(faculty) {
+                this.FacultyMajorDataLoading = true;
                 try {
                     const res = await fetch(`/api/majors/${faculty.faculty_id}`);
                     const result = await res.json();
@@ -355,6 +416,9 @@
                     }
                 } catch (error) {
                     console.error(error);
+                } finally {
+                    await new Promise(r => setTimeout(r, 1500));
+                    this.FacultyMajorDataLoading = false;
                 }
             },
             async submitCreateFaculty() {

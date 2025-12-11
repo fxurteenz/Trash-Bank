@@ -63,9 +63,14 @@ class UserModel
             $offset = ($page - 1) * $limit;
             $sql =
                 'SELECT 
-                    * 
-                FROM 
-                    account_tb
+                	a.account_id, a.account_name,  a.account_email, a.account_role, a.account_points,
+                    f.faculty_id, f.faculty_name, m.major_id, m.major_name
+                FROM
+                	account_tb a
+                LEFT JOIN
+                	faculty_tb f ON a.faculty_id = f.faculty_id
+                LEFT JOIN
+                	major_tb m ON a.major_id = m.major_id
                 LIMIT :limit OFFSET :offset;
                 ';
 
@@ -172,7 +177,7 @@ class UserModel
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
-    }
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 
     public function DeleteUser(array $data): int
     {
