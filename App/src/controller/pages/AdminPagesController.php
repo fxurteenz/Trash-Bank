@@ -12,11 +12,20 @@ class AdminPagesController extends RouterBase
 
     public function DashBoard()
     {
-        $this->render('admin/adminDashboard', [
-            'pages' => 'dashboard',
-            'title' => 'ผู้ดูแลระบบ',
-            'module' => '../../js/Dashboard.mjs'
-        ], self::$AdminTemplate);
+        try {
+            $this->render('admin/adminDashboard', [
+                'pages' => 'dashboard',
+                'title' => 'ผู้ดูแลระบบ',
+                'module' => '../../js/Dashboard.mjs'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
     }
 
     public function ManageUsers()
@@ -31,9 +40,10 @@ class AdminPagesController extends RouterBase
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
             header('location: /');
-            exit;
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
         }
     }
 
@@ -49,9 +59,28 @@ class AdminPagesController extends RouterBase
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
             header('location: /');
-            exit;
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function ManageWasteType()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('admin/manages/waste_type', [
+                'pages' => "manageWasteType",
+                'title' => 'จัดการผู้ใช้งาน',
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
         }
     }
 }

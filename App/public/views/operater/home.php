@@ -1,5 +1,6 @@
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-    <div class="bg-white rounded-lg space-y-2 shadow md:mx-auto w-[100%] md:w-[50%] lg:w-[100%] lg:mx-0 px-4 py-4">
+<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    
+    <div class="bg-white md:col-span-3 rounded-lg space-y-2 shadow px-4 py-4">
         <div class="flex">
             <h2 class="text-xl font-bold">ฝากขยะ</h2>
         </div>
@@ -22,11 +23,20 @@
         </div>
     </div>
 
-    <div class="bg-white lg:col-span-2 rounded-lg shadow p-6">
+    <div class="bg-white md:col-span-2 rounded-lg space-y-2 shadow px-4 py-4">
+        <div class="flex">
+            <h2 class="text-xl font-bold">เรทปัจจุบัน</h2>
+        </div>
+        <div class="space-y-2 text-sm">
+
+        </div>
+    </div>
+
+    <div class="bg-white md:col-span-5 rounded-lg shadow p-6">
         <div class="flex">
             <h2 class="text-xl font-bold">ประวัติการดำเนินการ</h2>
 
         </div>
-        
     </div>
+
 </div>

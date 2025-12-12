@@ -3,6 +3,7 @@ namespace App\Router;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
+use App\Controller\Api\WasteTypeController;
 use App\Controller\Pages\OperaterPagesController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
@@ -51,7 +52,8 @@ class Routes
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
-            ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']]
+            ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']],
+            ["GET","/manage/waste_type",[AdminPagesController::class,"ManageWasteType"]]
         ]);
 
         /* API */
@@ -75,6 +77,14 @@ class Routes
         $this->addPrefixedRoutes('/api/majors', [
             ['GET', '/[i:fid]', [MajorController::class, 'Get']],
             ['POST', '', [MajorController::class, 'Create']],
+        ]);
+        /* /api/waste_types */
+        $this->addPrefixedRoutes("/api/waste_types", [
+            ['GET', "", [WasteTypeController::class, "GetAll"]],
+            ['POST', '', [WasteTypeController::class, 'Create']],
+            ['POST', '/update/[*:id]', [WasteTypeController::class, 'Update']],
+            ['POST', '/delete/[*:id]', [WasteTypeController::class, 'DeleteById']],
+            ['POST', '/bulk-del', [WasteTypeController::class, 'Delete']],
         ]);
 
         $this->addPrefixedRoutes("/api/leaders", [
