@@ -56,7 +56,10 @@ class UsersController extends RouterBase
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $cookieToken,
+                'result' => [
+                    "token"=>$cookieToken, 
+                    "user"=>$user
+                ],
                 'message' => 'login successfully =)'
             ]);
             return;
