@@ -23,9 +23,9 @@ async function OnSubmit(e) {
         const response = await fetch("/login", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",  // สำคัญมาก!
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email, password }), // ส่งเป็น object
+            body: JSON.stringify({ email, password }),
         });
 
         if (!response.ok) {
@@ -35,14 +35,24 @@ async function OnSubmit(e) {
 
         const result = await response.json();
         console.log("Login success:", result);
-
+        if (result.success) {
+            if (result.result.user.account_role === "admin") {
+                window.location.href = "/admin";
+            } else if (result.result.user.account_role === "operater") {
+                window.location.href = "/operater";
+            } else {
+                // console.log(result);
+                throw new Error("Hacker ? ", 500);
+            }
+        } else {
+            throw new Error(result.message || result, 500);
+        }
         // ตัวอย่าง: เก็บ token แล้ว redirect
         // if (result.token) {
         //     localStorage.setItem("token", result.token);
         // }
         // ไปหน้าหลักหรือ dashboard
-        window.location.href = "/admin";
-
+        // window.location.href = "/admin";
     } catch (error) {
         console.error("Login failed:", error);
         alert(error.message || "อีเมลหรือรหัสผ่านไม่ถูกต้อง");

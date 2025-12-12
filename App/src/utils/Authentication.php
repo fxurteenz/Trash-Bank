@@ -102,4 +102,17 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), $th->getCode() || 401);
         }
     }
+    public static function OperateAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            if ($authenticated->account_role !== "admin" || $authenticated->account_role !== "operater") {
+                throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            } else {
+                return ['success' => true, 'user_data' => $authenticated];
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), $th->getCode() || 401);
+        }
+    }
 }
