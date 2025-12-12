@@ -7,6 +7,7 @@ use App\Controller\Pages\OperaterPagesController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
+use App\Controller\Pages\UserPagesController;
 use App\Controller\Api\UsersController;
 
 class Routes
@@ -37,6 +38,14 @@ class Routes
 
         $this->addPrefixedRoutes("/operater", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
+        ]);
+
+        $this->addPrefixedRoutes('/user', [
+            ['GET', '', [UserPagesController::class, 'Dashboard']],
+            ['GET', '/shop', [UserPagesController::class, 'Shop']],
+            ['GET', '/equipment', [UserPagesController::class, 'Equipment']],
+            ['GET', '/collection', [UserPagesController::class, 'Collection']],
+            ['GET', '/quests', [UserPagesController::class, 'Quests']],
         ]);
 
         $this->addPrefixedRoutes('/admin', [

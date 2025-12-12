@@ -13,13 +13,31 @@
         .open-sans{
             font-family: "Open Sans", sans-serif;
         }
+        /* Shared user layout styling (only applied when footer==='user') */
+        .user-mode {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+        }
+        .user-page {
+            width: 100%;
+            max-width: 430px; /* comfortable phone width */
+            padding: 16px;
+            min-height: 100vh;
+        }
+        @media (min-width: 768px){ .user-page{ padding: 18px; } }
     </style>
     <script type="text/javascript" src="<?= $script ?>"></script>
 </head>
 <body>
-    <div class="bg-gray-100 min-h-screen min-w-screen noto-sans-thai">
-        <?php include $viewPath; ?>
+    <div class="min-h-screen min-w-screen noto-sans-thai <?= isset($footer) ? 'has-footer' : '' ?> <?= (isset($footer) && $footer==='user') ? 'user-mode' : 'bg-gray-100' ?>">
+        <div class="<?= (isset($footer) && $footer==='user') ? 'user-page' : '' ?>">
+            <?php include $viewPath; ?>
+        </div>
     </div>
+    <?php if (isset($footer) && $footer === 'user'): ?>
+        <?php include 'views/layouts/partials/userFooter.php'; ?>
+    <?php endif; ?>
 
 </body>
 </html>
