@@ -32,5 +32,5 @@ docker-compose up
 docker compose up
 ```
 3. _XAMPP Apache MAMP httpd_
-- move all in. _/App_ to _htdocs_
+- move _/App_ to _htdocs_
 - set virtual server *DOCUMENT_ROOT* to _/App/public_
