@@ -12,7 +12,8 @@ DB_PASSWORD= # your db pass, Docker default is MYSQL_PASSWORD
 JWT_SECRET = # create your own
 SALT_ROUND = 12 #recommend
 ```
-## 3. install composer global following [Composer official](https://getcomposer.org/download/) then in **_/App_** run this
+## 3. install composer global 
+following [Composer official](https://getcomposer.org/download/) then in **_/App_** run this
 ```bash
 composer install
 ```
