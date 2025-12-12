@@ -1,7 +1,7 @@
 # Start Development STEP
 ## 1. Initial Database
 ### If you're use Docker skip this. 
-execute init.sql file with DBMS or in _.docker_ [here](https://github.com/fxurteenz/Trash-Bank/blob/main/.docker/init.sql).
+execute [this](https://github.com/fxurteenz/Trash-Bank/blob/main/.docker/init.sql) init.sql file with DBMS  
 ## 2. create .env
 ```.env
 DB_HOST= # localhost and etc, Docker default is database
