@@ -3,12 +3,13 @@ namespace App\Router;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
+use App\Controller\Pages\OperaterPagesController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
 use App\Controller\Api\UsersController;
 
-class RouterController
+class Routes
 {
     public function __construct(
         private $Router
@@ -33,6 +34,11 @@ class RouterController
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
+
+        $this->addPrefixedRoutes("/operater", [
+            ["GET", "", [OperaterPagesController::class, 'HomePage']],
+        ]);
+
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
