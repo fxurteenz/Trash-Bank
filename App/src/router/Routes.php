@@ -39,6 +39,7 @@ class Routes
 
         $this->addPrefixedRoutes("/operater", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
+            ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
         ]);
 
         $this->addPrefixedRoutes('/user', [
@@ -53,7 +54,7 @@ class Routes
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']],
-            ["GET","/manage/waste_type",[AdminPagesController::class,"ManageWasteType"]]
+            ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]]
         ]);
 
         /* API */

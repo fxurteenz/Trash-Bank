@@ -77,16 +77,12 @@
                 <div class="p-4 mt-16 lg:mt-0">
                     <nav class="space-y-2">
                         <a href="/operater"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "bg-cyan-700" : "hover:bg-gray-700" ?>">
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "home" ? "bg-cyan-700" : "hover:bg-gray-700" ?>">
                             <span>หน้าหลัก</span>
                         </a>
-                        <a href="/admin/manage/users"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-cyan-700" : "hover:bg-gray-700" ?>  ">
-                            <span>จัดการผู้ใช้</span>
-                        </a>
-                        <a href="/admin/manage/faculty_major"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFacultyMajor" ? "bg-cyan-700" : "hover:bg-gray-700" ?>  ">
-                            <span>จัดการคณะ/สาขา</span>
+                        <a href="/operater/redeem"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "redeem" ? "bg-cyan-700" : "hover:bg-gray-700" ?>">
+                            <span>แลกของรางวัล</span>
                         </a>
                     </nav>
                 </div>
