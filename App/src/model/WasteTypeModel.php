@@ -17,13 +17,41 @@ class WasteTypeModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllWasteType(): array
+    public function GetAllWasteType($query): array
     {
         try {
             $sql = "SELECT * FROM waste_type_tb";
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
             $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type_tb';
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
+            } else {
+                $total = count($wasteType);
+            }
+
+            return [$wasteType, $total];
+
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -34,7 +62,7 @@ class WasteTypeModel
     public function CreateWasteType(array $data): int
     {
         try {
-            
+
             if (!is_array($data)) {
                 throw new Exception('Invalid data format', 400);
             }

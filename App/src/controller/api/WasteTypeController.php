@@ -48,7 +48,7 @@ class WasteTypeController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $wasteTypes = self::$WasteTypeModel->GetAllWasteType();
+            $wasteTypes = self::$WasteTypeModel->GetAllWasteType(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
