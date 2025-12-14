@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\DepositTransactionController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
@@ -87,9 +88,17 @@ class Routes
             ['POST', '/delete/[*:id]', [WasteTypeController::class, 'DeleteById']],
             ['POST', '/bulk-del', [WasteTypeController::class, 'Delete']],
         ]);
-
+        /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
             ['GET', "", [LeaderController::class, "GetUsersLeaderByRole"]],
+        ]);
+        /* /api/waste_types */
+        $this->addPrefixedRoutes("/api/deposits", [
+            ['GET', "", [DepositTransactionController::class, "GetAll"]],
+            ['POST', '', [DepositTransactionController::class, 'Create']],
+            ['POST', '/update/[*:id]', [DepositTransactionController::class, 'Update']],
+            ['POST', '/delete/[*:id]', [DepositTransactionController::class, 'DeleteById']],
+            ['POST', '/bulk-del', [DepositTransactionController::class, 'Delete']],
         ]);
     }
 }
