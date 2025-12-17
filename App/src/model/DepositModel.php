@@ -20,7 +20,7 @@ class DepositModel
     public function GetAllDeposit($query): array
     {
         try {
-            $sql = "SELECT * FROM transaction_deposit_tb";
+            $sql = "SELECT * FROM waste_deposit_transaction";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -43,7 +43,7 @@ class DepositModel
             $deposits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allDeposit FROM transaction_deposit_tb';
+                $sqlCount = 'SELECT COUNT(*) AS allDeposit FROM waste_deposit_transaction';
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allDeposit'];
@@ -113,7 +113,7 @@ class DepositModel
 
             $sql =
                 "INSERT INTO 
-                    transaction_deposit_tb
+                    waste_deposit_transaction
                 SET
                     {$setClauseString}
                 ";
@@ -163,7 +163,7 @@ class DepositModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE transaction_deposit_tb
+                "UPDATE waste_deposit_transaction
                 SET 
                     {$setClauseString}
                 WHERE
@@ -190,7 +190,7 @@ class DepositModel
                 throw new Exception('ID is required for deletion', 400);
             }
 
-            $sql = "DELETE FROM transaction_deposit_tb WHERE transaction_deposit_id = :transaction_deposit_id";
+            $sql = "DELETE FROM waste_deposit_transaction WHERE transaction_deposit_id = :transaction_deposit_id";
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute(['transaction_deposit_id' => $id]);
 
@@ -220,7 +220,7 @@ class DepositModel
             $this->Conn->beginTransaction();
 
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM transaction_deposit_tb WHERE transaction_deposit_id IN ($placeholders)";
+            $sql = "DELETE FROM waste_deposit_transaction WHERE transaction_deposit_id IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
 
