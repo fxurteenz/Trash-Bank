@@ -76,6 +76,37 @@ class WasteTypeController extends RouterBase
         }
     }
 
+    public function GetByCategoryId($cid)
+    {
+        try {
+            Authentication::OperateAuth();
+            $wasteTypes = self::$WasteTypeModel->GetWasteTypeByCategory(self::$QueryString, $cid);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $wasteTypes,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
     public function Create()
     {
         try {

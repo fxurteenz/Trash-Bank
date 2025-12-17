@@ -80,6 +80,10 @@
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "bg-indigo-700" : "hover:bg-gray-700" ?>">
                             <span>หน้าหลัก</span>
                         </a>
+                        <a href="/admin/manage/waste_type"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>จัดการหมวดหมู่ขยะ</span>
+                        </a>
                         <a href="/admin/manage/users"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
                             <span>จัดการผู้ใช้</span>

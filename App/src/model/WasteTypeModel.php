@@ -20,7 +20,13 @@ class WasteTypeModel
     public function GetAllWasteType($query): array
     {
         try {
-            $sql = "SELECT * FROM waste_type";
+            $sql = "SELECT 
+                    wt.*, 
+                    wc.waste_category_name
+                FROM 
+                    waste_type wt
+                LEFT JOIN 
+                    waste_category wc ON wt.waste_category_id = wc.waste_category_id";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -32,6 +38,57 @@ class WasteTypeModel
             }
 
             $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type';
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
+            } else {
+                $total = count($wasteType);
+            }
+
+            return [$wasteType, $total];
+
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetWasteTypeByCategory($query, $cid): array
+    {
+        try {
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            $sql = "SELECT 
+                    wt.*, 
+                    wc.waste_category_name
+                FROM 
+                    waste_type wt
+                LEFT JOIN 
+                    waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                WHERE
+                    wt.waste_category_id = :waste_category_id";
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->bindValue(':waste_category_id', $cid, PDO::PARAM_INT);
 
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

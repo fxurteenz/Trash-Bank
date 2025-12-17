@@ -72,7 +72,7 @@ class AdminPagesController extends RouterBase
             Authentication::AdminAuth();
             $this->render('admin/manages/waste_type', [
                 'pages' => "manageWasteType",
-                'title' => 'จัดการผู้ใช้งาน',
+                'title' => 'จัดการหมวดหมู่ขยะ',
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
