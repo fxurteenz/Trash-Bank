@@ -3,6 +3,7 @@
 -- Model: Waste Bank Model
 -- MySQL Workbench Forward Engineering
 
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -184,7 +185,7 @@ CREATE TABLE `waste_category` (
   `waste_category_carbon_rate` decimal(5,2) NOT NULL,
   PRIMARY KEY (`waste_category_id`),
   UNIQUE KEY `waste_type_name_UNIQUE` (`waste_category_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทหลักของขยะ เช่น กระดาษ ขวด พลาสติก โลหะ';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทหลักของขยะ เช่น กระดาษ ขวด พลาสติก โลหะ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -193,7 +194,7 @@ CREATE TABLE `waste_category` (
 
 LOCK TABLES `waste_category` WRITE;
 /*!40000 ALTER TABLE `waste_category` DISABLE KEYS */;
-INSERT INTO `waste_category` VALUES (1,'ขวดพลาสติก',NULL,1.50),(2,'กระดาษ',NULL,3.80);
+INSERT INTO `waste_category` VALUES (1,'ขวดพลาสติก',NULL,1.50),(2,'กระดาษ',NULL,3.80),(3,'ขวดแก้ว',NULL,0.50),(4,'โลหะ',NULL,5.50);
 /*!40000 ALTER TABLE `waste_category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -250,12 +251,12 @@ CREATE TABLE `waste_type` (
   `waste_type_id` int NOT NULL AUTO_INCREMENT,
   `waste_category_id` int NOT NULL,
   `waste_type_name` varchar(25) NOT NULL,
-  `waste_type_price` decimal(3,2) NOT NULL,
+  `waste_type_price` decimal(5,2) NOT NULL,
   PRIMARY KEY (`waste_type_id`),
   UNIQUE KEY `sub_type_name_UNIQUE` (`waste_type_name`),
   KEY `fk_waste_type_category_idx` (`waste_category_id`),
   CONSTRAINT `fk_waste_type_category` FOREIGN KEY (`waste_category_id`) REFERENCES `waste_category` (`waste_category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทย่อย เช่น ขวด PET กระดาษลัง';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทย่อย เช่น ขวด PET กระดาษลัง';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -264,7 +265,7 @@ CREATE TABLE `waste_type` (
 
 LOCK TABLES `waste_type` WRITE;
 /*!40000 ALTER TABLE `waste_type` DISABLE KEYS */;
-INSERT INTO `waste_type` VALUES (1,1,'ขวดPET',4.00),(2,2,'กระดาษลัง',1.50),(3,2,'กระดาษขาวดำ',2.00);
+INSERT INTO `waste_type` VALUES (1,1,'ขวดPET',4.00),(2,2,'กระดาษลัง',1.50),(3,2,'กระดาษขาวดำ',2.00),(4,3,'ขวดแก้วใส',1.00),(5,3,'ขวดแก้วสีชา',5.00),(6,4,'อลูมิเนียม',32.50),(7,4,'ทองแดงปอกสาย',160.00);
 /*!40000 ALTER TABLE `waste_type` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -277,4 +278,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-17 17:25:09
+-- Dump completed on 2025-12-18  0:32:13

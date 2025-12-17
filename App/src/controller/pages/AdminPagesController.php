@@ -13,6 +13,7 @@ class AdminPagesController extends RouterBase
     public function DashBoard()
     {
         try {
+            Authentication::AdminAuth();
             $this->render('admin/adminDashboard', [
                 'pages' => 'dashboard',
                 'title' => 'ผู้ดูแลระบบ',
@@ -72,7 +73,7 @@ class AdminPagesController extends RouterBase
             Authentication::AdminAuth();
             $this->render('admin/manages/waste_type', [
                 'pages' => "manageWasteType",
-                'title' => 'จัดการหมวดหมู่ขยะ',
+                'title' => 'จัดการหมวดหมู่ขยะ'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');

@@ -57,8 +57,9 @@
             </div>
         </div>
 
-        <span class="text-xs font-light text-gray-500">เลือกหมวดหมู่เพื่อดูรายการประเภทขยะภายใน
-            หรือติ๊กเลือกเพื่อลบ</span>
+        <span class="text-xs font-light text-gray-500">
+            เลือกหมวดหมู่เพื่อดูรายการประเภทขยะภายในหรือติ๊กเลือกเพื่อลบ
+        </span>
 
         <div class="mt-2 text-lg text-gray-700 space-y-4 border-t border-gray-100 py-2">
 
@@ -174,7 +175,7 @@
                                 <thead class="bg-gray-200 text-xs">
                                     <tr>
                                         <th class="px-4 py-2 border border-gray-300 w-10 text-center">
-                                            <input type="checkbox" @change="toggleAllTypes"
+                                            <input type="checkbox" @change="toggleAllTypes" id="allTypeCheckbox"
                                                 :checked="isAllTypesSelected && wasteTypes.length > 0"
                                                 class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
                                         </th>
@@ -188,7 +189,7 @@
                                             @click="toggleTypeSelection(type.waste_type_id)">
                                             <td class="border border-gray-300 py-2 px-4 text-center">
                                                 <input type="checkbox" :value="type.waste_type_id"
-                                                    x-model="selectedTypeIds"
+                                                    x-model="selectedTypeIds" :id="type.waste_type_id"
                                                     class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 pointer-events-none">
                                             </td>
                                             <td class="border border-gray-300 py-2 px-4 text-gray-800 text-right font-medium"
@@ -230,18 +231,21 @@
                 </div>
                 <form @submit.prevent="submitCreateCategory" class="space-y-3 text-sm">
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">ชื่อหมวดหมู่</label>
-                        <input type="text" x-model="categoryForm.waste_category_name" required
+                        <label for="category_name" class="block text-gray-700 font-medium mb-1">ชื่อหมวดหมู่</label>
+                        <input type="text" x-model="categoryForm.waste_category_name" required id="category_name"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">รายละเอียด</label>
-                        <textarea x-model="categoryForm.waste_category_description" rows="2"
+                        <label for="category_description"
+                            class="block text-gray-700 font-medium mb-1">รายละเอียด</label>
+                        <textarea x-model="categoryForm.waste_category_description" rows="2" id="category_description"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition"></textarea>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Carbon Rate</label>
+                        <label for="category_carbon_rate" class="block text-gray-700 font-medium mb-1">Carbon
+                            Rate</label>
                         <input type="number" step="0.01" x-model="categoryForm.waste_category_carbon_rate" required
+                            id="category_carbon_rate"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div class="pt-4 flex justify-end space-x-2">
@@ -277,13 +281,14 @@
                         <span class="font-semibold text-gray-800" x-text="selectedCategory?.waste_category_name"></span>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">ชื่อประเภทขยะ</label>
-                        <input type="text" x-model="typeForm.waste_type_name" required
+                        <label for="type_name" class="block text-gray-700 font-medium mb-1">ชื่อประเภทขยะ</label>
+                        <input type="text" x-model="typeForm.waste_type_name" required id="type_name"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">ราคา (บาท)</label>
+                        <label for="type_price" class="block text-gray-700 font-medium mb-1">ราคา (บาท)</label>
                         <input type="number" step="0.01" min="0" x-model="typeForm.waste_type_price" required
+                            id="type_price"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div class="pt-4 flex justify-end space-x-2">
@@ -345,6 +350,7 @@
                     }
                 } catch (error) {
                     console.error('Error fetching categories:', error);
+                    await Swal.fire('ข้อผิดพลาด', error.message, 'error');
                 } finally {
                     this.isLoadingCategories = false;
                 }
@@ -395,6 +401,7 @@
                     }
                 } catch (error) {
                     Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                    console.error(error);
                 }
             },
 
@@ -459,6 +466,7 @@
                     }
                 } catch (error) {
                     console.error('Error fetching waste types:', error);
+                    await Swal.fire('ข้อผิดพลาด', error.message, 'error');
                 } finally {
                     this.wasteTypesLoading = false;
                 }
@@ -488,7 +496,7 @@
             async submitCreateType() {
                 if (!this.selectedCategory) return;
                 const payload = { ...this.typeForm, waste_category_id: this.selectedCategory.waste_category_id };
-
+                this.createTypeDialogShow = false;
                 try {
                     const response = await fetch('/api/waste_types', {
                         method: 'POST',
@@ -506,7 +514,8 @@
                         throw new Error(data.message || 'Error creating waste type');
                     }
                 } catch (error) {
-                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                    await Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                    this.createTypeDialogShow = true;
                 }
             },
 
