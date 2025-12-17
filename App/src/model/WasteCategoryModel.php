@@ -6,7 +6,7 @@ use Exception;
 use PDO;
 use PDOException;
 
-class WasteTypeModel
+class WasteCategoryModel
 {
     private static $Database;
     private $Conn;
@@ -20,7 +20,7 @@ class WasteTypeModel
     public function GetAllWasteType($query): array
     {
         try {
-            $sql = "SELECT * FROM waste_type";
+            $sql = "SELECT * FROM waste_category";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -42,7 +42,7 @@ class WasteTypeModel
             $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type';
+                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_category';
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
@@ -67,13 +67,8 @@ class WasteTypeModel
                 throw new Exception('Invalid data format', 400);
             }
 
-            if (empty($data['waste_type_name'])) {
-                error_log("ERROR : waste_type_name");
-                throw new Exception('Waste type name not provided', 400);
-            }
-
-            if (empty($data['waste_type_price'])) {
-                error_log("ERROR : waste_type_price");
+            if (empty($data['waste_category_name'])) {
+                error_log("ERROR : waste_category_name");
                 throw new Exception('Waste type name not provided', 400);
             }
 
@@ -89,7 +84,7 @@ class WasteTypeModel
 
             $sql =
                 "INSERT INTO 
-                    waste_type
+                    waste_category
                 SET
                     {$setClauseString}
                 ";
@@ -131,16 +126,16 @@ class WasteTypeModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE waste_type
+                "UPDATE waste_category
                 SET 
                     {$setClauseString}
                 WHERE
-                    waste_type_id = :waste_type_id
+                    waste_category_id = :waste_category_id
                 ";
 
             $stmt = $this->Conn->prepare($sql);
             // รวม array ข้อมูลที่จะอัปเดตเข้ากับ ID สำหรับ WHERE clause
-            $stmt->execute(array_merge($updateData, ['waste_type_id' => $id]));
+            $stmt->execute(array_merge($updateData, ['waste_category_id' => $id]));
 
             $result = $stmt->rowCount();
             return $result;
@@ -158,9 +153,9 @@ class WasteTypeModel
                 throw new Exception('ID is required for deletion', 400);
             }
 
-            $sql = "DELETE FROM waste_type WHERE waste_type_id = :waste_type_id";
+            $sql = "DELETE FROM waste_category WHERE waste_category_id = :waste_category_id";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute(['waste_type_id' => $id]);
+            $stmt->execute(['waste_category_id' => $id]);
 
             return $stmt->rowCount();
         } catch (PDOException $e) {
@@ -172,11 +167,11 @@ class WasteTypeModel
 
     public function DeleteWasteType(array $data): int
     {
-        if (empty($data['waste_type_ids'] ?? []) || !is_array($data['waste_type_ids'])) {
-            throw new Exception('Bad Request: waste_type_ids is required and must be an array', 400);
+        if (empty($data['waste_category_ids'] ?? []) || !is_array($data['waste_category_ids'])) {
+            throw new Exception('Bad Request: waste_category_ids is required and must be an array', 400);
         }
 
-        $ids = array_filter($data['waste_type_ids']);
+        $ids = array_filter($data['waste_category_ids']);
 
         if (empty($ids)) {
             return 0;
@@ -187,7 +182,7 @@ class WasteTypeModel
             $this->Conn->beginTransaction();
 
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM waste_type WHERE waste_type_id IN ($placeholders)";
+            $sql = "DELETE FROM waste_category WHERE waste_category_id IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
 

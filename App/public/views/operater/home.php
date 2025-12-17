@@ -55,15 +55,14 @@
                     <thead>
                         <tr class="text-gray-500 border-b">
                             <th class="py-2">ประเภทขยะ</th>
-                            <th class="py-2 text-right">ราคา/หน่วย</th>
+                            <th class="py-2 text-right">ราคา/กิโลกรัม</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         <template x-for="item in wasteTypes" :key="item.waste_type_id">
                             <tr>
                                 <td class="py-2" x-text="item.waste_type_name"></td>
-                                <td class="py-2 text-right font-medium"
-                                    x-text="item.waste_type_rate + ' บาท / ' + item.waste_type_unit"></td>
+                                <td class="py-2 text-right font-medium" x-text="item.waste_type_price + ' บาท'"></td>
                             </tr>
                         </template>
 
