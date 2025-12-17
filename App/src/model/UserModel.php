@@ -28,7 +28,7 @@ class UserModel
                 'SELECT 
                     *
                 FROM 
-                    account_tb 
+                    account 
                 WHERE 
                     account_email = :email';
 
@@ -63,14 +63,14 @@ class UserModel
             $offset = ($page - 1) * $limit;
             $sql =
                 'SELECT 
-                	a.account_id, a.account_name,  a.account_email, a.account_role, a.account_points,
+                	a.account_id, a.account_name,  a.account_email, a.account_role, a.account_point,
                     f.faculty_id, f.faculty_name, m.major_id, m.major_name
                 FROM
-                	account_tb a
+                	account a
                 LEFT JOIN
-                	faculty_tb f ON a.faculty_id = f.faculty_id
+                	faculty f ON a.faculty_id = f.faculty_id
                 LEFT JOIN
-                	major_tb m ON a.major_id = m.major_id
+                	major m ON a.major_id = m.major_id
                 LIMIT :limit OFFSET :offset;
                 ';
 
@@ -80,7 +80,7 @@ class UserModel
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $sqlCount = 'SELECT COUNT(*) AS allUser FROM account_tb';
+            $sqlCount = 'SELECT COUNT(*) AS allUser FROM account';
             $stmt = $this->Conn->prepare($sqlCount);
             $stmt->execute();
             $total = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -88,6 +88,7 @@ class UserModel
             $result = [$users, $total['allUser']];
             return $result;
         } catch (PDOException $e) {
+            error_log("ERROR DB : " . $e->getMessage());
             throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -119,7 +120,7 @@ class UserModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "INSERT INTO account_tb 
+                "INSERT INTO account 
                 SET
                     {$setClauseString}
                 ";
@@ -160,7 +161,7 @@ class UserModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE account_tb
+                "UPDATE account
                 SET 
                     {$setClauseString}
                 WHERE
@@ -177,7 +178,7 @@ class UserModel
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
-    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    }
 
     public function DeleteUser(array $data): int
     {
@@ -195,7 +196,7 @@ class UserModel
         try {
             $this->Conn->beginTransaction();
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM account_tb WHERE account_id IN ($placeholders)";
+            $sql = "DELETE FROM account WHERE account_id IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
 

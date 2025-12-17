@@ -28,14 +28,15 @@ class MajorModel
                     m.major_id, 
                     m.major_name,
                     SUM(CASE WHEN a.account_role = 'user' THEN 1 ELSE 0 END) AS count_user,
-                    SUM(CASE WHEN a.account_role = 'staff' THEN 1 ELSE 0 END) AS count_staff,
+                    SUM(CASE WHEN a.account_role = 'faculty_staff' THEN 1 ELSE 0 END) AS count_staff,
+                    SUM(CASE WHEN a.account_role = 'operater' THEN 1 ELSE 0 END) AS count_operater,
                     COUNT(a.account_id) AS total_all
                 FROM 
-                    major_tb m
+                    major m
                 LEFT JOIN 
-                    account_tb a ON m.major_id = a.major_id
+                    account a ON m.major_id = a.major_id
                 WHERE 
-                    m.major_faculty_id = :faculty_id
+                    m.faculty_id = :faculty_id
                 GROUP BY 
                     m.major_id";
 
@@ -65,7 +66,7 @@ class MajorModel
 
             $sql =
                 "INSERT INTO 
-                    major_tb (major_faculty_id, major_name)
+                    major (faculty_id, major_name)
                 VALUES
                     (:faculty_id, :major_name)
                 ";

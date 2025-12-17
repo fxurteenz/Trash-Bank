@@ -19,7 +19,7 @@ class FacultyModel
     public function GetAllFaculty(): array
     {
         try {
-            $sql = "SELECT * FROM faculty_tb";
+            $sql = "SELECT * FROM faculty";
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -53,7 +53,7 @@ class FacultyModel
 
             $sql =
                 "INSERT INTO 
-                    faculty_tb
+                    faculty
                 SET
                     {$setClauseString}
                 ";
@@ -93,7 +93,7 @@ class FacultyModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE faculty_tb
+                "UPDATE faculty
                 SET 
                     {$setClauseString}
                 WHERE
