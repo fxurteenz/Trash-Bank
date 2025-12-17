@@ -17,9 +17,10 @@ class WasteCategoryModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllWasteType($query): array
+    public function GetAllWasteCategory($query): array
     {
         try {
+            // error_log("QUERY PARAMS : " . print_r($query));
             $sql = "SELECT * FROM waste_category";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -27,30 +28,29 @@ class WasteCategoryModel
                 $page = (int) $query['page'];
                 $limit = (int) $query['limit'];
                 $offset = ($page - 1) * $limit;
-
                 $sql .= " LIMIT :limit OFFSET :offset";
             }
 
             $stmt = $this->Conn->prepare($sql);
-
+            
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
 
             $stmt->execute();
-            $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $wasteCategory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_category';
+                $sqlCount = 'SELECT COUNT(*) AS all_category FROM waste_category';
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 $stmtCount->execute();
-                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_category'];
             } else {
-                $total = count($wasteType);
+                $total = count($wasteCategory);
             }
 
-            return [$wasteType, $total];
+            return [$wasteCategory, $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
@@ -59,7 +59,7 @@ class WasteCategoryModel
         }
     }
 
-    public function CreateWasteType(array $data): int
+    public function CreateWasteCategory(array $data): int
     {
         try {
 
@@ -102,7 +102,7 @@ class WasteCategoryModel
         }
     }
 
-    public function UpdateWasteType($id, $data): mixed
+    public function UpdateWasteCategory($id, $data): mixed
     {
         try {
             if ((empty($data) && !is_array($data)) || empty($id)) {
@@ -146,7 +146,7 @@ class WasteCategoryModel
         }
     }
 
-    public function DeleteWasteTypeById($id): int
+    public function DeleteWasteCategoryById($id): int
     {
         try {
             if (empty($id)) {
@@ -165,7 +165,7 @@ class WasteCategoryModel
         }
     }
 
-    public function DeleteWasteType(array $data): int
+    public function DeleteWasteCategory(array $data): int
     {
         if (empty($data['waste_category_ids'] ?? []) || !is_array($data['waste_category_ids'])) {
             throw new Exception('Bad Request: waste_category_ids is required and must be an array', 400);

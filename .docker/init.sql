@@ -42,7 +42,7 @@ CREATE TABLE `account` (
   KEY `fk_major_id_idx` (`major_id`),
   CONSTRAINT `fk_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
   CONSTRAINT `fk_major_id` FOREIGN KEY (`major_id`) REFERENCES `major` (`major_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -51,7 +51,7 @@ CREATE TABLE `account` (
 
 LOCK TABLES `account` WRITE;
 /*!40000 ALTER TABLE `account` DISABLE KEYS */;
-INSERT INTO `account` VALUES (1,1,1,'1000000000001','0234567891','user.it@mail.com','user_it','$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC','user',NULL,NULL,NULL),(2,1,NULL,'1111111111111',NULL,'admin@wastebank.com','admin','$2y$12$pSqmaZQNBky.XpKXuiPLF.I0LOMSxU/29tpJurXtU6OJfDGRZAM5e','admin',NULL,NULL,NULL),(4,1,NULL,'200000000001',NULL,'operater_1@wastebank.com','operater_1','$2y$12$RzJd6bP572GeKgUc6O80pO8PlAJNBpXfwy5c9cVoSxin0dVJjPQRq','operater',NULL,NULL,NULL);
+INSERT INTO `account` VALUES (1,1,1,'1000000000001','0234567891','user.it@mail.com','user_it','$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC','user',NULL,NULL,NULL),(2,1,NULL,'1111111111111',NULL,'admin@wastebank.com','admin','$2y$12$pSqmaZQNBky.XpKXuiPLF.I0LOMSxU/29tpJurXtU6OJfDGRZAM5e','admin',NULL,NULL,NULL),(4,1,NULL,'200000000001',NULL,'operater_1@wastebank.com','operater_1','$2y$12$RzJd6bP572GeKgUc6O80pO8PlAJNBpXfwy5c9cVoSxin0dVJjPQRq','operater',NULL,NULL,NULL),(5,2,NULL,'1111111111112',NULL,'user.fe@wastebank.com','user_fe','$2y$12$qkTw.J4o28mRmbYuoLgm1eJFzdJCwzfp5Ydtn6rX.bxtUlmrhmvfq','user',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `account` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -171,31 +171,30 @@ LOCK TABLES `reward_transaction` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `sub_type`
+-- Table structure for table `waste_category`
 --
 
-DROP TABLE IF EXISTS `sub_type`;
+DROP TABLE IF EXISTS `waste_category`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `sub_type` (
-  `sub_type_id` int NOT NULL AUTO_INCREMENT,
-  `waste_type_id` int NOT NULL,
-  `sub_type_name` varchar(25) NOT NULL,
-  `sub_type_price` decimal(3,2) NOT NULL,
-  PRIMARY KEY (`sub_type_id`),
-  UNIQUE KEY `sub_type_name_UNIQUE` (`sub_type_name`),
-  KEY `fk_sub_waste_type_idx` (`waste_type_id`),
-  CONSTRAINT `fk_sub_waste_type` FOREIGN KEY (`waste_type_id`) REFERENCES `waste_type` (`waste_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทย่อย เช่น ขวด PET กระดาษลัง';
+CREATE TABLE `waste_category` (
+  `waste_category_id` int NOT NULL AUTO_INCREMENT,
+  `waste_category_name` varchar(20) NOT NULL,
+  `waste_category_description` varchar(45) DEFAULT NULL,
+  `waste_category_carbon_rate` decimal(5,2) NOT NULL,
+  PRIMARY KEY (`waste_category_id`),
+  UNIQUE KEY `waste_type_name_UNIQUE` (`waste_category_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทหลักของขยะ เช่น กระดาษ ขวด พลาสติก โลหะ';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `sub_type`
+-- Dumping data for table `waste_category`
 --
 
-LOCK TABLES `sub_type` WRITE;
-/*!40000 ALTER TABLE `sub_type` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sub_type` ENABLE KEYS */;
+LOCK TABLES `waste_category` WRITE;
+/*!40000 ALTER TABLE `waste_category` DISABLE KEYS */;
+INSERT INTO `waste_category` VALUES (1,'ขวดพลาสติก',NULL,1.50),(2,'กระดาษ',NULL,3.80);
+/*!40000 ALTER TABLE `waste_category` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -225,9 +224,9 @@ CREATE TABLE `waste_deposit_transaction` (
   KEY `fk_waste_transaction_sub_waste_type_idx` (`deposit_transaction_sub_type`),
   KEY `fk_waste_transaction_operater_idx` (`operater_id`),
   CONSTRAINT `fk_waste_transaction_operater` FOREIGN KEY (`operater_id`) REFERENCES `account` (`account_id`),
-  CONSTRAINT `fk_waste_transaction_sub_waste_type` FOREIGN KEY (`deposit_transaction_sub_type`) REFERENCES `sub_type` (`sub_type_id`),
+  CONSTRAINT `fk_waste_transaction_sub_waste_type` FOREIGN KEY (`deposit_transaction_sub_type`) REFERENCES `waste_type` (`waste_type_id`),
   CONSTRAINT `fk_waste_transaction_user` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`),
-  CONSTRAINT `fk_waste_transaction_waste_type` FOREIGN KEY (`deposit_transaction_waste_type`) REFERENCES `waste_type` (`waste_type_id`)
+  CONSTRAINT `fk_waste_transaction_waste_category` FOREIGN KEY (`deposit_transaction_waste_type`) REFERENCES `waste_category` (`waste_category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -249,12 +248,14 @@ DROP TABLE IF EXISTS `waste_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `waste_type` (
   `waste_type_id` int NOT NULL AUTO_INCREMENT,
-  `waste_type_name` varchar(20) NOT NULL,
-  `waste_type_description` varchar(45) DEFAULT NULL,
-  `waste_type_carbon_rate` decimal(3,2) NOT NULL,
+  `waste_category_id` int NOT NULL,
+  `waste_type_name` varchar(25) NOT NULL,
+  `waste_type_price` decimal(3,2) NOT NULL,
   PRIMARY KEY (`waste_type_id`),
-  UNIQUE KEY `waste_type_name_UNIQUE` (`waste_type_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทหลักของขยะ เช่น กระดาษ ขวด พลาสติก โลหะ';
+  UNIQUE KEY `sub_type_name_UNIQUE` (`waste_type_name`),
+  KEY `fk_waste_type_category_idx` (`waste_category_id`),
+  CONSTRAINT `fk_waste_type_category` FOREIGN KEY (`waste_category_id`) REFERENCES `waste_category` (`waste_category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทย่อย เช่น ขวด PET กระดาษลัง';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -263,6 +264,7 @@ CREATE TABLE `waste_type` (
 
 LOCK TABLES `waste_type` WRITE;
 /*!40000 ALTER TABLE `waste_type` DISABLE KEYS */;
+INSERT INTO `waste_type` VALUES (1,1,'ขวดPET',4.00),(2,2,'กระดาษลัง',1.50),(3,2,'กระดาษขาวดำ',2.00);
 /*!40000 ALTER TABLE `waste_type` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -275,4 +277,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-17 14:41:24
+-- Dump completed on 2025-12-17 17:25:09

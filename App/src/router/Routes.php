@@ -4,6 +4,7 @@ use App\Controller\Api\DepositTransactionController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
+use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Pages\OperaterPagesController;
 use App\Router\RouterDispatcher;
@@ -79,6 +80,14 @@ class Routes
         $this->addPrefixedRoutes('/api/majors', [
             ['GET', '/[i:fid]', [MajorController::class, 'Get']],
             ['POST', '', [MajorController::class, 'Create']],
+        ]);
+        /* /api/waste_categories */
+        $this->addPrefixedRoutes("/api/categories", [
+            ['GET', "", [WasteCategoryController::class, "GetAll"]],
+            ['POST', '', [WasteCategoryController::class, 'Create']],
+            ['POST', '/update/[*:id]', [WasteCategoryController::class, 'Update']],
+            ['POST', '/delete/[*:id]', [WasteCategoryController::class, 'DeleteById']],
+            ['POST', '/bulk-del', [WasteCategoryController::class, 'Delete']],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_types", [

@@ -66,6 +66,10 @@ class WasteTypeModel
             if (!is_array($data)) {
                 throw new Exception('Invalid data format', 400);
             }
+            if (empty($data['waste_category_id'])) {
+                error_log("ERROR : waste_category_id");
+                throw new Exception('Waste type category not provided', 400);
+            }
 
             if (empty($data['waste_type_name'])) {
                 error_log("ERROR : waste_type_name");
@@ -74,7 +78,7 @@ class WasteTypeModel
 
             if (empty($data['waste_type_price'])) {
                 error_log("ERROR : waste_type_price");
-                throw new Exception('Waste type name not provided', 400);
+                throw new Exception('Waste type price not provided', 400);
             }
 
             $setClauses = [];
