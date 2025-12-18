@@ -41,11 +41,11 @@ class MajorController extends RouterBase
         self::$MajorModel = new MajorModel();
     }
 
-    public function Get($fid)
+    public function Get($mid)
     {
         try {
             Authentication::AdminAuth();
-            $result = self::$MajorModel->GetMajorByFaculty($fid);
+            $result = self::$MajorModel->GetMajorById($mid);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -75,13 +75,14 @@ class MajorController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$MajorModel->GetMajor(self::$QueryString);
+            [$majors, $total] = self::$MajorModel->GetAllMajor(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
+                'result' => $majors,
+                'total' => $total,
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -103,18 +104,18 @@ class MajorController extends RouterBase
         }
     }
 
-    // เพิ่มฟังก์ชันนี้สำหรับดึงสาขาตาม Faculty ID (ใช้ในหน้าจัดการที่เลือกคณะแล้วโชว์สาขา)
-    public function GetByFaculty($id)
+    public function GetByFaculty($fid)
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$MajorModel->GetMajorByFaculty($id);
+            [$majors, $total] = self::$MajorModel->GetMajorByFaculty($fid, self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
+                'result' => $majors,
+                'total' => $total,
                 'message' => 'successfully retrieved majors by faculty'
             ]);
         } catch (AuthenticationException $e) {
@@ -158,11 +159,11 @@ class MajorController extends RouterBase
         }
     }
 
-    public function Update($id)
+    public function Update($mid)
     {
         try {
             Authentication::AdminAuth();
-            $result = self::$MajorModel->UpdateMajor($id, self::$Data);
+            $result = self::$MajorModel->UpdateMajor($mid, self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -218,7 +219,6 @@ class MajorController extends RouterBase
         }
     }
 
-    // ลบแบบหลายรายการ (Bulk Delete)
     public function Delete()
     {
         try {

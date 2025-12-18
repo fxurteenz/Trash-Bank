@@ -17,8 +17,32 @@ class MajorModel
         $this->Conn = self::$Database->connect();
     }
 
-    // ฟังชั่นดึงข้อมูล Major ทั้งหมด (รองรับ Pagination และ Search) เหมือน GetAllWasteType
-    public function GetMajor($query): array
+    public function GetMajorById($mid): array
+    {
+        try {
+            $sql = "SELECT 
+                        m.*, 
+                        f.faculty_name
+                    FROM 
+                        major m
+                    LEFT JOIN 
+                        faculty f ON m.faculty_id = f.faculty_id
+                    WHERE
+                        m.major_id = :major_id";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute(['major_id' => $mid]);
+            $majors = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $majors;
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetAllMajor($query): array
     {
         try {
             $sql = "SELECT 
@@ -67,40 +91,7 @@ class MajorModel
         }
     }
 
-    // ฟังชั่นดึงข้อมูล Faculty โดยใช้ major_id เป็นตัวค้นหา
-    public function GetFacultyByMajor($mid): array
-    {
-        try {
-            $sql = "SELECT 
-                        f.* FROM 
-                        faculty f
-                    JOIN 
-                        major m ON f.faculty_id = m.faculty_id
-                    WHERE 
-                        m.major_id = :major_id";
-
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':major_id', $mid, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // fetch (ไม่ใช่ fetchAll) เพราะ major หนึ่งสังกัดได้แค่ 1 faculty ตาม logic ปกติ
-            $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$faculty) {
-                return []; // หรือ throw Exception ถ้าต้องการ
-            }
-
-            return $faculty;
-
-        } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
-    // ฟังชั่นเดิมที่คุณมี (ดึง Major ตาม Faculty ID พร้อมนับ User)
-    public function GetMajorByFaculty($fid): array
+    public function GetMajorByFaculty($fid, $query): array
     {
         try {
             $sql =
@@ -120,11 +111,37 @@ class MajorModel
                 GROUP BY 
                     m.major_id";
 
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
             $stmt = $this->Conn->prepare($sql);
             $stmt->bindValue(':faculty_id', $fid, PDO::PARAM_INT);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
             $allMajor = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $allMajor;
+
+            if ($isPagination) {
+                $sqlCount = "SELECT COUNT(*) as total FROM major WHERE faculty_id = :faculty_id";
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                $stmtCount->bindValue(':faculty_id', $fid, PDO::PARAM_INT);
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+            } else {
+                $total = count($allMajor);
+            }
+
+            return [$allMajor, $total];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
