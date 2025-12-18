@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller\Api;
 
-use App\Model\DepositModel;
+use App\Model\WasteTransactionModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
@@ -10,7 +10,7 @@ use Exception;
 
 class DepositTransactionController extends RouterBase
 {
-    private static $Data, $DepositModel, $Database, $QueryString;
+    private static $Data, $WasteTransactionModel, $Database, $QueryString;
 
     public function __construct()
     {
@@ -41,14 +41,14 @@ class DepositTransactionController extends RouterBase
         }
 
         self::$Database = new Database();
-        self::$DepositModel = new DepositModel();
+        self::$WasteTransactionModel = new WasteTransactionModel();
     }
 
     public function GetAll()
     {
         try {
             Authentication::OperateAuth();
-            $deposits = self::$DepositModel->GetAllDeposit(self::$QueryString);
+            $deposits = self::$WasteTransactionModel->GetAllDeposit(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -79,17 +79,15 @@ class DepositTransactionController extends RouterBase
     public function Create()
     {
         try {
-            // error_log("DATA RECEIVED: " . print_r(self::$Data, true));
             $operaterData = Authentication::OperateAuth();
-            // error_log("OPERATER DATA : " . print_r($operaterData, true));
-            $result = self::$DepositModel->CreateDeposit(self::$Data, $operaterData);
+            $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
 
             header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => 'deposit created successfully =)'
+                'message' => 'trasaction completed successfully =)'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
@@ -113,7 +111,7 @@ class DepositTransactionController extends RouterBase
         try {
             Authentication::OperateAuth();
 
-            $result = self::$DepositModel->UpdateDeposit($id, self::$Data);
+            $result = self::$WasteTransactionModel->UpdateDeposit($id, self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -145,7 +143,7 @@ class DepositTransactionController extends RouterBase
             Authentication::OperateAuth();
 
             // เรียกเมธอด DeleteDepositById สำหรับลบทีละ ID
-            $result = self::$DepositModel->DeleteDepositById($id);
+            $result = self::$WasteTransactionModel->DeleteDepositById($id);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -177,7 +175,7 @@ class DepositTransactionController extends RouterBase
             Authentication::AdminAuth();
 
             // เรียกเมธอด DeleteDeposit สำหรับลบแบบ Bulk (หลายรายการ)
-            $result = self::$DepositModel->DeleteDeposit(self::$Data);
+            $result = self::$WasteTransactionModel->DeleteDeposit(self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);

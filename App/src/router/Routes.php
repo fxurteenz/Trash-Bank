@@ -108,7 +108,7 @@ class Routes
             ['GET', "", [LeaderController::class, "GetUsersLeaderByRole"]],
         ]);
         /* /api/waste_types */
-        $this->addPrefixedRoutes("/api/deposits", [
+        $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [DepositTransactionController::class, "GetAll"]],
             ['POST', '', [DepositTransactionController::class, 'Create']],
             ['POST', '/update/[*:id]', [DepositTransactionController::class, 'Update']],

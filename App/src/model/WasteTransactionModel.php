@@ -6,7 +6,7 @@ use Exception;
 use PDO;
 use PDOException;
 
-class DepositModel
+class WasteTransactionModel
 {
     private static $Database;
     private $Conn;
@@ -60,71 +60,88 @@ class DepositModel
         }
     }
 
-    public function CreateDeposit(array $data, $operaterData): int
+    public function CreateWasteTransaction(array $data, $operaterData): array
     {
         try {
             if (!is_array($data)) {
                 throw new Exception('Invalid data format', 400);
             }
 
-            // Validation ตัวอย่าง: เช็คค่าที่จำเป็น (ปรับเปลี่ยนได้ตาม Business Logic จริง)
-            if (empty($data['waste_type_id'])) {
-                error_log("ERROR : account_id or waste_type_id missing");
-                throw new Exception('User ID or Waste Type ID not provided', 400);
+            if (empty($data['waste_type_id']) || empty($data["waste_category_id"])) {
+                error_log("ERROR : waste_type or waste_category is missing");
+                throw new Exception('Waste type or category not provided', 400);
             }
 
             if (!isset($data['deposit_weight'])) {
                 error_log("ERROR : transaction_deposit_weight missing");
                 throw new Exception('Weight not provided', 400);
             }
-
+            /* Start SQL Transaction */
             $this->Conn->beginTransaction();
-            $user = self::GetUserAccountId($this->Conn, $data["user_name"]);
-            unset($data["user_name"]);
+
+            $user = self::GetDepositorAccount($this->Conn, $data["depositor_account"]);
+
             $rateResult = self::GetWasteTypeRate($this->Conn, $data["waste_type_id"]);
-            $wasteRate = $rateResult["waste_type_rate"];
-            $wastePointRate = $rateResult["waste_type_point_rate"];
 
-            $data["user_id"] = $user["account_id"];
-            $data["faculty_id"] = $user["faculty_id"];
-            $data["operater_id"] = $operaterData["user_data"]->account_id;
-            $data["deposit_rate"] = $wasteRate;
-            $data["deposit_point_rate"] = $wastePointRate;
-            $data["deposit_points"] = ($wasteRate / 2) * $data["deposit_weight"];
-            $data["deposit_value"] = $wasteRate * $data["deposit_weight"];
-            // *** การคำนวณ deposit_user_point และ deposit_leftover ***
-            $deposit_points_float = $data["deposit_points"];
-            $integer_points = floor($data["deposit_points"]);
-            // deposit_leftover คือส่วนทศนิยมที่ถูกตัดออก
-            $leftover = $deposit_points_float - $integer_points;
-            $data["deposit_user_points"] = $integer_points;
-            $data["deposit_leftover"] = $leftover;
+            $payload = [];
+            $payload["account_id"] = $user["account_id"];
+            $payload["operater_id"] = $operaterData["user_data"]->account_id;
 
-            error_log("TRANSACTION DEPOSIT DATA : " . print_r($data, 1));
+            if ($user["account_role"] === "user") {
+                $payload["waste_transaction_from"] = 1;
+            } else {
+                $payload["waste_transaction_from"] = 2;
+            }
+
+            $payload["waste_transaction_waste_category"] = $data["waste_category_id"];
+            $payload["waste_transaction_waste_type"] = $data["waste_type_id"];
+            $payload["waste_transaction_weight"] = $data["deposit_weight"];
+            $payload["waste_transaction_rate"] = $rateResult["waste_type_price"];
+
+            $value = $rateResult["waste_type_price"] * $data["deposit_weight"];
+            $integer_point = (int) floor($value);
+
+            $payload["waste_transaction_value"] = $value;
+            $payload["waste_transaction_point"] = $integer_point;
+            $payload["waste_transaction_leftover"] = $value - $integer_point;
+            $payload["waste_transaction_status"] = 1;
+            $payload["waste_transaction_create_at"] = date('Y-m-d H:i:s');
+
+            error_log("TRANSACTION DEPOSIT_WASTE DATA : " . print_r($payload, 1));
+
             $setClauses = [];
-            $updateData = [];
-            foreach ($data as $column => $value) {
+            foreach ($payload as $column => $value) {
                 if (isset($value) && $value !== '') {
                     $setClauses[] = "`{$column}` = :{$column}";
-                    $updateData[$column] = $value;
                 }
             }
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
                 "INSERT INTO 
-                    waste_deposit_transaction
+                    waste_transaction
                 SET
                     {$setClauseString}
                 ";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute($updateData);
-            //TODO:update user/operater/faculty points 
+            $stmt->execute($payload);
+            $insertedId = $this->Conn->lastInsertId();
+
+            if (empty($user["account_id"]) || empty($user["faculty_id"])) {
+                throw new Exception("ERROR : Check faculty's user", 400);
+            }
+
+            $updatedUser = self::UpdateDepositorAccountPoint($this->Conn, $user["account_id"], $integer_point);
+            $updatedFaculty = self::UpdateFacultyPoint($this->Conn, $user["faculty_id"], $payload["waste_transaction_leftover"]);
 
             $this->Conn->commit();
-            $updated_row = $stmt->rowCount();
 
-            return $updated_row;
+            return [
+                'transaction_id' => $insertedId,
+                'user_points' => $updatedUser['account_point'],
+                'faculty_points' => $updatedFaculty['faculty_point'] ?? null
+            ];
+
         } catch (PDOException $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
@@ -247,21 +264,21 @@ class DepositModel
         }
     }
 
+    // static function for use in transaction 
     private static function GetWasteTypeRate($conn, $wasteTypeId)
     {
         try {
             $wasteRateSql =
                 "SELECT 
-                    waste_type_rate, waste_type_point_rate
+                    waste_type_price
                 FROM
-                    waste_type_tb
+                    waste_type
                 WHERE
                     waste_type_id = :waste_type_id
                 ";
             $rateStmt = $conn->prepare($wasteRateSql);
             $rateStmt->execute(["waste_type_id" => $wasteTypeId]);
             $result = $rateStmt->fetch(PDO::FETCH_ASSOC);
-            // error_log(print_r($result, 1));
             if (!$result) {
                 throw new Exception("Unknow Waste Type", 500);
             }
@@ -273,29 +290,125 @@ class DepositModel
         }
     }
 
-    private static function GetUserAccountId($conn, $accountName)
+    private static function GetDepositorAccount($conn, $identifier)
     {
         try {
-            $wasteRateSql =
+            $sql =
                 "SELECT 
-                    account_id,faculty_id
+                    account_id, account_role, faculty_id
                 FROM
-                    account_tb
+                    account
                 WHERE
-                    account_name = :account_name
+                    account_personal_id = :identifier OR
+                    account_tel = :identifier OR
+                    account_email = :identifier OR
+                    account_name = :identifier
                 ";
-            $stmt = $conn->prepare($wasteRateSql);
-            $stmt->execute(["account_name" => $accountName]);
+            $stmt = $conn->prepare($sql);
+            $stmt->execute(["identifier" => $identifier]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$result) {
-                throw new Exception("Invalid User Name", 500);
+                throw new Exception("account not found with identifier: " . htmlspecialchars($identifier) . "'", 404);
             }
-            // error_log(print_r($result, 1));
             return $result;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    private static function UpdateDepositorAccountPoint($conn, $accountId, $point)
+    {
+        try {
+            if ($point == 0) {
+                $selectSql = "SELECT account_point FROM account WHERE account_id = :account_id";
+                $stmt = $conn->prepare($selectSql);
+                $stmt->execute(["account_id" => $accountId]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$user) {
+                    throw new Exception("Account not found ID: " . htmlspecialchars($accountId), 404);
+                }
+
+                return $user;
+            }
+
+            $sql =
+                "UPDATE
+                    account
+                SET
+                    account_point = account_point + :point
+                WHERE
+                   account_id = :account_id
+                ";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(":account_id", $accountId, PDO::PARAM_INT);
+            $stmt->bindValue(":point", $point, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $selectSql = "SELECT account_point FROM account WHERE account_id = :account_id";
+            $stmt = $conn->prepare($selectSql);
+            $stmt->execute(["account_id" => $accountId]);
+            $updatedUser = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$updatedUser) {
+                throw new Exception("Account not found after update attempt", 404);
+            }
+
+            return $updatedUser;
+
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        }
+    }
+
+    private static function UpdateFacultyPoint($conn, $facultyId, $point)
+    {
+        try {
+            if ($point == 0) {
+                $selectSql = "SELECT faculty_point FROM faculty WHERE faculty_id = :faculty_id";
+                $stmt = $conn->prepare($selectSql);
+                $stmt->execute(["faculty_id" => $facultyId]);
+                $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$faculty) {
+                    throw new Exception("faculty not found ID: " . htmlspecialchars($facultyId), 404);
+                }
+
+                return $faculty;
+            }
+
+            $updateSql =
+                "UPDATE
+                    faculty
+                SET
+                    faculty_point = faculty_point + :point
+                WHERE
+                    faculty_id = :faculty_id
+                ";
+            $stmt = $conn->prepare($updateSql);
+            $stmt->execute([
+                "faculty_id" => $facultyId,
+                "point" => $point
+            ]);
+
+            $rowCount = $stmt->rowCount();
+            if ($rowCount === 0) {
+                throw new Exception("Faculty not found or points not updated for faculty ID: " . htmlspecialchars($facultyId) . "   " . htmlspecialchars($point), 404);
+            }
+
+            $selectSql = "SELECT faculty_point FROM faculty WHERE faculty_id = :faculty_id";
+            $stmt = $conn->prepare($selectSql);
+            $stmt->execute(["faculty_id" => $facultyId]);
+            $updatedFaculty = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $updatedFaculty;
+
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }
