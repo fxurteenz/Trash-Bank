@@ -9,18 +9,30 @@
 
         <form @submit.prevent="confirmSubmit" class="space-y-4 text-sm">
             <div class="w-full flex items-center justify-between">
-                <label class="w-1/3 font-medium text-gray-700">ชื่อผู้ฝาก</label>
-                <input x-model="form.depositor_name" required
+                <label class="w-1/3 font-medium text-gray-700">ผู้ฝาก</label>
+                <input x-model="form.depositor_account" required
                     class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
-                    type="text" placeholder="ระบุชื่อผู้ฝาก">
+                    type="text" placeholder="เบอร์โทรศัพท์/รหัสประจำตัว">
             </div>
 
             <div class="w-full flex items-center justify-between">
-                <label class="w-1/3 font-medium text-gray-700">ประเภท</label>
-                <select x-model="form.waste_type_id" required
+                <label class="w-1/3 font-medium text-gray-700">หมวดหมู่/ประเภท</label>
+                <select x-model="form.waste_category_id" @change="fetchTypeByCategory" required
                     class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500 bg-white">
-                    <option value="" disabled selected>-- เลือกประเภทขยะ --</option>
-                    <template x-for="type in DropdownWasteTypes" :key="type.waste_type_id">
+                    <option value="" disabled selected>-- เลือกหมวดหมู่ขยะ --</option>
+                    <template x-for="category in DropdownWasteCategories"
+                        :key="'waste_category-' + category.waste_category_id">
+                        <option :value="category.waste_category_id" x-text="category.waste_category_name"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="w-full flex items-center justify-between">
+                <label class="w-1/3 font-medium text-gray-700">ชนิด/รูปแบบ</label>
+                <select x-model="form.waste_type_id" required :disabled="!form.waste_category_id || isFetchingTypes"
+                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    <option value="" disabled selected>-- กรุณาเลือกหมวดหมู่ก่อน --</option>
+                    <template x-for="type in DropdownWasteTypes" :key="'waste_type-' + type.waste_type_id">
                         <option :value="type.waste_type_id" x-text="type.waste_type_name"></option>
                     </template>
                 </select>
@@ -28,7 +40,7 @@
 
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">น้ำหนัก (กก.)</label>
-                <input x-model="form.weight" required min="0.01" step="0.01"
+                <input x-model="form.deposit_weight" required min="0.01" step="0.01"
                     class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
                     type="number" placeholder="0.00">
             </div>
@@ -112,15 +124,15 @@
             async fetchData() {
                 this.loading = true;
                 try {
-                    // เรียก API ตาม URL ที่กำหนด
                     const response = await fetch(`/api/waste_types?page=${this.page}&limit=${this.limit}`);
                     const result = await response.json();
-                    console.log(result.result);
 
-                    // *** ปรับแก้ตรงนี้ให้ตรงกับโครงสร้าง JSON ของ API คุณ ***
-                    // ตัวอย่างสมมติว่า API ส่งกลับมาแบบ { data: [...], last_page: 5 }
-                    this.wasteTypes = result.result[0];
-                    this.totalPages = Math.ceil(result.result[1] / this.limit); // หรือใช้ Math.ceil(result.total / this.limit)
+                    if (response.ok) {
+                        this.wasteTypes = result.result[0];
+                        this.totalPages = Math.ceil(result.total / this.limit);
+                    } else {
+                        throw new Error(result.message || 'Failed to fetch data');
+                    }
 
                 } catch (error) {
                     console.error('Error fetching waste types:', error);
@@ -150,47 +162,74 @@
 <script>
     function depositFormHandler() {
         return {
+            DropdownWasteCategories: [],
             DropdownWasteTypes: [],
             isSubmitting: false,
-            // ตัวแปรเก็บข้อมูลฟอร์ม
+            isFetchingTypes: false,
             form: {
-                depositor_name: '',
-                waste_type_id: '',
-                weight: ''
+                depositor_account: null,
+                waste_category_id: "",
+                waste_type_id: "",
+                deposit_weight: null
             },
 
             async initData() {
                 try {
-                    // ดึงข้อมูลประเภทขยะทั้งหมด (อาจต้องใส่ limit เยอะๆ เพื่อให้มาครบใน Dropdown)
-                    const response = await fetch('/api/waste_types');
-                    const result = await response.json();
+                    const wasteCategoriesResponse = await fetch('/api/categories');
+                    const result = await wasteCategoriesResponse.json();
 
-                    // ปรับ key 'data' ตาม API จริงของคุณ
-                    this.DropdownWasteTypes = result.result[0] || [];
+                    this.DropdownWasteCategories = result.result[0] || [];
+                } catch (error) {
+                    console.error('Error fetching waste categories:', error);
+                    await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลหมวดหมู่ขยะได้', 'error');
+                }
+            },
+
+            async fetchTypeByCategory() {
+                this.DropdownWasteTypes = [];
+                this.form.waste_type_id = "";
+
+                if (!this.form.waste_category_id) {
+                    return;
+                }
+
+                this.isFetchingTypes = true;
+                try {
+                    const response = await fetch(`/api/waste_types/${this.form.waste_category_id}`);
+                    const result = await response.json();
+                    console.log(result.result);
+
+                    if (response.ok) {
+                        this.DropdownWasteTypes = result.result[0] || [];
+                    } else {
+                        throw new Error(result.message || 'Failed to fetch waste types');
+                    }
                 } catch (error) {
                     console.error('Error fetching waste types:', error);
-                    Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลประเภทขยะได้', 'error');
+                    await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลชนิดขยะได้', 'error');
+                } finally {
+                    this.isFetchingTypes = false;
                 }
             },
 
             confirmSubmit() {
-                // ตรวจสอบข้อมูลเบื้องต้น (Validation)
-                if (!this.form.depositor_name || !this.form.waste_type_id || !this.form.weight) {
+                if (!this.form.depositor_account || !this.form.waste_type_id || !this.form.deposit_weight) {
                     Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
                     return;
                 }
 
-                // หาชื่อประเภทขยะเพื่อมาแสดงใน Modal ยืนยัน
-                const selectedType = this.wasteTypes.find(t => t.id == this.form.waste_type_id);
-                const typeName = selectedType ? selectedType.name : 'ไม่ระบุ';
+                const selectedCategory = this.DropdownWasteCategories.find(c => c.waste_category_id == this.form.waste_category_id);
+                const selectedType = this.DropdownWasteTypes.find(t => t.waste_type_id == this.form.waste_type_id);
+                const categoryName = selectedCategory ? selectedCategory.waste_category_name : 'ไม่ระบุ';
+                const typeName = selectedType ? selectedType.waste_type_name : 'ไม่ระบุ';
 
-                // SweetAlert ยืนยัน
                 Swal.fire({
                     title: 'ยืนยันการฝากขยะ?',
                     html: `
                         <div class="text-left text-sm space-y-1">
-                            <p><b>ผู้ฝาก:</b> ${this.form.depositor_name}</p>
-                            <p><b>ประเภท:</b> ${typeName}</p>
+                            <p><b>ผู้ฝาก:</b> ${this.form.depositor_account}</p>
+                            <p><b>หมวดหมู่:</b> ${categoryName}</p>
+                            <p><b>ชนิด:</b> ${typeName}</p>
                             <p><b>น้ำหนัก:</b> ${this.form.weight} กก.</p>
                         </div>
                     `,
@@ -210,11 +249,10 @@
             async submitData() {
                 this.isSubmitting = true;
                 try {
-                    const response = await fetch('/api/transaction/deposit', {
+                    const response = await fetch('/api/waste_transactions', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            // 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // กรณีใช้ Laravel หรือ Framework ที่ต้องใช้ CSRF
                         },
                         body: JSON.stringify(this.form)
                     });
@@ -222,26 +260,19 @@
                     const result = await response.json();
 
                     if (response.ok) {
-                        Swal.fire(
-                            'สำเร็จ!',
-                            'บันทึกข้อมูลเรียบร้อยแล้ว',
-                            'success'
-                        );
-                        // รีเซ็ตฟอร์มหลังจากบันทึกสำเร็จ
-                        this.form.depositor_name = '';
-                        this.form.waste_type_id = '';
-                        this.form.weight = '';
+                        Swal.fire('สำเร็จ!', 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
+                        this.form.depositor_account = null;
+                        this.form.waste_category_id = "";
+                        this.form.waste_type_id = "";
+                        this.form.deposit_weight = null;
+                        this.DropdownWasteTypes = [];
                     } else {
                         throw new Error(result.message || 'เกิดข้อผิดพลาดในการบันทึก');
                     }
 
                 } catch (error) {
                     console.error('Submission error:', error);
-                    Swal.fire(
-                        'เกิดข้อผิดพลาด',
-                        error.message,
-                        'error'
-                    );
+                    Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
                 } finally {
                     this.isSubmitting = false;
                 }
