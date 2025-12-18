@@ -5,12 +5,11 @@ use App\Model\WasteCategoryModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
-use App\Utils\Database;
 use Exception;
 
 class WasteCategoryController extends RouterBase
 {
-    private static $Data, $WasteCategoryModel, $Database, $QueryString;
+    private static $Data, $WasteCategoryModel, $QueryString;
 
     public function __construct()
     {
@@ -39,8 +38,6 @@ class WasteCategoryController extends RouterBase
             default:
                 self::$Data = [];
         }
-
-        self::$Database = new Database();
         self::$WasteCategoryModel = new WasteCategoryModel();
     }
 

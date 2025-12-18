@@ -5,12 +5,11 @@ use App\Model\WasteTypeModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
-use App\Utils\Database;
 use Exception;
 
 class WasteTypeController extends RouterBase
 {
-    private static $Data, $WasteTypeModel, $Database, $QueryString;
+    private static $Data, $WasteTypeModel, $QueryString;
 
     public function __construct()
     {
@@ -39,8 +38,6 @@ class WasteTypeController extends RouterBase
             default:
                 self::$Data = [];
         }
-
-        self::$Database = new Database();
         self::$WasteTypeModel = new WasteTypeModel();
     }
 
