@@ -6,13 +6,14 @@
 
     <div x-data="WasteCategoryTypeManagement()" x-init="init()" class="bg-white rounded-lg shadow p-6">
 
-        <h2 class="text-2xl font-bold mb-2">
+        <h2 class="text-xl font-bold mb-2">
             หมวดหมู่ขยะ
         </h2>
 
         <div class="flex flex-col md:flex-row justify-between gap-4">
             <div class="flex gap-2">
-                <div @click="createCategoryDialogShow = true" :class="createCategoryDialogShow && 'bg-teal-300'"
+                <div @click="openCreateCategoryDialog"
+                    :class="createCategoryDialogShow && !isEditingCategory && 'bg-teal-300'"
                     class="group cursor-pointer flex items-center py-1 px-2 border-2 border-teal-500 rounded-lg hover:bg-teal-300 space-x-1 w-fit transition-colors">
                     <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
                         <svg class="stroke-teal-500 fill-none group-active:stroke-teal-200 group-active:duration-0 duration-300"
@@ -27,6 +28,18 @@
                     <span class="font-medium">เพิ่ม</span>
                 </div>
 
+                <button x-show="selectedCategory" @click="openEditCategoryDialog(selectedCategory)"
+                    x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    class="flex items-center space-x-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-lg hover:bg-amber-200 border border-amber-200 font-medium text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>แก้ไข</span>
+                </button>
+
                 <button x-show="selectedCategory" @click="confirmDeleteCurrentCategory"
                     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
                     x-transition:enter-end="opacity-100 scale-100"
@@ -36,7 +49,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span x-text="`ลบ ${selectedCategory?.waste_category_name}`"></span>
+                    <span x-text="`ลบ`"></span>
                 </button>
             </div>
 
@@ -58,7 +71,7 @@
         </div>
 
         <span class="text-xs font-light text-gray-500">
-            เลือกหมวดหมู่เพื่อดูรายการประเภทขยะภายในหรือติ๊กเลือกเพื่อลบ
+            เลือกหมวดหมู่เพื่อดูรายการประเภทขยะภายใน
         </span>
 
         <div class="mt-2 text-lg text-gray-700 space-y-4 border-t border-gray-100 py-2">
@@ -121,7 +134,8 @@
                                 <span x-text="`ลบ (${selectedTypeIds.length})`"></span>
                             </button>
 
-                            <div @click="createTypeDialogShow = true" :class="createTypeDialogShow && 'bg-teal-300'"
+                            <div @click="openCreateTypeDialog"
+                                :class="createTypeDialogShow && !isEditingType && 'bg-teal-300'"
                                 class="group cursor-pointer flex items-center py-1 px-2 border-2 border-teal-500 rounded-lg hover:bg-teal-300 space-x-1 bg-white">
                                 <button class="group-hover:rotate-90 duration-300 focus:outline-none">
                                     <svg class="stroke-teal-500 fill-none group-active:stroke-teal-200 group-active:duration-0 duration-300"
@@ -138,7 +152,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-white overflow-hidden">
+                    <div class="overflow-hidden">
                         <template x-if="wasteTypesLoading">
                             <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
                                 <thead class="bg-gray-200 text-xs">
@@ -152,16 +166,16 @@
                                 <tbody>
                                     <template x-for="i in 3" :key="i">
                                         <tr class="border-b border-gray-100">
-                                            <td class="py-2 px-4">
+                                            <td class="border border-gray-300 px-2 py-1">
                                                 <div class="h-3 bg-gray-200 rounded animate-pulse w-4 mx-auto"></div>
                                             </td>
-                                            <td class="py-2 px-4">
+                                            <td class="border border-gray-300 px-2 py-1">
                                                 <div class="h-3 bg-gray-200 rounded animate-pulse w-3/4"></div>
                                             </td>
-                                            <td class="py-2 px-4">
+                                            <td class="border border-gray-300 px-2 py-1">
                                                 <div class="h-3 bg-gray-200 rounded animate-pulse w-1/2 ml-auto"></div>
                                             </td>
-                                            <td class="py-2 px-4">
+                                            <td class="border border-gray-300 px-2 py-1">
                                                 <div class="h-3 bg-gray-200 rounded animate-pulse w-1/2 mx-auto"></div>
                                             </td>
                                         </tr>
@@ -172,29 +186,36 @@
 
                         <div x-show="!wasteTypesLoading">
                             <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
-                                <thead class="bg-gray-200 text-xs">
+                                <thead class=" bg-gray-200 text-xs">
                                     <tr>
-                                        <th class="px-4 py-2 border border-gray-300 w-10 text-center">
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 w-10 text-center">
                                             <input type="checkbox" @change="toggleAllTypes" id="allTypeCheckbox"
                                                 :checked="isAllTypesSelected && wasteTypes.length > 0"
-                                                class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4">
+                                                class="p-1 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                         </th>
-                                        <th class="px-4 py-2 border border-gray-300 text-right">ชื่อประเภทขยะ</th>
-                                        <th class="px-4 py-2 border border-gray-300 text-right">ราคา (บาท)</th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 text-right">
+                                            ประเภท
+                                        </th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 text-right">ราคา
+                                            (บาท)
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <template x-for="type in wasteTypes" :key="type.waste_type_id">
-                                        <tr class="hover:bg-sky-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors"
-                                            @click="toggleTypeSelection(type.waste_type_id)">
-                                            <td class="border border-gray-300 py-2 px-4 text-center">
+                                        <tr class="hover:bg-amber-50 cursor-pointer border-b border-gray-100 last:border-0 transition-colors group text-sm"
+                                            @click="openEditTypeDialog(type)">
+
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 text-center"
+                                                @click.stop>
                                                 <input type="checkbox" :value="type.waste_type_id"
                                                     x-model="selectedTypeIds" :id="type.waste_type_id"
-                                                    class="rounded text-blue-600 focus:ring-blue-500 h-4 w-4 pointer-events-none">
+                                                    class="p-1 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                             </td>
-                                            <td class="border border-gray-300 py-2 px-4 text-gray-800 text-right font-medium"
+
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-right group-hover:text-amber-700"
                                                 x-text="type.waste_type_name"></td>
-                                            <td class="border border-gray-300 py-2 px-4 text-right text-gray-600 font-mono"
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-right"
                                                 x-text="Number(type.waste_type_price).toFixed(2)"></td>
                                         </tr>
                                     </template>
@@ -221,7 +242,8 @@
             x-init="$watch('createCategoryDialogShow', value => value ? $refs.createCategoryDialog.showModal() : $refs.createCategoryDialog.close())">
             <div class="bg-white p-6 rounded-lg shadow-xl w-96 border border-gray-200">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg text-gray-800">เพิ่มหมวดหมู่ขยะใหม่</h3>
+                    <h3 class="font-bold text-lg text-gray-800"
+                        x-text="isEditingCategory ? 'แก้ไขหมวดหมู่' : 'เพิ่มหมวดหมู่ใหม่'"></h3>
                     <button @click="createCategoryDialogShow = false" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -229,7 +251,7 @@
                         </svg>
                     </button>
                 </div>
-                <form @submit.prevent="submitCreateCategory" class="space-y-3 text-sm">
+                <form @submit.prevent="submitCategoryForm" class="space-y-3 text-sm">
                     <div>
                         <label for="category_name" class="block text-gray-700 font-medium mb-1">ชื่อหมวดหมู่</label>
                         <input type="text" x-model="categoryForm.waste_category_name" required id="category_name"
@@ -251,8 +273,9 @@
                     <div class="pt-4 flex justify-end space-x-2">
                         <button type="button" @click="createCategoryDialogShow = false"
                             class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">ยกเลิก</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 shadow">ยืนยัน</button>
+                        <button type="submit" class="px-4 py-2 text-white rounded shadow transition-colors"
+                            :class="isEditingCategory ? 'bg-amber-500 hover:bg-amber-600' : 'bg-sky-500 hover:bg-sky-600'"
+                            x-text="isEditingCategory ? 'บันทึกแก้ไข' : 'ยืนยันเพิ่ม'"></button>
                     </div>
                 </form>
             </div>
@@ -267,7 +290,8 @@
             x-init="$watch('createTypeDialogShow', value => value ? $refs.createTypeDialog.showModal() : $refs.createTypeDialog.close())">
             <div class="bg-white p-6 rounded-lg shadow-xl w-96 border border-gray-200">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg text-gray-800">เพิ่มประเภทขยะใหม่</h3>
+                    <h3 class="font-bold text-lg text-gray-800"
+                        x-text="isEditingType ? 'แก้ไขประเภทขยะ' : 'เพิ่มประเภทขยะใหม่'"></h3>
                     <button @click="createTypeDialogShow = false" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -275,7 +299,7 @@
                         </svg>
                     </button>
                 </div>
-                <form @submit.prevent="submitCreateType" class="space-y-3 text-sm">
+                <form @submit.prevent="submitTypeForm" class="space-y-3 text-sm">
                     <div class="bg-gray-50 p-2 rounded border border-gray-100 mb-2">
                         <span class="text-xs text-gray-500 block">หมวดหมู่</span>
                         <span class="font-semibold text-gray-800" x-text="selectedCategory?.waste_category_name"></span>
@@ -294,8 +318,9 @@
                     <div class="pt-4 flex justify-end space-x-2">
                         <button type="button" @click="createTypeDialogShow = false"
                             class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">ยกเลิก</button>
-                        <button type="submit"
-                            class="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600 shadow">ยืนยัน</button>
+                        <button type="submit" class="px-4 py-2 text-white rounded shadow transition-colors"
+                            :class="isEditingType ? 'bg-amber-500 hover:bg-amber-600' : 'bg-teal-500 hover:bg-teal-600'"
+                            x-text="isEditingType ? 'บันทึกแก้ไข' : 'ยืนยันเพิ่ม'"></button>
                     </div>
                 </form>
             </div>
@@ -313,7 +338,7 @@
             isLoadingCategories: false,
             wasteTypesLoading: false,
 
-            // Selection States (New)
+            // Selection States
             selectedCategoryIds: [],
             selectedTypeIds: [],
 
@@ -324,13 +349,19 @@
             createCategoryDialogShow: false,
             createTypeDialogShow: false,
 
+            // Edit States (New)
+            isEditingCategory: false,
+            isEditingType: false,
+
             // Forms
             categoryForm: {
+                waste_category_id: null,
                 waste_category_name: '',
                 waste_category_description: '',
                 waste_category_carbon_rate: ''
             },
             typeForm: {
+                waste_type_id: null,
                 waste_type_name: '',
                 waste_type_price: ''
             },
@@ -364,13 +395,9 @@
             },
 
             selectCategory(category) {
-                // ถ้ากดที่ Card จะเป็นการดูรายละเอียด (ถ้าไม่ได้กดที่ Checkbox)
-                if (this.selectedCategory?.waste_category_id === category.waste_category_id) {
-                    return;
-                }
+                if (this.selectedCategory?.waste_category_id === category.waste_category_id) return;
                 this.selectedCategory = category;
                 this.selectedCategoryShow = true;
-                // รีเซ็ตการเลือก Type เมื่อเปลี่ยนหมวดหมู่
                 this.selectedTypeIds = [];
                 this.fetchWasteTypes(category.waste_category_id);
             },
@@ -382,41 +409,62 @@
                 this.selectedTypeIds = [];
             },
 
-            async submitCreateCategory() {
+            // --- CRUD Category ---
+            openCreateCategoryDialog() {
+                this.isEditingCategory = false;
+                this.categoryForm = { waste_category_id: null, waste_category_name: '', waste_category_description: '', waste_category_carbon_rate: '' };
+                this.createCategoryDialogShow = true;
+            },
+
+            openEditCategoryDialog(category) {
+                this.isEditingCategory = true;
+                this.categoryForm = { ...category }; // Copy data to form
+                this.createCategoryDialogShow = true;
+            },
+
+            async submitCategoryForm() {
+                this.createCategoryDialogShow = false;
+
+                const url = this.isEditingCategory
+                    ? `/api/categories/update/${this.categoryForm.waste_category_id}`
+                    : '/api/categories';
+                const method = 'POST';
+
                 try {
-                    const response = await fetch('/api/categories', {
-                        method: 'POST',
+                    const response = await fetch(url, {
+                        method: method,
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(this.categoryForm)
                     });
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire('สำเร็จ', 'เพิ่มหมวดหมู่เรียบร้อย', 'success');
+                        const msg = this.isEditingCategory ? 'แก้ไขข้อมูลเรียบร้อย' : 'เพิ่มข้อมูลเรียบร้อย';
+                        Swal.fire('สำเร็จ', msg, 'success');
                         this.fetchCategories();
-                        this.createCategoryDialogShow = false;
-                        this.categoryForm = { waste_category_name: '', waste_category_description: '', waste_category_carbon_rate: '' };
+                        // ถ้ากำลังแก้ไขตัวที่เลือกอยู่ อัปเดต UI ที่เลือกด้วย
+                        if (this.selectedCategory && this.selectedCategory.waste_category_id === this.categoryForm.waste_category_id) {
+                            this.selectedCategory = { ...this.categoryForm };
+                        }
                     } else {
-                        throw new Error(data.message || 'Error creating category');
+                        throw new Error(data.message || 'Error saving category');
                     }
                 } catch (error) {
-                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
                     console.error(error);
+                    await Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                    this.createCategoryDialogShow = true;
                 }
             },
 
-            // --- Category Deletion Logic ---
             confirmDeleteCurrentCategory() {
                 if (!this.selectedCategory) return;
-
                 Swal.fire({
                     title: 'ยืนยันการลบ?',
                     text: `คุณต้องการลบหมวดหมู่ "${this.selectedCategory.waste_category_name}" ใช่หรือไม่?`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'ลบเลย',
-                    confirmButtonColor: '#d33',
-                    cancelButtonText: 'ยกเลิก'
+                    confirmButtonColor: '#d33'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.deleteCurrentCategory();
@@ -426,8 +474,6 @@
 
             async deleteCurrentCategory() {
                 try {
-                    // ส่ง ID เดียวไปลบ (API ต้องรองรับ bulk-del array หรือคุณอาจเปลี่ยน endpoint เป็น delete ตัวเดียวก็ได้)
-                    // กรณีใช้ bulk-del เหมือนเดิม ก็ส่งไปเป็น Array ตัวเดียว
                     const response = await fetch('/api/categories/bulk-del', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -435,15 +481,11 @@
                             waste_category_ids: [this.selectedCategory.waste_category_id]
                         })
                     });
-
                     const data = await response.json();
-
                     if (data.success) {
                         Swal.fire('ลบสำเร็จ', 'ข้อมูลถูกลบเรียบร้อยแล้ว', 'success');
-
-                        // รีเซ็ตค่า
-                        this.closeCategoryDetail(); // ปิดหน้า detail
-                        this.fetchCategories(); // โหลดข้อมูลใหม่
+                        this.closeCategoryDetail();
+                        this.fetchCategories();
                     } else {
                         throw new Error(data.message);
                     }
@@ -452,7 +494,6 @@
                 }
             },
 
-
             // --- Waste Types Logic ---
             async fetchWasteTypes(categoryId) {
                 this.wasteTypesLoading = true;
@@ -460,7 +501,6 @@
                 try {
                     const response = await fetch(`/api/waste_types/${categoryId}`);
                     const data = await response.json();
-
                     if (data.success) {
                         this.wasteTypes = data.result[0] || data.result;
                     }
@@ -472,33 +512,40 @@
                 }
             },
 
-            // Selection Helpers for Types
-            toggleTypeSelection(id) {
-                if (this.selectedTypeIds.includes(id)) {
-                    this.selectedTypeIds = this.selectedTypeIds.filter(itemId => itemId !== id);
-                } else {
-                    this.selectedTypeIds.push(id);
-                }
-            },
-
             get isAllTypesSelected() {
                 return this.wasteTypes.length > 0 && this.selectedTypeIds.length === this.wasteTypes.length;
             },
 
-            toggleAllTypes() {
-                if (this.isAllTypesSelected) {
-                    this.selectedTypeIds = [];
-                } else {
-                    this.selectedTypeIds = this.wasteTypes.map(t => t.waste_type_id);
-                }
+            // --- CRUD Type ---
+            openCreateTypeDialog() {
+                this.isEditingType = false;
+                this.typeForm = { waste_type_id: null, waste_type_name: '', waste_type_price: '' };
+                this.createTypeDialogShow = true;
             },
 
-            async submitCreateType() {
+            openEditTypeDialog(type) {
+                this.isEditingType = true;
+                this.typeForm = { ...type };
+                this.createTypeDialogShow = true;
+            },
+
+            async submitTypeForm() {
                 if (!this.selectedCategory) return;
-                const payload = { ...this.typeForm, waste_category_id: this.selectedCategory.waste_category_id };
+
                 this.createTypeDialogShow = false;
+
+                const url = this.isEditingType
+                    ? `/api/waste_types/update/${this.typeForm.waste_type_id}` // ปรับ endpoint ตามจริง
+                    : '/api/waste_types';
+
+                const payload = {
+                    waste_type_id: this.typeForm.waste_type_id,
+                    waste_type_name: this.typeForm.waste_type_name,
+                    waste_type_price: this.typeForm.waste_type_price
+                };
+
                 try {
-                    const response = await fetch('/api/waste_types', {
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -506,12 +553,12 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        Swal.fire('สำเร็จ', 'เพิ่มประเภทขยะเรียบร้อย', 'success');
+                        const msg = this.isEditingType ? 'แก้ไขประเภทขยะเรียบร้อย' : 'เพิ่มประเภทขยะเรียบร้อย';
+                        Swal.fire('สำเร็จ', msg, 'success');
                         this.fetchWasteTypes(this.selectedCategory.waste_category_id);
-                        this.createTypeDialogShow = false;
                         this.typeForm = { waste_type_name: '', waste_type_price: '' };
                     } else {
-                        throw new Error(data.message || 'Error creating waste type');
+                        throw new Error(data.message || 'Error saving waste type');
                     }
                 } catch (error) {
                     await Swal.fire('ข้อผิดพลาด', error.message, 'error');
@@ -519,7 +566,23 @@
                 }
             },
 
-            // --- Type Deletion Logic ---
+            toggleTypeSelection(id) {
+                // อันนี้เหลือไว้แค่ถ้ากด Checkbox ตรงๆ
+                if (this.selectedTypeIds.includes(id)) {
+                    this.selectedTypeIds = this.selectedTypeIds.filter(itemId => itemId !== id);
+                } else {
+                    this.selectedTypeIds.push(id);
+                }
+            },
+
+            toggleAllTypes() {
+                if (this.wasteTypes.length > 0 && this.selectedTypeIds.length === this.wasteTypes.length) {
+                    this.selectedTypeIds = [];
+                } else {
+                    this.selectedTypeIds = this.wasteTypes.map(t => t.waste_type_id);
+                }
+            },
+
             deleteSelectedTypes() {
                 Swal.fire({
                     title: 'ยืนยันการลบ?',
