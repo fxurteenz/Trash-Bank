@@ -247,7 +247,7 @@ class MajorModel
         $ids = array_filter($data['major_ids']);
 
         if (empty($ids)) {
-            return 0;
+            throw new Exception('Bad Request:require value are empty', 400);
         }
 
         try {

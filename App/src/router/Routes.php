@@ -73,13 +73,17 @@ class Routes
             ['GET', '', [FacultyController::class, 'GetAll']],
             // ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
             ['POST', '', [FacultyController::class, 'Create']],
-            ['POST', '/update/[*:fid]', [FacultyController::class, 'Update']],
-
+            ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
+            ['POST', '/delete', [FacultyController::class, 'Delete']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
-            ['GET', '/[i:fid]', [MajorController::class, 'Get']],
+            ['GET', '', [MajorController::class, 'GetAll']],
+            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
+            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
             ['POST', '', [MajorController::class, 'Create']],
+            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
+            ['POST', '/delete', [MajorController::class, 'Delete']]
         ]);
         /* /api/waste_categories */
         $this->addPrefixedRoutes("/api/categories", [

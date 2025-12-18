@@ -16,13 +16,68 @@ class FacultyModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllFaculty(): array
+    public function GetAllFaculty($query): array
     {
         try {
             $sql = "SELECT * FROM faculty";
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
             $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $faculties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = 'SELECT COUNT(*) AS all_faculty FROM faculty';
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_faculty'];
+            } else {
+                $total = count($faculties);
+            }
+
+            return [$faculties, $total];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetFacultyByMajor($mid): array
+    {
+        try {
+            $sql = "SELECT 
+                        f.* FROM 
+                        faculty f
+                    WHERE 
+                        m.major_id = :major_id";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->bindValue(':major_id', $mid, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // fetch (ไม่ใช่ fetchAll) เพราะ major หนึ่งสังกัดได้แค่ 1 faculty ตาม logic ปกติ
+            $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$faculty) {
+                return []; // หรือ throw Exception ถ้าต้องการ
+            }
+
+            return $faculty;
+
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -111,5 +166,67 @@ class FacultyModel
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
-}
 
+    public function DeleteFacultyById($id): int
+    {
+        try {
+            if (empty($id)) {
+                throw new Exception('ID is required for deletion', 400);
+            }
+
+            $sql = "DELETE FROM faculty WHERE faculty_id = :faculty_id";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute(['faculty_id' => $id]);
+
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function DeleteFaculty(array $data): int
+    {
+        if (empty($data['faculty_ids'] ?? []) || !is_array($data['faculty_ids'])) {
+            throw new Exception('Bad Request: faculty_ids is required and must be an array', 400);
+        }
+
+        $ids = array_filter($data['faculty_ids']);
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        try {
+
+            $this->Conn->beginTransaction();
+
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $sql = "DELETE FROM faculty WHERE faculty_id IN ($placeholders)";
+
+            $stmt = $this->Conn->prepare($sql);
+
+            foreach ($ids as $index => $id) {
+                $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $rowCount = $stmt->rowCount();
+
+            $this->Conn->commit();
+
+            return $rowCount;
+        } catch (PDOException $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+}
