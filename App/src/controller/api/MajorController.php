@@ -71,18 +71,105 @@ class MajorController extends RouterBase
         }
     }
 
+    public function GetAll()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$MajorModel->GetMajor(self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    // เพิ่มฟังก์ชันนี้สำหรับดึงสาขาตาม Faculty ID (ใช้ในหน้าจัดการที่เลือกคณะแล้วโชว์สาขา)
+    public function GetByFaculty($id)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$MajorModel->GetMajorByFaculty($id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'successfully retrieved majors by faculty'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
+        }
+    }
+
     public function Create()
     {
         try {
             Authentication::AdminAuth();
-            $faculty = self::$MajorModel->CreateMajor(self::$Data);
+            $result = self::$MajorModel->CreateMajor(self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $faculty,
+                'result' => $result,
                 'message' => 'major created successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Update($id)
+    {
+        try {
+            Authentication::AdminAuth();
+            $result = self::$MajorModel->UpdateMajor($id, self::$Data);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'major updated successfully =)'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
@@ -91,11 +178,66 @@ class MajorController extends RouterBase
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function DeleteById($id)
+    {
+        try {
+            Authentication::AdminAuth();
+            $result = self::$MajorModel->DeleteMajorById($id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'major deleted successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    // ลบแบบหลายรายการ (Bulk Delete)
+    public function Delete()
+    {
+        try {
+            Authentication::AdminAuth();
+            $result = self::$MajorModel->DeleteMajor(self::$Data);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => "Successfully deleted $result items."
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } finally {
             exit;
         }
