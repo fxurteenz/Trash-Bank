@@ -1,5 +1,7 @@
 <?php
 namespace App\Model;
+use App\Utils\Authentication;
+use App\Utils\AuthenticationException;
 use App\Utils\Database;
 use Exception;
 use PDO;
@@ -50,6 +52,16 @@ class UserModel
             return $user;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function Logout()
+    {
+        try {
+            $result = Authentication::UserLogout();
+            return $result;
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }

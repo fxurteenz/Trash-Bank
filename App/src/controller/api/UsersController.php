@@ -57,8 +57,8 @@ class UsersController extends RouterBase
             echo json_encode([
                 'success' => TRUE,
                 'result' => [
-                    "token"=>$cookieToken, 
-                    "user"=>$user
+                    "token" => $cookieToken,
+                    "user" => $user
                 ],
                 'message' => 'login successfully =)'
             ]);
@@ -72,6 +72,26 @@ class UsersController extends RouterBase
             ]);
         }
     }
+
+    public function Logout()
+    {
+        try {
+            $result = $this->UserModel->Logout();
+            if ($result['success']) {
+                header('Location: /');
+                exit;
+            }
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data' => $this->data
+            ]);
+            exit;
+        }
+    }
+
 
     public function GetAll()
     {

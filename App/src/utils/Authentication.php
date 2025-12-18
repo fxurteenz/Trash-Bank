@@ -115,4 +115,16 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
+    public static function UserLogout()
+    {
+        try {
+            // Set the cookie with an expiration date in the past to remove it
+            setcookie('user_token', '', time() - 3600, '/');
+            // Unset the cookie from the current request
+            unset($_COOKIE['user_token']);
+            return ['success' => true];
+        } catch (Exception $e) {
+            throw new AuthenticationException("Something Wrong ! @ Logout");
+        }
+    }
 }
