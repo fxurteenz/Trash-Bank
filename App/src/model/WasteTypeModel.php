@@ -56,7 +56,7 @@ class WasteTypeModel
                 $total = count($wasteType);
             }
 
-            return [$wasteType, $total];
+            return ["data" => $wasteType, "total" => $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
@@ -107,7 +107,7 @@ class WasteTypeModel
                 $total = count($wasteType);
             }
 
-            return [$wasteType, $total];
+            return ["data" => $wasteType, "total" => $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
