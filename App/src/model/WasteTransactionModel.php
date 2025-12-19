@@ -17,10 +17,95 @@ class WasteTransactionModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllDeposit($query): array
+    public function GetAllTransaction($query): array
     {
         try {
-            $sql = "SELECT * FROM waste_deposit_transaction";
+            $whereClauses = [];
+            $params = [];
+
+            // กรองตามช่วงวันที่ (ถ้ามี)
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) == :date";
+                $params[':date'] = $query['date'];
+            }
+            // กรองตามปีที่ระบุ (เช่น 2025)
+            if (!empty($query['year'])) {
+                $whereClauses[] = "YEAR(w.waste_transaction_create_date) = :year";
+                $params[':year'] = $query['year'];
+            }
+            // กรองตามเดือนที่ระบุ (1-12)
+            if (!empty($query['month'])) {
+                $whereClauses[] = "MONTH(w.waste_transaction_create_date) = :month";
+                $params[':month'] = $query['month'];
+            }
+            // กรองตามหมวดหมู่หรือชนิดขยะ
+            if (!empty($query['category'])) {
+                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $params[':category_id'] = $query['category'];
+            }
+            if (!empty($query['type'])) {
+                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $params[':type_id'] = $query['type'];
+            }
+            // กรองตามเจ้าหน้าที่ หรือ ผู้ฝาก
+            if (!empty($query['operater'])) {
+                $whereClauses[] = "w.operater_id = :operater_id";
+                $params[':operater_id'] = $query['operater'];
+            }
+            if (!empty($query['account'])) {
+                $whereClauses[] = "w.account_id = :account_id";
+                $params[':account_id'] = $query['account'];
+            }
+            // กรองตามคณะ (Faculty) ของผู้ฝาก
+            if (!empty($query['faculty'])) {
+                $whereClauses[] = "a.faculty_id = :faculty";
+                $params[':faculty'] = $query['faculty'];
+            }
+
+            // ค้นหาจากชื่อ, รหัสประจำตัว, เบอร์โทร หรืออีเมลของผู้ฝาก
+            if (!empty($query['account_search'])) {
+                $whereClauses[] = "(a.account_name LIKE :account_search 
+                                    OR a.account_personal_id LIKE :account_search 
+                                    OR a.account_tel LIKE :account_search 
+                                    OR a.account_email LIKE :account_search)";
+                $params[':account_search'] = "%" . $query['account_search'] . "%";
+            }
+
+            if (!empty($query['operater_search'])) {
+                $whereClauses[] = "(op.account_name LIKE :operater_search 
+                                    OR op.account_personal_id LIKE :operater_search 
+                                    OR op.account_tel LIKE :operater_search 
+                                    OR op.account_email LIKE :operater_search)";
+                $params[':operater_search'] = "%" . $query['operater_search'] . "%";
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+            $sql = "SELECT 
+                        w.*,a.account_id,a.account_name,a.account_personal_id,
+                        a.account_tel,a.account_email,f.faculty_id,f.faculty_name,m.major_id,m.major_name,
+                        c.waste_category_name,t.waste_type_name,op.account_id AS operater_id,
+                        op.account_name AS operater_name, op.account_tel AS operater_tel, 
+                        op.account_email AS operater_email, op.account_personal_id AS operater_personal_id
+                    FROM 
+                        waste_transaction w
+                    LEFT JOIN account a ON w.account_id = a.account_id
+                    LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
+                    LEFT JOIN major m ON a.major_id = m.major_id
+                    LEFT JOIN account op ON w.operater_id = op.account_id
+                    LEFT JOIN waste_category c ON w.waste_transaction_waste_category = c.waste_category_id
+                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
+                    $whereSql
+                    ORDER BY w.waste_transaction_create_date DESC
+                ";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -34,6 +119,11 @@ class WasteTransactionModel
 
             $stmt = $this->Conn->prepare($sql);
 
+            // Bind ค่าสำหรับการกรอง
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -43,15 +133,140 @@ class WasteTransactionModel
             $deposits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allDeposit FROM waste_deposit_transaction';
+                // ต้อง JOIN account a ด้วยหากมีการกรองตาม faculty_id ในการนับจำนวนทั้งหมด
+                $sqlCount = "SELECT COUNT(*) AS allDeposit 
+                             FROM waste_transaction w 
+                             LEFT JOIN account a ON w.account_id = a.account_id 
+                             $whereSql";
                 $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allDeposit'];
             } else {
                 $total = count($deposits);
             }
 
-            return [$deposits, $total];
+            return ["data" => $deposits, "total" => $total];
+
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetAllTransactionByOperaterId($query, $operaterData): array
+    {
+        try {
+            $whereClauses = ["w.operater_id = :operater_id"];
+            $params = [':operater_id' => $operaterData["user_data"]->account_id];
+
+            // กรองตามช่วงวันที่
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_create_date) = :date";
+                $params[':date'] = $query['date'];
+            }
+            if (!empty($query['year'])) {
+                $whereClauses[] = "YEAR(w.waste_transaction_create_date) = :year";
+                $params[':year'] = $query['year'];
+            }
+            if (!empty($query['month'])) {
+                $whereClauses[] = "MONTH(w.waste_transaction_create_date) = :month";
+                $params[':month'] = $query['month'];
+            }
+
+            // กรองตามหมวดหมู่หรือชนิดขยะ
+            if (!empty($query['category'])) {
+                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $params[':category_id'] = $query['category'];
+            }
+            if (!empty($query['type'])) {
+                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $params[':type_id'] = $query['type'];
+            }
+
+            // กรองตามผู้ฝาก หรือ คณะ
+            if (!empty($query['account'])) {
+                $whereClauses[] = "w.account_id = :account_id";
+                $params[':account_id'] = $query['account'];
+            }
+            if (!empty($query['faculty'])) {
+                $whereClauses[] = "a.faculty_id = :faculty";
+                $params[':faculty'] = $query['faculty'];
+            }
+
+            // ค้นหาข้อมูลผู้ฝาก (ชื่อ, รหัส, เบอร์โทร, อีเมล)
+            if (!empty($query['account_search'])) {
+                $whereClauses[] = "(a.account_name LIKE :account_search 
+                                    OR a.account_personal_id LIKE :account_search 
+                                    OR a.account_tel LIKE :account_search 
+                                    OR a.account_email LIKE :account_search)";
+                $params[':account_search'] = "%" . $query['account_search'] . "%";
+            }
+
+            $whereSql = " WHERE " . implode(" AND ", $whereClauses);
+
+            $sql = "SELECT 
+                        w.*, a.account_id, a.account_name, a.account_personal_id, a.account_tel, a.account_email,
+                        f.faculty_id, f.faculty_name, m.major_id, m.major_name, c.waste_category_name, t.waste_type_name
+                    FROM 
+                        waste_transaction w
+                    LEFT JOIN account a ON w.account_id = a.account_id
+                    LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
+                    LEFT JOIN major m ON a.major_id = m.major_id
+                    LEFT JOIN waste_category c ON w.waste_transaction_waste_category = c.waste_category_id
+                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
+                    $whereSql
+                    ORDER BY w.waste_transaction_create_date DESC";
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+
+            // Bind ค่าทั้งหมด
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $deposits = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = "SELECT COUNT(*) AS allDeposit FROM waste_transaction w LEFT JOIN account a ON w.account_id = a.account_id $whereSql";
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allDeposit'];
+            } else {
+                $total = count($deposits);
+            }
+
+            return ["data" => $deposits, "total" => $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
@@ -157,7 +372,7 @@ class WasteTransactionModel
         }
     }
 
-    public function UpdateDeposit($id, $data): mixed
+    public function UpdateWasteTransaction($id, $data): mixed
     {
         try {
             if ((empty($data) && !is_array($data)) || empty($id)) {
@@ -200,7 +415,7 @@ class WasteTransactionModel
         }
     }
 
-    public function DeleteDepositById($id): int
+    public function DeleteWasteTransactionById($id): int
     {
         try {
             if (empty($id)) {
@@ -219,7 +434,7 @@ class WasteTransactionModel
         }
     }
 
-    public function DeleteDeposit(array $data): int
+    public function DeleteWasteTransaction(array $data): int
     {
         // เปลี่ยน Key เป็น transaction_deposit_ids ให้สื่อความหมายตรงตาราง
         if (empty($data['transaction_deposit_ids'] ?? []) || !is_array($data['transaction_deposit_ids'])) {

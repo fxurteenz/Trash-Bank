@@ -1,6 +1,6 @@
 <?php
 namespace App\Router;
-use App\Controller\Api\DepositTransactionController;
+use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MajorController;
@@ -57,7 +57,8 @@ class Routes
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']],
-            ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]]
+            ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
+            ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
         ]);
 
         /* API */
@@ -109,11 +110,12 @@ class Routes
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_transactions", [
-            ['GET', "", [DepositTransactionController::class, "GetAll"]],
-            ['POST', '', [DepositTransactionController::class, 'Create']],
-            ['POST', '/update/[*:id]', [DepositTransactionController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [DepositTransactionController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [DepositTransactionController::class, 'Delete']],
+            ['GET', "", [WasteTransactionController::class, "GetAll"]],
+            ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
+            ['POST', '', [WasteTransactionController::class, 'Create']],
+            ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
+            ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
+            ['POST', '/bulk-del', [WasteTransactionController::class, 'Delete']],
         ]);
     }
 }

@@ -5,12 +5,11 @@ use App\Model\WasteTransactionModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
-use App\Utils\Database;
 use Exception;
 
-class DepositTransactionController extends RouterBase
+class WasteTransactionController extends RouterBase
 {
-    private static $Data, $WasteTransactionModel, $Database, $QueryString;
+    private static $Data, $WasteTransactionModel, $QueryString;
 
     public function __construct()
     {
@@ -40,7 +39,6 @@ class DepositTransactionController extends RouterBase
                 self::$Data = [];
         }
 
-        self::$Database = new Database();
         self::$WasteTransactionModel = new WasteTransactionModel();
     }
 
@@ -48,7 +46,40 @@ class DepositTransactionController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $deposits = self::$WasteTransactionModel->GetAllDeposit(self::$QueryString);
+            $deposits = self::$WasteTransactionModel->GetAllTransaction(self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $deposits,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetAllByOperater()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            error_log("USER DATA :" . print_r($user, 1));
+            $deposits = self::$WasteTransactionModel->GetAllTransactionByOperaterId(self::$QueryString, $user);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -111,7 +142,7 @@ class DepositTransactionController extends RouterBase
         try {
             Authentication::OperateAuth();
 
-            $result = self::$WasteTransactionModel->UpdateDeposit($id, self::$Data);
+            $result = self::$WasteTransactionModel->UpdateWasteTransaction($id, self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -143,7 +174,7 @@ class DepositTransactionController extends RouterBase
             Authentication::OperateAuth();
 
             // เรียกเมธอด DeleteDepositById สำหรับลบทีละ ID
-            $result = self::$WasteTransactionModel->DeleteDepositById($id);
+            $result = self::$WasteTransactionModel->DeleteWasteTransactionById($id);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -175,7 +206,7 @@ class DepositTransactionController extends RouterBase
             Authentication::AdminAuth();
 
             // เรียกเมธอด DeleteDeposit สำหรับลบแบบ Bulk (หลายรายการ)
-            $result = self::$WasteTransactionModel->DeleteDeposit(self::$Data);
+            $result = self::$WasteTransactionModel->DeleteWasteTransaction(self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);
