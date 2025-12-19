@@ -48,7 +48,7 @@ class Authentication
      * @return object ข้อมูลที่ decode จาก JWT (payload)
      * @throws AuthenticationException เมื่อ authentication ล้มเหลวทุกกรณี
      */
-    public static function Auth(): object
+    public static function HeaderAuth(): object
     {
 
         try {
@@ -67,6 +67,7 @@ class Authentication
 
         return is_array($decoded) ? (object) $decoded : $decoded;
     }
+    
     public static function CookieAuth(): object
     {
         if (!isset($_COOKIE['user_token'])) {
@@ -102,6 +103,7 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
+
     public static function OperateAuth(): array
     {
         try {
@@ -115,16 +117,28 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
+
     public static function UserLogout()
     {
         try {
-            // Set the cookie with an expiration date in the past to remove it
             setcookie('user_token', '', time() - 3600, '/');
-            // Unset the cookie from the current request
             unset($_COOKIE['user_token']);
-            return ['success' => true];
+            if (!isset($_COOKIE['user_token'])) {
+                return ['success' => true];
+            }
+            return ['success' => false];
         } catch (Exception $e) {
             throw new AuthenticationException("Something Wrong ! @ Logout");
+        }
+    }
+
+    public static function ClearCookieAndRedirect()
+    {
+        setcookie('user_token', '', time() - 3600, '/');
+        unset($_COOKIE['user_token']);
+        if (!isset($_COOKIE['user_token'])) {
+            header('Location: /');
+            exit;
         }
     }
 }

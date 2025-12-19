@@ -17,8 +17,8 @@ class CookieBaker
             value: $userToken,
             expires_or_options: time() + $this->expireTimes,
             path: $this->path,
-            // secure: true,
-            // httponly:true
+            secure: true,
+            httponly: true
         );
         if (!$cookieSetted) {
             throw new Exception("Can't set cookie now");
@@ -35,8 +35,8 @@ class CookieBaker
                 value: '',
                 expires_or_options: time() - $this->expireTimes,
                 path: $this->path,
-                // secure: true,
-                // httponly:true
+                secure: true,
+                httponly: true
             );  // Expire in the past
             if (!$cookieUnSetted) {
                 throw new Exception("Can't reset cookie now");
