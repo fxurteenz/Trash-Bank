@@ -32,7 +32,7 @@ class WasteCategoryModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-            
+
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -50,7 +50,7 @@ class WasteCategoryModel
                 $total = count($wasteCategory);
             }
 
-            return [$wasteCategory, $total];
+            return ["data" => $wasteCategory, "total" => $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
