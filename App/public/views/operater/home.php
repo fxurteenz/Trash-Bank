@@ -40,9 +40,13 @@
 
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">น้ำหนัก (กก.)</label>
-                <input x-model="form.deposit_weight" required min="0.01" step="0.01"
-                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
-                    type="number" placeholder="0.00">
+                <div class="w-2/3 flex flex-col">
+                    <input x-model="form.deposit_weight" required min="0.01" step="0.01"
+                        class="px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
+                        type="number" placeholder="น้ำหนักขยะ(กิโลกรัม)">
+                    <span class="text-gray-400 text-xs text-end">หลังบันทึกระบบจะปัดน้ำนหนักเป็นทศนิยม 1 ตำแหน่ง</span>
+                </div>
+
             </div>
 
             <div class="flex justify-end pt-2">
@@ -103,11 +107,82 @@
         </div>
     </div>
 
-    <div class="bg-white md:col-span-5 rounded-lg shadow p-6">
-        <div class="flex">
-            <h2 class="text-xl font-bold">ประวัติการดำเนินการ</h2>
+    <div x-data="wasteTransactionManager()" x-init="init()" class="bg-white md:col-span-5 rounded-lg shadow p-6">
 
+        <h2 class="text-xl font-bold">ประวัติการดำเนินการ</h2>
+
+        <div class="overflow-x-auto">
+            <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
+                <thead class="bg-gray-200 text-xs">
+                    <tr>
+                        <th class="px-4 py-2 text-center">วันที่</th>
+                        <th class="px-4 py-2 text-center">เวลา</th>
+                        <th class="px-4 py-2 text-left">ผู้ฝาก</th>
+                        <th class="px-4 py-2 text-right">หมวดหมู่</th>
+                        <th class="px-4 py-2 text-right">ขนิด</th>
+                        <th class="px-4 py-2 text-center">น้ำหนัก</th>
+                        <th class="px-4 py-2 text-center">มูลค่า</th>
+                        <th class="px-4 py-2 text-center">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-if="loading">
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="flex justify-center items-center">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+                    <template x-if="!loading && transactions.length === 0">
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-500">No transactions found.</td>
+                        </tr>
+                    </template>
+                    <template x-for="transaction in transactions" :key="transaction.waste_transaction_id">
+                        <tr class="border-b border-gray-100">
+                            <td class="border border-gray-300 px-2 py-1 text-center"
+                                x-text="formatDate(transaction.waste_transaction_create_at)"></td>
+                            <td class="border border-gray-300 px-2 py-1 text-center"
+                                x-text="formatTime(transaction.waste_transaction_create_at)"></td>
+                            <td class="border border-gray-300 px-2 py-1"
+                                x-text="transaction.account_name || transaction.account_email || transaction.account_tel || transaction.account_personal_id">
+                            </td>
+                            <td class="border border-gray-300 px-2 py-1 text-right"
+                                x-text="transaction.waste_category_name"></td>
+                            <td class="border border-gray-300 px-2 py-1 text-right"
+                                x-text="transaction.waste_type_name"></td>
+                            <td class="border border-gray-300 px-2 py-1 text-right"
+                                x-text="transaction.waste_transaction_weight"></td>
+                            <td class="border border-gray-300 px-2 py-1 text-right"
+                                x-text="transaction.waste_transaction_value"></td>
+                            <td class="border border-gray-300 px-2 py-1 text-right"
+                                x-text="transaction.waste_transaction_status"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
+
+        <div class="flex justify-between items-center mt-4">
+            <div>
+                <button @click="prevPage" :disabled="currentPage === 1" class="bg-gray-200 px-3 py-1 rounded-md text-sm"
+                    :class="{'cursor-not-allowed': currentPage === 1}">Previous</button>
+
+            </div>
+            <div>
+                <span class="text-sm text-gray-700">
+                    Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+                </span>
+            </div>
+            <div>
+                <button @click="nextPage" :disabled="currentPage === totalPages"
+                    class="bg-gray-200 px-3 py-1 rounded-md text-sm ml-2"
+                    :class="{'cursor-not-allowed': currentPage === totalPages}">Next</button>
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -126,16 +201,18 @@
                 try {
                     const response = await fetch(`/api/waste_types?page=${this.page}&limit=${this.limit}`);
                     const result = await response.json();
+                    console.log(result);
 
                     if (response.ok) {
-                        this.wasteTypes = result.result[0];
-                        this.totalPages = Math.ceil(result.total / this.limit);
+                        this.wasteTypes = result.result.data || [];
+                        this.totalPages = Math.ceil(result.result.total / this.limit);
                     } else {
                         throw new Error(result.message || 'Failed to fetch data');
                     }
 
                 } catch (error) {
                     console.error('Error fetching waste types:', error);
+                    await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลได้', 'error');
                     this.wasteTypes = [];
                 } finally {
                     this.loading = false;
@@ -178,7 +255,7 @@
                     const wasteCategoriesResponse = await fetch('/api/categories');
                     const result = await wasteCategoriesResponse.json();
 
-                    this.DropdownWasteCategories = result.result[0] || [];
+                    this.DropdownWasteCategories = result.result.data || [];
                 } catch (error) {
                     console.error('Error fetching waste categories:', error);
                     await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลหมวดหมู่ขยะได้', 'error');
@@ -200,7 +277,7 @@
                     console.log(result.result);
 
                     if (response.ok) {
-                        this.DropdownWasteTypes = result.result[0] || [];
+                        this.DropdownWasteTypes = result.result.data || [];
                     } else {
                         throw new Error(result.message || 'Failed to fetch waste types');
                     }
@@ -230,7 +307,7 @@
                             <p><b>ผู้ฝาก:</b> ${this.form.depositor_account}</p>
                             <p><b>หมวดหมู่:</b> ${categoryName}</p>
                             <p><b>ชนิด:</b> ${typeName}</p>
-                            <p><b>น้ำหนัก:</b> ${this.form.weight} กก.</p>
+                            <p><b>น้ำหนัก:</b> ${this.form.deposit_weight} กก.</p>
                         </div>
                     `,
                     icon: 'question',
@@ -278,5 +355,73 @@
                 }
             }
         }
+    }
+</script>
+
+<script>
+    function wasteTransactionManager() {
+        return {
+            transactions: [],
+            loading: false,
+            currentPage: 1,
+            totalPages: 1,
+            limit: 10,
+
+            init() {
+                this.fetchTransactions();
+            },
+
+            formatDate(dateStr) {
+                if (!dateStr) return '-';
+                const date = new Date(dateStr);
+                return new Intl.DateTimeFormat('th-TH', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                }).format(date);
+            },
+
+            formatTime(dateStr) {
+                if (!dateStr) return '-';
+                const date = new Date(dateStr);
+                return new Intl.DateTimeFormat('th-TH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).format(date) + ' น.';
+            },
+
+            async fetchTransactions() {
+                this.loading = true;
+                try {
+                    const response = await fetch(`/api/waste_transactions/me?page=${this.currentPage}&limit=${this.limit}`);
+                    const data = await response.json();
+                    console.log(data);
+
+                    if (data.success) {
+                        this.transactions = data.result.data;
+                        this.totalPages = Math.ceil(data.result.total / this.limit);
+                    }
+                } catch (error) {
+                    console.error('Error fetching transactions:', error);
+                    Swal.fire('Error', 'Failed to fetch transactions', 'error');
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            nextPage() {
+                if (this.currentPage < this.totalPages) {
+                    this.currentPage++;
+                    this.fetchTransactions();
+                }
+            },
+
+            prevPage() {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.fetchTransactions();
+                }
+            }
+        };
     }
 </script>
