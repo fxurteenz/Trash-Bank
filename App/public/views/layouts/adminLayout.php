@@ -65,7 +65,7 @@
                     <a href="#"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">ดูโปรไฟล์</a>
                     <div class="border-t border-gray-100 my-1"></div>
-                    <a href="#"
+                    <a href="/logout"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">ออกจากระบบ</a>
                 </div>
             </div>
@@ -91,6 +91,10 @@
                         <a href="/admin/manage/users"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
                             <span>จัดการผู้ใช้</span>
+                        </a>
+                        <a href="/admin/manage/waste_transaction"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>รายการฝาก</span>
                         </a>
                     </nav>
                 </div>

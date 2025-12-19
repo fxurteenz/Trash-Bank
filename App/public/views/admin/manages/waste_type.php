@@ -1,6 +1,6 @@
 <div class="space-y-4 w-full">
     <div class="bg-white rounded-lg shadow p-6 overflow-x-auto w-full hidden md:block">
-        <h2 class="text-xl font-bold text-gray-700">ภาพรวมการจัดการขยะ</h2>
+        <h2 class="text-xl font-bold text-gray-700">ภาพรวมการจัดการประเภทและชนิดขยะ</h2>
         <p class="text-gray-500 text-sm">เลือกหมวดหมู่ด้านล่างเพื่อจัดการประเภทขยะและราคา</p>
     </div>
 
@@ -377,7 +377,7 @@
                     const response = await fetch('/api/categories');
                     const data = await response.json();
                     if (data.success) {
-                        this.categories = data.result[0];
+                        this.categories = data.result.data;
                     }
                 } catch (error) {
                     console.error('Error fetching categories:', error);
@@ -502,7 +502,7 @@
                     const response = await fetch(`/api/waste_types/${categoryId}`);
                     const data = await response.json();
                     if (data.success) {
-                        this.wasteTypes = data.result[0] || data.result;
+                        this.wasteTypes = data.result.data;
                     }
                 } catch (error) {
                     console.error('Error fetching waste types:', error);

@@ -58,7 +58,7 @@ class AdminPagesController extends RouterBase
                 'script' => '../../js/ManageFacultyMajor.js'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -76,7 +76,25 @@ class AdminPagesController extends RouterBase
                 'title' => 'จัดการหมวดหมู่ขยะ'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function ManageWasteTransaction()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('admin/manages/waste_transaction', [
+                'pages' => "manageWasteTransaction",
+                'title' => 'ประวัติการดำเนินการ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
