@@ -70,30 +70,69 @@ class UserModel
     public function GetAllUsers($query): array
     {
         try {
-            $page = isset($query['page']) ? (int) $query['page'] : 1;
-            $limit = isset($query['limit']) ? (int) $query['limit'] : 0;
-            $offset = ($page - 1) * $limit;
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['faculty_id'])) {
+                $whereClauses[] = "a.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $query['faculty_id'];
+            }
+
+            if (!empty($query['major_id'])) {
+                $whereClauses[] = "a.major_id = :major_id";
+                $params[':major_id'] = $query['major_id'];
+            }
+
+            if (!empty($query['role'])) {
+                $whereClauses[] = "a.account_role = :role";
+                $params[':role'] = $query['role'];
+            }
+
+            if (!empty($query['search'])) {
+                $whereClauses[] = "(a.account_personal_id LIKE :search OR a.account_tel LIKE :search OR a.account_email LIKE :search OR a.account_name LIKE :search)";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
             $sql =
                 'SELECT 
-                	a.account_id, a.account_name,  a.account_email, a.account_role, a.account_point,
+                	a.account_id, a.account_personal_id, a.account_tel, a.account_name,  a.account_email, a.account_role, a.account_point,
                     f.faculty_id, f.faculty_name, m.major_id, m.major_name
                 FROM
                 	account a
                 LEFT JOIN
                 	faculty f ON a.faculty_id = f.faculty_id
                 LEFT JOIN
-                	major m ON a.major_id = m.major_id
-                LIMIT :limit OFFSET :offset;
-                ';
+                	major m ON a.major_id = m.major_id' . $whereSql;
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $sqlCount = 'SELECT COUNT(*) AS allUser FROM account';
+            $sqlCount = "SELECT COUNT(*) AS allUser FROM account a " . $whereSql;
             $stmt = $this->Conn->prepare($sqlCount);
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
             $stmt->execute();
             $total = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -110,8 +149,20 @@ class UserModel
     public function CreateUser(array $data)
     {
         try {
-            if (empty($data['account_email']) || empty($data['account_password'])) {
-                throw new Exception('Email or password not provided', 500);
+            if (empty($data) && !is_array($data)) {
+                throw new Exception('Bad Request =(', 400);
+            }
+
+            if (empty($data['account_password'])) {
+                throw new Exception('Password not provided', 422);
+            }
+
+            if (empty($data['account_personal_id'])) {
+                throw new Exception('Personal ID not provided', 422);
+            }
+
+            if (empty($data['faculty_id']) || empty($data['major_id'])) {
+                throw new Exception('Faculty or Major not provided', 422);
             }
 
             $encodedPassword = password_hash(
