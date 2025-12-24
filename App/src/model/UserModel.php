@@ -22,8 +22,9 @@ class UserModel
     public function Login(array $data): mixed
     {
         try {
-            if (empty($data['email']) || empty($data['password'])) {
-                throw new Exception('Email or password not provided', 400);
+            $identifier = $data['identifier'] ?? null;
+            if (empty($identifier) || empty($data['password'])) {
+                throw new Exception('Identifier or password not provided', 400);
             }
 
             $sql =
@@ -32,15 +33,17 @@ class UserModel
                 FROM 
                     account 
                 WHERE 
-                    account_email = :email';
+                    account_email = :identifier OR
+                    account_personal_id = :identifier OR
+                    account_tel = :identifier';
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute(['email' => $data['email']]);
+            $stmt->execute(['identifier' => $identifier]);
 
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user) {
-                throw new Exception("Wrong Email" . $data['email'], 401);
+                throw new Exception("User not found " . $identifier, 401);
             }
 
             if (password_verify($data['password'], $user['account_password'])) {
