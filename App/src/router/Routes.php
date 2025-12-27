@@ -34,11 +34,14 @@ class Routes
     }
 
     private function DefineRoutes(): void
-    {
+    {   
+        // Guest
+        $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
+        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
+
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
-        $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
 
         $this->addPrefixedRoutes("/operater", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
