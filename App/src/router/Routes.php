@@ -105,8 +105,13 @@ class Routes
             ['POST', '/bulk-del', [WasteTypeController::class, 'Delete']],
         ]);
         /* /api/leaders */
-        $this->addPrefixedRoutes("/api/leaders", [
-            ['GET', "", [LeaderController::class, "GetUsersLeaderByRole"]],
+        $this->addPrefixedRoutes("/api/reports", [
+            ['GET', "/leader_users", [LeaderController::class, "GetUsersLeaderByRole"]],
+            ['GET', "/leader_users_faculty", [LeaderController::class, "GetUsersLeaderByFaculty"]],
+            ['GET', "/leader_users_major", [LeaderController::class, "GetUsersLeaderByMajor"]],
+            ['GET', "/leader_faculties", [LeaderController::class, "GetFacultyLeader"]],
+            ['GET', "/leader_faculties_stats", [LeaderController::class, "GetFacultyWasteStats"]],
+            ['GET', "/leader_faculties_stats_date", [LeaderController::class, "GetFacultyWasteStatsByDate"]],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_transactions", [

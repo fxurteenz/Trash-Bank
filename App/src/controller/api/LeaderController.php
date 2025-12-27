@@ -41,17 +41,182 @@ class LeaderController
     public function GetUsersLeaderByRole()
     {
         try {
-            Authentication::AdminAuth();
+            // use user auth
             $result = self::$LeaderModel->LeadingUsersByRole(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result[0],
-                'total' => $result[1],
+                'result' => $result['user'],
+                'total' => $result['total'],
                 'page' => (int) self::$queryString['page'],
                 'limmit' => (int) self::$queryString['limit'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetUsersLeaderByFaculty()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingUsersByFaculty(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['user'],
+                'total' => $result['total'],
+                'page' => (int) self::$queryString['page'],
+                'limmit' => (int) self::$queryString['limit'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetUsersLeaderByMajor()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingUsersByMajor(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['user'],
+                'total' => $result['total'],
+                'page' => (int) self::$queryString['page'],
+                'limmit' => (int) self::$queryString['limit'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetFacultyLeader()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingFaculties(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['user'],
+                'total' => $result['total'],
+                'page' => (int) self::$queryString['page'],
+                'limmit' => (int) self::$queryString['limit'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetFacultyWasteStats()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingFacultyWasteStats(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['user'],
+                'total' => $result['total'],
+                'page' => (int) self::$queryString['page'],
+                'limmit' => (int) self::$queryString['limit'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetUsersWasteStats()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingUserWasteStats(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limmit' => (int) (self::$queryString['limit'] ?? 10),
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
