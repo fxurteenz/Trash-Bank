@@ -67,7 +67,7 @@ class Authentication
 
         return is_array($decoded) ? (object) $decoded : $decoded;
     }
-    
+
     public static function CookieAuth(): object
     {
         if (!isset($_COOKIE['user_token'])) {
@@ -94,7 +94,7 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->account_role !== "admin") {
+            if ($authenticated->role_id !== 1) {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
             } else {
                 return ['success' => true, 'user_data' => $authenticated];
@@ -108,7 +108,7 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->account_role === "admin" || $authenticated->account_role === "operater") {
+            if ($authenticated->role_id === 1 || $authenticated->role_id === 3) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
