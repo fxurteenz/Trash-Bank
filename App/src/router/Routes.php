@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\LeaderController;
@@ -34,7 +35,7 @@ class Routes
     }
 
     private function DefineRoutes(): void
-    {   
+    {
         // Guest
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
         $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
@@ -65,13 +66,13 @@ class Routes
         ]);
 
         /* API */
-        /* api/users */
-        $this->addPrefixedRoutes('/api/users', [
-            ['GET', '', [UsersController::class, 'GetAll']],
-            // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
-            ['POST', '', [UsersController::class, 'Create']],
-            ['POST', '/update/[*:uid]', [UsersController::class, 'Update']],
-            ['POST', '/bulk-del', [UsersController::class, 'Delete']],
+        /* api/members */
+        $this->addPrefixedRoutes('/api/members', [
+            ['GET', '', [MemberController::class, 'GetAll']],
+            // ['GET', '/[i:id]', [MemberController::class, 'GetUserById']],
+            ['POST', '', [MemberController::class, 'Create']],
+            ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
+            ['POST', '/bulk-del', [MemberController::class, 'Delete']],
         ]);
         /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
