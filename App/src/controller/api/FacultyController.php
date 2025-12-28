@@ -44,17 +44,14 @@ class FacultyController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::OperateAuth();
-            [$faculties, $total] = self::$FacultyModel->GetAllFaculty(self::$QueryString);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
+            // UserAuth
+            [$data, $total] = self::$FacultyModel->GetAllFaculty(self::$QueryString);
 
             $response = [
                 'success' => TRUE,
-                'result' => $faculties,
+                'data' => $data,
                 'total' => $total,
-                'message' => 'successfully fetched faculties'
+                'message' => 'successfully'
             ];
 
             if (isset(self::$QueryString['page'])) {
@@ -64,6 +61,8 @@ class FacultyController extends RouterBase
                 $response['limit'] = (int) self::$QueryString['limit'];
             }
 
+            header('Content-Type: application/json');
+            http_response_code(200);
             echo json_encode($response);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 403);
@@ -82,21 +81,16 @@ class FacultyController extends RouterBase
         }
     }
 
-    public function GetFacultybyMajor($mid)
+    public function Get($fid)
     {
-
         try {
-            Authentication::OperateAuth();
-            [$faculties, $total] = self::$FacultyModel->GetFacultyByMajor($mid);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
+            // UserAuth
+            $result = self::$FacultyModel->GetFacultyById($fid);
 
             $response = [
                 'success' => TRUE,
-                'result' => $faculties,
-                'total' => $total,
-                'message' => 'successfully fetched faculties'
+                'data' => $result,
+                'message' => 'successfully'
             ];
 
             if (isset(self::$QueryString['page'])) {
@@ -106,6 +100,8 @@ class FacultyController extends RouterBase
                 $response['limit'] = (int) self::$QueryString['limit'];
             }
 
+            header('Content-Type: application/json');
+            http_response_code(200);
             echo json_encode($response);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 403);
@@ -185,36 +181,6 @@ class FacultyController extends RouterBase
         }
     }
 
-    public function DeleteById($id)
-    {
-        try {
-            Authentication::AdminAuth();
-            $result = self::$FacultyModel->DeleteFacultyById($id);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'result' => $result,
-                'message' => 'faculty deleted successfully'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-
     public function Delete()
     {
         try {
@@ -226,7 +192,7 @@ class FacultyController extends RouterBase
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => "Successfully deleted $result items."
+                'message' => "deleted $result items."
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);

@@ -72,24 +72,15 @@ class Routes
             // ['GET', '/[i:id]', [MemberController::class, 'GetUserById']],
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
-            ['POST', '/bulk-del', [MemberController::class, 'Delete']],
+            ['POST', '/delete', [MemberController::class, 'Delete']],
         ]);
         /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
-            // ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
+            ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
-        ]);
-        /* /api/majors */
-        $this->addPrefixedRoutes('/api/majors', [
-            ['GET', '', [MajorController::class, 'GetAll']],
-            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
-            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
-            ['POST', '', [MajorController::class, 'Create']],
-            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
-            ['POST', '/delete', [MajorController::class, 'Delete']]
         ]);
         /* /api/waste_categories */
         $this->addPrefixedRoutes("/api/categories", [
