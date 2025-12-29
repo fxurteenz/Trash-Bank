@@ -2,6 +2,8 @@
 namespace App\Model;
 
 use App\Utils\Database;
+use App\Utils\DatabaseException;
+
 use Exception;
 use PDO;
 use PDOException;
@@ -20,13 +22,24 @@ class WasteTypeModel
     public function GetAllWasteType($query): array
     {
         try {
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['search'])) {
+                $whereClauses[] = "wt.waste_type_name LIKE :search";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
             $sql = "SELECT 
                     wt.*, 
                     wc.waste_category_name
                 FROM 
                     waste_type wt
                 LEFT JOIN 
-                    waste_category wc ON wt.waste_category_id = wc.waste_category_id";
+                    waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                {$whereSql}";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -39,6 +52,10 @@ class WasteTypeModel
 
             $stmt = $this->Conn->prepare($sql);
 
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -48,8 +65,11 @@ class WasteTypeModel
             $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type';
+                $sqlCount = "SELECT COUNT(*) AS allType FROM waste_type wt{$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
             } else {
@@ -116,27 +136,23 @@ class WasteTypeModel
         }
     }
 
-    public function CreateWasteType(array $data): int
+    public function CreateWasteType(array $data): array
     {
         try {
 
             if (!is_array($data)) {
                 throw new Exception('Invalid data format', 400);
             }
-            if (empty($data['waste_category_id'])) {
-                error_log("ERROR : waste_category_id");
-                throw new Exception('Waste type category not provided', 400);
+
+            if (
+                empty($data['waste_category_id']) || empty($data['waste_type_name']) ||
+                empty($data['waste_type_price']) || empty($data['waste_type_co2'])
+            ) {
+                throw new Exception('ลองใหม่อีกครั้ง, กรุณากรอกข้อมูลให้ครบถ้วน', 400);
             }
 
-            if (empty($data['waste_type_name'])) {
-                error_log("ERROR : waste_type_name");
-                throw new Exception('Waste type name not provided', 400);
-            }
-
-            if (empty($data['waste_type_price'])) {
-                error_log("ERROR : waste_type_price");
-                throw new Exception('Waste type price not provided', 400);
-            }
+            $data["created_at"] = date("Y-m-d H:i:s");
+            $data["updated_at"] = date("Y-m-d H:i:s");
 
             $setClauses = [];
             $updateData = [];
@@ -156,29 +172,37 @@ class WasteTypeModel
                 ";
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute($updateData);
+            $id = $this->Conn->lastInsertId();
 
-            $updated_row = $stmt->rowCount();
-            return $updated_row;
+            return [
+                "waste_type_name" => $data["waste_type_price"],
+                "waste_type_id" => $id,
+                "waste_type_price" => $data["waste_type_price"],
+                "waste_type_co2" => $data["waste_type_co2"],
+                "waste_category_id" => $data["waste_category_id"],
+                "created_at" => $data["created_at"],
+                "updated_at" => $data["updated_at"]
+            ];
         } catch (PDOException $e) {
-            error_log("ERROR PDO : " . $e->getMessage());
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $erresult = DatabaseException::handle($e);
+            throw new Exception($erresult['message'], $erresult['code'] ?: 500);
         } catch (Exception $e) {
-            error_log("ERROR : " . $e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
-    public function UpdateWasteType($id, $data): mixed
+    public function UpdateWasteType($id, $data): array
     {
         try {
             if ((empty($data) && !is_array($data)) || empty($id)) {
                 throw new Exception('Bad Request =(', 400);
             }
 
+            $data["updated_at"] = date("Y-m-d H:i:s");
+
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
-                // อัปเดตเฉพาะค่าที่ส่งมา
                 if (isset($value)) {
                     $setClauses[] = "`{$column}` = :{$column}";
                     $updateData[$column] = $value;
@@ -186,13 +210,14 @@ class WasteTypeModel
             }
 
             if (empty($setClauses)) {
-                return 0; // ไม่มีข้อมูลให้เปลี่ยนแปลง
+                return ['data' => $data, 'total' => 0];
             }
 
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE waste_type
+                "UPDATE 
+                    waste_type
                 SET 
                     {$setClauseString}
                 WHERE
@@ -200,14 +225,58 @@ class WasteTypeModel
                 ";
 
             $stmt = $this->Conn->prepare($sql);
-            // รวม array ข้อมูลที่จะอัปเดตเข้ากับ ID สำหรับ WHERE clause
             $stmt->execute(array_merge($updateData, ['waste_type_id' => $id]));
-
             $result = $stmt->rowCount();
-            return $result;
+
+            return ['data' => $data, 'total' => $result];
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $erresult = DatabaseException::handle($e);
+            throw new Exception($erresult['message'], $erresult['code'] ?: 500);
         } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ToggleActiveWasteType(array $data): array
+    {
+        if (empty($data['waste_type_ids'] ?? []) || !is_array($data['waste_type_ids'])) {
+            throw new Exception('ผิดพลาด, ระบุข้อมูลที่ต้องการแก้ไข', 400);
+        }
+
+        $ids = array_filter($data['waste_type_ids']);
+
+        if (empty($ids)) {
+            return ['data' => $data, 'total' => 0];
+        }
+
+        try {
+            // $this->Conn->beginTransaction();
+
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $sql = "UPDATE waste_type SET waste_type_active = NOT waste_type_active, updated_at = NOW() WHERE waste_type_id IN ($placeholders)";
+
+            $stmt = $this->Conn->prepare($sql);
+
+            foreach ($ids as $index => $id) {
+                $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $result = $stmt->rowCount();
+
+            // $this->Conn->commit();
+
+            return ['data' => $data, 'total' => $result];
+        } catch (PDOException $e) {
+            // if ($this->Conn->inTransaction()) {
+            //     $this->Conn->rollBack();
+            // }
+            $erresult = DatabaseException::handle($e);
+            throw new Exception($erresult['message'], $erresult['code'] ?: 500);
+        } catch (Exception $e) {
+            // if ($this->Conn->inTransaction()) {
+            //     $this->Conn->rollBack();
+            // }
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
@@ -231,7 +300,7 @@ class WasteTypeModel
         }
     }
 
-    public function DeleteWasteType(array $data): int
+    public function DeleteWasteType(array $data): array
     {
         if (empty($data['waste_type_ids'] ?? []) || !is_array($data['waste_type_ids'])) {
             throw new Exception('Bad Request: waste_type_ids is required and must be an array', 400);
@@ -240,7 +309,7 @@ class WasteTypeModel
         $ids = array_filter($data['waste_type_ids']);
 
         if (empty($ids)) {
-            return 0;
+            return ["data" => $data, "total" => 0];
         }
 
         try {
@@ -261,7 +330,7 @@ class WasteTypeModel
 
             $this->Conn->commit();
 
-            return $rowCount;
+            return ["data" => $data, "total" => $rowCount];
         } catch (PDOException $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();

@@ -95,9 +95,10 @@ class Routes
             ['GET', "", [WasteTypeController::class, "GetAll"]],
             ['GET', "/[i:cid]", [WasteTypeController::class, "GetByCategoryId"]],
             ['POST', '', [WasteTypeController::class, 'Create']],
-            ['POST', '/update/[*:id]', [WasteTypeController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteTypeController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteTypeController::class, 'Delete']],
+            ['POST', '/update/[i:wtid]', [WasteTypeController::class, 'Update']],
+            ['POST', '/activate', [WasteTypeController::class, 'ToggleActive']],
+            ['POST', '/delete/[i:wtid]', [WasteTypeController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteTypeController::class, 'Delete']],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/reports", [
