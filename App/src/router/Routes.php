@@ -83,12 +83,12 @@ class Routes
             ['POST', '/delete', [FacultyController::class, 'Delete']],
         ]);
         /* /api/waste_categories */
-        $this->addPrefixedRoutes("/api/categories", [
+        $this->addPrefixedRoutes("/api/waste_categories", [
             ['GET', "", [WasteCategoryController::class, "GetAll"]],
             ['POST', '', [WasteCategoryController::class, 'Create']],
             ['POST', '/update/[*:id]', [WasteCategoryController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteCategoryController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteCategoryController::class, 'Delete']],
+            ['POST', '/activate', [WasteCategoryController::class, 'ToggleActive']],
+            ['POST', '/delete', [WasteCategoryController::class, 'Delete']],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_types", [
