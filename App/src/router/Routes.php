@@ -114,9 +114,9 @@ class Routes
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
             ['POST', '', [WasteTransactionController::class, 'Create']],
-            ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
+            // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteTransactionController::class, 'Delete']],
+            ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
     }
 }

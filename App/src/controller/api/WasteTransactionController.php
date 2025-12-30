@@ -57,6 +57,7 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (AuthenticationException $e) {
             error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
@@ -64,6 +65,7 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (Exception $e) {
             error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -79,7 +81,7 @@ class WasteTransactionController extends RouterBase
         try {
             $user = Authentication::OperateAuth();
             error_log("USER DATA :" . print_r($user, 1));
-            $deposits = self::$WasteTransactionModel->GetAllTransactionByOperaterId(self::$QueryString, $user);
+            $deposits = self::$WasteTransactionModel->GetAllTransactionByStaffId(self::$QueryString, $user);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -90,6 +92,7 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (AuthenticationException $e) {
             error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
@@ -97,6 +100,7 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (Exception $e) {
             error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -121,43 +125,14 @@ class WasteTransactionController extends RouterBase
                 'message' => 'trasaction completed successfully =)'
             ]);
         } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function Update($id)
-    {
-        try {
-            Authentication::OperateAuth();
-
-            $result = self::$WasteTransactionModel->UpdateWasteTransaction($id, self::$Data);
-
             header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'result' => $result,
-                'message' => 'deposit updated successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -167,29 +142,62 @@ class WasteTransactionController extends RouterBase
             exit;
         }
     }
+
+    // public function Update($id)
+    // {
+    //     try {
+    //         Authentication::OperateAuth();
+
+    //         $result = self::$WasteTransactionModel->UpdateWasteTransaction($id, self::$Data);
+
+    //         header('Content-Type: application/json');
+    //         http_response_code(200);
+    //         echo json_encode([
+    //             'success' => TRUE,
+    //             'result' => $result,
+    //             'message' => 'deposit updated successfully =)'
+    //         ]);
+    //     } catch (AuthenticationException $e) {
+    //         header('Content-Type: application/json');
+    //         http_response_code($e->getCode() ?: 401);
+    //         echo json_encode([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     } catch (Exception $e) {
+    //         header('Content-Type: application/json');
+    //         http_response_code($e->getCode() ?: 400);
+    //         echo json_encode([
+    //             'success' => false,
+    //             'message' => $e->getMessage()
+    //         ]);
+    //     } finally {
+    //         exit;
+    //     }
+    // }
 
     public function DeleteById($id)
     {
         try {
             Authentication::OperateAuth();
-
-            // เรียกเมธอด DeleteDepositById สำหรับลบทีละ ID
             $result = self::$WasteTransactionModel->DeleteWasteTransactionById($id);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
-                'message' => 'deposit deleted successfully =)'
+                'data' => $result,
+                'message' => 'transaction deleted successfully =)'
             ]);
         } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -204,8 +212,6 @@ class WasteTransactionController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-
-            // เรียกเมธอด DeleteDeposit สำหรับลบแบบ Bulk (หลายรายการ)
             $result = self::$WasteTransactionModel->DeleteWasteTransaction(self::$Data);
 
             header('Content-Type: application/json');
@@ -216,9 +222,11 @@ class WasteTransactionController extends RouterBase
                 'message' => "Successfully deleted $result items."
             ]);
         } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 401);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } finally {
