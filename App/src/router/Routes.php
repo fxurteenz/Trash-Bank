@@ -3,8 +3,7 @@ namespace App\Router;
 use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
-use App\Controller\Api\LeaderController;
-use App\Controller\Api\MajorController;
+use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Pages\OperaterPagesController;
@@ -100,14 +99,10 @@ class Routes
             ['POST', '/delete/[i:wtid]', [WasteTypeController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTypeController::class, 'Delete']],
         ]);
-        /* /api/leaders */
+        /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
-            ['GET', "/leader_users", [LeaderController::class, "GetUsersLeaderByRole"]],
-            ['GET', "/leader_users_faculty", [LeaderController::class, "GetUsersLeaderByFaculty"]],
-            ['GET', "/leader_users_major", [LeaderController::class, "GetUsersLeaderByMajor"]],
-            ['GET', "/leader_faculties", [LeaderController::class, "GetFacultyLeader"]],
-            ['GET', "/leader_faculties_stats", [LeaderController::class, "GetFacultyWasteStats"]],
-            ['GET', "/leader_faculties_stats_date", [LeaderController::class, "GetFacultyWasteStatsByDate"]],
+            ['GET', "/faculty", [ReportController::class, "GetFacultyWasteStats"]],
+            ['GET', "/user", [ReportController::class, "GetUsersWasteStats"]],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_transactions", [
