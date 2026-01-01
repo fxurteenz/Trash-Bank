@@ -44,25 +44,28 @@ class WasteTypeController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::OperateAuth();
-            $wasteTypes = self::$WasteTypeModel->GetAllWasteType(self::$QueryString);
+            // Authentication::OperateAuth();
+            $result = self::$WasteTypeModel->GetAllWasteType(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $wasteTypes,
+                'data' => $result["data"],
+                'total' => $result["total"],
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
-            error_log("ERROR AUTH : " . $e->getMessage());
+            // error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
-            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            // error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -76,25 +79,28 @@ class WasteTypeController extends RouterBase
     public function GetByCategoryId($cid)
     {
         try {
-            Authentication::OperateAuth();
-            $wasteTypes = self::$WasteTypeModel->GetWasteTypeByCategory(self::$QueryString, $cid);
+            // Authentication::OperateAuth();
+            $result = self::$WasteTypeModel->GetWasteTypeByCategory(self::$QueryString, $cid);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $wasteTypes,
+                'data' => $result["data"],
+                'total' => $result["total"],
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
-            error_log("ERROR AUTH : " . $e->getMessage());
+            // error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
-            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            // error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -104,11 +110,12 @@ class WasteTypeController extends RouterBase
             exit;
         }
     }
+
     public function Create()
     {
         try {
-            error_log("DATA RECEIVED: " . print_r(self::$Data, true));
-            Authentication::OperateAuth();
+            // error_log("DATA RECEIVED: " . print_r(self::$Data, true));
+            Authentication::AdminAuth();
             $result = self::$WasteTypeModel->CreateWasteType(self::$Data);
 
             header('Content-Type: application/json');
@@ -116,10 +123,11 @@ class WasteTypeController extends RouterBase
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => 'waste type created successfully =)'
+                'message' => 'สำเร็จ, เพิ่มข้อมูลแล้ว!'
             ]);
         } catch (AuthenticationException $e) {
             // error_log("ERROR AUTH : " . $e->getMessage() . $e->getCode());
+            header('Content-Type: application/json');
             http_response_code($e->getCode());
             echo json_encode([
                 'success' => false,
@@ -127,6 +135,7 @@ class WasteTypeController extends RouterBase
             ]);
         } catch (Exception $e) {
             // error_log("ERROR EXCEPTION : " . $e->getMessage() . $e->getCode());
+            header('Content-Type: application/json');
             http_response_code($e->getCode());
             echo json_encode([
                 'success' => false,
@@ -137,28 +146,62 @@ class WasteTypeController extends RouterBase
         }
     }
 
-    public function Update($id)
+    public function Update($wtid)
     {
         try {
             Authentication::OperateAuth();
 
-            // เรียกฟังก์ชัน UpdateWasteType โดยส่ง $id และ Data
-            $result = self::$WasteTypeModel->UpdateWasteType($id, self::$Data);
+            $result = self::$WasteTypeModel->UpdateWasteType($wtid, self::$Data);
 
             header('Content-Type: application/json');
-            http_response_code(200); // 200 OK สำหรับการแก้ไขสำเร็จ
+            http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
-                'message' => 'waste type updated successfully =)'
+                'data' => $result,
+                'message' => $result["total"] > 0 ? "สำเร็จ, แก้ไขข้อมูลแล้ว" : "ไม่พบข้อมูลที่ต้องการแก้ไข"
             ]);
         } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function ToggleActive()
+    {
+        try {
+            Authentication::AdminAuth();
+
+            $result = self::$WasteTypeModel->ToggleActiveWasteType(self::$Data);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result["data"],
+                'message' => "สำเร็จ, แก้ไขข้อมูลแล้ว {$result["total"]} รายการ"
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -184,12 +227,14 @@ class WasteTypeController extends RouterBase
                 'message' => 'waste type deleted successfully =)'
             ]);
         } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 401);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
@@ -211,13 +256,15 @@ class WasteTypeController extends RouterBase
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
-                'message' => "Successfully deleted $result items."
+                'data' => $result["data"],
+                'message' => "ลบข้อมูลแล้ว {$result['total']} รายการ"
             ]);
         } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 401);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
+            header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } finally {

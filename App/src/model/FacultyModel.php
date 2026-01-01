@@ -19,7 +19,17 @@ class FacultyModel
     public function GetAllFaculty($query): array
     {
         try {
-            $sql = "SELECT * FROM faculty";
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['search'])) {
+                $whereClauses[] = "faculty_name LIKE :search";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+            $sql = "SELECT * FROM faculty {$whereSql}";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -31,24 +41,31 @@ class FacultyModel
 
             $stmt = $this->Conn->prepare($sql);
 
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
 
             $stmt->execute();
-            $faculties = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS all_faculty FROM faculty';
+                $sqlCount = "SELECT COUNT(*) AS all_faculty FROM faculty{$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_faculty'];
             } else {
-                $total = count($faculties);
+                $total = count($data);
             }
 
-            return [$faculties, $total];
+            return [$data, $total];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -56,28 +73,17 @@ class FacultyModel
         }
     }
 
-    public function GetFacultyByMajor($mid): array
+    public function GetFacultyById($id): array
     {
         try {
-            $sql = "SELECT 
-                        f.* FROM 
-                        faculty f
-                    WHERE 
-                        m.major_id = :major_id";
 
+            $sql = "SELECT * FROM faculty WHERE faculty_id = :faculty_id";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':major_id', $mid, PDO::PARAM_INT);
+            $stmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
             $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // fetch (ไม่ใช่ fetchAll) เพราะ major หนึ่งสังกัดได้แค่ 1 faculty ตาม logic ปกติ
-            $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$faculty) {
-                return []; // หรือ throw Exception ถ้าต้องการ
-            }
-
-            return $faculty;
-
+            return $data;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -95,6 +101,8 @@ class FacultyModel
             if (empty($data['faculty_name'])) {
                 throw new Exception('faculty name not provided', 400);
             }
+
+            $data["created_at"] = date('Y-m-d H:i:s');
 
             $setClauses = [];
             $updateData = [];
@@ -127,16 +135,11 @@ class FacultyModel
     public function UpdateFaculty($fid, $data): mixed
     {
         try {
-            if (empty($data) && !is_array($data) || empty($fid)) {
+            if (empty($data) || !is_array($data) || empty($fid)) {
                 throw new Exception('Bad Request =(', 400);
             }
 
-            // $encodedPassword = password_hash(
-            //     $data['password'],
-            //     PASSWORD_DEFAULT,
-            //     ['cost' => self::$SaltRound]
-            // );
-
+            $data["updated_at"] = date('Y-m-d H:i:s');
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
@@ -167,25 +170,6 @@ class FacultyModel
         }
     }
 
-    public function DeleteFacultyById($id): int
-    {
-        try {
-            if (empty($id)) {
-                throw new Exception('ID is required for deletion', 400);
-            }
-
-            $sql = "DELETE FROM faculty WHERE faculty_id = :faculty_id";
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->execute(['faculty_id' => $id]);
-
-            return $stmt->rowCount();
-        } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
     public function DeleteFaculty(array $data): int
     {
         if (empty($data['faculty_ids'] ?? []) || !is_array($data['faculty_ids'])) {
@@ -203,7 +187,11 @@ class FacultyModel
             $this->Conn->beginTransaction();
 
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM faculty WHERE faculty_id IN ($placeholders)";
+            $sql = "DELETE FROM 
+                        faculty 
+                    WHERE 
+                        faculty_id 
+                    IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
 

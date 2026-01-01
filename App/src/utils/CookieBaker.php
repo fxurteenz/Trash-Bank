@@ -5,18 +5,18 @@ use Exception;
 
 class CookieBaker
 {
-    private $expireTimes = 86400 / 24;
-    private string $path = '/';
-    private bool $secure = true;
+    private static $expireTimes = 86400 / 24;
+    private static string $path = '/';
+    private static bool $secure = true;
 
-    public function BakeUserCookie($userToken)
+    public static function BakeUserCookie($userToken)
     {
         // $this->user_token = $this->jwt_encode($userData);
         $cookieSetted = setcookie(
             name: 'user_token',
             value: $userToken,
-            expires_or_options: time() + $this->expireTimes,
-            path: $this->path,
+            expires_or_options: time() + self::$expireTimes,
+            path: self::$path,
             secure: true,
             httponly: true
         );
