@@ -207,8 +207,9 @@ class WasteTransactionModel
             $whereSql = " WHERE " . implode(" AND ", $whereClauses);
 
             $sql = "SELECT 
-                        w.*, a.member_id, a.member_name, a.member_personal_id, a.member_phone, a.member_email,
-                        f.faculty_id, f.faculty_name, c.waste_category_name, t.waste_type_name
+                        w.*, a.member_id, a.member_name, a.member_personal_id, 
+                        a.member_phone, a.member_email,f.faculty_id, 
+                        f.faculty_name, c.waste_category_name, t.waste_type_name
                     FROM 
                         waste_transaction w
                     LEFT JOIN member a ON w.member_id = a.member_id
