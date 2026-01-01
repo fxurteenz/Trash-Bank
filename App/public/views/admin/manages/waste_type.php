@@ -83,12 +83,12 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <template x-for="category in filteredCategories" :key="category.waste_category_id">
                     <div class="relative px-4 py-3 border border-gray-100 shadow-xs rounded transition duration-200 text-center hover:shadow-md hover:bg-sky-50 group cursor-pointer"
-                        :class="selectedCategory?.waste_category_id === category.waste_category_id ? 'ring-2 ring-sky-400 bg-sky-50' : 'bg-white'"
+                        :class="[selectedCategory?.waste_category_id === category.waste_category_id ? 'ring-2 ring-sky-400 bg-sky-50' : 'bg-white', category.waste_category_active == 0 ? 'border-l-4 border-l-orange-500' : '']"
                         @click="selectCategory(category)">
 
                         <span class="font-medium block truncate mt-1" x-text="category.waste_category_name"></span>
                         <span class="text-xs text-gray-400"
-                            x-text="`Carbon: ${category.waste_category_carbon_rate}`"></span>
+                            x-text="`Carbon: ${category.waste_category_co2_per_kg}`"></span>
                     </div>
                 </template>
             </div>
@@ -103,7 +103,7 @@
                     <div class="flex flex-col">
                         <h3 class="text-xl font-bold text-blue-700 text-shadow-xs"
                             x-text="selectedCategory ? selectedCategory.waste_category_name : 'เลือกหมวดหมู่'"></h3>
-                        <p class="text-xs text-gray-500" x-text="selectedCategory?.waste_category_description"></p>
+                        <p class="text-xs text-gray-500" x-text="selectedCategory?.waste_category_co2_per_kg"></p>
                     </div>
 
                     <button @click="closeCategoryDetail()"
@@ -199,6 +199,9 @@
                                         <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 text-right">ราคา
                                             (บาท)
                                         </th>
+                                        <th class="border border-gray-300 px-2 py-1 lg:px-4 lg:py-2 text-right">
+                                            สถานะ
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -217,6 +220,8 @@
                                                 x-text="type.waste_type_name"></td>
                                             <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-right"
                                                 x-text="Number(type.waste_type_price).toFixed(2)"></td>
+                                            <td class="border border-gray-300 py-1 px-1.5 lg:px-2 lg:py-2 overflow-hidden text-ellipsis text-right group-hover:text-amber-700"
+                                                x-text="type.waste_type_active ? '✅ เปิดรับฝาก' : '❌ ปิดรับฝาก'"></td>
                                         </tr>
                                     </template>
                                     <tr x-show="wasteTypes.length === 0">
@@ -258,17 +263,16 @@
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div>
-                        <label for="category_description"
-                            class="block text-gray-700 font-medium mb-1">รายละเอียด</label>
-                        <textarea x-model="categoryForm.waste_category_description" rows="2" id="category_description"
-                            class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition"></textarea>
-                    </div>
-                    <div>
-                        <label for="category_carbon_rate" class="block text-gray-700 font-medium mb-1">Carbon
-                            Rate</label>
-                        <input type="number" step="0.01" x-model="categoryForm.waste_category_carbon_rate" required
-                            id="category_carbon_rate"
+                        <label for="category_co2_per_kg" class="block text-gray-700 font-medium mb-1">ปริมาณการลด CO2 /
+                            กิโลกรัม</label>
+                        <input type="number" step="0.01" x-model="categoryForm.waste_category_co2_per_kg" required
+                            id="category_co2_per_kg"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
+                    </div>
+                    <div x-show="isEditingCategory" class="flex items-center gap-2 mt-2">
+                        <input type="checkbox" x-model="categoryForm.waste_category_active" id="category_active"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                        <label for="category_active" class="text-gray-700 font-medium">เปิดรับฝาก</label>
                     </div>
                     <div class="pt-4 flex justify-end space-x-2">
                         <button type="button" @click="createCategoryDialogShow = false"
@@ -305,15 +309,32 @@
                         <span class="font-semibold text-gray-800" x-text="selectedCategory?.waste_category_name"></span>
                     </div>
                     <div>
-                        <label for="type_name" class="block text-gray-700 font-medium mb-1">ชื่อประเภทขยะ</label>
+                        <label for="type_name" class="block text-gray-700 font-medium mb-1">
+                            ชื่อประเภทขยะ
+                        </label>
                         <input type="text" x-model="typeForm.waste_type_name" required id="type_name"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
                     </div>
                     <div>
-                        <label for="type_price" class="block text-gray-700 font-medium mb-1">ราคา (บาท)</label>
+                        <label for="type_price" class="block text-gray-700 font-medium mb-1">
+                            ราคา (บาท)
+                        </label>
                         <input type="number" step="0.01" min="0" x-model="typeForm.waste_type_price" required
                             id="type_price"
                             class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
+                    </div>
+                    <div>
+                        <label for="type_co2" class="block text-gray-700 font-medium mb-1">
+                            ปริมาณการลด CO2 / กิโลกรัม
+                        </label>
+                        <input type="number" step="0.001" min="0" x-model="typeForm.waste_type_co2" required
+                            id="type_co2"
+                            class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-sky-300 focus:border-sky-400 outline-none transition">
+                    </div>
+                    <div x-show="isEditingType" class="flex items-center gap-2 mt-2">
+                        <input type="checkbox" x-model="typeForm.waste_type_active" id="type_active"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                        <label for="type_active" class="text-gray-700 font-medium">เปิดรับฝาก</label>
                     </div>
                     <div class="pt-4 flex justify-end space-x-2">
                         <button type="button" @click="createTypeDialogShow = false"
@@ -357,8 +378,8 @@
             categoryForm: {
                 waste_category_id: null,
                 waste_category_name: '',
-                waste_category_description: '',
-                waste_category_carbon_rate: ''
+                waste_category_co2_per_kg: '',
+                waste_category_active: ''
             },
             typeForm: {
                 waste_type_id: null,
@@ -374,10 +395,10 @@
             async fetchCategories() {
                 this.isLoadingCategories = true;
                 try {
-                    const response = await fetch('/api/categories');
-                    const data = await response.json();
-                    if (data.success) {
-                        this.categories = data.result.data;
+                    const response = await fetch('/api/waste_categories');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.categories = result.data;
                     }
                 } catch (error) {
                     console.error('Error fetching categories:', error);
@@ -412,13 +433,14 @@
             // --- CRUD Category ---
             openCreateCategoryDialog() {
                 this.isEditingCategory = false;
-                this.categoryForm = { waste_category_id: null, waste_category_name: '', waste_category_description: '', waste_category_carbon_rate: '' };
+                this.categoryForm = { waste_category_id: null, waste_category_name: '', waste_category_co2_per_kg: '' };
                 this.createCategoryDialogShow = true;
             },
 
             openEditCategoryDialog(category) {
                 this.isEditingCategory = true;
-                this.categoryForm = { ...category }; // Copy data to form
+                this.categoryForm = { ...category };
+                this.categoryForm.waste_category_active = Boolean(Number(this.categoryForm.waste_category_active));
                 this.createCategoryDialogShow = true;
             },
 
@@ -426,15 +448,20 @@
                 this.createCategoryDialogShow = false;
 
                 const url = this.isEditingCategory
-                    ? `/api/categories/update/${this.categoryForm.waste_category_id}`
-                    : '/api/categories';
+                    ? `/api/waste_categories/update/${this.categoryForm.waste_category_id}`
+                    : '/api/waste_categories';
                 const method = 'POST';
+
+                const payload = { ...this.categoryForm };
+                if (this.isEditingCategory) {
+                    payload.waste_category_active = this.categoryForm.waste_category_active ? 1 : 0;
+                }
 
                 try {
                     const response = await fetch(url, {
                         method: method,
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.categoryForm)
+                        body: JSON.stringify(payload)
                     });
                     const data = await response.json();
 
@@ -442,7 +469,7 @@
                         const msg = this.isEditingCategory ? 'แก้ไขข้อมูลเรียบร้อย' : 'เพิ่มข้อมูลเรียบร้อย';
                         Swal.fire('สำเร็จ', msg, 'success');
                         this.fetchCategories();
-                        // ถ้ากำลังแก้ไขตัวที่เลือกอยู่ อัปเดต UI ที่เลือกด้วย
+
                         if (this.selectedCategory && this.selectedCategory.waste_category_id === this.categoryForm.waste_category_id) {
                             this.selectedCategory = { ...this.categoryForm };
                         }
@@ -474,7 +501,7 @@
 
             async deleteCurrentCategory() {
                 try {
-                    const response = await fetch('/api/categories/bulk-del', {
+                    const response = await fetch('/api/waste_categories/bulk-del', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -500,9 +527,9 @@
                 this.wasteTypes = [];
                 try {
                     const response = await fetch(`/api/waste_types/${categoryId}`);
-                    const data = await response.json();
-                    if (data.success) {
-                        this.wasteTypes = data.result.data;
+                    const result = await response.json();
+                    if (result.success) {
+                        this.wasteTypes = result.data;
                     }
                 } catch (error) {
                     console.error('Error fetching waste types:', error);
@@ -526,6 +553,7 @@
             openEditTypeDialog(type) {
                 this.isEditingType = true;
                 this.typeForm = { ...type };
+                this.typeForm.waste_type_active = Boolean(Number(this.typeForm.waste_type_active));
                 this.createTypeDialogShow = true;
             },
 
@@ -541,7 +569,10 @@
                 const payload = {
                     waste_type_id: this.typeForm.waste_type_id,
                     waste_type_name: this.typeForm.waste_type_name,
-                    waste_type_price: this.typeForm.waste_type_price
+                    waste_type_price: this.typeForm.waste_type_price,
+                    waste_type_co2: this.typeForm.waste_type_co2,
+                    waste_category_id: this.selectedCategory.waste_category_id,
+                    waste_type_active: this.typeForm.waste_type_active ? 1 : 0
                 };
 
                 try {

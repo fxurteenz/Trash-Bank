@@ -10,7 +10,7 @@
         <form @submit.prevent="confirmSubmit" class="space-y-4 text-sm">
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">ผู้ฝาก</label>
-                <input x-model="form.depositor_account" required
+                <input x-model="form.depositor_member" required
                     class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
                     type="text" placeholder="เบอร์โทรศัพท์/รหัสประจำตัว">
             </div>
@@ -107,7 +107,8 @@
         </div>
     </div>
 
-    <div x-data="wasteTransactionManager()" x-init="init()" class="bg-white md:col-span-5 rounded-lg shadow p-6">
+    <div x-data="wasteTransactionManager()" x-init="init()" @transaction-updated.window="fetchTransactions()"
+        class="bg-white md:col-span-5 rounded-lg shadow p-6">
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h2 class="text-xl font-bold">ประวัติการดำเนินการ</h2>
@@ -118,10 +119,11 @@
         </div>
 
         <!-- Filters Section -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <div
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">ค้นหาผู้ฝาก</label>
-                <input type="text" x-model="filters.account_search" @input.debounce.500ms="applyFilters"
+                <input type="text" x-model="filters.member_search" @input.debounce.500ms="applyFilters"
                     placeholder="ชื่อ/รหัส/เบอร์โทร"
                     class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:ring-blue-500 focus:border-blue-500">
             </div>
@@ -167,7 +169,6 @@
                         <th class="px-4 py-2 text-right">หมวดหมู่</th>
                         <th class="px-4 py-2 text-right">ขนิด</th>
                         <th class="px-4 py-2 text-center">น้ำหนัก</th>
-                        <th class="px-4 py-2 text-center">มูลค่า</th>
                         <th class="px-4 py-2 text-center">สถานะ</th>
                     </tr>
                 </thead>
@@ -189,11 +190,11 @@
                     <template x-for="transaction in transactions" :key="transaction.waste_transaction_id">
                         <tr class="border-b border-gray-100">
                             <td class="border border-gray-300 px-2 py-1 text-center"
-                                x-text="formatDate(transaction.waste_transaction_create_date)"></td>
+                                x-text="formatDate(transaction.created_at)"></td>
                             <td class="border border-gray-300 px-2 py-1 text-center"
-                                x-text="formatTime(transaction.waste_transaction_create_time)"></td>
+                                x-text="formatTime(transaction.created_at)"></td>
                             <td class="border border-gray-300 px-2 py-1"
-                                x-text="transaction.account_name || transaction.account_email || transaction.account_tel || transaction.account_personal_id">
+                                x-text="transaction.member_name || transaction.member_email || transaction.member_phone || transaction.member_personal_id">
                             </td>
                             <td class="border border-gray-300 px-2 py-1 text-right"
                                 x-text="transaction.waste_category_name"></td>
@@ -202,8 +203,6 @@
                             <td class="border border-gray-300 px-2 py-1 text-right"
                                 x-text="transaction.waste_transaction_weight"></td>
                             <td class="border border-gray-300 px-2 py-1 text-right"
-                                x-text="transaction.waste_transaction_value"></td>
-                            <td class="border border-gray-300 px-2 py-1 text-right"
                                 x-text="transaction.waste_transaction_status"></td>
                         </tr>
                     </template>
@@ -211,21 +210,31 @@
             </table>
         </div>
 
-        <div class="flex justify-between items-center mt-4">
-            <div>
-                <button @click="prevPage" :disabled="currentPage === 1" class="bg-gray-200 px-3 py-1 rounded-md text-sm"
-                    :class="{'cursor-not-allowed': currentPage === 1}">Previous</button>
+        <div class="flex flex-col md:flex-row justify-between items-center mt-4 gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600">แสดง</span>
+                <select x-model="limit" @change="currentPage = 1; fetchTransactions()" 
+                    class="border border-gray-300 rounded text-sm px-2 py-1 focus:outline-none focus:border-blue-500 bg-white">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-sm text-gray-600">รายการ</span>
+            </div>
 
-            </div>
-            <div>
-                <span class="text-sm text-gray-700">
-                    Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+            <div class="flex items-center gap-2">
+                <button @click="prevPage" :disabled="currentPage === 1"
+                    class="bg-gray-200 px-3 py-1 rounded-md text-sm disabled:text-gray-500 disabled:opacity-50 hover:bg-gray-300 transition"
+                    :class="{'cursor-not-allowed': currentPage === 1}">ก่อนหน้า</button>
+                
+                <span class="text-sm text-gray-500 mx-2">
+                    หน้า <span x-text="currentPage"></span> / <span x-text="totalPages"></span>
                 </span>
-            </div>
-            <div>
+
                 <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="bg-gray-200 px-3 py-1 rounded-md text-sm ml-2"
-                    :class="{'cursor-not-allowed': currentPage === totalPages}">Next</button>
+                    class="bg-gray-200 px-3 py-1 rounded-md text-sm disabled:text-gray-500 disabled:opacity-50 hover:bg-gray-300 transition"
+                    :class="{'cursor-not-allowed': currentPage === totalPages}">ถัดไป</button>
             </div>
         </div>
 
@@ -247,11 +256,11 @@
                 try {
                     const response = await fetch(`/api/waste_types?page=${this.page}&limit=${this.limit}`);
                     const result = await response.json();
-                    console.log(result);
+                    // console.log(result);
 
                     if (response.ok) {
-                        this.wasteTypes = result.result.data || [];
-                        this.totalPages = Math.ceil(result.result.total / this.limit);
+                        this.wasteTypes = result.data || [];
+                        this.totalPages = Math.ceil(result.total / this.limit);
                     } else {
                         throw new Error(result.message || 'Failed to fetch data');
                     }
@@ -290,7 +299,7 @@
             isSubmitting: false,
             isFetchingTypes: false,
             form: {
-                depositor_account: null,
+                depositor_member: null,
                 waste_category_id: "",
                 waste_type_id: "",
                 deposit_weight: null
@@ -298,10 +307,11 @@
 
             async initData() {
                 try {
-                    const wasteCategoriesResponse = await fetch('/api/categories');
-                    const result = await wasteCategoriesResponse.json();
+                    const response = await fetch('/api/waste_categories');
+                    const result = await response.json();
+                    // console.log(result);
 
-                    this.DropdownWasteCategories = result.result.data || [];
+                    this.DropdownWasteCategories = result.data || [];
                 } catch (error) {
                     console.error('Error fetching waste categories:', error);
                     await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลหมวดหมู่ขยะได้', 'error');
@@ -320,15 +330,15 @@
                 try {
                     const response = await fetch(`/api/waste_types/${this.form.waste_category_id}`);
                     const result = await response.json();
-                    console.log(result.result);
+                    console.log(result);
 
                     if (response.ok) {
-                        this.DropdownWasteTypes = result.result.data || [];
+                        this.DropdownWasteTypes = result.data || [];
                     } else {
                         throw new Error(result.message || 'Failed to fetch waste types');
                     }
                 } catch (error) {
-                    console.error('Error fetching waste types:', error);
+                    // console.error('Error fetching waste types:', error);
                     await Swal.fire('Error', 'ไม่สามารถโหลดข้อมูลชนิดขยะได้', 'error');
                 } finally {
                     this.isFetchingTypes = false;
@@ -336,7 +346,7 @@
             },
 
             confirmSubmit() {
-                if (!this.form.depositor_account || !this.form.waste_type_id || !this.form.deposit_weight) {
+                if (!this.form.depositor_member || !this.form.waste_type_id || !this.form.deposit_weight) {
                     Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
                     return;
                 }
@@ -350,7 +360,7 @@
                     title: 'ยืนยันการฝากขยะ?',
                     html: `
                         <div class="text-left text-sm space-y-1">
-                            <p><b>ผู้ฝาก:</b> ${this.form.depositor_account}</p>
+                            <p><b>ผู้ฝาก:</b> ${this.form.depositor_member}</p>
                             <p><b>หมวดหมู่:</b> ${categoryName}</p>
                             <p><b>ชนิด:</b> ${typeName}</p>
                             <p><b>น้ำหนัก:</b> ${this.form.deposit_weight} กก.</p>
@@ -384,11 +394,13 @@
 
                     if (response.ok) {
                         Swal.fire('สำเร็จ!', 'บันทึกข้อมูลเรียบร้อยแล้ว', 'success');
-                        this.form.depositor_account = null;
+                        this.form.depositor_member = null;
                         this.form.waste_category_id = "";
                         this.form.waste_type_id = "";
                         this.form.deposit_weight = null;
                         this.DropdownWasteTypes = [];
+                        window.dispatchEvent(new CustomEvent('transaction-updated'));
+
                     } else {
                         throw new Error(result.message || 'เกิดข้อผิดพลาดในการบันทึก');
                     }
@@ -415,7 +427,7 @@
             faculties: [],
             categories: [],
             filters: {
-                account_search: '',
+                member_search: '',
                 faculty: '',
                 category: '',
                 start_date: '',
@@ -431,13 +443,15 @@
                 try {
                     const [facRes, catRes] = await Promise.all([
                         fetch('/api/faculties'),
-                        fetch('/api/categories')
+                        fetch('/api/waste_categories')
                     ]);
                     const faculties = await facRes.json();
                     const categories = await catRes.json();
+                    // console.log(faculties);
+                    // console.log(categories);
 
-                    this.faculties = faculties.result || [];
-                    this.categories = categories.result.data || [];
+                    this.faculties = faculties.data || [];
+                    this.categories = categories.data || [];
                 } catch (error) {
                     console.error('Error loading filter data:', error);
                 }
@@ -472,7 +486,7 @@
 
             resetFilters() {
                 this.filters = {
-                    account_search: '',
+                    member_search: '',
                     faculty: '',
                     category: '',
                     start_date: '',
@@ -492,7 +506,7 @@
 
                     const response = await fetch(`/api/waste_transactions/me?${queryParams.toString()}`);
                     const data = await response.json();
-                    console.log(data);
+                    // console.log(data);
 
                     if (data.success) {
                         this.transactions = data.result.data;
