@@ -44,16 +44,21 @@ class MemberController extends RouterBase
         try {
             Authentication::AdminAuth();
             $result = $this->MemberModel->GetAllMembers($this->queryString);
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
+            $response = [
                 'success' => TRUE,
                 'data' => $result['data'],
                 'total' => $result['total'],
-                'page' => (int) $this->queryString['page'],
-                'limmit' => (int) $this->queryString['limit'],
                 'message' => 'successfully =)'
-            ]);
+            ];
+            if (isset($this->queryString['page'])) {
+                $response['page'] = (int) $this->queryString['page'];
+            }
+            if (isset($this->queryString['limit'])) {
+                $response['limit'] = (int) $this->queryString['limit'];
+            }
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode([

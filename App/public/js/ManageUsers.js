@@ -1,10 +1,8 @@
 function UserTable() {
     return {
-        users: [],
+        members: [],
         faculties: [], // Store Faculty list
-        majors: [], // Store Major list (dynamic)
-        filterMajors: [], // Store Major list for filter
-        checkedUser: { account_ids: [] },
+        checkedMembers: { member_ids: [] },
         selectedUser: null,
         createUserDialogShow: false,
         editUserDialogShow: false,
@@ -18,53 +16,52 @@ function UserTable() {
         },
 
         editUserForm: {
-            account_personal_id: "",
-            account_tel: "",
-            account_name: "",
-            account_email: "",
+            member_personal_id: "",
+            member_phone: "",
+            member_name: "",
+            member_email: "",
             faculty_id: "",
-            major_id: "",
-            account_role: "",
+            role_id: "",
         },
+
         createUserForm: {
-            account_personal_id: "",
-            account_tel: "",
-            account_name: "",
-            account_email: "",
-            account_password: "",
+            member_personal_id: "",
+            member_phone: "",
+            member_name: "",
+            member_email: "",
+            member_password: "",
             faculty_id: "",
-            major_id: "",
-            account_role: "",
+            role_id: "",
         },
+
         filters: {
             faculty_id: "",
-            major_id: "",
             role: "",
             search: "",
         },
 
         async initData() {
-            await this.fetchUsers();
+            await this.fetchMembers();
             await this.fetchFaculties();
         },
 
-        async fetchUsers() {
+        async fetchMembers() {
             try {
                 const params = new URLSearchParams();
                 params.append("page", this.page);
                 params.append("limit", this.limit);
                 if (this.filters.faculty_id)
                     params.append("faculty_id", this.filters.faculty_id);
-                if (this.filters.major_id)
-                    params.append("major_id", this.filters.major_id);
                 if (this.filters.role) params.append("role", this.filters.role);
                 if (this.filters.search)
                     params.append("search", this.filters.search);
 
-                const res = await fetch(`/api/users?${params.toString()}`);
-                let data = await res.json();
-                this.users = data.result;
-                this.totalPages = Math.ceil(data.total / this.limit);
+                const res = await fetch(`/api/members?${params.toString()}`);
+                let result = await res.json();
+                console.log(result.data);
+
+                this.members = result.data;
+                this.totalPages = Math.ceil(result.total / this.limit);
             } catch (err) {
                 console.error("โหลดข้อมูลผู้ใช้ล้มเหลว", err);
             }
@@ -73,79 +70,40 @@ function UserTable() {
         async fetchFaculties() {
             try {
                 const res = await fetch("/api/faculties");
-                const data = await res.json();
-                if (data.success || data.result) {
-                    this.faculties = data.result;
+                const result = await res.json();
+                if (result.success || result.data) {
+                    this.faculties = result.data;
+                } else {
+                    throw result;
                 }
             } catch (err) {
                 console.error("โหลดข้อมูลคณะล้มเหลว", err);
             }
         },
 
-        async fetchMajors(facultyId) {
-            this.majors = []; // Clear old majors first
-            if (!facultyId) return;
-
-            try {
-                const res = await fetch(`/api/majors/faculty/${facultyId}`);
-                const data = await res.json();
-                if (data.success || data.result) {
-                    this.majors = data.result;
-                }
-            } catch (err) {
-                console.error("โหลดข้อมูลสาขาล้มเหลว", err);
-            }
-        },
-
-        async fetchFilterMajors(facultyId) {
-            this.filterMajors = [];
-            this.filters.major_id = "";
-            this.page = 1;
-
-            if (!facultyId) {
-                this.fetchUsers();
-                ``;
-                return;
-            }
-
-            try {
-                const res = await fetch(`/api/majors/faculty/${facultyId}`);
-                const data = await res.json();
-                if (data.success || data.result) {
-                    this.filterMajors = data.result;
-                }
-                this.fetchUsers();
-            } catch (err) {
-                console.error("โหลดข้อมูลสาขาล้มเหลว", err);
-            }
-        },
-
         handleFilterChange() {
             this.page = 1;
-            this.fetchUsers();
+            this.fetchMembers();
         },
 
         resetFilters() {
             this.filters = {
                 faculty_id: "",
-                major_id: "",
                 role: "",
                 search: "",
             };
-            this.filterMajors = [];
             this.page = 1;
-            this.fetchUsers();
+            this.fetchMembers();
         },
 
         openCreateDialog() {
             this.createUserForm = {
-                account_personal_id: "", // เพิ่ม field นี้ตอน reset
-                account_name: "",
-                account_email: "",
-                account_password: "",
+                member_personal_id: "", // เพิ่ม field นี้ตอน reset
+                member_name: "",
+                member_email: "",
+                member_password: "",
                 faculty_id: "",
-                major_id: "",
-                account_role: "",
+                role_id: "",
             };
             this.majors = [];
             this.errors.create = {};
@@ -155,20 +113,16 @@ function UserTable() {
         async selectingRow(user) {
             this.selectedUser = user;
             this.editUserForm = {
-                account_personal_id: user.account_personal_id ?? "",
-                account_tel: user.account_tel ?? null,
-                account_name: user.account_name ?? null,
-                account_email: user.account_email ?? null,
+                member_personal_id: user.member_personal_id ?? "",
+                member_phone: user.member_phone ?? null,
+                member_name: user.member_name ?? null,
+                member_email: user.member_email ?? null,
                 faculty_id: user.faculty_id ?? "",
-                account_role: user.account_role == "user" ? 1 : user.account_role == "faculty_staff" ?  2 : user.account_role == "operater" ? 3 : 4,
-                major_id: "",
+                role_id: user.role_id,
             };
             this.errors.edit = {};
             if (user.faculty_id) {
-                await this.fetchMajors(user.faculty_id);
                 this.editUserForm.major_id = user.major_id ?? "";
-            } else {
-                this.majors = [];
             }
 
             console.log("Selected User:", user);
@@ -183,20 +137,18 @@ function UserTable() {
             const form =
                 formType === "create" ? this.createUserForm : this.editUserForm;
 
-            if (!form.account_personal_id) {
-                errors.account_personal_id = true;
+            if (!form.member_phone) {
+                errors.member_phone = true;
                 isValid = false;
             }
-            if (!form.faculty_id) {
-                errors.faculty_id = true;
+
+            if (!form.role_id) {
+                errors.role_id = true;
                 isValid = false;
             }
-            if (!form.account_role) {
-                errors.account_role = true;
-                isValid = false;
-            }
-            if (formType === "create" && !form.account_password) {
-                errors.account_password = true;
+
+            if (formType === "create" && !form.member_password) {
+                errors.member_password = true;
                 isValid = false;
             }
 
@@ -229,7 +181,7 @@ function UserTable() {
             if (result.isConfirmed) {
                 try {
                     const res = await fetch(
-                        `/api/users/update/${this.selectedUser.account_id}`,
+                        `/api/members/update/${this.selectedUser.member_id}`,
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -246,14 +198,14 @@ function UserTable() {
                             showConfirmButton: false,
                         });
                         this.selectedUser = null;
-                        this.fetchUsers();
+                        this.fetchMembers();
                     } else {
                         throw new Error(
                             response.message || "Something went wrong"
                         );
                     }
                 } catch (error) {
-                    Swal.fire({
+                    await Swal.fire({
                         icon: "error",
                         title: "ผิดพลาด",
                         text: "แก้ไขข้อมูลไม่สำเร็จ",
@@ -280,7 +232,7 @@ function UserTable() {
             }
 
             try {
-                const res = await fetch(`/api/users`, {
+                const res = await fetch(`/api/members`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(this.createUserForm),
@@ -295,7 +247,7 @@ function UserTable() {
                         timer: 2000,
                         showConfirmButton: false,
                     });
-                    this.fetchUsers();
+                    this.fetchMembers();
                 } else {
                     throw new Error(response.message || "Something went wrong");
                 }
@@ -313,11 +265,11 @@ function UserTable() {
         },
 
         async deleteCheckedUser() {
-            if (this.checkedUser.account_ids.length === 0) return;
+            if (this.checkedMembers.member_ids.length === 0) return;
 
             const result = await Swal.fire({
                 title: "ลบข้อมูล",
-                text: `ต้องการลบผู้ใช้ ${this.checkedUser.account_ids.length} รายการ ใช่หรือไม่?`,
+                text: `ต้องการลบผู้ใช้ ${this.checkedMembers.member_ids.length} รายการ ใช่หรือไม่?`,
                 icon: "warning",
                 showConfirmButton: true,
                 confirmButtonText: "ยืนยันการลบ",
@@ -328,10 +280,10 @@ function UserTable() {
 
             if (result.isConfirmed) {
                 try {
-                    const deleteRes = await fetch("/api/users/bulk-del", {
+                    const deleteRes = await fetch("/api/members/bulk-del", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(this.checkedUser),
+                        body: JSON.stringify(this.checkedMembers),
                     });
                     const delResult = await deleteRes.json();
 
@@ -342,8 +294,8 @@ function UserTable() {
                             timer: 2000,
                             showConfirmButton: false,
                         });
-                        this.checkedUser.account_ids = []; // Reset checked items
-                        this.fetchUsers();
+                        this.checkedMembers.member_ids = []; // Reset checked items
+                        this.fetchMembers();
                     } else {
                         throw new Error(
                             delResult.message || "Something went wrong"
