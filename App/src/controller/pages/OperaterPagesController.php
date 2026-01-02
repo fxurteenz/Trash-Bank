@@ -18,7 +18,7 @@ class OperaterPagesController extends RouterBase
                 'title' => 'หน้าหลัก',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -33,7 +33,7 @@ class OperaterPagesController extends RouterBase
                 'title' => 'แลกของรางวัล',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);

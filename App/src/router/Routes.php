@@ -1,9 +1,9 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
-use App\Controller\Api\LeaderController;
-use App\Controller\Api\MajorController;
+use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Pages\OperaterPagesController;
@@ -35,10 +35,13 @@ class Routes
 
     private function DefineRoutes(): void
     {
+        // Guest
+        $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
+        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
+
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
-        $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
 
         $this->addPrefixedRoutes("/operater", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
@@ -62,65 +65,53 @@ class Routes
         ]);
 
         /* API */
-        /* api/users */
-        $this->addPrefixedRoutes('/api/users', [
-            ['GET', '', [UsersController::class, 'GetAll']],
-            // ['GET', '/[i:id]', [UsersController::class, 'GetUserById']],
-            ['POST', '', [UsersController::class, 'Create']],
-            ['POST', '/update/[*:uid]', [UsersController::class, 'Update']],
-            ['POST', '/bulk-del', [UsersController::class, 'Delete']],
+        /* api/members */
+        $this->addPrefixedRoutes('/api/members', [
+            ['GET', '', [MemberController::class, 'GetAll']],
+            // ['GET', '/[i:id]', [MemberController::class, 'GetUserById']],
+            ['POST', '', [MemberController::class, 'Create']],
+            ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
+            ['POST', '/delete', [MemberController::class, 'Delete']],
         ]);
         /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
-            // ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
+            ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
         ]);
-        /* /api/majors */
-        $this->addPrefixedRoutes('/api/majors', [
-            ['GET', '', [MajorController::class, 'GetAll']],
-            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
-            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
-            ['POST', '', [MajorController::class, 'Create']],
-            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
-            ['POST', '/delete', [MajorController::class, 'Delete']]
-        ]);
         /* /api/waste_categories */
-        $this->addPrefixedRoutes("/api/categories", [
+        $this->addPrefixedRoutes("/api/waste_categories", [
             ['GET', "", [WasteCategoryController::class, "GetAll"]],
             ['POST', '', [WasteCategoryController::class, 'Create']],
             ['POST', '/update/[*:id]', [WasteCategoryController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteCategoryController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteCategoryController::class, 'Delete']],
+            ['POST', '/activate', [WasteCategoryController::class, 'ToggleActive']],
+            ['POST', '/delete', [WasteCategoryController::class, 'Delete']],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_types", [
             ['GET', "", [WasteTypeController::class, "GetAll"]],
             ['GET', "/[i:cid]", [WasteTypeController::class, "GetByCategoryId"]],
             ['POST', '', [WasteTypeController::class, 'Create']],
-            ['POST', '/update/[*:id]', [WasteTypeController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteTypeController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteTypeController::class, 'Delete']],
+            ['POST', '/update/[i:wtid]', [WasteTypeController::class, 'Update']],
+            ['POST', '/activate', [WasteTypeController::class, 'ToggleActive']],
+            ['POST', '/delete/[i:wtid]', [WasteTypeController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteTypeController::class, 'Delete']],
         ]);
-        /* /api/leaders */
+        /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
-            ['GET', "/leader_users", [LeaderController::class, "GetUsersLeaderByRole"]],
-            ['GET', "/leader_users_faculty", [LeaderController::class, "GetUsersLeaderByFaculty"]],
-            ['GET', "/leader_users_major", [LeaderController::class, "GetUsersLeaderByMajor"]],
-            ['GET', "/leader_faculties", [LeaderController::class, "GetFacultyLeader"]],
-            ['GET', "/leader_faculties_stats", [LeaderController::class, "GetFacultyWasteStats"]],
-            ['GET', "/leader_faculties_stats_date", [LeaderController::class, "GetFacultyWasteStatsByDate"]],
+            ['GET', "/faculty", [ReportController::class, "GetFacultyWasteStats"]],
+            ['GET', "/user", [ReportController::class, "GetUsersWasteStats"]],
         ]);
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
             ['POST', '', [WasteTransactionController::class, 'Create']],
-            ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
+            // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
-            ['POST', '/bulk-del', [WasteTransactionController::class, 'Delete']],
+            ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
     }
 }
