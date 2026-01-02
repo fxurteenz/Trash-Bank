@@ -51,42 +51,6 @@
                 </button>
             </div>
 
-            <div class="flex justify-end text-sm space-x-2">
-                <div class="flex items-center px-2 py-1 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="M6.532 4.75h6.936c.457 0 .854 0 1.165.03c.307.028.685.095.993.348c.397.326.621.814.624 1.322c.002.39-.172.726-.34.992c-.168.27-.411.59-.695.964l-.031.04l-.01.013l-2.555 3.369c-.252.332-.315.42-.359.51a1.2 1.2 0 0 0-.099.297c-.02.1-.023.212-.023.634v4.243c0 .208 0 .412-.014.578c-.015.164-.052.427-.224.663c-.21.287-.537.473-.9.495c-.302.019-.547-.103-.69-.183c-.144-.08-.309-.195-.476-.31l-.989-.683l-.048-.033c-.191-.131-.403-.276-.562-.477a1.7 1.7 0 0 1-.303-.585c-.071-.244-.07-.5-.07-.738v-2.97c0-.422-.004-.534-.023-.634a1.2 1.2 0 0 0-.1-.297c-.043-.09-.106-.178-.358-.51L4.825 8.459l-.01-.012l-.03-.04c-.284-.375-.527-.695-.696-.965c-.167-.266-.34-.602-.339-.992a1.72 1.72 0 0 1 .624-1.322c.308-.253.686-.32.993-.349c.311-.029.707-.029 1.165-.029m.397 4l1.647 2.17l.035.047c.201.264.361.475.478.715q.154.317.222.665c.051.261.05.527.05.864v2.968c0 .158.001.247.005.314l.006.062a.2.2 0 0 0 .036.073l.041.034c.05.04.12.088.248.176l.941.65V13.21c0-.337 0-.603.051-.864q.068-.347.222-.665c.117-.24.277-.45.478-.715l.035-.046l1.646-2.17zm7.28-1.5c.195-.26.334-.45.43-.604c.08-.126.104-.188.11-.207a.22.22 0 0 0-.057-.134a1 1 0 0 0-.2-.032c-.232-.022-.556-.023-1.06-.023H6.568c-.504 0-.828 0-1.06.023a1 1 0 0 0-.2.032a.22.22 0 0 0-.057.134c.006.019.03.081.11.207c.096.155.235.344.43.604zm1.541 3.25a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 0 1.5h-3a.75.75 0 0 1-.75-.75m-1.5 2.5a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5H15a.75.75 0 0 1-.75-.75m-.5 2.5a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75m0 2.5a.75.75 0 0 1 .75-.75H17a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75"
-                            stroke-width="0.2" stroke="currentColor" />
-                    </svg>
-                    ตัวกรอง
-                </div>
-
-                <div class="">
-                    <label class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-                        for="default-search">Search</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                                class="w-4 h-4 text-gray-500 dark:text-gray-400">
-                                <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke-width="2"
-                                    stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path>
-                            </svg>
-                        </div>
-                        <input required="" placeholder="Search"
-                            class="block w-full py-1 ps-10 pe-10 text-sm text-gray-900 border border-gray-300 rounded bg-gray-50 focus:ring-blue-500 outline-none focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            id="default-search" type="text" />
-                        <button
-                            class="absolute end-0 bottom-1/2 translate-y-1/2 py-2.5 px-2 text-sm font-medium text-white bg-blue-700 rounded-r-md border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
-                                class="w-4 h-2">
-                                <path d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" stroke-width="2"
-                                    stroke-linejoin="round" stroke-linecap="round" stroke="currentColor"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
         </div>
 
         <span class="text-xs font-light">รายชื่อคณะจากข้อมูลที่มีในระบบ</span>
@@ -126,7 +90,7 @@
                 <div class="p-4 rounded space-y-2">
 
                     <div class="flex justify-between items-center">
-                        <h4 class="font-semibold text-gray-500">สาขาที่พบ</h4>
+                        <h4 class="font-semibold text-gray-500">รายละเอียด</h4>
 
                         <div class="flex items-center space-x-2 text-xs">
                             <button x-show="selectedMajorIds.length > 0" @click="deleteSelectedMajors"
@@ -190,7 +154,7 @@
                     </div>
 
                     <div class="table-container">
-                        <template x-if="FacultyMajorDataLoading">
+                        <!-- <template x-if="FacultyMajorDataLoading">
                             <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
                                 <thead class="bg-gray-200 text-xs">
                                     <tr>
@@ -228,9 +192,9 @@
                                     </template>
                                 </tbody>
                             </table>
-                        </template>
+                        </template> -->
 
-                        <div x-show="!FacultyMajorDataLoading">
+                        <!-- <div x-show="!FacultyMajorDataLoading">
                             <table class="w-full table-auto border-collapse border border-gray-300 text-sm">
                                 <thead class="bg-gray-200 text-xs">
                                     <tr>
@@ -282,7 +246,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -315,6 +279,12 @@
                             class="border border-gray-300 rounded p-1 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
                             type="text" id="create_fac_name" x-model="facultyForm.faculty_name">
                     </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <label for="create_fac_name">ชื่อย่อคณะ</label>
+                        <input
+                            class="border border-gray-300 rounded p-1 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                            type="text" id="create_fac_name" x-model="facultyForm.faculty_code">
+                    </div>
                 </div>
 
                 <div class="mt-4 text-right">
@@ -330,7 +300,7 @@
             </div>
         </dialog>
 
-        <dialog x-show="createMajorDialogShow" x-ref="createMajorDialog"
+        <!-- <dialog x-show="createMajorDialogShow" x-ref="createMajorDialog"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-3"
             x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100"
             x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-3"
@@ -379,7 +349,7 @@
                     </button>
                 </div>
             </div>
-        </dialog>
+        </dialog> -->
     </div>
 
 </div>
@@ -407,7 +377,8 @@
             // Forms
             facultyForm: {
                 faculty_id: null,
-                faculty_name: null
+                faculty_name: null,
+                faculty_code: null
             },
             majorForm: {
                 major_id: null,
@@ -418,7 +389,7 @@
                 this.selectedFacultyShow = false;
                 setTimeout(() => {
                     this.selectedFaculty = null;
-                    this.FacultyMajorData = [];
+                    // this.FacultyMajorData = [];
                     this.selectedMajorIds = [];
                 }, 200);
             },
@@ -426,8 +397,8 @@
             SelectFaculty(faculty) {
                 if (this.selectedFaculty?.faculty_id === faculty.faculty_id) return;
                 this.selectedFaculty = faculty;
-                this.selectedMajorIds = [];
-                this.fetchFacultyMajor(faculty);
+                // this.selectedMajorIds = [];
+                // this.fetchFacultyMajor(faculty);
                 this.selectedFacultyShow = true;
             },
 
@@ -435,34 +406,36 @@
                 try {
                     const res = await fetch("/api/faculties");
                     const result = await res.json();
-                    if (result.result) {
-                        this.AllFacultyData = result.result;
+                    // console.log(result);
+
+                    if (result.success) {
+                        this.AllFacultyData = result.data;
                     }
                 } catch (error) {
                     console.error(error);
                 }
             },
 
-            async fetchFacultyMajor(faculty) {
-                this.FacultyMajorDataLoading = true;
-                this.FacultyMajorData = [];
-                try {
-                    const res = await fetch(`/api/majors/faculty/${faculty.faculty_id}`);
-                    const result = await res.json();
-                    if (result.result) {
-                        this.FacultyMajorData = result.result;
-                    }
-                } catch (error) {
-                    console.error(error);
-                } finally {
-                    this.FacultyMajorDataLoading = false;
-                }
-            },
+            // async fetchFacultyMajor(faculty) {
+            //     this.FacultyMajorDataLoading = true;
+            //     this.FacultyMajorData = [];
+            //     try {
+            //         const res = await fetch(`/api/majors/faculty/${faculty.faculty_id}`);
+            //         const result = await res.json();
+            //         if (result.result) {
+            //             this.FacultyMajorData = result.result;
+            //         }
+            //     } catch (error) {
+            //         console.error(error);
+            //     } finally {
+            //         this.FacultyMajorDataLoading = false;
+            //     }
+            // },
 
             // --- Faculty CRUD ---
             openCreateFacultyDialog() {
                 this.isEditingFaculty = false;
-                this.facultyForm = { faculty_id: null, faculty_name: null };
+                this.facultyForm = { faculty_id: null, faculty_name: null, faculty_code: null };
                 this.createFacultyDialogShow = true;
             },
 
@@ -509,7 +482,7 @@
                             if (this.isEditingFaculty && this.selectedFaculty && this.selectedFaculty.faculty_id === this.facultyForm.faculty_id) {
                                 this.selectedFaculty = { ...this.facultyForm };
                             }
-                            this.facultyForm = { faculty_id: null, faculty_name: null };
+                            this.facultyForm = { faculty_id: null, faculty_name: null, faculty_code: null };
                         } else {
                             throw result;
                         }
@@ -555,115 +528,115 @@
             },
 
             // --- Major CRUD ---
-            openCreateMajorDialog() {
-                this.isEditingMajor = false;
-                this.majorForm = { major_id: null, major_name: null };
-                this.createMajorDialogShow = true;
-            },
+            // openCreateMajorDialog() {
+            //     this.isEditingMajor = false;
+            //     this.majorForm = { major_id: null, major_name: null };
+            //     this.createMajorDialogShow = true;
+            // },
 
-            openEditMajorDialog(major) {
-                this.isEditingMajor = true;
-                this.majorForm = { ...major };
-                this.createMajorDialogShow = true;
-            },
+            // openEditMajorDialog(major) {
+            //     this.isEditingMajor = true;
+            //     this.majorForm = { ...major };
+            //     this.createMajorDialogShow = true;
+            // },
 
-            async submitMajorForm() {
-                this.createMajorDialogShow = false;
-                const action = this.isEditingMajor ? 'แก้ไข' : 'เพิ่ม';
-                const url = this.isEditingMajor ? `/api/majors/update/${this.majorForm.major_id}` : '/api/majors';
+            // async submitMajorForm() {
+            //     this.createMajorDialogShow = false;
+            //     const action = this.isEditingMajor ? 'แก้ไข' : 'เพิ่ม';
+            //     const url = this.isEditingMajor ? `/api/majors/update/${this.majorForm.major_id}` : '/api/majors';
 
-                // Payload - if create need faculty_id, if update only name
-                const payload = {
-                    major_name: this.majorForm.major_name
-                };
-                if (!this.isEditingMajor) {
-                    payload.faculty_id = this.selectedFaculty.faculty_id;
-                }
+            //     // Payload - if create need faculty_id, if update only name
+            //     const payload = {
+            //         major_name: this.majorForm.major_name
+            //     };
+            //     if (!this.isEditingMajor) {
+            //         payload.faculty_id = this.selectedFaculty.faculty_id;
+            //     }
 
-                try {
-                    const confirmed = await Swal.fire({
-                        title: `${action}สาขา`,
-                        text: 'คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?',
-                        icon: 'info',
-                        showConfirmButton: true,
-                        confirmButtonText: "ยืนยัน",
-                        confirmButtonColor: "#ff8f4eff",
-                        showCancelButton: true,
-                        cancelButtonText: "ยกเลิก"
-                    });
+            //     try {
+            //         const confirmed = await Swal.fire({
+            //             title: `${action}สาขา`,
+            //             text: 'คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?',
+            //             icon: 'info',
+            //             showConfirmButton: true,
+            //             confirmButtonText: "ยืนยัน",
+            //             confirmButtonColor: "#ff8f4eff",
+            //             showCancelButton: true,
+            //             cancelButtonText: "ยกเลิก"
+            //         });
 
-                    if (confirmed.isConfirmed) {
-                        const res = await fetch(url, {
-                            method: 'POST',
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payload)
-                        });
-                        const result = await res.json();
+            //         if (confirmed.isConfirmed) {
+            //             const res = await fetch(url, {
+            //                 method: 'POST',
+            //                 headers: { "Content-Type": "application/json" },
+            //                 body: JSON.stringify(payload)
+            //             });
+            //             const result = await res.json();
 
-                        if (result.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'สำเร็จ',
-                                text: `${action}สาขาเรียบร้อยแล้ว`,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            this.fetchFacultyMajor(this.selectedFaculty);
-                            this.majorForm = { major_id: null, major_name: null };
-                        } else {
-                            throw result;
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: `${action}สาขาไม่สำเร็จ` });
-                    this.createMajorDialogShow = true;
-                }
-            },
+            //             if (result.success) {
+            //                 Swal.fire({
+            //                     icon: 'success',
+            //                     title: 'สำเร็จ',
+            //                     text: `${action}สาขาเรียบร้อยแล้ว`,
+            //                     timer: 1500,
+            //                     showConfirmButton: false
+            //                 });
+            //                 // this.fetchFacultyMajor(this.selectedFaculty);
+            //                 this.majorForm = { major_id: null, major_name: null };
+            //             } else {
+            //                 throw result;
+            //             }
+            //         }
+            //     } catch (error) {
+            //         console.error(error);
+            //         Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: `${action}สาขาไม่สำเร็จ` });
+            //         this.createMajorDialogShow = true;
+            //     }
+            // },
 
-            // --- Major Selection Logic ---
-            get isAllMajorsSelected() {
-                return this.FacultyMajorData.length > 0 && this.selectedMajorIds.length === this.FacultyMajorData.length;
-            },
+            // // --- Major Selection Logic ---
+            // get isAllMajorsSelected() {
+            //     return this.FacultyMajorData.length > 0 && this.selectedMajorIds.length === this.FacultyMajorData.length;
+            // },
 
-            toggleAllMajors() {
-                if (this.isAllMajorsSelected) {
-                    this.selectedMajorIds = [];
-                } else {
-                    this.selectedMajorIds = this.FacultyMajorData.map(m => m.major_id);
-                }
-            },
+            // toggleAllMajors() {
+            //     if (this.isAllMajorsSelected) {
+            //         this.selectedMajorIds = [];
+            //     } else {
+            //         this.selectedMajorIds = this.FacultyMajorData.map(m => m.major_id);
+            //     }
+            // },
 
-            deleteSelectedMajors() {
-                Swal.fire({
-                    title: 'ยืนยันการลบ?',
-                    text: `คุณต้องการลบ ${this.selectedMajorIds.length} รายการที่เลือกใช่หรือไม่?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'ลบเลย',
-                    confirmButtonColor: '#d33'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        try {
-                            const res = await fetch('/api/majors/delete', {
-                                method: 'POST',
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ major_ids: this.selectedMajorIds })
-                            });
-                            const data = await res.json();
-                            if (data.success) {
-                                Swal.fire('ลบสำเร็จ', 'ข้อมูลถูกลบเรียบร้อยแล้ว', 'success');
-                                this.selectedMajorIds = [];
-                                this.fetchFacultyMajor(this.selectedFaculty);
-                            } else {
-                                throw data;
-                            }
-                        } catch (error) {
-                            Swal.fire('ข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
-                        }
-                    }
-                });
-            }
+            // deleteSelectedMajors() {
+            //     Swal.fire({
+            //         title: 'ยืนยันการลบ?',
+            //         text: `คุณต้องการลบ ${this.selectedMajorIds.length} รายการที่เลือกใช่หรือไม่?`,
+            //         icon: 'warning',
+            //         showCancelButton: true,
+            //         confirmButtonText: 'ลบเลย',
+            //         confirmButtonColor: '#d33'
+            //     }).then(async (result) => {
+            //         if (result.isConfirmed) {
+            //             try {
+            //                 const res = await fetch('/api/majors/delete', {
+            //                     method: 'POST',
+            //                     headers: { "Content-Type": "application/json" },
+            //                     body: JSON.stringify({ major_ids: this.selectedMajorIds })
+            //                 });
+            //                 const data = await res.json();
+            //                 if (data.success) {
+            //                     Swal.fire('ลบสำเร็จ', 'ข้อมูลถูกลบเรียบร้อยแล้ว', 'success');
+            //                     this.selectedMajorIds = [];
+            //                     // this.fetchFacultyMajor(this.selectedFaculty);
+            //                 } else {
+            //                     throw data;
+            //                 }
+            //             } catch (error) {
+            //                 Swal.fire('ข้อผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
+            //             }
+            //         }
+            //     });
+            // }
         }
     }
 </script>
