@@ -16,45 +16,64 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `account`
+-- Table structure for table `badge`
 --
 
-DROP TABLE IF EXISTS `account`;
+DROP TABLE IF EXISTS `badge`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `account` (
-  `account_id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัส นศศ หรือ บัตรปชช',
-  `faculty_id` int NOT NULL,
-  `major_id` int DEFAULT NULL,
-  `account_personal_id` varchar(13) NOT NULL,
-  `account_tel` varchar(10) DEFAULT NULL,
-  `account_email` varchar(30) DEFAULT NULL,
-  `account_name` varchar(30) DEFAULT NULL,
-  `account_password` varchar(64) NOT NULL,
-  `account_role` enum('user','faculty_staff','operater','admin') NOT NULL DEFAULT 'user',
-  `account_point` int NOT NULL DEFAULT '0',
-  `create_at` datetime DEFAULT NULL,
-  `update_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`account_id`),
-  UNIQUE KEY `account_persoanl_id_UNIQUE` (`account_personal_id`),
-  UNIQUE KEY `account_tel_UNIQUE` (`account_tel`),
-  UNIQUE KEY `account_email_UNIQUE` (`account_email`),
-  UNIQUE KEY `account_name_UNIQUE` (`account_name`),
-  KEY `fk_faculty_id_idx` (`faculty_id`),
-  KEY `fk_major_id_idx` (`major_id`),
-  CONSTRAINT `fk_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
-  CONSTRAINT `fk_major_id` FOREIGN KEY (`major_id`) REFERENCES `major` (`major_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `badge` (
+  `badge_id` int NOT NULL AUTO_INCREMENT,
+  `badge_name` varchar(100) NOT NULL,
+  `badge_description` text,
+  `badge_condition` text COMMENT 'เช่น "สะสมขยะ 100 kg" หรือ JSON สำหรับ logic',
+  `badge_image` varchar(255) DEFAULT NULL,
+  `badge_type` varchar(20) DEFAULT NULL COMMENT 'waste, goodness, overall',
+  PRIMARY KEY (`badge_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `account`
+-- Dumping data for table `badge`
 --
 
-LOCK TABLES `account` WRITE;
-/*!40000 ALTER TABLE `account` DISABLE KEYS */;
-INSERT INTO `account` VALUES (1,1,1,'680112418037','0816047264','user.it@mail.com','user_it','$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC','user',29,NULL,NULL),(2,1,NULL,'1111111111111',NULL,'admin@wastebank.com','admin','$2y$12$pSqmaZQNBky.XpKXuiPLF.I0LOMSxU/29tpJurXtU6OJfDGRZAM5e','admin',0,NULL,NULL),(4,1,NULL,'200000000001',NULL,'operater@wastebank.com','operater_1','$2y$12$RzJd6bP572GeKgUc6O80pO8PlAJNBpXfwy5c9cVoSxin0dVJjPQRq','operater',0,NULL,NULL),(5,2,NULL,'670112418001',NULL,'user.fe@wastebank.com','user_fe','$2y$12$qkTw.J4o28mRmbYuoLgm1eJFzdJCwzfp5Ydtn6rX.bxtUlmrhmvfq','user',240,NULL,NULL),(6,1,3,'680112418001',NULL,'user.cs@wastebank.com','user_cs','$2y$12$qkTw.J4o28mRmbYuoLgm1eJFzdJCwzfp5Ydtn6rX.bxtUlmrhmvfq','user',6,NULL,NULL),(7,2,2,'680112418002',NULL,NULL,NULL,'$2y$12$qkTw.J4o28mRmbYuoLgm1eJFzdJCwzfp5Ydtn6rX.bxtUlmrhmvfq','user',0,NULL,NULL);
-/*!40000 ALTER TABLE `account` ENABLE KEYS */;
+LOCK TABLES `badge` WRITE;
+/*!40000 ALTER TABLE `badge` DISABLE KEYS */;
+/*!40000 ALTER TABLE `badge` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `donation`
+--
+
+DROP TABLE IF EXISTS `donation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `donation` (
+  `donation_id` int NOT NULL AUTO_INCREMENT,
+  `member_id` int DEFAULT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
+  `faculty_id` int DEFAULT NULL COMMENT 'ถ้าบริจาคให้คณะ',
+  `donation_description` text,
+  `donation_estimated_value` decimal(10,2) DEFAULT NULL COMMENT 'มูลค่าประมาณ (1 point ≈ 1 บาท)',
+  `donation_goodness_point` int DEFAULT NULL COMMENT 'แต้มความดีให้ donor',
+  `donation_reason` text COMMENT 'เหตุผลถ้าพิเศษ',
+  `donation_date` date DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`donation_id`),
+  KEY `fk_donation_member_id` (`member_id`),
+  KEY `fk_donation_faculty_id` (`faculty_id`),
+  CONSTRAINT `fk_donation_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
+  CONSTRAINT `fk_donation_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `donation`
+--
+
+LOCK TABLES `donation` WRITE;
+/*!40000 ALTER TABLE `donation` DISABLE KEYS */;
+/*!40000 ALTER TABLE `donation` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -66,10 +85,13 @@ DROP TABLE IF EXISTS `faculty`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `faculty` (
   `faculty_id` int NOT NULL AUTO_INCREMENT,
-  `faculty_name` varchar(30) NOT NULL,
-  `faculty_point` decimal(8,2) NOT NULL DEFAULT '0.00',
+  `faculty_name` varchar(100) NOT NULL,
+  `faculty_code` varchar(20) DEFAULT NULL COMMENT 'เช่น ENG, SCI',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`faculty_id`),
-  UNIQUE KEY `faculty_name_UNIQUE` (`faculty_name`)
+  UNIQUE KEY `faculty_name_UNIQUE` (`faculty_name`),
+  UNIQUE KEY `faculty_code_UNIQUE` (`faculty_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -79,37 +101,141 @@ CREATE TABLE `faculty` (
 
 LOCK TABLES `faculty` WRITE;
 /*!40000 ALTER TABLE `faculty` DISABLE KEYS */;
-INSERT INTO `faculty` VALUES (1,'วิทยาศาสตร์',6.30),(2,'ครุศาสตร์',0.50),(4,'วิทยาการจัดการ',0.00);
+INSERT INTO `faculty` VALUES (1,'วิทยาศาสตร์','FS','2025-12-27 20:26:14','2025-12-28 02:12:44'),(2,'ครุศาสตร์','FE','2025-12-28 02:12:44','2025-12-28 02:12:44'),(4,'เทคโนโลยีอุตสาหกรรม','FIT','2025-12-28 21:33:43',NULL),(5,'เทคโนโลยีการเกษตร','FAT','2025-12-28 21:51:49','2025-12-28 22:17:00');
 /*!40000 ALTER TABLE `faculty` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `major`
+-- Table structure for table `faculty_point`
 --
 
-DROP TABLE IF EXISTS `major`;
+DROP TABLE IF EXISTS `faculty_point`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `major` (
-  `major_id` int NOT NULL AUTO_INCREMENT,
-  `faculty_id` int NOT NULL,
-  `major_name` varchar(30) NOT NULL,
-  `major_description` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`major_id`),
-  UNIQUE KEY `major_name_UNIQUE` (`major_name`),
-  KEY `fk_major_faculty_id_idx` (`faculty_id`),
-  CONSTRAINT `fk_major_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `faculty_point` (
+  `faculty_point_id` int NOT NULL AUTO_INCREMENT,
+  `faculty_id` int DEFAULT NULL,
+  `faculty_point_amount` decimal(10,4) DEFAULT NULL,
+  `faculty_point_source` varchar(50) DEFAULT NULL COMMENT 'fraction จาก member, donation',
+  `faculty_point_date` date DEFAULT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`faculty_point_id`),
+  KEY `fk_faculty_point_faculty_id` (`faculty_id`),
+  CONSTRAINT `fk_faculty_point_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `major`
+-- Dumping data for table `faculty_point`
 --
 
-LOCK TABLES `major` WRITE;
-/*!40000 ALTER TABLE `major` DISABLE KEYS */;
-INSERT INTO `major` VALUES (1,1,'เทคโนโลยีสารสนเทศ',NULL),(2,2,'การศึกษาปฐมวัย',NULL),(3,1,'วิทยาการคอม',NULL);
-/*!40000 ALTER TABLE `major` ENABLE KEYS */;
+LOCK TABLES `faculty_point` WRITE;
+/*!40000 ALTER TABLE `faculty_point` DISABLE KEYS */;
+INSERT INTO `faculty_point` VALUES (1,1,0.8000,'member','2025-12-29','2025-12-29 12:27:22'),(2,2,0.6500,'member','2025-12-30','2025-12-30 12:31:33'),(3,2,0.3240,'member','2025-12-30','2025-12-30 12:33:22'),(4,1,0.4600,'member','2025-12-30','2025-12-30 13:12:11'),(6,1,0.4600,'member','2026-01-01','2026-01-01 01:08:33'),(7,1,0.3760,'member','2026-01-01','2026-01-01 01:13:18');
+/*!40000 ALTER TABLE `faculty_point` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `member`
+--
+
+DROP TABLE IF EXISTS `member`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `member` (
+  `member_id` int NOT NULL AUTO_INCREMENT,
+  `member_personal_id` varchar(20) DEFAULT NULL COMMENT 'รหัสนักศึกษา/อาจารย์',
+  `member_name` varchar(100) DEFAULT NULL,
+  `member_phone` varchar(20) NOT NULL COMMENT 'ใช้เป็น username',
+  `member_password` varchar(255) NOT NULL COMMENT 'hashed',
+  `member_email` varchar(100) DEFAULT NULL,
+  `faculty_id` int DEFAULT NULL,
+  `role_id` int NOT NULL,
+  `member_waste_point` decimal(10,2) DEFAULT '0.00' COMMENT 'แต้มขยะ (จำนวนเต็มจริงๆ แต่ใช้ decimal เผื่อ)',
+  `member_goodness_point` decimal(10,2) DEFAULT '0.00' COMMENT 'แต้มความดี',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`member_id`),
+  UNIQUE KEY `member_phone_UNIQUE` (`member_phone`),
+  UNIQUE KEY `member_student_id` (`member_personal_id`),
+  UNIQUE KEY `member_name_UNIQUE` (`member_name`),
+  UNIQUE KEY `member_email_UNIQUE` (`member_email`),
+  KEY `fk_member_faculty_id` (`faculty_id`),
+  KEY `fk_member_role_id` (`role_id`),
+  CONSTRAINT `fk_member_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
+  CONSTRAINT `fk_member_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `member`
+--
+
+LOCK TABLES `member` WRITE;
+/*!40000 ALTER TABLE `member` DISABLE KEYS */;
+INSERT INTO `member` VALUES (1,'1309902669455','admin','0816047264','$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC',NULL,NULL,1,0.00,0.00,NULL,NULL),(5,NULL,'เปียกปอน','0123456789','$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.',NULL,1,2,6.00,0.00,'2025-12-28 01:07:57',NULL),(42,NULL,'user@fe','0567891234','$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a',NULL,2,2,10.00,0.00,'2025-12-28 13:37:56',NULL),(43,NULL,'กิตติ','0678912345','$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y',NULL,1,2,51.00,0.00,'2025-12-30 13:11:06',NULL);
+/*!40000 ALTER TABLE `member` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `member_badge`
+--
+
+DROP TABLE IF EXISTS `member_badge`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `member_badge` (
+  `member_badge_id` int NOT NULL AUTO_INCREMENT,
+  `member_id` int DEFAULT NULL,
+  `badge_id` int DEFAULT NULL,
+  `member_badge_date` date DEFAULT NULL,
+  PRIMARY KEY (`member_badge_id`),
+  UNIQUE KEY `unique_idx_member_badge` (`member_id`,`badge_id`),
+  KEY `fk_member_badge_badge_id` (`badge_id`),
+  CONSTRAINT `fk_member_badge_badge_id` FOREIGN KEY (`badge_id`) REFERENCES `badge` (`badge_id`),
+  CONSTRAINT `fk_member_badge_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `member_badge`
+--
+
+LOCK TABLES `member_badge` WRITE;
+/*!40000 ALTER TABLE `member_badge` DISABLE KEYS */;
+/*!40000 ALTER TABLE `member_badge` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `member_reward`
+--
+
+DROP TABLE IF EXISTS `member_reward`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `member_reward` (
+  `member_reward_id` int NOT NULL AUTO_INCREMENT,
+  `member_id` int DEFAULT NULL,
+  `reward_id` int DEFAULT NULL,
+  `member_reward_date` date DEFAULT NULL,
+  `member_reward_qty` int DEFAULT '1',
+  `member_reward_point_used` int DEFAULT NULL,
+  `member_reward_status` varchar(20) DEFAULT 'pending' COMMENT 'pending, received, cancelled',
+  PRIMARY KEY (`member_reward_id`),
+  KEY `fk_member_reward_member_id` (`member_id`),
+  KEY `fk_member_reward_reward_id` (`reward_id`),
+  CONSTRAINT `fk_member_reward_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`),
+  CONSTRAINT `fk_member_reward_reward_id` FOREIGN KEY (`reward_id`) REFERENCES `reward` (`reward_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `member_reward`
+--
+
+LOCK TABLES `member_reward` WRITE;
+/*!40000 ALTER TABLE `member_reward` DISABLE KEYS */;
+/*!40000 ALTER TABLE `member_reward` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -121,12 +247,14 @@ DROP TABLE IF EXISTS `reward`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reward` (
   `reward_id` int NOT NULL AUTO_INCREMENT,
-  `reward_name` varchar(25) NOT NULL,
-  `reward_description` varchar(45) DEFAULT NULL,
-  `reward_needed_point` int NOT NULL DEFAULT '0',
-  `reward_qty` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`reward_id`),
-  UNIQUE KEY `reward_name_UNIQUE` (`reward_name`)
+  `reward_name` varchar(100) NOT NULL,
+  `reward_description` text,
+  `reward_point_required` int DEFAULT NULL,
+  `reward_stock` int DEFAULT '0',
+  `reward_image` varchar(255) DEFAULT NULL,
+  `reward_active` tinyint(1) DEFAULT '1',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`reward_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -140,36 +268,55 @@ LOCK TABLES `reward` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `reward_transaction`
+-- Table structure for table `role`
 --
 
-DROP TABLE IF EXISTS `reward_transaction`;
+DROP TABLE IF EXISTS `role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `reward_transaction` (
-  `reward_transaction_id` int NOT NULL AUTO_INCREMENT,
-  `account_id` varchar(13) NOT NULL,
-  `operater_id` varchar(13) NOT NULL,
-  `reward_id` int NOT NULL,
-  `reward_transaction_qty` int NOT NULL DEFAULT '0',
-  `reward_transaction_point` int NOT NULL DEFAULT '0',
-  `reward_transaction_value` decimal(6,2) NOT NULL DEFAULT '0.00',
-  `reward_transaction_leftover` decimal(3,2) DEFAULT NULL,
-  `reward_transaction_type` enum('deposit','exchange') NOT NULL,
-  `reward_transaction_create_at` datetime NOT NULL,
-  PRIMARY KEY (`reward_transaction_id`),
-  KEY `fk_reward_transaction_reward_idx` (`reward_id`),
-  CONSTRAINT `fk_reward_transaction_reward` FOREIGN KEY (`reward_id`) REFERENCES `reward` (`reward_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Reward id ถ้าเป็นการบริจาคให้ไปสร้างใหม่ก่อนถ้าเจอชื่อซ้ำให้ ทำการ update เพิ่มจำนวน ถ้าเพิ่มได้ให้เอา id กลับมาสร้าง transaction';
+CREATE TABLE `role` (
+  `role_id` int NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(50) NOT NULL COMMENT 'เช่น member, faculty_staff, central_admin',
+  PRIMARY KEY (`role_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `reward_transaction`
+-- Dumping data for table `role`
 --
 
-LOCK TABLES `reward_transaction` WRITE;
-/*!40000 ALTER TABLE `reward_transaction` DISABLE KEYS */;
-/*!40000 ALTER TABLE `reward_transaction` ENABLE KEYS */;
+LOCK TABLES `role` WRITE;
+/*!40000 ALTER TABLE `role` DISABLE KEYS */;
+INSERT INTO `role` VALUES (1,'admin'),(2,'user');
+/*!40000 ALTER TABLE `role` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `system_log`
+--
+
+DROP TABLE IF EXISTS `system_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `system_log` (
+  `system_log_id` int NOT NULL AUTO_INCREMENT,
+  `system_log_member_id` int DEFAULT NULL,
+  `system_log_action` varchar(100) DEFAULT NULL,
+  `system_log_detail` text,
+  `system_log_timestamp` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`system_log_id`),
+  KEY `fk_system_log_member_id` (`system_log_member_id`),
+  CONSTRAINT `fk_system_log_member_id` FOREIGN KEY (`system_log_member_id`) REFERENCES `member` (`member_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `system_log`
+--
+
+LOCK TABLES `system_log` WRITE;
+/*!40000 ALTER TABLE `system_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `system_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -181,12 +328,13 @@ DROP TABLE IF EXISTS `waste_category`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `waste_category` (
   `waste_category_id` int NOT NULL AUTO_INCREMENT,
-  `waste_category_name` varchar(20) NOT NULL,
-  `waste_category_description` varchar(45) DEFAULT NULL,
-  `waste_category_carbon_rate` decimal(5,2) NOT NULL,
+  `waste_category_name` varchar(50) NOT NULL COMMENT 'เช่น plastic, paper, metal',
+  `waste_category_co2_per_kg` decimal(10,4) DEFAULT NULL COMMENT 'ค่า CO₂e ลดได้ต่อ kg (สำหรับ carbon impact)',
+  `waste_category_active` tinyint(1) DEFAULT '1',
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`waste_category_id`),
-  UNIQUE KEY `waste_type_name_UNIQUE` (`waste_category_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทหลักของขยะ เช่น กระดาษ ขวด พลาสติก โลหะ';
+  UNIQUE KEY `waste_category_name_UNIQUE` (`waste_category_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -195,8 +343,73 @@ CREATE TABLE `waste_category` (
 
 LOCK TABLES `waste_category` WRITE;
 /*!40000 ALTER TABLE `waste_category` DISABLE KEYS */;
-INSERT INTO `waste_category` VALUES (1,'ขวดพลาสติก','ขวดพลาสติกชนิดต่างๆ',1.50),(2,'กระดาษ','กระดาษชนิดต่างๆ',3.80),(3,'ขวดแก้ว','ขวดเอ็มร้อย เครื่องดื่มแอลกอฮอล์ น้ำอัดลม',0.50),(4,'โลหะ',NULL,5.50);
+INSERT INTO `waste_category` VALUES (2,'ขวดพลาสติก',0.6300,1,'2025-12-28 23:44:28'),(3,'กระดาษ',0.8300,1,'2025-12-28 23:46:12'),(4,'ขวดแก้ว',0.2800,1,'2025-12-28 23:48:13'),(10,'โลหะ',8.1420,1,'2025-12-29 03:18:16'),(11,'พลาสติก',1.5000,1,'2026-01-01 03:25:34');
 /*!40000 ALTER TABLE `waste_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `waste_clearance`
+--
+
+DROP TABLE IF EXISTS `waste_clearance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `waste_clearance` (
+  `waste_clearance_id` int NOT NULL AUTO_INCREMENT,
+  `waste_clearance_faculty_id` int DEFAULT NULL,
+  `waste_clearance_period_start` date DEFAULT NULL,
+  `waste_clearance_period_end` date DEFAULT NULL,
+  `waste_clearance_total_value` decimal(12,2) DEFAULT NULL COMMENT 'มูลค่าขยะรวม',
+  `waste_clearance_member_point_given` decimal(12,2) DEFAULT NULL,
+  `waste_clearance_remaining` decimal(12,2) DEFAULT NULL COMMENT 'ให้คณะ',
+  `waste_clearance_approved_by` int DEFAULT NULL,
+  `waste_clearance_status` varchar(20) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`waste_clearance_id`),
+  KEY `fk_waste_clearance_faculty_id` (`waste_clearance_faculty_id`),
+  KEY `fk_waste_clearance_approved_by` (`waste_clearance_approved_by`),
+  CONSTRAINT `fk_waste_clearance_approved_by` FOREIGN KEY (`waste_clearance_approved_by`) REFERENCES `member` (`member_id`),
+  CONSTRAINT `fk_waste_clearance_faculty_id` FOREIGN KEY (`waste_clearance_faculty_id`) REFERENCES `faculty` (`faculty_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `waste_clearance`
+--
+
+LOCK TABLES `waste_clearance` WRITE;
+/*!40000 ALTER TABLE `waste_clearance` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waste_clearance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `waste_sale`
+--
+
+DROP TABLE IF EXISTS `waste_sale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `waste_sale` (
+  `waste_sale_id` int NOT NULL AUTO_INCREMENT,
+  `waste_sale_type_id` int DEFAULT NULL,
+  `waste_sale_weight` decimal(10,3) DEFAULT NULL,
+  `waste_sale_actual_price` decimal(12,2) DEFAULT NULL,
+  `waste_sale_buyer` varchar(100) DEFAULT NULL,
+  `waste_sale_date` date DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`waste_sale_id`),
+  KEY `fk_waste_sale_type_id` (`waste_sale_type_id`),
+  CONSTRAINT `fk_waste_sale_type_id` FOREIGN KEY (`waste_sale_type_id`) REFERENCES `waste_category` (`waste_category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `waste_sale`
+--
+
+LOCK TABLES `waste_sale` WRITE;
+/*!40000 ALTER TABLE `waste_sale` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waste_sale` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -208,26 +421,26 @@ DROP TABLE IF EXISTS `waste_transaction`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `waste_transaction` (
   `waste_transaction_id` int NOT NULL AUTO_INCREMENT,
-  `account_id` int NOT NULL,
-  `operater_id` int NOT NULL,
-  `waste_transaction_from` enum('user','faculty_staff') NOT NULL,
-  `waste_transaction_waste_category` int NOT NULL,
+  `member_id` int NOT NULL,
+  `faculty_id` int NOT NULL COMMENT 'คณะที่รับ',
+  `staff_id` int NOT NULL COMMENT 'เจ้าหน้าที่คณะที่บันทึก',
   `waste_transaction_waste_type` int NOT NULL,
-  `waste_transaction_weight` decimal(4,1) NOT NULL,
-  `waste_transaction_rate` decimal(5,2) NOT NULL,
-  `waste_transaction_value` decimal(7,2) NOT NULL,
-  `waste_transaction_point` int NOT NULL,
-  `waste_transaction_leftover` decimal(3,2) NOT NULL,
-  `waste_transaction_status` enum('pending','confirm') NOT NULL,
-  `waste_transaction_create_at` datetime NOT NULL,
+  `waste_transaction_weight` decimal(10,3) NOT NULL COMMENT 'น้ำหนัก kg',
+  `waste_transaction_member_point` int NOT NULL COMMENT 'แต้มเต็มให้ member (ปัดเศษลง)',
+  `waste_transaction_faculty_fraction` decimal(10,4) NOT NULL COMMENT 'เศษทศนิยมสะสมให้คณะ',
+  `waste_transaction_date` date NOT NULL,
+  `waste_transaction_note` text,
+  `created_at` datetime NOT NULL,
   PRIMARY KEY (`waste_transaction_id`),
-  KEY `fk_waste_transaction_account_id_idx` (`account_id`),
-  KEY `fk_waste_transaction_waste_type_idx` (`waste_transaction_waste_category`),
-  KEY `fk_waste_transaction_sub_waste_type_idx` (`waste_transaction_waste_type`),
-  KEY `fk_waste_transaction_operater_idx` (`operater_id`),
-  CONSTRAINT `fk_waste_transaction_operater` FOREIGN KEY (`operater_id`) REFERENCES `account` (`account_id`),
-  CONSTRAINT `fk_waste_transaction_user` FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `fk_waste_transaction_member_id` (`member_id`),
+  KEY `fk_waste_transaction_faculty_id` (`faculty_id`),
+  KEY `fk_waste_transaction_waste_type_id_idx` (`waste_transaction_waste_type`),
+  KEY `fk_waste_transaction_staff_id` (`staff_id`),
+  CONSTRAINT `fk_waste_transaction_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
+  CONSTRAINT `fk_waste_transaction_member_id` FOREIGN KEY (`member_id`) REFERENCES `member` (`member_id`),
+  CONSTRAINT `fk_waste_transaction_staff_id` FOREIGN KEY (`staff_id`) REFERENCES `member` (`member_id`),
+  CONSTRAINT `fk_waste_transaction_waste_type_id` FOREIGN KEY (`waste_transaction_waste_type`) REFERENCES `waste_type` (`waste_type_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -236,7 +449,7 @@ CREATE TABLE `waste_transaction` (
 
 LOCK TABLES `waste_transaction` WRITE;
 /*!40000 ALTER TABLE `waste_transaction` DISABLE KEYS */;
-INSERT INTO `waste_transaction` VALUES (2,1,2,'user',2,2,1.2,1.50,1.80,1,0.80,'pending','2025-12-18 14:49:27'),(7,1,2,'user',2,2,1.2,1.50,1.80,1,0.80,'pending','2025-12-18 15:06:08'),(8,1,2,'user',2,2,1.2,1.50,1.80,1,0.80,'pending','2025-12-18 15:08:22'),(9,1,2,'user',2,2,1.2,1.50,1.80,1,0.80,'pending','2025-12-18 15:19:02'),(13,1,2,'user',2,2,2.0,1.50,3.00,3,0.00,'pending','2025-12-18 15:25:41'),(14,1,2,'user',2,2,2.0,1.50,3.00,3,0.00,'pending','2025-12-18 15:26:40'),(15,1,2,'user',2,2,2.0,1.50,3.00,3,0.00,'pending','2025-12-18 15:26:51'),(16,1,2,'user',2,2,2.0,1.50,3.00,3,0.00,'pending','2025-12-18 15:27:23'),(17,1,2,'user',2,2,2.0,1.50,3.00,3,0.00,'pending','2025-12-18 15:27:26'),(18,1,2,'user',2,2,3.0,1.50,4.50,4,0.50,'pending','2025-12-18 15:28:07'),(19,1,2,'user',2,2,3.0,1.50,4.50,4,0.50,'pending','2025-12-18 15:28:15'),(20,1,2,'user',2,2,3.0,1.50,4.50,4,0.50,'pending','2025-12-18 15:28:16'),(21,5,2,'user',2,6,4.0,32.50,130.00,130,0.00,'pending','2025-12-18 15:32:13'),(22,5,2,'user',4,6,3.4,32.50,110.50,110,0.50,'pending','2025-12-18 15:32:54'),(23,6,2,'user',2,3,3.4,2.00,6.80,6,0.80,'pending','2025-12-18 15:45:19');
+INSERT INTO `waste_transaction` VALUES (4,5,1,1,4,3.400,6,0.8000,'2025-12-29',NULL,'2025-12-29 12:27:22'),(7,42,2,1,5,1.650,1,0.6500,'2025-12-30',NULL,'2025-12-30 12:31:33'),(8,42,2,1,7,10.360,9,0.3240,'2025-12-30',NULL,'2025-12-30 12:33:22'),(9,43,1,1,4,5.230,10,0.4600,'2025-12-30',NULL,'2025-12-30 13:12:11'),(11,43,1,1,1,14.230,28,0.4600,'2026-01-01',NULL,'2026-01-01 01:08:33'),(12,43,1,1,6,8.440,3,0.3760,'2026-01-01',NULL,'2026-01-01 01:13:18');
 /*!40000 ALTER TABLE `waste_transaction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -249,14 +462,18 @@ DROP TABLE IF EXISTS `waste_type`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `waste_type` (
   `waste_type_id` int NOT NULL AUTO_INCREMENT,
-  `waste_category_id` int NOT NULL,
-  `waste_type_name` varchar(25) NOT NULL,
-  `waste_type_price` decimal(5,2) NOT NULL,
+  `waste_type_name` varchar(50) NOT NULL COMMENT 'เช่น plastic, paper, metal',
+  `waste_type_price` decimal(10,2) NOT NULL COMMENT 'ราคาต่อกิโล (ตั้งโดย central admin)',
+  `waste_type_co2` decimal(10,4) NOT NULL COMMENT 'ค่า CO₂e ลดได้ต่อ kg (สำหรับ carbon impact)',
+  `waste_category_id` int DEFAULT NULL,
+  `waste_type_active` tinyint(1) DEFAULT '1',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`waste_type_id`),
-  UNIQUE KEY `sub_type_name_UNIQUE` (`waste_type_name`),
-  KEY `fk_waste_type_category_idx` (`waste_category_id`),
-  CONSTRAINT `fk_waste_type_category` FOREIGN KEY (`waste_category_id`) REFERENCES `waste_category` (`waste_category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='ประเภทย่อย เช่น ขวด PET กระดาษลัง';
+  UNIQUE KEY `waste_type_name_UNIQUE` (`waste_type_name`),
+  KEY `fk_waste_type_category_id` (`waste_category_id`),
+  CONSTRAINT `fk_waste_type_category_id` FOREIGN KEY (`waste_category_id`) REFERENCES `waste_category` (`waste_category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -265,7 +482,7 @@ CREATE TABLE `waste_type` (
 
 LOCK TABLES `waste_type` WRITE;
 /*!40000 ALTER TABLE `waste_type` DISABLE KEYS */;
-INSERT INTO `waste_type` VALUES (1,1,'ขวดPET',4.00),(2,2,'กระดาษลัง',1.50),(3,2,'กระดาษขาวดำ',2.00),(4,3,'ขวดแก้วใส',1.00),(5,3,'ขวดแก้วสีชา',5.00),(6,4,'อลูมิเนียม',32.50),(7,4,'ทองแดงปอกสาย',160.00);
+INSERT INTO `waste_type` VALUES (1,'กระดาษขาวดำ',2.00,0.8300,3,1,'2025-12-29 16:53:49','2026-01-01 04:37:48'),(4,'กระดาษลัง',2.00,3.1400,3,1,'2025-12-29 17:44:33','2026-01-01 04:39:09'),(5,'ขวดแก้วใส',1.00,0.2800,4,1,'2025-12-29 17:46:15','2025-12-29 17:46:15'),(6,'สีขุ่น/รวม',0.40,0.2800,4,1,'2025-12-29 17:47:53','2025-12-29 17:53:01'),(7,'สีชา/เขียว+ฝา',0.90,0.2800,4,1,'2025-12-29 17:50:43','2025-12-29 17:50:43'),(8,'พลาสติกรวมสี',2.00,0.4000,11,1,'2026-01-01 19:05:40','2026-01-01 19:43:05'),(9,'ขวด PET ',4.00,0.6300,2,1,'2026-01-01 19:42:11','2026-01-01 19:42:38');
 /*!40000 ALTER TABLE `waste_type` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -277,5 +494,3 @@ UNLOCK TABLES;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-12-18 23:06:23
