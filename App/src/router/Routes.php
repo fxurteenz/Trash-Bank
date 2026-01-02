@@ -59,7 +59,7 @@ class Routes
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
-            ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']],
+            ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
         ]);
