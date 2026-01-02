@@ -22,31 +22,18 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h2 class="text-xl font-bold">รายชื่อผู้ใช้งาน</h2>
             <div class="flex gap-2">
-                <button @click="resetFilters()"
-                    class="text-sm text-gray-500 hover:text-gray-700 underline">ล้างตัวกรอง</button>
+
             </div>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
             <div>
                 <label for="filter_faculty" class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
-                <select id="filter_faculty" x-model="filters.faculty_id"
-                    @change="fetchFilterMajors($event.target.value)"
+                <select id="filter_faculty" x-model="filters.faculty_id" @change="handleFilterChange()"
                     class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 hover:cursor-pointer block w-full p-1">
                     <option value="">ทุกคณะ</option>
                     <template x-for="fac in faculties" :key="fac.faculty_id">
                         <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                    </template>
-                </select>
-            </div>
-
-            <div>
-                <label for="filter_major" class="block text-xs font-medium text-gray-700 mb-1">สาขา</label>
-                <select id="filter_major" x-model="filters.major_id" @change="handleFilterChange()"
-                    class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 hover:cursor-pointer block w-full p-1">
-                    <option value="">ทุกสาขา</option>
-                    <template x-for="maj in filterMajors" :key="maj.major_id">
-                        <option :value="maj.major_id" x-text="maj.major_name"></option>
                     </template>
                 </select>
             </div>
@@ -67,6 +54,8 @@
                     @input.debounce.500ms="handleFilterChange()" placeholder="ชื่อ/รหัส/เบอร์โทร"
                     class="w-full text-xs border border-gray-300 rounded px-2 py-1.5 bg-white focus:ring-blue-500 focus:border-blue-500">
             </div>
+            <button @click="resetFilters()"
+                class="text-sm text-gray-500 hover:text-gray-700 underline">ล้างตัวกรอง</button>
         </div>
 
         <div class="flex justify-between mb-1 text-gray-700 text-xs font-regular">
@@ -88,8 +77,8 @@
 
                 <button
                     class="group flex items-center py-1 px-2 border-2 border-orange-500 rounded-lg space-x-1 cursor-pointer hover:bg-orange-300 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
-                    @click="deleteCheckedUser" :disabled="checkedUser.account_ids.length === 0">
-                    <div :class="[checkedUser.account_ids.length === 0 ? 'opacity-100' : 'opacity-100 group-hover:rotate-90']"
+                    @click="deleteCheckedUser" :disabled="checkedMembers.member_ids.length === 0">
+                    <div :class="[checkedMembers.member_ids.length === 0 ? 'opacity-100' : 'opacity-100 group-hover:rotate-90']"
                         class="duration-300 transition-transform">
                         <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 16 16"
                             xmlns="http://www.w3.org/2000/svg">
@@ -106,49 +95,49 @@
                 <tr>
                     <th class="border border-sky-300 px-4 py-2 w-1/18">เลือก</th>
                     <th class="border border-sky-300 bg-amber-300 px-4 py-2 w-2/18">รหัสประจำตัว</th>
-                    <th class="border border-sky-300 px-4 py-2 w-2/18 hidden xl:table-cell">คณะ</th>
                     <th class="border border-sky-300 px-4 py-2 w-2/18 hidden lg:table-cell">เบอร์โทรศัพท์</th>
-                    <th class="border border-sky-300 px-4 py-2 w-4/18 hidden xl:table-cell">อีเมล์</th>
                     <th class="border border-sky-300 px-4 py-2 w-3/18">ชื่อ</th>
+                    <th class="border border-sky-300 px-4 py-2 w-2/18 hidden xl:table-cell">คณะ</th>
+                    <th class="border border-sky-300 px-4 py-2 w-4/18 hidden xl:table-cell">อีเมล์</th>
                     <th class="border border-sky-300 px-4 py-2 w-2/18">บทบาท</th>
                     <th class="border border-sky-300 px-4 py-2 w-2/18">คะแนน</th>
                 </tr>
             </thead>
             <tbody>
-                <template x-for="user in users" :key="user.account_id">
+                <template x-for="member in members" :key="member.member_id">
                     <tr class="hover:bg-sky-100 cursor-pointer"
-                        :class="editUserForm && editUserForm.account_id == user.account_id ? 'bg-blue-100' : ''">
+                        :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-blue-100' : ''">
                         <td class="border border-gray-300 px-2 py-2 text-center" @click.stop>
-                            <input type="checkbox" class="p-1" :id="user.account_id" :value="user.account_id"
-                                x-model="checkedUser.account_ids">
+                            <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
+                                x-model="checkedMembers.member_ids">
                         </td>
-                        <td @click="selectingRow(user)"
+                        <td @click="selectingRow(member)"
                             class="border border-gray-300 bg-amber-100 px-2 py-2 overflow-hidden text-ellipsis text-xs "
-                            x-text="user.account_personal_id ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(user)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
-                            x-text="user.faculty_name ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(user)"
+                            x-text="member.member_personal_id ?? 'ไม่ระบุ'"></td>
+                        <td @click="selectingRow(member)"
                             class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
-                            x-text="user.account_tel ?? 'ไม่ระบุ'"></td>
+                            x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
 
-                        <td @click="selectingRow(user)"
+                        <td @click="selectingRow(member)"
+                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                            x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
+
+                        <td @click="selectingRow(member)"
                             class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
-                            x-text="user.account_email ?? 'ไม่ระบุ'"></td>
+                            x-text="member.faculty_name ?? 'ไม่ระบุ'"></td>
 
-                        <td @click="selectingRow(user)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                            x-text="user.account_name ?? 'ไม่มีชื่อ'"></td>
 
-                        <td @click="selectingRow(user)"
+                        <td @click="selectingRow(member)"
+                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
+                            x-text="member.member_email ?? 'ไม่ระบุ'"></td>
+
+                        <td @click="selectingRow(member)"
                             class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                            x-text="user.account_role || 'ไม่ระบุ'">
+                            x-text="member.role_id || 'ไม่ระบุ'">
                         </td>
 
-                        <td @click="selectingRow(user)" class="border border-gray-300 px-2 py-2 text-xs"
-                            x-text="user.account_score ?? '0'"></td>
+                        <td @click="selectingRow(member)" class="border border-gray-300 px-2 py-2 text-xs"
+                            x-text="member.member_score ?? '0'"></td>
                     </tr>
                 </template>
             </tbody>
@@ -156,18 +145,18 @@
 
         <div class="flex items-center justify-between mt-4 text-xs">
             <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" :disabled="page <= 1"
-                @click="page--; fetchUsers()">
+                @click="page--; fetchMembers()">
                 ก่อนหน้า
             </button>
             <div class="flex items-center space-x-2">
                 <template x-for="p in totalPages">
                     <button class="px-2 py-1 rounded"
                         :class="p === page ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                        @click="page = p; fetchUsers()" x-text="p"></button>
+                        @click="page = p; fetchMembers()" x-text="p"></button>
                 </template>
             </div>
             <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                :disabled="page >= totalPages" @click="page++; fetchUsers()">
+                :disabled="page >= totalPages" @click="page++; fetchMembers()">
                 ถัดไป
             </button>
         </div>
@@ -190,59 +179,17 @@
                 <div class="grid grid-1 space-y-2 text-xs">
 
                     <div class="flex flex-col space-y-1">
-                        <label for="create_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว <span
-                                class="text-red-500">*</span></label>
+                        <label for="create_acc_tel">
+                            เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                        </label>
                         <input
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            :class="{'border-red-500': errors.create.account_personal_id}" type="text"
-                            id="create_acc_personal_id" x-model="createUserForm.account_personal_id"
-                            placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
-                        <span x-show="errors.create.account_personal_id" class="text-red-500 text-xs">
-                            กรุณากรอกรหัสประจำตัว
-                        </span>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_tel">เบอร์โทรศัพท์</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="create_acc_tel" x-model="createUserForm.account_tel"
+                            type="text" id="create_acc_tel" x-model="createUserForm.member_phone"
                             placeholder="หมายเลขโทรศัพท์">
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_mail">อีเมล์</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="create_acc_mail" x-model="createUserForm.account_email"
-                            placeholder="อีเมลล์">
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_name">ชื่อ</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="create_acc_name" x-model="createUserForm.account_name"
-                            placeholder="ชื่อที่ใช้แสดงผล">
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_role" class="text-gray-700 font-medium">บทบาท <span
-                                class="text-red-500">*</span></label>
-                        <select id="create_acc_role" x-model="createUserForm.account_role"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
-                            :class="{'border-red-500': errors.create.account_role}">
-                            <option value="">เลือกบทบาท</option>
-                            <option value="1">ผู้ใช้งานทั่วไป</option>
-                            <option value="2">เจ้าหน้าที่คณะ</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
-                            <option value="4">ผู้ดูแลระบบ</option>
-                        </select>
-                        <span x-show="errors.create.account_role" class="text-red-500 text-xs">
-                            กรุณาเลือกบทบาท
+                        <span x-show="errors.create.member_phone" class="text-red-500 text-xs">
+                            กรุณากรอกหมายเลขโทรศัพท์
                         </span>
                     </div>
-
 
                     <div class="flex flex-col space-y-1">
                         <label for="create_acc_pass" class="text-gray-700 font-medium">
@@ -250,42 +197,66 @@
                         </label>
                         <input
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            :class="{'border-red-500': errors.create.account_password}" type="password"
-                            id="create_acc_pass" x-model="createUserForm.account_password" placeholder="8 character">
-                        <span x-show="errors.create.account_password" class="text-red-500 text-xs">
+                            :class="{'border-red-500': errors.create.member_password}" type="password"
+                            id="create_acc_pass" x-model="createUserForm.member_password" placeholder="8 character">
+                        <span x-show="errors.create.member_password" class="text-red-500 text-xs">
                             กรุณากรอกรหัสผ่าน
                         </span>
                     </div>
 
                     <div class="flex flex-col space-y-1">
+                        <label for="create_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
+                        <input
+                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                            :class="{'border-red-500': errors.create.member_personal_id}" type="text"
+                            id="create_acc_personal_id" x-model="createUserForm.member_personal_id"
+                            placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
+                    </div>
+
+                    <div class="flex flex-col space-y-1">
+                        <label for="create_acc_mail">อีเมล์</label>
+                        <input
+                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                            type="text" id="create_acc_mail" x-model="createUserForm.member_email"
+                            placeholder="อีเมลล์">
+                    </div>
+
+                    <div class="flex flex-col space-y-1">
+                        <label for="create_acc_name">ชื่อ</label>
+                        <input
+                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                            type="text" id="create_acc_name" x-model="createUserForm.member_name"
+                            placeholder="ชื่อที่ใช้แสดงผล">
+                    </div>
+
+                    <div class="flex flex-col space-y-1">
+                        <label for="create_acc_role" class="text-gray-700 font-medium">
+                            บทบาท <span class="text-red-500">*</span>
+                        </label>
+                        <select id="create_acc_role" x-model="createUserForm.role_id"
+                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
+                            :class="{'border-red-500': errors.create.role_id}">
+                            <option value="">เลือกบทบาท</option>
+                            <option value="1">ผู้ดูแลระบบ</option>
+                            <option value="2">ผู้ใช้งานทั่วไป</option>
+                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
+                            <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
+                        </select>
+                        <span x-show="errors.create.role_id" class="text-red-500 text-xs">
+                            กรุณาเลือกบทบาท
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col space-y-1">
                         <label for="create_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ <span class="text-red-500">*</span>
+                            คณะ
                         </label>
                         <select id="create_acc_faculty" x-model="createUserForm.faculty_id"
-                            @change="fetchMajors($event.target.value); createUserForm.major_id = ''"
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
                             :class="{'border-red-500': errors.create.faculty_id}">
                             <option value="">เลือกคณะ</option>
                             <template x-for="fac in faculties" :key="fac.faculty_id">
                                 <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                            </template>
-                        </select>
-                        <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">
-                            กรุณาเลือกคณะ
-                        </span>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_major" class="text-gray-700 font-medium">
-                            สาขาวิชา
-                        </label>
-                        <select id="create_acc_major" x-model="createUserForm.major_id"
-                            :disabled="!createUserForm.faculty_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white disabled:bg-gray-100 disabled:text-gray-400"
-                            :class="{'border-red-500': errors.create.major_id}">
-                            <option value="">เลือกสาขาวิชา</option>
-                            <template x-for="maj in majors" :key="maj.major_id">
-                                <option :value="maj.major_id" x-text="maj.major_name"></option>
                             </template>
                         </select>
                     </div>
@@ -308,60 +279,64 @@
                 <h3 class="font-bold text-lg mb-3">แก้ไขข้อมูล</h3>
 
                 <div class="grid grid-1 space-y-2 text-xs">
+
                     <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว <span
-                                class="text-red-500">*</span></label>
+                        <label for="edit_acc_tel">
+                            เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                        </label>
                         <input
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            :class="{'border-red-500': errors.edit.account_personal_id}" type="text"
-                            id="edit_acc_personal_id" x-model="editUserForm.account_personal_id"
-                            placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
-                        <span x-show="errors.edit.account_personal_id"
-                            class="text-red-500 text-xs">กรุณากรอกรหัสประจำตัว</span>
-                    </div>
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_tel">เบอร์โทรศัพท์</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="edit_acc_tel" x-model="editUserForm.account_tel"
+                            type="text" id="edit_acc_tel" x-model="editUserForm.member_phone"
                             placeholder="เบอร์โทรศัพท์">
+                        <span x-show="errors.edit.member_phone" class="text-red-500 text-xs">
+                            กรุณากรอกหมายเลขโทรศัพท์
+                        </span>
                     </div>
+
+                    <div class="flex flex-col space-y-1">
+                        <label for="edit_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
+                        <input
+                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                            :class="{'border-red-500': errors.edit.member_personal_id}" type="text"
+                            id="edit_acc_personal_id" x-model="editUserForm.member_personal_id"
+                            placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
+                    </div>
+
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_mail">อีเมล์</label>
                         <input
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="edit_acc_mail" x-model="editUserForm.account_email" placeholder="อีเมล์">
+                            type="text" id="edit_acc_mail" x-model="editUserForm.member_email" placeholder="อีเมล์">
                     </div>
+
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_name">ชื่อ</label>
                         <input
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
-                            type="text" id="edit_acc_name" x-model="editUserForm.account_name"
+                            type="text" id="edit_acc_name" x-model="editUserForm.member_name"
                             placeholder="ชื่อที่ใช้แสดงผล">
                     </div>
 
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_role" class="text-gray-700 font-medium">บทบาท <span
                                 class="text-red-500">*</span></label>
-                        <select id="edit_acc_role" x-model="editUserForm.account_role"
+                        <select id="edit_acc_role" x-model="editUserForm.role_id"
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
-                            :class="{'border-red-500': errors.edit.account_role}">
+                            :class="{'border-red-500': errors.edit.role_id}">
                             <option value="">เลือกบทบาท</option>
-                            <option value="1">ผู้ใช้งานทั่วไป</option>
-                            <option value="2">เจ้าหน้าที่คณะ</option>
+                            <option value="1">ผู้ดูแลระบบ</option>
+                            <option value="2">ผู้ใช้งานทั่วไป</option>
                             <option value="3">เจ้าหน้าที่จุดฝาก</option>
-                            <option value="4">ผู้ดูแลระบบ</option>
+                            <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
                         </select>
-                        <span x-show="errors.edit.account_role"
-                            class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
+                        <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                     </div>
 
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ<span class="text-red-500">*</span>
+                            คณะ
                         </label>
                         <select id="edit_acc_faculty" x-model="editUserForm.faculty_id"
-                            @change="fetchMajors($event.target.value); editUserForm.major_id = ''"
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
                             :class="{'border-red-500': errors.edit.faculty_id}">
                             <option value="">เลือกคณะ</option>
@@ -369,22 +344,8 @@
                                 <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
                             </template>
                         </select>
-                        <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกคณะ</span>
                     </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_major" class="text-gray-700 font-medium">
-                            สาขาวิชา
-                        </label>
-                        <select id="edit_acc_major" x-model="editUserForm.major_id" :disabled="!editUserForm.faculty_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white disabled:bg-gray-100 disabled:text-gray-400"
-                            :class="{'border-red-500': errors.edit.major_id}">
-                            <option value="">เลือกสาขาวิชา</option>
-                            <template x-for="maj in majors" :key="maj.major_id">
-                                <option :value="maj.major_id" x-text="maj.major_name"></option>
-                            </template>
-                        </select>
-                    </div>
                 </div>
 
                 <div class="mt-4 text-right">
@@ -398,7 +359,3 @@
 
     </div>
 </div>
-
-<script>
-
-</script>
