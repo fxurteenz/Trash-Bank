@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\LeaderController;
 use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
@@ -101,10 +102,14 @@ class Routes
         ]);
         /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
-            ['GET', "/faculty", [ReportController::class, "GetFacultyWasteStats"]],
-            ['GET', "/user", [ReportController::class, "GetUsersWasteStats"]],
+            ['GET', "/overall", [ReportController::class, "GetOverallReport"]],
         ]);
-        /* /api/waste_types */
+        /* /api/leaders */
+        $this->addPrefixedRoutes("/api/leaders", [
+            ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
+            ['GET', "/member", [LeaderController::class, "GetMemberLeader"]]
+        ]);
+        /* /api/waste_transaction */
         $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],

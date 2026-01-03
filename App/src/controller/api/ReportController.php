@@ -38,20 +38,16 @@ class ReportController
         self::$ReportModel = new ReportModel();
     }
 
-    public function GetFacultyWasteStats()
+    public function GetOverallReport()
     {
         try {
-            // use user auth
-            $result = self::$ReportModel->LeadingFacultyWasteStats(self::$queryString);
+            $result = self::$ReportModel->OverallReport(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'data' => $result['stats'],
-                'total' => $result['total'],
-                'page' => (int) (self::$queryString['page'] ?? 1),
-                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'data' => $result,
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -72,40 +68,4 @@ class ReportController
             exit;
         }
     }
-
-    public function GetUsersWasteStats()
-    {
-        try {
-            // use user auth
-            $result = self::$ReportModel->LeadingUserWasteStats(self::$queryString);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'result' => $result['stats'],
-                'total' => $result['total'],
-                'page' => (int) (self::$queryString['page'] ?? 1),
-                'limit' => (int) (self::$queryString['limit'] ?? 10),
-                'message' => 'successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-
 }
