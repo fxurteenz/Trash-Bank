@@ -1,19 +1,22 @@
 <?php
 namespace App\Router;
+use App\Router\RouterDispatcher;
+
+use App\Controller\Api\UsersController;
 use App\Controller\Api\LeaderController;
 use App\Controller\Api\MemberController;
+use App\Controller\Api\WasteClearanceController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
+
 use App\Controller\Pages\OperaterPagesController;
 use App\Controller\Pages\CenterPagesController;
-use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
 use App\Controller\Pages\UserPagesController;
-use App\Controller\Api\UsersController;
 
 class Routes
 {
@@ -123,5 +126,10 @@ class Routes
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
+        /* /api/users */
+        $this->addPrefixedRoutes("/api/clearances", [
+            ['POST', "", [WasteClearanceController::class, "Create"]],
+        ]);
+
     }
 }
