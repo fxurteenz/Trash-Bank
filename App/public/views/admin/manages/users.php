@@ -133,7 +133,7 @@
 
                         <td @click="selectingRow(member)"
                             class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                            x-text="member.role_id || 'ไม่ระบุ'">
+                            x-text="member.role_name_th || 'ไม่ระบุ'">
                         </td>
 
                         <td @click="selectingRow(member)" class="border border-gray-300 px-2 py-2 text-xs"
