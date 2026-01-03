@@ -8,6 +8,7 @@ use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Pages\OperaterPagesController;
+use App\Controller\Pages\CenterPagesController;
 use App\Router\RouterDispatcher;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
@@ -47,6 +48,10 @@ class Routes
         $this->addPrefixedRoutes("/operater", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
             ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
+        ]);
+
+        $this->addPrefixedRoutes('/center', [
+            ['GET', '', [CenterPagesController::class, 'HomePage']]
         ]);
 
         $this->addPrefixedRoutes('/user', [
