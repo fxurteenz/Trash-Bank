@@ -14,215 +14,157 @@ class ReportModel
         self::$Database = new Database();
         $this->Conn = self::$Database->connect();
     }
-
-    public function LeadingFacultyWasteStats($query): array
+    public function OverallReport($queryString): array
     {
         try {
-            $month = $query['month'] ?? null;
-            $year = $query['year'] ?? null;
-            $sort = $query['sort'] ?? 'point';
-            $orderBy = 'total_point';
-
-            switch ($sort) {
-                case 'carbon':
-                    $orderBy = 'total_co2';
-                    break;
-                case 'point':
-                    $orderBy = 'total_point';
-                    break;
-                case 'fraction':
-                    $orderBy = 'total_fraction';
-                    break;
-                case 'weight':
-                    $orderBy = 'total_weight';
-                    break;
-                case 'value':
-                    $orderBy = 'total_value';
-                    break;
-            }
-
-            $page = isset($query['page']) ? (int) $query['page'] : 1;
-            $limit = isset($query['limit']) ? (int) $query['limit'] : 0;
-            if ($limit <= 0) {
-                $limit = 10;
-            }
-            $offset = ($page - 1) * $limit;
-
-            $whereClause = "";
-            $conditions = [];
-            if ($month)
-                $conditions[] = "MONTH(w.waste_transaction_create_date) = :month";
-            if ($year)
-                $conditions[] = "YEAR(w.waste_transaction_create_date) = :year";
-            if (!empty($conditions)) {
-                $whereClause = "WHERE " . implode(" AND ", $conditions);
-            }
-
-            $sql =
-                "SELECT
-                    f.faculty_id,
-                    f.faculty_name,
-                    SUM(w.waste_transaction_weight) AS total_weight,
-                    SUM(w.waste_transaction_member_point) AS total_point,
-                    SUM(w.waste_transaction_faculty_fraction) AS total_fraction,
-                    SUM(wt.waste_type_price * w.waste_transaction_weight) AS total_value,
-                    SUM(wt.waste_type_co2 * w.waste_transaction_weight) AS total_co2
-                FROM
-                    waste_transaction w
-                LEFT JOIN
-                    member a ON w.member_id = a.member_id
-                LEFT JOIN
-                    faculty f ON a.faculty_id = f.faculty_id
-                LEFT JOIN
-                    waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                {$whereClause}
-                GROUP BY
-                    f.faculty_id
-                ORDER BY
-                    {$orderBy} DESC
-                LIMIT :limit OFFSET :offset;";
-
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            if ($month)
-                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-            if ($year)
-                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
-            $stmt->execute();
-            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $stmtCount = "SELECT COUNT(DISTINCT a.faculty_id) AS total_rows 
-                          FROM waste_transaction w 
-                          LEFT JOIN member a ON w.member_id = a.member_id
-                          {$whereClause}";
-            $stmtCount = $this->Conn->prepare($stmtCount);
-            if ($month)
-                $stmtCount->bindValue(':month', $month, PDO::PARAM_INT);
-            if ($year)
-                $stmtCount->bindValue(':year', $year, PDO::PARAM_INT);
-            $stmtCount->execute();
-            $total = $stmtCount->fetch(PDO::FETCH_ASSOC);
-
-            return ['stats' => $stats, 'total' => $total['total_rows']];
+            return [
+                'total' => $this->ReportTotal($queryString),
+                'total_type' => $this->ReportByType($queryString),
+                'total_faculty' => $this->ReportByFaculty($queryString)
+            ];
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+            throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
-    public function LeadingUserWasteStats($query): array
+    public function ReportTotal($query)
     {
-        try {
-            $role = $query['role'] ?? null;
-            $month = $query['month'] ?? null;
-            $year = $query['year'] ?? null;
-            $sort = $query['sort'] ?? 'point';
-            $orderBy = 'total_point';
+        $month = $query['month'] ?? null;
+        $year = $query['year'] ?? null;
 
-            switch ($sort) {
-                case 'carbon':
-                    $orderBy = 'total_co2';
-                    break;
-                case 'point':
-                    $orderBy = 'total_point';
-                    break;
-                case 'fraction':
-                    $orderBy = 'total_fraction';
-                    break;
-                case 'weight':
-                    $orderBy = 'total_weight';
-                    break;
-                case 'value':
-                    $orderBy = 'total_value';
-                    break;
-            }
+        $whereClauses = [];
+        $params = [];
 
-            $page = isset($query['page']) ? (int) $query['page'] : 1;
-            $limit = isset($query['limit']) ? (int) $query['limit'] : 0;
-            if ($limit <= 0) {
-                $limit = 10;
-            }
-            $offset = ($page - 1) * $limit;
-
-            $whereClause = "";
-            $conditions = [];
-            if ($role)
-                $conditions[] = "a.member_role = :role";
-            if ($month)
-                $conditions[] = "MONTH(w.waste_transaction_create_date) = :month";
-            if ($year)
-                $conditions[] = "YEAR(w.waste_transaction_create_date) = :year";
-            if (!empty($conditions))
-                $whereClause = "WHERE " . implode(" AND ", $conditions);
-
-            $sql =
-                "SELECT
-                    a.member_id,
-                    a.member_name,
-                    a.member_personal_id,
-                    a.member_phone,
-                    SUM(w.waste_transaction_weight) AS total_weight,
-                    SUM(w.waste_transaction_member_point) AS total_point,
-                    SUM(w.waste_transaction_faculty_fraction) AS total_fraction,
-                    SUM(wt.waste_type_price * w.waste_transaction_weight) AS total_value,
-                    SUM(wt.waste_type_co2 * w.waste_transaction_weight) AS total_co2
-                FROM
-                    waste_transaction w
-                LEFT JOIN
-                    member a ON w.member_id = a.member_id
-                LEFT JOIN
-                    waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                {$whereClause}
-                GROUP BY
-                    w.member_id
-                ORDER BY
-                    {$orderBy} DESC
-                LIMIT :limit OFFSET :offset;";
-
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            if ($role) {
-                $stmt->bindValue(':role', $role);
-            }
-            if ($month) {
-                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
-                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
-            }
-            $stmt->execute();
-            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $stmtCount =
-                "SELECT 
-                    COUNT(DISTINCT w.member_id) AS total_rows 
-                FROM 
-                    waste_transaction w 
-                LEFT JOIN 
-                    member a ON w.member_id = a.member_id 
-                {$whereClause}";
-
-            $stmtCount = $this->Conn->prepare($stmtCount);
-            if ($role) {
-                $stmtCount->bindValue(':role', $role);
-            }
-            if ($month) {
-                $stmtCount->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
-                $stmtCount->bindValue(':year', $year, PDO::PARAM_INT);
-            }
-            $stmtCount->execute();
-            $total = $stmtCount->fetch(PDO::FETCH_ASSOC);
-
-            return ['stats' => $stats, 'total' => $total['total_rows']];
-        } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        if ($month) {
+            $whereClauses[] = "MONTH(w.waste_transaction_date) = :month";
+            $params[':month'] = $month;
         }
+        if ($year) {
+            $whereClauses[] = "YEAR(w.waste_transaction_date) = :year";
+            $params[':year'] = $year;
+        }
+
+        $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
+
+        $sqlTotal = "SELECT 
+                        COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
+                        COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
+                        COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2
+                     FROM waste_transaction w
+                     LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
+                     {$whereSql}";
+
+        $stmtTotal = $this->Conn->prepare($sqlTotal);
+        $stmtTotal->execute($params);
+        return $stmtTotal->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function ReportByType($query)
+    {
+        $month = $query['month'] ?? null;
+        $year = $query['year'] ?? null;
+
+        $whereClauses = [];
+        $params = [];
+
+        if ($month) {
+            $whereClauses[] = "MONTH(w.waste_transaction_date) = :month";
+            $params[':month'] = $month;
+        }
+        if ($year) {
+            $whereClauses[] = "YEAR(w.waste_transaction_date) = :year";
+            $params[':year'] = $year;
+        }
+
+        $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
+
+        $sqlType = "SELECT 
+                        wc.waste_category_id,
+                        wc.waste_category_name,
+                        wt.waste_type_id,
+                        wt.waste_type_name,
+                        COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
+                        COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
+                        COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2
+                    FROM waste_transaction w
+                    LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
+                    LEFT JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                    {$whereSql}
+                    GROUP BY wt.waste_type_id
+                    ORDER BY wc.waste_category_id ASC, total_weight DESC";
+
+        $stmtType = $this->Conn->prepare($sqlType);
+        $stmtType->execute($params);
+        $rawTypes = $stmtType->fetchAll(PDO::FETCH_ASSOC);
+
+        $categories = [];
+        foreach ($rawTypes as $row) {
+            $catId = $row['waste_category_id'] ?? 0;
+            $catName = $row['waste_category_name'] ?? 'Uncategorized';
+
+            if (!isset($categories[$catId])) {
+                $categories[$catId] = [
+                    'waste_category_id' => $catId,
+                    'waste_category_name' => $catName,
+                    'total_weight' => 0,
+                    'total_value' => 0,
+                    'total_co2' => 0,
+                    'details' => []
+                ];
+            }
+
+            $categories[$catId]['total_weight'] += (float) $row['total_weight'];
+            $categories[$catId]['total_value'] += (float) $row['total_value'];
+            $categories[$catId]['total_co2'] += (float) $row['total_co2'];
+
+            $categories[$catId]['details'][] = [
+                'waste_type_id' => $row['waste_type_id'],
+                'waste_type_name' => $row['waste_type_name'],
+                'total_weight' => (float) $row['total_weight'],
+                'total_value' => (float) $row['total_value'],
+                'total_co2' => (float) $row['total_co2']
+            ];
+        }
+        return array_values($categories);
+    }
+
+    public function ReportByFaculty($query)
+    {
+        $month = $query['month'] ?? null;
+        $year = $query['year'] ?? null;
+
+        $whereClauses = [];
+        $params = [];
+
+        if ($month) {
+            $whereClauses[] = "MONTH(w.waste_transaction_date) = :month";
+            $params[':month'] = $month;
+        }
+        if ($year) {
+            $whereClauses[] = "YEAR(w.waste_transaction_date) = :year";
+            $params[':year'] = $year;
+        }
+
+        $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
+
+        $sqlFaculty = "SELECT 
+                            f.faculty_id,
+                            f.faculty_name,
+                            COALESCE(SUM(w.waste_transaction_faculty_fraction), 0) AS total_fraction,
+                            COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
+                            COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
+                            COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2
+                       FROM waste_transaction w
+                       LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
+                       LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
+                       {$whereSql}
+                       GROUP BY f.faculty_id
+                       ORDER BY total_weight DESC";
+
+        $stmtFaculty = $this->Conn->prepare($sqlFaculty);
+        $stmtFaculty->execute($params);
+        return $stmtFaculty->fetchAll(PDO::FETCH_ASSOC);
     }
 }

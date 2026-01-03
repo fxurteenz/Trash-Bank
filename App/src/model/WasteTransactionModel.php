@@ -80,34 +80,30 @@ class WasteTransactionModel
                                     OR s.member_personal_id LIKE :staff_search 
                                     OR s.member_phone LIKE :staff_search 
                                     OR s.member_email LIKE :staff_search)";
-                $params[':staff_search'] = "%" . $query['operater_search'] . "%";
+                $params[':staff_search'] = "%" . $query['staff_search'] . "%";
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sql = "SELECT 
-                        w.*,a.member_id, a.member_name, a.member_personal_id, a.member_phone,a.member_email,
-                        f.faculty_id, f.faculty_name,
-                        t.waste_type_name, c.waste_category_name,
-                        s.member_id AS staff_id,s.member_name AS staff_name, s.member_phone AS staff_tel, 
-                        s.member_email AS staff_email, s.member_personal_id AS staff_personal_id
-                    FROM 
-                        waste_transaction w
-                    LEFT JOIN member a ON w.member_id = a.member_id
-                    LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
-                    LEFT JOIN member s ON w.staff_id = s.member_id
-                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
-                    LEFT JOIN waste_category c ON t.waste_category_id = c.waste_category_id
-                    {$whereSql}
-                    ORDER BY w.created_at DESC;
-                ";
+                    w.*,a.member_id, a.member_name, a.member_personal_id, a.member_phone,a.member_email,
+                    f.faculty_id, f.faculty_name,
+                    t.waste_type_name, c.waste_category_name,
+                    s.member_id AS staff_id,s.member_name AS staff_name, s.member_phone AS staff_tel, 
+                    s.member_email AS staff_email, s.member_personal_id AS staff_personal_id
+                FROM 
+                    waste_transaction w
+                LEFT JOIN member a ON w.member_id = a.member_id
+                LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
+                LEFT JOIN member s ON w.staff_id = s.member_id
+                LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
+                LEFT JOIN waste_category c ON t.waste_category_id = c.waste_category_id
+                {$whereSql}
+                ORDER BY w.created_at DESC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
-                $page = (int) $query['page'];
-                $limit = (int) $query['limit'];
-                $offset = ($page - 1) * $limit;
 
                 $sql .= " LIMIT :limit OFFSET :offset";
             }
@@ -120,6 +116,10 @@ class WasteTransactionModel
             }
 
             if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
@@ -129,10 +129,7 @@ class WasteTransactionModel
 
             if ($isPagination) {
                 // ต้อง JOIN member a ด้วยหากมีการกรองตาม faculty_id ในการนับจำนวนทั้งหมด
-                $sqlCount = "SELECT COUNT(*) AS allDeposit 
-                             FROM waste_transaction w 
-                             LEFT JOIN member a ON w.member_id = a.member_id 
-                             $whereSql";
+                $sqlCount = "SELECT COUNT(*) AS allDeposit FROM waste_transaction w LEFT JOIN member a ON w.member_id = a.member_id {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);

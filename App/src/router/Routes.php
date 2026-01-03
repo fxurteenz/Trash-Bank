@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\LeaderController;
 use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\FacultyController;
@@ -49,9 +50,9 @@ class Routes
             ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
         ]);
 
-            $this->addPrefixedRoutes('/center', [
-                ['GET', '', [CenterPagesController::class, 'HomePage']]
-            ]);
+        $this->addPrefixedRoutes('/center', [
+            ['GET', '', [CenterPagesController::class, 'HomePage']]
+        ]);
 
         $this->addPrefixedRoutes('/user', [
             ['GET', '', [UserPagesController::class, 'Dashboard']],
@@ -64,7 +65,7 @@ class Routes
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
-            ['GET', '/manage/faculty_major', [AdminPagesController::class, 'ManageFacultyMajor']],
+            ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
         ]);
@@ -106,10 +107,14 @@ class Routes
         ]);
         /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
-            ['GET', "/faculty", [ReportController::class, "GetFacultyWasteStats"]],
-            ['GET', "/user", [ReportController::class, "GetUsersWasteStats"]],
+            ['GET', "/overall", [ReportController::class, "GetOverallReport"]],
         ]);
-        /* /api/waste_types */
+        /* /api/leaders */
+        $this->addPrefixedRoutes("/api/leaders", [
+            ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
+            ['GET', "/member", [LeaderController::class, "GetMemberLeader"]]
+        ]);
+        /* /api/waste_transaction */
         $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],

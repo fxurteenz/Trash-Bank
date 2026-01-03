@@ -48,14 +48,14 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function ManageFacultyMajor()
+    public function ManageFaculty()
     {
         try {
             Authentication::AdminAuth();
-            $this->render('admin/manages/faculty_major', [
-                'pages' => "manageFacultyMajor",
+            $this->render('admin/manages/faculty', [
+                'pages' => "manageFaculty",
                 'title' => 'จัดการคณะ/สาขา',
-                'script' => '../../js/ManageFacultyMajor.js'
+                'script' => '../../js/ManageFaculty.js'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

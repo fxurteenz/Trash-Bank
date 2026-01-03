@@ -45,7 +45,8 @@ class MemberModel
             $sql = "SELECT 
                         m.*, 
                         f.faculty_name,
-                        r.role_name
+                        r.role_name,
+                        r.role_name_th
                     FROM 
                         member m
                     LEFT JOIN 

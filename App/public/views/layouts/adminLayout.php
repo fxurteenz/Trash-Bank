@@ -84,8 +84,8 @@
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
                             <span>จัดการหมวดหมู่ขยะ</span>
                         </a>
-                        <a href="/admin/manage/faculty_major"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFacultyMajor" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                        <a href="/admin/manage/faculty"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFaculty" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
                             <span>จัดการคณะ/สาขา</span>
                         </a>
                         <a href="/admin/manage/users"
@@ -112,9 +112,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
-    <script type="module" src="<?= $module ?? "" ?>">
-        // import chartJs from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm' 
-    </script>
+    <script type="module" src="<?= $module ?? "" ?>"></script>
 </body>
 
 </html>

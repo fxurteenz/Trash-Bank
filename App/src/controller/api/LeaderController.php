@@ -1,14 +1,14 @@
 <?php
 namespace App\Controller\Api;
 
-use App\Model\ReportModel;
+use App\Model\LeaderModel;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 use Exception;
 
-class ReportController
+class LeaderController
 {
-    private static $data, $ReportModel, $queryString;
+    private static $data, $LeaderModel, $queryString;
     public function __construct()
     {
         $input = file_get_contents('php://input');
@@ -35,19 +35,23 @@ class ReportController
                 self::$data = $input;
         }
 
-        self::$ReportModel = new ReportModel();
+        self::$LeaderModel = new LeaderModel();
     }
 
-    public function GetOverallReport()
+    public function GetFacultyLeader()
     {
         try {
-            $result = self::$ReportModel->OverallReport(self::$queryString);
+            // use user auth
+            $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'data' => $result,
+                'data' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limit' => (int) (self::$queryString['limit'] ?? 10),
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -68,4 +72,40 @@ class ReportController
             exit;
         }
     }
+
+    public function GetMemberLeader()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingMember(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
 }
