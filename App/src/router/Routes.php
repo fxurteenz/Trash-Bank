@@ -50,9 +50,9 @@ class Routes
             ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
         ]);
 
-            $this->addPrefixedRoutes('/center', [
-                ['GET', '', [CenterPagesController::class, 'HomePage']]
-            ]);
+        $this->addPrefixedRoutes('/center', [
+            ['GET', '', [CenterPagesController::class, 'HomePage']]
+        ]);
 
         $this->addPrefixedRoutes('/user', [
             ['GET', '', [UserPagesController::class, 'Dashboard']],
