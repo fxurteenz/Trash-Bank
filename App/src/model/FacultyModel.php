@@ -16,13 +16,74 @@ class FacultyModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllFaculty(): array
+    public function GetAllFaculty($query): array
     {
         try {
-            $sql = "SELECT * FROM faculty_tb";
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['search'])) {
+                $whereClauses[] = "faculty_name LIKE :search";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+            $sql = "SELECT * FROM faculty {$whereSql}";
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
             $stmt = $this->Conn->prepare($sql);
+
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = "SELECT COUNT(*) AS all_faculty FROM faculty{$whereSql}";
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_faculty'];
+            } else {
+                $total = count($data);
+            }
+
+            return [$data, $total];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetFacultyById($id): array
+    {
+        try {
+
+            $sql = "SELECT * FROM faculty WHERE faculty_id = :faculty_id";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $data;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -41,6 +102,8 @@ class FacultyModel
                 throw new Exception('faculty name not provided', 400);
             }
 
+            $data["created_at"] = date('Y-m-d H:i:s');
+
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
@@ -53,7 +116,7 @@ class FacultyModel
 
             $sql =
                 "INSERT INTO 
-                    faculty_tb
+                    faculty
                 SET
                     {$setClauseString}
                 ";
@@ -72,16 +135,11 @@ class FacultyModel
     public function UpdateFaculty($fid, $data): mixed
     {
         try {
-            if (empty($data) && !is_array($data) || empty($fid)) {
+            if (empty($data) || !is_array($data) || empty($fid)) {
                 throw new Exception('Bad Request =(', 400);
             }
 
-            // $encodedPassword = password_hash(
-            //     $data['password'],
-            //     PASSWORD_DEFAULT,
-            //     ['cost' => self::$SaltRound]
-            // );
-
+            $data["updated_at"] = date('Y-m-d H:i:s');
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
@@ -93,7 +151,7 @@ class FacultyModel
             $setClauseString = implode(', ', $setClauses);
 
             $sql =
-                "UPDATE faculty_tb
+                "UPDATE faculty
                 SET 
                     {$setClauseString}
                 WHERE
@@ -111,5 +169,52 @@ class FacultyModel
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
-}
 
+    public function DeleteFaculty(array $data): int
+    {
+        if (empty($data['faculty_ids'] ?? []) || !is_array($data['faculty_ids'])) {
+            throw new Exception('Bad Request: faculty_ids is required and must be an array', 400);
+        }
+
+        $ids = array_filter($data['faculty_ids']);
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        try {
+
+            $this->Conn->beginTransaction();
+
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            $sql = "DELETE FROM 
+                        faculty 
+                    WHERE 
+                        faculty_id 
+                    IN ($placeholders)";
+
+            $stmt = $this->Conn->prepare($sql);
+
+            foreach ($ids as $index => $id) {
+                $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $rowCount = $stmt->rowCount();
+
+            $this->Conn->commit();
+
+            return $rowCount;
+        } catch (PDOException $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+}

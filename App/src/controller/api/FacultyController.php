@@ -40,27 +40,38 @@ class FacultyController extends RouterBase
         self::$Database = new Database();
         self::$FacultyModel = new FacultyModel();
     }
+
     public function GetAll()
     {
         try {
-            Authentication::AdminAuth();
-            $faculty = self::$FacultyModel->GetAllFaculty();
+            // UserAuth
+            [$data, $total] = self::$FacultyModel->GetAllFaculty(self::$QueryString);
+
+            $response = [
+                'success' => TRUE,
+                'data' => $data,
+                'total' => $total,
+                'message' => 'successfully'
+            ];
+
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
 
             header('Content-Type: application/json');
             http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'result' => $faculty,
-                'message' => 'successfully =)'
-            ]);
+            echo json_encode($response);
         } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -70,35 +81,44 @@ class FacultyController extends RouterBase
         }
     }
 
-    // public function Get($fid)
-    // {
-    //     try {
-    //         Authentication::AdminAuth();
-    //         $result = self::$FacultyModel->GetFaculty($fid);
+    public function Get($fid)
+    {
+        try {
+            // UserAuth
+            $result = self::$FacultyModel->GetFacultyById($fid);
 
-    //         header('Content-Type: application/json');
-    //         http_response_code(200);
-    //         echo json_encode([
-    //             'success' => TRUE,
-    //             'result' => $result,
-    //             'message' => 'successfully =)'
-    //         ]);
-    //     } catch (AuthenticationException $e) {
-    //         http_response_code($e->getCode() ?: 401);
-    //         echo json_encode([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     } catch (Exception $e) {
-    //         http_response_code($e->getCode() ?: 401);
-    //         echo json_encode([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     } finally {
-    //         exit;
-    //     }
-    // }
+            $response = [
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully'
+            ];
+
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
 
     public function Create()
     {
@@ -121,7 +141,7 @@ class FacultyController extends RouterBase
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -135,13 +155,13 @@ class FacultyController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $user = self::$FacultyModel->UpdateFaculty($fid, self::$Data);
+            $result = self::$FacultyModel->UpdateFaculty($fid, self::$Data);
 
             header('Content-Type: application/json');
-            http_response_code(201);
+            http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $user,
+                'result' => $result,
                 'message' => 'faculty updated successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -156,6 +176,30 @@ class FacultyController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Delete()
+    {
+        try {
+            Authentication::AdminAuth();
+            $result = self::$FacultyModel->DeleteFaculty(self::$Data);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => "deleted $result items."
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } finally {
             exit;
         }

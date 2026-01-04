@@ -5,20 +5,20 @@ use Exception;
 
 class CookieBaker
 {
-    private $expireTimes = 86400 / 24;
-    private string $path = '/';
-    private bool $secure = true;
+    private static $expireTimes = 86400 / 24;
+    private static string $path = '/';
+    private static bool $secure = true;
 
-    public function BakeUserCookie($userToken)
+    public static function BakeUserCookie($userToken)
     {
         // $this->user_token = $this->jwt_encode($userData);
         $cookieSetted = setcookie(
             name: 'user_token',
             value: $userToken,
-            expires_or_options: time() + $this->expireTimes,
-            path: $this->path,
-            // secure: true,
-            // httponly:true
+            expires_or_options: time() + self::$expireTimes,
+            path: self::$path,
+            secure: true,
+            httponly: true
         );
         if (!$cookieSetted) {
             throw new Exception("Can't set cookie now");
@@ -35,8 +35,8 @@ class CookieBaker
                 value: '',
                 expires_or_options: time() - $this->expireTimes,
                 path: $this->path,
-                // secure: true,
-                // httponly:true
+                secure: true,
+                httponly: true
             );  // Expire in the past
             if (!$cookieUnSetted) {
                 throw new Exception("Can't reset cookie now");

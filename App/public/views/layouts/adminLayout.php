@@ -65,7 +65,7 @@
                     <a href="#"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">ดูโปรไฟล์</a>
                     <div class="border-t border-gray-100 my-1"></div>
-                    <a href="#"
+                    <a href="/logout"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600">ออกจากระบบ</a>
                 </div>
             </div>
@@ -73,20 +73,28 @@
 
         <div class="flex pt-16 w-full">
             <aside :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
-                class="fixed inset-y-0 left-0 z-20 w-64 bg-gray-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block lg:shadow-none shadow-xl">
+                class="fixed inset-y-0 left-0 z-20 w-50 bg-slate-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block lg:shadow-none shadow-xl">
                 <div class="p-4 mt-16 lg:mt-0">
                     <nav class="space-y-2">
                         <a href="/admin"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "bg-indigo-700" : "hover:bg-gray-700" ?>">
                             <span>หน้าหลัก</span>
                         </a>
+                        <a href="/admin/manage/waste_type"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>จัดการหมวดหมู่ขยะ</span>
+                        </a>
+                        <a href="/admin/manage/faculty"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFaculty" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>จัดการคณะ/สาขา</span>
+                        </a>
                         <a href="/admin/manage/users"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
                             <span>จัดการผู้ใช้</span>
                         </a>
-                        <a href="/admin/manage/faculty_major"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFacultyMajor" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
-                            <span>จัดการคณะ/สาขา</span>
+                        <a href="/admin/manage/waste_transaction"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "bg-indigo-700" : "hover:bg-gray-700" ?>  ">
+                            <span>รายการฝาก</span>
                         </a>
                     </nav>
                 </div>
@@ -104,9 +112,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
-    <script type="module" src="<?= $module ?? "" ?>">
-        // import chartJs from 'https://cdn.jsdelivr.net/npm/chart.js@4.5.1/+esm' 
-    </script>
+    <script type="module" src="<?= $module ?? "" ?>"></script>
 </body>
 
 </html>

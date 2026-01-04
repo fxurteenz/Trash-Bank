@@ -1,209 +1,317 @@
 function UserTable() {
     return {
-        users: [],
+        members: [],
+        faculties: [], // Store Faculty list
+        checkedMembers: { member_ids: [] },
         selectedUser: null,
-        checkedUser: {account_ids: []},
-        page: 1,
-        limit: 5,
-        totalPages: 1,
-        editUserForm: {
-            account_name: '',
-            account_email: '',
-            faculty_id: '',
-            major_id: ''
-        },
-        createUserForm: {
-            account_name: '',
-            account_email: '',
-            account_password:'',
-            faculty_id: '',
-            major_id: ''
-        },
-        filterRoleDropdown: false,
         createUserDialogShow: false,
-        editUserDialogShow:false,
-        async loadUsers() {
+        editUserDialogShow: false,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+
+        errors: {
+            create: {},
+            edit: {},
+        },
+
+        editUserForm: {
+            member_personal_id: "",
+            member_phone: "",
+            member_name: "",
+            member_email: "",
+            faculty_id: "",
+            role_id: "",
+        },
+
+        createUserForm: {
+            member_personal_id: "",
+            member_phone: "",
+            member_name: "",
+            member_email: "",
+            member_password: "",
+            faculty_id: "",
+            role_id: "",
+        },
+
+        filters: {
+            faculty_id: "",
+            role: "",
+            search: "",
+        },
+
+        async initData() {
+            await this.fetchMembers();
+            await this.fetchFaculties();
+        },
+
+        async fetchMembers() {
             try {
-                this.offset = (this.page - 1) * this.limit;
-                const res = await fetch(`/api/users?page=${this.page}&limit=${this.limit}`);
-                let data = await res.json();
-                this.users = data.result;
-                this.totalPages = Math.ceil(data.total / this.limit);
-                // console.log(this.users);
+                const params = new URLSearchParams();
+                params.append("page", this.page);
+                params.append("limit", this.limit);
+                if (this.filters.faculty_id)
+                    params.append("faculty_id", this.filters.faculty_id);
+                if (this.filters.role) params.append("role", this.filters.role);
+                if (this.filters.search)
+                    params.append("search", this.filters.search);
+
+                const res = await fetch(`/api/members?${params.toString()}`);
+                let result = await res.json();
+                console.log(result.data);
+
+                this.members = result.data;
+                this.totalPages = Math.ceil(result.total / this.limit);
             } catch (err) {
-                console.error("โหลดข้อมูลล้มเหลว", err);
+                console.error("โหลดข้อมูลผู้ใช้ล้มเหลว", err);
             }
         },
-        selectingRow(user) {
+
+        async fetchFaculties() {
+            try {
+                const res = await fetch("/api/faculties");
+                const result = await res.json();
+                if (result.success || result.data) {
+                    this.faculties = result.data;
+                } else {
+                    throw result;
+                }
+            } catch (err) {
+                console.error("โหลดข้อมูลคณะล้มเหลว", err);
+            }
+        },
+
+        handleFilterChange() {
+            this.page = 1;
+            this.fetchMembers();
+        },
+
+        resetFilters() {
+            this.filters = {
+                faculty_id: "",
+                role: "",
+                search: "",
+            };
+            this.page = 1;
+            this.fetchMembers();
+        },
+
+        openCreateDialog() {
+            this.createUserForm = {
+                member_personal_id: "", // เพิ่ม field นี้ตอน reset
+                member_name: "",
+                member_email: "",
+                member_password: "",
+                faculty_id: "",
+                role_id: "",
+            };
+            this.majors = [];
+            this.errors.create = {};
+            this.createUserDialogShow = true;
+        },
+
+        async selectingRow(user) {
             this.selectedUser = user;
             this.editUserForm = {
-                account_name: user.account_name ?? '',
-                account_email: user.account_email ?? '',
-                faculty_id: user.faculty_id ?? '',
-                major_id: user.major_id ?? '',
+                member_personal_id: user.member_personal_id ?? "",
+                member_phone: user.member_phone ?? null,
+                member_name: user.member_name ?? null,
+                member_email: user.member_email ?? null,
+                faculty_id: user.faculty_id ?? "",
+                role_id: user.role_id,
             };
+            this.errors.edit = {};
+            if (user.faculty_id) {
+                this.editUserForm.major_id = user.major_id ?? "";
+            }
+
+            console.log("Selected User:", user);
+            console.log("Form Data:", this.editUserForm);
+
             this.editUserDialogShow = true;
-            // console.log(this.selectedUser);
         },
+
+        validateForm(formType) {
+            let isValid = true;
+            const errors = {};
+            const form =
+                formType === "create" ? this.createUserForm : this.editUserForm;
+
+            if (!form.member_phone) {
+                errors.member_phone = true;
+                isValid = false;
+            }
+
+            if (!form.role_id) {
+                errors.role_id = true;
+                isValid = false;
+            }
+
+            if (formType === "create" && !form.member_password) {
+                errors.member_password = true;
+                isValid = false;
+            }
+
+            this.errors[formType] = errors;
+            return isValid;
+        },
+
         async submitEdit() {
             this.editUserDialogShow = false;
+            if (!this.validateForm("edit")) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "ข้อมูลไม่ครบถ้วน",
+                    text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
+                    confirmButtonColor: "#ff8f4eff",
+                });
+                this.editUserDialogShow = true;
+                return;
+            }
             const result = await Swal.fire({
-                title: 'แก้ไขข้อมูล',
-                text: 'คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?',
-                icon:'info',
-                theme: 'material-ui',
+                title: "แก้ไขข้อมูล",
+                text: "คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?",
+                icon: "info",
                 showConfirmButton: true,
                 confirmButtonText: "ยืนยัน",
-                confirmButtonColor: "#ff8f4eff",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
-                cancelButtonColor:"#8a8a8aff"
-            })
+            });
 
             if (result.isConfirmed) {
                 try {
-                    this.editUserDialogShow = false;
-                    const res = await fetch(`/api/users/update/${this.selectedUser.account_id}`,
+                    const res = await fetch(
+                        `/api/members/update/${this.selectedUser.member_id}`,
                         {
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(this.editUserForm)
-                        })
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(this.editUserForm),
+                        }
+                    );
                     const response = await res.json();
+
                     if (response.success) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'แก้ไขสำเร็จ',
-                            text: `แก้ไขข้อมูลเรียบร้อยแล้ว`,
+                            icon: "success",
+                            title: "แก้ไขสำเร็จ",
                             timer: 2000,
-                            showConfirmButton: false
+                            showConfirmButton: false,
                         });
                         this.selectedUser = null;
-                        this.loadUsers();
-                        this.editUserForm = {
-                            account_name: '',
-                            account_email: '',
-                            faculty_id: '',
-                            major_id: '',
-                        };
+                        this.fetchMembers();
                     } else {
-                        throw "something wrong !";
+                        throw new Error(
+                            response.message || "Something went wrong"
+                        );
                     }
-                    console.log(response);
                 } catch (error) {
-                    const errAlert = await Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด',
-                            text: 'ลบรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
-                            timer: 2000,
-                            showConfirmButton: false
+                    await Swal.fire({
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "แก้ไขข้อมูลไม่สำเร็จ",
+                        timer: 2000,
+                        showConfirmButton: false,
                     });
-                    console.log(errAlert);
-                    this.editUserDialogShow = true;
                     console.error(error);
+                    this.editUserDialogShow = true;
                 }
             }
         },
-        async submitCreate() {
-            try {
-                const res = await fetch(`/api/users`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(this.createUserForm)
-                    })
-                const response = await res.json();
-                if (response.success) {
-                    this.createUserDialogShow = false;
-                    this.createUserForm = {
-                        account_name: '',
-                        account_email: '',
-                        faculty_id: '',
-                        major_id: '',
-                    };
-                    Swal.fire({
-                            icon: 'success',
-                            title: 'เพิ่มสำเร็จ',
-                            text: `เพ่ิมผู้ใช้งานเรียบร้อย`,
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
 
-                    this.loadUsers();
-                    
+        async submitCreate() {
+            this.createUserDialogShow = false;
+            if (!this.validateForm("create")) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "ข้อมูลไม่ครบถ้วน",
+                    text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
+                    confirmButtonColor: "#ff8f4eff",
+                });
+                this.createUserDialogShow = true;
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/members`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(this.createUserForm),
+                });
+                const response = await res.json();
+
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "เพิ่มสำเร็จ",
+                        text: `เพิ่มผู้ใช้งานเรียบร้อย`,
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                    this.fetchMembers();
                 } else {
-                    throw "some thing wrong !";
+                    throw new Error(response.message || "Something went wrong");
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ผิดพลาด',
-                    text: 'เพิ่มรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+                await Swal.fire({
+                    icon: "error",
+                    title: "ผิดพลาด",
+                    text: "เพิ่มรายชื่อไม่สำเร็จ",
                     timer: 2000,
-                    showConfirmButton: false
+                    showConfirmButton: false,
                 });
+                this.createUserDialogShow = true;
             }
         },
+
         async deleteCheckedUser() {
+            if (this.checkedMembers.member_ids.length === 0) return;
+
             const result = await Swal.fire({
-                title: 'ลบข้อมูล',
-                text: 'คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?',
-                icon:'warning',
-                theme: 'material-ui',
+                title: "ลบข้อมูล",
+                text: `ต้องการลบผู้ใช้ ${this.checkedMembers.member_ids.length} รายการ ใช่หรือไม่?`,
+                icon: "warning",
                 showConfirmButton: true,
                 confirmButtonText: "ยืนยันการลบ",
-                confirmButtonColor: "#ff8f4eff",
+                confirmButtonColor: "#d33",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
-                cancelButtonColor:"#8a8a8aff"
-            })
+            });
 
             if (result.isConfirmed) {
-                console.log("confirmed");
-                console.log(JSON.stringify(this.checkedUser));
-             
                 try {
-                    const deleteRes = await fetch('/api/users/bulk-del', {
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(this.checkedUser)
-                        })
+                    const deleteRes = await fetch("/api/members/bulk-del", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(this.checkedMembers),
+                    });
                     const delResult = await deleteRes.json();
-                    console.log(delResult);
-                    
-                    if (delResult.success){
+
+                    if (delResult.success) {
                         Swal.fire({
-                            icon: 'success',
-                            title: 'ลบสำเร็จ',
-                            text: `ลบข้อมูล ${this.checkedUser.length} รายการเรียบร้อย`,
+                            icon: "success",
+                            title: "ลบสำเร็จ",
                             timer: 2000,
-                            showConfirmButton: false
+                            showConfirmButton: false,
                         });
-
-                        this.checkedUser.account_ids = [];
-                        this.loadUsers();
+                        this.checkedMembers.member_ids = []; // Reset checked items
+                        this.fetchMembers();
                     } else {
-                        throw "some thing wrong !";
+                        throw new Error(
+                            delResult.message || "Something went wrong"
+                        );
                     }
-
                 } catch (error) {
                     console.error(error);
                     Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด',
-                            text: 'ลบรายชื่อไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "ลบรายชื่อไม่สำเร็จ",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
                 }
             }
         },
-    }
+    };
 }

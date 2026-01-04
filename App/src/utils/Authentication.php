@@ -48,7 +48,7 @@ class Authentication
      * @return object ข้อมูลที่ decode จาก JWT (payload)
      * @throws AuthenticationException เมื่อ authentication ล้มเหลวทุกกรณี
      */
-    public static function Auth(): object
+    public static function HeaderAuth(): object
     {
 
         try {
@@ -67,6 +67,7 @@ class Authentication
 
         return is_array($decoded) ? (object) $decoded : $decoded;
     }
+
     public static function CookieAuth(): object
     {
         if (!isset($_COOKIE['user_token'])) {
@@ -93,13 +94,51 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->account_role !== "admin") {
+            if ($authenticated->role_id !== 1) {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
             } else {
                 return ['success' => true, 'user_data' => $authenticated];
             }
         } catch (AuthenticationException $th) {
-            throw new AuthenticationException($th->getMessage(), $th->getCode() || 401);
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
+
+    public static function OperateAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            if ($authenticated->role_id === 1 || $authenticated->role_id === 3) {
+                return ['success' => true, 'user_data' => $authenticated];
+            } else {
+                throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
+
+    public static function UserLogout()
+    {
+        try {
+            setcookie('user_token', '', time() - 3600, '/');
+            unset($_COOKIE['user_token']);
+            if (!isset($_COOKIE['user_token'])) {
+                return ['success' => true];
+            }
+            return ['success' => false];
+        } catch (Exception $e) {
+            throw new AuthenticationException("Something Wrong ! @ Logout");
+        }
+    }
+
+    public static function ClearCookieAndRedirect()
+    {
+        setcookie('user_token', '', time() - 3600, '/');
+        unset($_COOKIE['user_token']);
+        if (!isset($_COOKIE['user_token'])) {
+            header('Location: /');
+            exit;
         }
     }
 }
