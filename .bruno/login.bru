@@ -1,0 +1,27 @@
+meta {
+  name: /login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{domain}}/login
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:json {
+  {
+    
+  }
+}
+
+body:form-urlencoded {
+  identifier: 0816047264
+  password: 12345678
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
