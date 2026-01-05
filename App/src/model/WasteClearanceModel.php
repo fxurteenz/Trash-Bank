@@ -76,7 +76,7 @@ class WasteClearanceModel
                             SET waste_clearance_id = :clearance_id 
                             WHERE faculty_id = :faculty_id 
                             AND waste_transaction_date BETWEEN :start_date AND :end_date
-                            AND waste_clearance_id IS NULL"; 
+                            AND waste_clearance_id IS NULL";
 
             $stmtUpdateTx = $this->Conn->prepare($updateTxSql);
             $stmtUpdateTx->execute([
@@ -124,6 +124,139 @@ class WasteClearanceModel
         }
     }
 
+    public function GetAllClearance($query): array
+    {
+        try {
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['faculty'])) {
+                $whereClauses[] = "wc.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $query['faculty'];
+            }
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "wc.waste_clearance_period_start >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "wc.waste_clearance_period_end <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['status'])) {
+                $whereClauses[] = "wc.waste_clearance_status = :status";
+                $params[':status'] = $query['status'];
+            }
+            if (!empty($query['creater'])) {
+                $whereClauses[] = "wc.waste_clearance_created_by = :created_by";
+                $params[':created_by'] = $query['creater'];
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+            $sql = "SELECT 
+                        wc.*,
+                        f.faculty_name,
+                        m.member_name AS creator_name
+                    FROM 
+                        waste_clearance wc
+                    LEFT JOIN 
+                        faculty f ON wc.faculty_id = f.faculty_id
+                    LEFT JOIN 
+                        member m ON wc.waste_clearance_created_by = m.member_id
+                    {$whereSql}
+                    ORDER BY wc.created_at DESC";
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $sqlCount = "SELECT COUNT(*) AS total FROM waste_clearance wc {$whereSql}";
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
+                $stmtCount->execute();
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+            } else {
+                $total = count($data);
+            }
+
+            return ["data" => $data, "total" => $total];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetClearanceDetail($id, $query = []): array
+    {
+        try {
+            if (empty($id)) {
+                throw new Exception('ID is required', 400);
+            }
+
+            $whereClauses = ["cd.waste_clearance_id = :id"];
+            $params = [':id' => $id];
+
+            if (!empty($query['waste_type'])) {
+                $whereClauses[] = "cd.waste_type_id = :waste_type_id";
+                $params[':waste_type_id'] = $query['waste_type'];
+            }
+
+            if (!empty($query['waste_category'])) {
+                $whereClauses[] = "wt.waste_category_id = :waste_category_id";
+                $params[':waste_category_id'] = $query['waste_category'];
+            }
+
+            $whereSql = "WHERE " . implode(" AND ", $whereClauses);
+
+            $sql = "SELECT 
+                        cd.*,
+                        wt.waste_type_name,
+                        wt.waste_type_price,
+                        wt.waste_type_co2,
+                        wc.waste_category_name
+                    FROM 
+                        clearance_detail cd
+                    LEFT JOIN 
+                        waste_type wt ON cd.waste_type_id = wt.waste_type_id
+                    LEFT JOIN 
+                        waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                    {$whereSql}";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute($params);
+            $details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $details;
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     protected static function GetPeriodTransactions($query, $conn)
     {
         try {
@@ -164,14 +297,13 @@ class WasteClearanceModel
             $stmtFaculty->execute($params);
             $result = $stmtFaculty->fetch(PDO::FETCH_ASSOC);
 
-            if ((float) $result["faculty_point_total"] === 0 && (int) $result["member_point_total"] === 0 && (float) $result["value_total"] === 0) {
-                // เปลี่ยนข้อความแจ้งเตือนเล็กน้อยเพื่อให้เข้าใจง่ายขึ้น
+            if (((float) $result["faculty_point_total"] == 0) && ((int) $result["member_point_total"] == 0) && ((float) $result["value_total"] == 0)) {
                 throw new Exception("ไม่พบรายการขยะตกค้างในช่วงเวลานี้ หรือรายการทั้งหมดถูกเคลียร์ไปแล้ว", 400);
             }
-            if (empty($result["faculty_id"])) { // เอา check faculty_name ออกเผื่อบางเคส join ไม่เจอแต่มียอด
-                // ถ้าหา faculty ไม่เจอจริงๆ ค่อย throw แต่ปกติ query บนจะ return null ทั้งหมดถ้าไม่เจอ row
+
+            if (empty($result["faculty_id"])) {
                 if ($faculty_id) {
-                    // โค้ดเดิมคุณอาจจะต้องการแค่เช็คว่ามี Data ไหม
+                    throw new Exception("ลองใหม่อีกครั้ง, ไม่พบข้อมูลคณะ", 400);
                 }
             }
 

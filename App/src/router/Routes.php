@@ -128,6 +128,8 @@ class Routes
         ]);
         /* /api/users */
         $this->addPrefixedRoutes("/api/clearances", [
+            ['GET', "", [WasteClearanceController::class, "GetAll"]],
+            ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
         ]);
 
