@@ -1,2 +1,9 @@
+# --- System ---
+.DS_Store
+App/.DS_Store
+Thumbs.db
+# --- Code Dependencies ---
 App/vendor
+# --- Environment Variables (SECRETS) ---
 App/.env
+.env
