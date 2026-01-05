@@ -3,17 +3,22 @@
 -- Model: Waste Bank Model
 -- MySQL Workbench Forward Engineering
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Database: `waste_bank`
 --
 
 -- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
 -- Table structure for table `badge`
@@ -62,7 +67,7 @@ CREATE TABLE `clearance_detail` (
   KEY `fk_clearance_detail_waste_type_idx` (`waste_type_id`),
   CONSTRAINT `fk_clearance_detail_clearance` FOREIGN KEY (`waste_clearance_id`) REFERENCES `waste_clearance` (`waste_clearance_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `fk_clearance_detail_waste_type` FOREIGN KEY (`waste_type_id`) REFERENCES `waste_type` (`waste_type_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +76,7 @@ CREATE TABLE `clearance_detail` (
 
 LOCK TABLES `clearance_detail` WRITE;
 /*!40000 ALTER TABLE `clearance_detail` DISABLE KEYS */;
-INSERT INTO `clearance_detail` VALUES (1,2,1,14.23,NULL,0,NULL),(2,2,6,8.44,NULL,0,NULL);
+INSERT INTO `clearance_detail` VALUES (1,3,1,14.23,NULL,0,NULL),(2,3,6,8.44,NULL,0,NULL),(3,4,4,8.63,NULL,0,NULL),(4,6,5,1.65,NULL,0,NULL),(5,6,7,10.36,NULL,0,NULL);
 /*!40000 ALTER TABLE `clearance_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -394,21 +399,21 @@ CREATE TABLE `waste_clearance` (
   `waste_clearance_period_start` date DEFAULT NULL,
   `waste_clearance_period_end` date DEFAULT NULL,
   `waste_clearance_value_total` decimal(12,2) DEFAULT NULL COMMENT 'มูลค่าขยะรวม',
-  `waste_clearance_member_point_total` decimal(12,2) DEFAULT NULL,
+  `waste_clearance_member_point_total` int DEFAULT NULL,
   `waste_clearance_faculty_point_total` decimal(12,2) DEFAULT NULL COMMENT 'ให้คณะ',
-  `waste_clearance_status` varchar(20) DEFAULT NULL,
-  `waste_clearance_created_by` int NOT NULL,
-  `waste_clearance_approved_by` int DEFAULT NULL,
+  `waste_clearance_status` enum('รอยืนยัน','ยืนยันแล้ว') DEFAULT 'รอยืนยัน' COMMENT 'สถานะการเคลียร์ยอด หลังเปิดรายการเคลียร์จะต้องยืนยันขยะแต่ละชนิดว่ามีจำนวนครบตาม transaction ไหม',
+  `waste_clearance_created_by` int NOT NULL COMMENT 'เจ้าหน้าที่ที่ทำการสร้างรายการเคลียร์ยอดนี้',
+  `waste_clearance_approved_by` int DEFAULT NULL COMMENT 'เจ้าหน้าที่ที่ทำการอนุมัติรายการเคลียร์',
   `created_at` datetime DEFAULT NULL,
   `approved_at` datetime DEFAULT NULL,
   PRIMARY KEY (`waste_clearance_id`),
-  KEY `fk_waste_clearance_approved_by` (`waste_clearance_approved_by`),
   KEY `fk_waste_clearance_faculty` (`faculty_id`),
   KEY `fk_waste_clearance_started_by_idx` (`waste_clearance_created_by`),
+  KEY `fk_waste_clearance_approved_by` (`waste_clearance_approved_by`),
   CONSTRAINT `fk_waste_clearance_approved_by` FOREIGN KEY (`waste_clearance_approved_by`) REFERENCES `member` (`member_id`),
   CONSTRAINT `fk_waste_clearance_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
   CONSTRAINT `fk_waste_clearance_started_by` FOREIGN KEY (`waste_clearance_created_by`) REFERENCES `member` (`member_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -417,7 +422,7 @@ CREATE TABLE `waste_clearance` (
 
 LOCK TABLES `waste_clearance` WRITE;
 /*!40000 ALTER TABLE `waste_clearance` DISABLE KEYS */;
-INSERT INTO `waste_clearance` VALUES (2,1,'2026-01-01','2026-01-01',31.84,31.00,0.84,'รออนุมัติ',1,NULL,'2026-01-04 00:26:51',NULL);
+INSERT INTO `waste_clearance` VALUES (3,1,'2026-01-01','2026-01-01',31.84,31,0.84,'รอยืนยัน',1,NULL,'2026-01-05 20:16:05',NULL),(4,1,'2025-12-01','2025-12-30',17.26,16,1.26,'รอยืนยัน',1,NULL,'2026-01-05 21:24:40',NULL),(6,2,'2025-12-01','2025-12-30',10.97,10,0.97,'รอยืนยัน',1,NULL,'2026-01-05 21:36:15',NULL);
 /*!40000 ALTER TABLE `waste_clearance` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -469,6 +474,7 @@ CREATE TABLE `waste_transaction` (
   `waste_transaction_faculty_fraction` decimal(10,4) NOT NULL COMMENT 'เศษทศนิยมสะสมให้คณะ',
   `waste_transaction_date` date NOT NULL,
   `waste_transaction_note` text,
+  `waste_clearance_id` int DEFAULT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`waste_transaction_id`),
   KEY `fk_waste_transaction_member_id` (`member_id`),
@@ -488,7 +494,7 @@ CREATE TABLE `waste_transaction` (
 
 LOCK TABLES `waste_transaction` WRITE;
 /*!40000 ALTER TABLE `waste_transaction` DISABLE KEYS */;
-INSERT INTO `waste_transaction` VALUES (4,5,1,1,4,3.40,6,0.8000,'2025-12-29',NULL,'2025-12-29 12:27:22'),(7,42,2,1,5,1.65,1,0.6500,'2025-12-30',NULL,'2025-12-30 12:31:33'),(8,42,2,1,7,10.36,9,0.3240,'2025-12-30',NULL,'2025-12-30 12:33:22'),(9,43,1,1,4,5.23,10,0.4600,'2025-12-30',NULL,'2025-12-30 13:12:11'),(11,43,1,1,1,14.23,28,0.4600,'2026-01-01',NULL,'2026-01-01 01:08:33'),(12,43,1,1,6,8.44,3,0.3760,'2026-01-01',NULL,'2026-01-01 01:13:18');
+INSERT INTO `waste_transaction` VALUES (4,5,1,1,4,3.40,6,0.8000,'2025-12-29',NULL,4,'2025-12-29 12:27:22'),(7,42,2,1,5,1.65,1,0.6500,'2025-12-28',NULL,6,'2025-12-29 12:31:33'),(8,42,2,1,7,10.36,9,0.3240,'2025-12-28',NULL,6,'2025-12-30 12:33:22'),(9,43,1,1,4,5.23,10,0.4600,'2025-12-28',NULL,4,'2025-12-30 13:12:11'),(11,43,1,1,1,14.23,28,0.4600,'2026-01-01',NULL,3,'2026-01-01 01:08:33'),(12,43,1,1,6,8.44,3,0.3760,'2026-01-01',NULL,3,'2026-01-01 01:13:18');
 /*!40000 ALTER TABLE `waste_transaction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -534,4 +540,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-04 16:00:29
+-- Dump completed on 2026-01-05 22:19:06
