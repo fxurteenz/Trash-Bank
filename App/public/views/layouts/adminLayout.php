@@ -41,7 +41,8 @@
                 </button>
 
                 <a href="#" class="flex items-center space-x-2">
-                    <span class="text-xl font-bold bg-gradient-to-r from-lime-200 void-lime-400 to-lime-600">Waste-Bank</span>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-lime-200 void-lime-400 to-lime-600 text-transparent bg-clip-text">Waste-Bank</span>
                 </a>
 
                 <span
