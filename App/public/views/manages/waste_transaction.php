@@ -15,8 +15,7 @@
         </div>
 
         <!-- Filters Section -->
-        <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">ค้นหาผู้ฝาก</label>
                 <input type="text" x-model="filters.account_search" @input.debounce.500ms="applyFilters"
@@ -26,7 +25,7 @@
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
                 <select x-model="filters.faculty" @change="applyFilters"
-                    class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
+                    class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:ring-blue-500 focus:border-blue-500">
                     <option value="">ทั้งหมด</option>
                     <template x-for="faculty in faculties" :key="faculty.faculty_id">
                         <option :value="faculty.faculty_id" x-text="faculty.faculty_name"></option>
@@ -35,8 +34,8 @@
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-700 mb-1">หมวดหมู่ขยะ</label>
-                <select x-model="filters.category" @change="applyFilters"
-                    class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white">
+                <select x-model="filters.category" @change="handleCategoryChange"
+                    class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white focus:ring-blue-500 focus:border-blue-500">
                     <option value="">ทั้งหมด</option>
                     <template x-for="cat in categories" :key="cat.waste_category_id">
                         <option :value="cat.waste_category_id" x-text="cat.waste_category_name"></option>
@@ -44,32 +43,47 @@
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">วันที่เริ่มต้น</label>
-                <input type="date" x-model="filters.start_date" @change="applyFilters"
-                    class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5">
+                <label class="block text-xs font-medium text-gray-700 mb-1">ชนิดขยะ</label>
+                <select x-model="filters.type" @change="applyFilters" :disabled="!filters.category"
+                    class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">ทั้งหมด</option>
+                    <template x-for="type in wasteTypes" :key="type.waste_type_id">
+                        <option :value="type.waste_type_id" x-text="type.waste_type_name"></option>
+                    </template>
+                </select>
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">วันที่สิ้นสุด</label>
-                <input type="date" x-model="filters.end_date" @change="applyFilters"
-                    class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5">
+            <div class="col-span-2 xl:col-span-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
+                        <input type="date" x-model="filters.start_date" @change="applyFilters"
+                            class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
+                        <input type="date" x-model="filters.end_date" @change="applyFilters"
+                            class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Transaction Table -->
         <div class="w-full overflow-x-auto">
-            <table class="w-full table-fixed border-collapse border border-gray-300 text-sm">
-                <thead class="bg-gray-200 text-xs">
+            <table class="w-full table-fixed border-collapse border border-1 border-lime-400 text-sm">
+                <thead class="bg-gradient-to-r from-lime-200 void-lime-400 to-lime-200 text-xs">
                     <tr>
-                        <th class="px-2 py-1 text-center w-2/14">วันที่</th>
-                        <th class="px-2 py-1 text-center w-2/14">เวลา</th>
-                        <th class="px-2 py-1 text-center w-3/14">ผู้ฝาก</th>
-                        <th class="px-2 py-1 text-right w-2/14">หมวดหมู่</th>
-                        <th class="px-2 py-1 text-right w-2/14">ขนิด</th>
-                        <th class="px-2 py-1 text-center w-1/14">น้ำหนัก</th>
-                        <th class="px-2 py-1 text-center w-2/14">สถานะ</th>
+                        <th class="px-2 py-2 text-center w-2/14 border border-1 border-lime-400">วันที่</th>
+                        <th class="px-2 py-2 text-center w-2/14 border border-1 border-lime-400">เวลา</th>
+                        <th class="px-2 py-2 text-center w-3/14 border border-1 border-lime-400">ผู้ฝาก</th>
+                        <th class="px-2 py-2 text-right w-2/14 border border-1 border-lime-400">หมวดหมู่</th>
+                        <th class="px-2 py-2 text-right w-2/14 border border-1 border-lime-400">ขนิด</th>
+                        <th class="px-2 py-2 text-center w-1/14 border border-1 border-lime-400">น้ำหนัก</th>
+                        <th class="px-2 py-2 text-center w-2/14 border border-1 border-lime-400">สถานะ</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Loading Row -->
                     <template x-if="loading">
                         <tr>
                             <td colspan="7" class="text-center py-4">
@@ -79,19 +93,21 @@
                             </td>
                         </tr>
                     </template>
+                    <!-- No Transactions Row -->
                     <template x-if="!loading && transactions.length === 0">
                         <tr>
                             <td colspan="7" class="text-center py-4 text-gray-500">No transactions found.</td>
                         </tr>
                     </template>
+                    <!-- Transaction Rows -->
                     <template x-for="transaction in transactions" :key="transaction.waste_transaction_id">
                         <tr class="border-b border-gray-100 text-xs lg:text-sm">
                             <td class="border border-gray-300 px-2 py-1 text-center"
-                                x-text="formatDate(transaction.waste_transaction_create_date)"></td>
+                                x-text="formatDate(transaction.created_at)"></td>
                             <td class="border border-gray-300 px-2 py-1 text-center"
-                                x-text="formatTime(transaction.waste_transaction_create_time)"></td>
+                                x-text="formatTime(transaction.created_at)"></td>
                             <td class="border border-gray-300 px-2 py-1 overflow-hidden text-ellipsis"
-                                x-text="transaction.account_name || transaction.account_email || transaction.account_tel || transaction.account_personal_id">
+                                x-text="transaction.member_name || transaction.member_phone || transaction.member_email || transaction.member_personal_id">
                             </td>
                             <td class="border border-gray-300 px-2 py-1 text-right"
                                 x-text="transaction.waste_category_name"></td>
@@ -126,6 +142,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -138,10 +155,12 @@
             limit: 10,
             faculties: [],
             categories: [],
+            wasteTypes: [],
             filters: {
                 account_search: '',
                 faculty: '',
                 category: '',
+                type: '',
                 start_date: '',
                 end_date: ''
             },
@@ -155,15 +174,39 @@
                 try {
                     const [facRes, catRes] = await Promise.all([
                         fetch('/api/faculties'),
-                        fetch('/api/categories')
+                        fetch('/api/waste_categories')
                     ]);
+
                     const faculties = await facRes.json();
                     const categories = await catRes.json();
 
                     this.faculties = faculties.result || [];
-                    this.categories = categories.result.data || [];
+                    this.categories = categories.data || [];
                 } catch (error) {
                     console.error('Error loading filter data:', error);
+                }
+            },
+
+            async handleCategoryChange() {
+                this.filters.type = '';
+                this.wasteTypes = [];
+
+                if (this.filters.category) {
+                    await this.fetchWasteTypes(this.filters.category);
+                }
+
+                this.applyFilters();
+            },
+
+            async fetchWasteTypes(categoryId) {
+                try {
+                    const response = await fetch(`/api/waste_types/${categoryId}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.wasteTypes = result.data || [];
+                    }
+                } catch (error) {
+                    console.error('Error fetching waste types:', error);
                 }
             },
 
@@ -199,9 +242,11 @@
                     account_search: '',
                     faculty: '',
                     category: '',
+                    type: '',
                     start_date: '',
                     end_date: ''
                 };
+                this.wasteTypes = [];
                 this.applyFilters();
             },
 
@@ -216,7 +261,7 @@
 
                     const response = await fetch(`/api/waste_transactions?${queryParams.toString()}`);
                     const data = await response.json();
-                    console.log(data);
+                    // console.log(data);
 
                     if (data.success) {
                         this.transactions = data.result.data;

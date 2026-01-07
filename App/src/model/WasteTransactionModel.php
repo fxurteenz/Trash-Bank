@@ -47,8 +47,12 @@ class WasteTransactionModel
                 $params[':month'] = $query['month'];
             }
             // กรองตามหมวดหมู่หรือชนิดขยะ
+            if (!empty($query['category'])) {
+                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $params[':category_id'] = $query['category'];
+            }
             if (!empty($query['type'])) {
-                $whereClauses[] = "w.waste_type_id = :type_id";
+                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
                 $params[':type_id'] = $query['type'];
             }
             // กรองตามเจ้าหน้าที่ หรือ ผู้ฝาก
@@ -164,6 +168,7 @@ class WasteTransactionModel
                 $whereClauses[] = "DATE(w.waste_transaction_date) <= :end_date";
                 $params[':end_date'] = $query['end_date'];
             }
+            // กรองตามวันที่
             if (!empty($query['date'])) {
                 $whereClauses[] = "DATE(w.waste_transaction_date) = :date";
                 $params[':date'] = $query['date'];
@@ -176,7 +181,11 @@ class WasteTransactionModel
                 $whereClauses[] = "MONTH(w.waste_transaction_date) = :month";
                 $params[':month'] = $query['month'];
             }
-
+            // กรองตามหมวดหมู่หรือชนิดขยะ
+            if (!empty($query['category'])) {
+                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $params[':category_id'] = $query['category'];
+            }
             if (!empty($query['type'])) {
                 $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
                 $params[':type_id'] = $query['type'];
@@ -274,13 +283,18 @@ class WasteTransactionModel
                 throw new Exception('กรุณาลองอีกครั้ง, ระบุข้อมูลผู้ทำการฝาก', 400);
             }
 
+            if (empty($data['waste_category_id'])) {
+                // error_log("ERROR : waste_type is missing");
+                throw new Exception('กรุณาลองอีกครั้ง, เลือกหมวดหมู่ขยะ', 400);
+            }
+
             if (empty($data['waste_type_id'])) {
                 // error_log("ERROR : waste_type is missing");
                 throw new Exception('กรุณาลองอีกครั้ง, เลือกประเภทขยะ', 400);
             }
 
             if (!isset($data['deposit_weight'])) {
-                error_log("ERROR : transaction_deposit_weight missing");
+                // error_log("ERROR : transaction_deposit_weight missing");
                 throw new Exception('กรุณาลองอีกครั้ง, ระบุน้ำหนักที่ฝาก', 400);
             }
 
@@ -294,24 +308,17 @@ class WasteTransactionModel
             $payload["member_id"] = $user["member_id"];
             $payload["faculty_id"] = $user["faculty_id"];
             $payload["staff_id"] = $staffData["user_data"]->member_id;
-
-            // if ($user["member_role"] === "user") {
-            //     $payload["waste_transaction_from"] = 1;
-            // } else {
-            //     $payload["waste_transaction_from"] = 2;
-            // }
-
+            $payload["waste_transaction_waste_category"] = $data["waste_category_id"];
             $payload["waste_transaction_waste_type"] = $data["waste_type_id"];
             $payload["waste_transaction_weight"] = $data["deposit_weight"];
-            // $payload["waste_transaction_rate"] = $rateResult["waste_type_price"];
-
+            $payload["waste_transaction_rate"] = $rateResult["waste_type_price"];
             $value = $rateResult["waste_type_price"] * $data["deposit_weight"];
             $integer_point = (int) floor($value);
 
-            // $payload["waste_transaction_value"] = $value;
             $payload["waste_transaction_member_point"] = $integer_point;
             $payload["waste_transaction_faculty_fraction"] = $value - $integer_point;
-            // $payload["waste_transaction_status"] = 1;
+
+            $payload["waste_transaction_status"] = 1;
             $payload["waste_transaction_date"] = date('Y-m-d');
             $payload["created_at"] = date('Y-m-d H:i:s');
 
@@ -364,49 +371,6 @@ class WasteTransactionModel
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
-
-    // public function UpdateWasteTransaction($id, $data): mixed
-    // {
-    //     try {
-    //         if ((empty($data) && !is_array($data)) || empty($id)) {
-    //             throw new Exception('Bad Request =(', 400);
-    //         }
-
-    //         $setClauses = [];
-    //         $updateData = [];
-    //         foreach ($data as $column => $value) {
-    //             if (isset($value)) {
-    //                 $setClauses[] = "`{$column}` = :{$column}";
-    //                 $updateData[$column] = $value;
-    //             }
-    //         }
-
-    //         if (empty($setClauses)) {
-    //             return 0; // ไม่มีข้อมูลให้เปลี่ยนแปลง
-    //         }
-
-    //         $setClauseString = implode(', ', $setClauses);
-
-    //         $sql =
-    //             "UPDATE waste_deposit_transaction
-    //             SET 
-    //                 {$setClauseString}
-    //             WHERE
-    //                 transaction_deposit_id = :transaction_deposit_id
-    //             ";
-
-    //         $stmt = $this->Conn->prepare($sql);
-    //         // รวม array ข้อมูลที่จะอัปเดตเข้ากับ ID สำหรับ WHERE clause
-    //         $stmt->execute(array_merge($updateData, ['transaction_deposit_id' => $id]));
-
-    //         $result = $stmt->rowCount();
-    //         return $result;
-    //     } catch (PDOException $e) {
-    //         throw new Exception("Database error: " . $e->getMessage(), 500);
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
 
     public function DeleteWasteTransactionById($id): int
     {
