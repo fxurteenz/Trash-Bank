@@ -1,0 +1,25 @@
+meta {
+  name: Crete
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api_domain}}/waste_transactions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "depositor_member": "0789123456",
+      "waste_category_id":3,
+      "waste_type_id": 4,
+      "deposit_weight": 6.44
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
