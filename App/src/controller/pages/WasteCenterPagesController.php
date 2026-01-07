@@ -10,7 +10,7 @@ class WasteCenterPagesController extends RouterBase
 {
     private static $Layouts = "wasteCenterLayout";
 
-    public function HomePage()
+    public function HomePage() 
     {
         try {
             Authentication::OperateAuth();
