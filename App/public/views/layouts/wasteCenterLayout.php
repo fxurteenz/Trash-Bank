@@ -41,7 +41,8 @@
                 </button>
 
                 <a href="#" class="flex items-center space-x-2">
-                    <span class="text-xl font-bold bg-gradient-to-r from-lime-200 void-lime-400 to-lime-600">Waste-Bank</span>
+                    <span
+                        class="text-xl font-bold bg-gradient-to-r from-lime-400 to-lime-600 text-transparent bg-clip-text">Waste-Bank</span>
                 </a>
 
                 <span
@@ -76,42 +77,39 @@
                 class="fixed inset-y-0 left-0 z-20 w-50 bg-stone-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block lg:shadow-none shadow-xl">
                 <div class="p-4 mt-16 lg:mt-0">
                     <nav class="space-y-1">
-                        <a href="/admin"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "bg-lime-500" : "hover:bg-gray-700" ?>">
-                            <span class="font-light">หน้าหลัก</span>
-                        </a>
-                        <!-- ส่วนเมนูการจัดการข้อมูล -->
-                        <div class="flex text-nowrap items-center p-1 my-1 border-y-2 border-white text-center">
-                            <span class="font-bold italic w-full text-center">การจัดการข้อมูล</span>
-                        </div>
-                        <a href="/admin/manage/waste_type"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการหมวดหมู่ขยะ</span>
-                        </a>
-                        <a href="/admin/manage/faculty"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFaculty" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการคณะ/สาขา</span>
-                        </a>
-                        <a href="/admin/manage/users"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการผู้ใช้</span>
-                        </a>
-                        <a href="/admin/manage/waste_transaction"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">รายการฝาก</span>
+                        <a href="/waste_center"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "home" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?>">
+                            <span class="<?= $pages === "home" ? "font-semibold" : "font-light" ?>">หน้าหลัก</span>
                         </a>
                         <!-- ส่วนเมนูการดำเนินการ -->
                         <div class="flex text-nowrap items-center p-1 my-1 border-y-2 border-white text-center">
                             <span class="font-bold italic w-full text-center">การดำเนินการ</span>
                         </div>
-                        <a href="/admin/transactions/waste"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "wasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?> ">
-                            <span class="font-light">ฝากขยะ</span>
+                        <a href="/waste_center/transactions/waste"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "wasteTransaction" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?> ">
+                            <span
+                                class="<?= $pages === "wasteTransaction" ? "font-semibold" : "font-light" ?>">ฝากขยะ</span>
                         </a>
-                        <a href="/admin/transactions/clear_waste"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "clearWasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?> ">
-                            <span class="font-light">เคลียร์ยอดฝากขยะ</span>
+                        <a href="/waste_center/transactions/clear_waste"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "clearWasteTransaction" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?> ">
+                            <span
+                                class="<?= $pages === "clearWasteTransaction" ? "font-semibold" : "font-light" ?>">เคลียร์ยอดฝากขยะ</span>
                         </a>
+                        <!-- ส่วนเมนูการจัดการข้อมูล -->
+                        <div class="flex text-nowrap items-center p-1 my-1 border-y-2 border-white text-center">
+                            <span class="font-bold italic w-full text-center">การจัดการข้อมูล</span>
+                        </div>
+                        <a href="/waste_center/manage/waste_type"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?>  ">
+                            <span
+                                class="<?= $pages === "manageWasteType" ? "font-semibold" : "font-light" ?>">จัดการหมวดหมู่ขยะ</span>
+                        </a>
+                        <a href="/waste_center/manage/waste_transaction"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?>  ">
+                            <span
+                                class="<?= $pages === "manageWasteTransaction" ? "font-semibold" : "font-light" ?>">รายการฝาก</span>
+                        </a>
+
                     </nav>
                 </div>
             </aside>

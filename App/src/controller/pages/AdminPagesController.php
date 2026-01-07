@@ -33,7 +33,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('admin/manages/users', [
+            $this->render('manages/users', [
                 'pages' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
                 'script' => '../../js/ManageUsers.js'
@@ -52,7 +52,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('admin/manages/faculty', [
+            $this->render('manages/faculty', [
                 'pages' => "manageFaculty",
                 'title' => 'จัดการคณะ/สาขา',
                 'script' => '../../js/ManageFaculty.js'
@@ -71,7 +71,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('admin/manages/waste_type', [
+            $this->render('manages/waste_type', [
                 'pages' => "manageWasteType",
                 'title' => 'จัดการหมวดหมู่ขยะ'
             ], self::$AdminTemplate);
@@ -89,9 +89,45 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('admin/manages/waste_transaction', [
+            $this->render('manages/waste_transaction', [
                 'pages' => "manageWasteTransaction",
                 'title' => 'ประวัติการดำเนินการ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function TransactionWaste()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/waste', [
+                'pages' => "wasteTransaction",
+                'title' => 'ระบบฝากขยะ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function ClearTransactionWaste()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/clear_waste', [
+                'pages' => "clearWasteTransaction",
+                'title' => 'ระบบเคลียร์ยอดฝากขยะ'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

@@ -13,7 +13,7 @@ use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 
 use App\Controller\Pages\OperaterPagesController;
-use App\Controller\Pages\CenterPagesController;
+use App\Controller\Pages\WasteCenterPagesController;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
 use App\Controller\Pages\UserPagesController;
@@ -53,8 +53,12 @@ class Routes
             ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
         ]);
 
-        $this->addPrefixedRoutes('/center', [
-            ['GET', '', [CenterPagesController::class, 'HomePage']]
+        $this->addPrefixedRoutes('/waste_center', [
+            ['GET', '', [WasteCenterPagesController::class, 'HomePage']],
+            ['GET', '/transactions/waste', [WasteCenterPagesController::class, 'TransactionWaste']],
+            ['GET', '/transactions/clear_waste', [WasteCenterPagesController::class, 'ClearTransactionWaste']],
+            ['GET', '/manage/waste_type', [WasteCenterPagesController::class, 'ManageWasteType']],
+            ['GET', '/manage/waste_transaction', [WasteCenterPagesController::class, 'ManageWasteTransaction']],
         ]);
 
         $this->addPrefixedRoutes('/user', [
@@ -71,6 +75,8 @@ class Routes
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
+            ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
+            ["GET", "/transactions/clear_waste", [AdminPagesController::class, "ClearTransactionWaste"]]
         ]);
 
         /* API */
