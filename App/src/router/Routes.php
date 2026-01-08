@@ -15,7 +15,7 @@ use App\Controller\Api\RewardController;
 use App\Controller\Api\BadgeController;
 use App\Controller\Api\MajorController;
 
-use App\Controller\Pages\OperaterPagesController;
+use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
@@ -52,9 +52,10 @@ class Routes
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
 
         $this->addPrefixedRoutes("/staff", [
-            ["GET", "", [OperaterPagesController::class, 'HomePage']],
-            ["GET", "/transactions/waste", [OperaterPagesController::class, 'WasteTransactionPage']],
-            ["GET", "/transactions/clear_waste", [OperaterPagesController::class, 'ClearWasteTransactionPage']],
+            ["GET", "", [StaffPagesController::class, 'HomePage']],
+            ["GET", "/transactions/waste", [StaffPagesController::class, 'WasteTransactionPage']],
+            ["GET", "/transactions/clear_waste", [StaffPagesController::class, 'ClearWasteTransactionPage']],
+            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [StaffPagesController::class, "ManageTransactionClearancePage"]],
 
         ]);
 
@@ -165,7 +166,7 @@ class Routes
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
-        /* /api/majors */   
+        /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
             ['GET', '', [MajorController::class, 'GetAll']],
             ['GET', '/[i:mid]', [MajorController::class, 'Get']],
