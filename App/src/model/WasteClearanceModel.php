@@ -50,7 +50,7 @@ class WasteClearanceModel
             $clearancePayload["waste_clearance_value_total"] = $periodData["value_total"];
             $clearancePayload["waste_clearance_member_point_total"] = $periodData["member_point_total"];
             $clearancePayload["waste_clearance_faculty_point_total"] = $periodData["faculty_point_total"];
-            $clearancePayload["waste_clearance_status"] = "รออนุมัติ";
+            $clearancePayload["waste_clearance_status"] = "1";
             $clearancePayload["waste_clearance_created_by"] = $operaterData["user_data"]->member_id;
             $clearancePayload["created_at"] = date('Y-m-d H:i:s');
 
@@ -71,9 +71,9 @@ class WasteClearanceModel
             $stmt->execute($updateData);
             $insertedId = $this->Conn->lastInsertId();
 
-            // 4. อัปเดต waste_transaction ว่า "ถูกเคลียร์แล้ว"
+            // 4. อัปเดต waste_transaction ว่า "เตรียมนำเข้าศูนย์ใหญ่"
             $updateTxSql = "UPDATE waste_transaction 
-                            SET waste_clearance_id = :clearance_id 
+                            SET waste_clearance_id = :clearance_id, waste_transaction_status = 2 
                             WHERE faculty_id = :faculty_id 
                             AND waste_transaction_date BETWEEN :start_date AND :end_date
                             AND waste_clearance_id IS NULL";
@@ -231,7 +231,7 @@ class WasteClearanceModel
 
             $whereSql = "WHERE " . implode(" AND ", $whereClauses);
 
-            $sql = "SELECT 
+            $sqlDetail = "SELECT 
                         cd.*,
                         wt.waste_type_name,
                         wt.waste_type_price,
@@ -245,11 +245,26 @@ class WasteClearanceModel
                         waste_category wc ON wt.waste_category_id = wc.waste_category_id
                     {$whereSql}";
 
-            $stmt = $this->Conn->prepare($sql);
+            $stmt = $this->Conn->prepare($sqlDetail);
             $stmt->execute($params);
+            $clearanceDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $sql = "SELECT 
+                        wc.*,
+                        f.faculty_name,
+                        m.member_name AS creator_name
+                    FROM 
+                        waste_clearance wc
+                    LEFT JOIN 
+                        faculty f ON wc.faculty_id = f.faculty_id
+                    LEFT JOIN 
+                        member m ON wc.waste_clearance_created_by = m.member_id
+                    WHERE wc.waste_clearance_id = :id";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute([':id' => $id]);
             $details = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return $details;
+            return ['transaction' => $details, 'detail' => $clearanceDetails];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -257,6 +272,93 @@ class WasteClearanceModel
         }
     }
 
+    public function ConfirmClearance($cdid, $data)
+    {
+        try {
+            if (empty($cdid)) {
+                throw new Exception('ID is required', 400);
+            }
+
+            $weight = $data['weight'] ?? null;
+            if (!isset($weight) || $weight === '') {
+                throw new Exception('Weight is required', 400);
+            }
+
+            $this->Conn->beginTransaction();
+
+            // 1. Get waste_clearance_id
+            $sqlGet = "SELECT waste_clearance_id FROM clearance_detail WHERE clearance_detail_id = :id";
+            $stmtGet = $this->Conn->prepare($sqlGet);
+            $stmtGet->execute([':id' => $cdid]);
+            $detail = $stmtGet->fetch(PDO::FETCH_ASSOC);
+
+            if (!$detail) {
+                throw new Exception('Clearance detail not found', 404);
+            }
+
+            $wasteClearanceId = $detail['waste_clearance_id'];
+
+            // 2. Update detail
+            $sqlUpdate = "UPDATE clearance_detail 
+                          SET clearance_detail_clearance_weight = :weight,
+                              clearance_detail_success = 1
+                          WHERE clearance_detail_id = :id";
+            $stmtUpdate = $this->Conn->prepare($sqlUpdate);
+            $stmtUpdate->execute([
+                ':weight' => $weight,
+                ':id' => $cdid
+            ]);
+
+            // 3. Check all details for this clearance
+            $sqlCheck = "SELECT COUNT(*) as pending FROM clearance_detail 
+                         WHERE waste_clearance_id = :wcid AND clearance_detail_success = 0";
+            $stmtCheck = $this->Conn->prepare($sqlCheck);
+            $stmtCheck->execute([':wcid' => $wasteClearanceId]);
+            $resultCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+            // 4. Update master status if all done
+            if ($resultCheck['pending'] == 0) {
+                $sqlGetInfo = "SELECT faculty_id, waste_clearance_period_start, waste_clearance_period_end FROM waste_clearance WHERE waste_clearance_id = :wcid";
+                $stmtGetInfo = $this->Conn->prepare($sqlGetInfo);
+                $stmtGetInfo->execute([':wcid' => $wasteClearanceId]);
+                $clearanceInfo = $stmtGetInfo->fetch(PDO::FETCH_ASSOC);
+
+                $sqlUpdateMaster = "UPDATE waste_clearance 
+                                    SET waste_clearance_status = '2' 
+                                    WHERE waste_clearance_id = :wcid";
+                $stmtUpdateMaster = $this->Conn->prepare($sqlUpdateMaster);
+                $stmtUpdateMaster->execute([':wcid' => $wasteClearanceId]);
+
+                if ($clearanceInfo) {
+                    $sqlUpdateTx = "UPDATE waste_transaction 
+                                    SET waste_transaction_status = 3 
+                                    WHERE faculty_id = :faculty_id 
+                                    AND waste_transaction_date BETWEEN :start AND :end";
+                    $stmtUpdateTx = $this->Conn->prepare($sqlUpdateTx);
+                    $stmtUpdateTx->execute([
+                        ':faculty_id' => $clearanceInfo['faculty_id'],
+                        ':start' => $clearanceInfo['waste_clearance_period_start'],
+                        ':end' => $clearanceInfo['waste_clearance_period_end']
+                    ]);
+                }
+            }
+            
+            $this->Conn->commit();
+            return true;
+        } catch (PDOException $th) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception("Database error: " . $th->getMessage(), 500);
+        } catch (Exception $ex) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
+        }
+    }
+
+    // static functions
     protected static function GetPeriodTransactions($query, $conn)
     {
         try {

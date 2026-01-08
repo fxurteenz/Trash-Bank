@@ -121,13 +121,31 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function ClearTransactionWaste()
+    public function TransactionClearance()
     {
         try {
             Authentication::AdminAuth();
             $this->render('transactions/clear_waste', [
                 'pages' => "clearWasteTransaction",
                 'title' => 'ระบบเคลียร์ยอดฝากขยะ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+    public function ManageTransactionClearance($wcid)
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/manage/clear_waste', [
+                'pages' => "clearWasteTransaction",
+                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
+                'wcid' => $wcid
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

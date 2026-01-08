@@ -84,7 +84,8 @@ class WasteClearanceController extends RouterBase
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
-                'data' => $result,
+                'data' => $result['data'],
+                'total' => $result['total'],
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -135,6 +136,27 @@ class WasteClearanceController extends RouterBase
             ]);
         } finally {
             exit;
+        }
+    }
+
+    public function Confirm($cdid)
+    {
+        header('Content-Type: application/json');
+        try {
+
+            $result = self::$WasteClearanceModel->ConfirmClearance($cdid, self::$Data);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'ยืนยันรายการเรียบร้อยแล้ว',
+                'data' => $result
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 500);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

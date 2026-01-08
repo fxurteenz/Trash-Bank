@@ -76,7 +76,8 @@ class Routes
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
-            ["GET", "/transactions/clear_waste", [AdminPagesController::class, "ClearTransactionWaste"]]
+            ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
+            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
         ]);
 
         /* API */
@@ -137,6 +138,7 @@ class Routes
             ['GET', "", [WasteClearanceController::class, "GetAll"]],
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
+            ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
         ]);
 
     }
