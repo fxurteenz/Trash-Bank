@@ -1,10 +1,10 @@
 <div class="space-y-4 w-full">
-    <div class="app-card p-6 overflow-x-auto w-full hidden md:block">
+    <div class="bg-white shadow-sm rounded-lg p-6 overflow-x-auto w-full hidden md:block">
         <h2 class="text-xl font-bold text-gray-700">ภาพรวมการจัดการประเภทและชนิดขยะ</h2>
         <p class="text-gray-500 text-sm">เลือกหมวดหมู่ด้านล่างเพื่อจัดการประเภทขยะและราคา</p>
     </div>
 
-    <div x-data="WasteCategoryTypeManagement()" x-init="init()" class="app-card p-6">
+    <div x-data="WasteCategoryTypeManagement()" x-init="init()" class="bg-white shadow-sm rounded-lg p-6">
 
         <h2 class="text-xl font-bold mb-2">
             หมวดหมู่ขยะ

@@ -65,6 +65,8 @@ class Routes
             ['GET', '/transactions/clear_waste', [WasteCenterPagesController::class, 'ClearTransactionWaste']],
             ['GET', '/manage/waste_type', [WasteCenterPagesController::class, 'ManageWasteType']],
             ['GET', '/manage/waste_transaction', [WasteCenterPagesController::class, 'ManageWasteTransaction']],
+            ['GET', '/manage/rewards', [WasteCenterPagesController::class, 'ManageRewards']],
+            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [WasteCenterPagesController::class, "ManageTransactionClearancePage"]]
         ]);
 
         $this->addPrefixedRoutes('/user', [

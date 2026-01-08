@@ -22,7 +22,7 @@
         .open-sans {
             font-family: "Open Sans", sans-serif;
         }
-        
+
         /* Page background gradient - 70% white, 30% green */
         .app-gradient-bg {
             background: linear-gradient(180deg, #ffffff 0%, #f0fdf7 60%, #d1fae5 100%);
@@ -32,8 +32,7 @@
 </head>
 
 <body class="app-gradient-bg">
-    <div class="noto-sans-thai"
-        x-data="{ sidebarOpen: window.innerWidth >= 1024, profileDropdownOpen: false }">
+    <div class="noto-sans-thai" x-data="{ sidebarOpen: window.innerWidth >= 1024, profileDropdownOpen: false }">
 
         <header
             class="flex items-center justify-between h-16 bg-white shadow-md fixed top-0 left-0 right-0 z-30 px-4 w-full">
@@ -115,7 +114,11 @@
                             <span
                                 class="<?= $pages === "manageWasteTransaction" ? "font-semibold" : "font-light" ?>">รายการฝาก</span>
                         </a>
-
+                        <a href="/waste_center/manage/rewards"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageRewards" ? "bg-gradient-to-r from-lime-400 to-lime-600" : "hover:bg-gray-700" ?> ">
+                            <span
+                                class="<?= $pages === "manageRewards" ? "font-semibold" : "font-light" ?>">ของรางวัล</span>
+                        </a>
                     </nav>
                 </div>
             </aside>

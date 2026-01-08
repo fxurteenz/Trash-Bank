@@ -2,7 +2,7 @@
     
     <!-- Header Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="app-card p-6">
+        <div class="bg-white shadow-sm rounded-lg p-6">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">รางวัลทั้งหมด</p>
@@ -18,7 +18,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="app-card p-6">
+    <div class="bg-white shadow-sm rounded-lg p-6">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">รายการของรางวัล</h2>
             <button @click="openCreateDialog" 
@@ -121,7 +121,7 @@
     <dialog x-show="dialogShow" x-ref="rewardDialog" @click.self="dialogShow = false" @close="dialogShow = false"
         class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
         x-init="$watch('dialogShow', value => {if (value) $refs.rewardDialog.showModal();else $refs.rewardDialog.close();})">
-        <div class="app-card p-6 w-96 max-w-full">
+        <div class="bg-white shadow-sm rounded-lg p-6 w-96 max-w-full">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-lg" x-text="isEditing ? 'แก้ไขรางวัล' : 'เพิ่มรางวัลใหม่'"></h3>
                 <button @click="dialogShow = false" class="text-gray-500 hover:text-gray-700">

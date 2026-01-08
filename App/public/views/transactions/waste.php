@@ -1,7 +1,6 @@
 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
 
-    <div x-data="depositFormHandler()" x-init="initData()"
-        class="app-card md:col-span-3 space-y-4 px-4 py-4">
+    <div x-data="depositFormHandler()" x-init="initData()" class="app-card md:col-span-3 space-y-4 px-4 py-4">
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">ฝากขยะ</h2>
             <div x-show="isSubmitting" class="text-xs text-emerald-600">กำลังบันทึก...</div>
@@ -549,9 +548,9 @@
                         ...Object.fromEntries(Object.entries(this.filters).filter(([_, v]) => v !== ''))
                     });
 
-                    const response = await fetch(`/api/waste_transactions/me?${queryParams.toString()}`);
+                    const response = await fetch(`/api/waste_transactions?${queryParams.toString()}`);
                     const data = await response.json();
-                    // console.log(data);
+                    console.log(data);
 
                     if (data.success) {
                         this.transactions = data.result.data;

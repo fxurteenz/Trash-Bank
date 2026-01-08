@@ -108,7 +108,7 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->role_id === 1 || $authenticated->role_id === 3) {
+            if ($authenticated->role_id === 1 || $authenticated->role_id === 3 || $authenticated->role_id === 4) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
@@ -117,7 +117,20 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
-
+    public static function CenterAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            // error_log(print_r($authenticated));
+            if ($authenticated->role_id === 1 || $authenticated->role_id === 4) {
+                return ['success' => true, 'user_data' => $authenticated];
+            } else {
+                throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
     public static function UserLogout()
     {
         try {

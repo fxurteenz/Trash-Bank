@@ -52,7 +52,7 @@ async function OnSubmit(e) {
             } else if (userRole === 3 || userRole === "3") {
                 window.location.href = "/staff";
             } else if (userRole === 4 || userRole === "4") {
-                window.location.href = "/faculty_staff";
+                window.location.href = "/waste_center";
             } else if (userRole === 2 || userRole === "2") {
                 window.location.href = "/user";
             } else {

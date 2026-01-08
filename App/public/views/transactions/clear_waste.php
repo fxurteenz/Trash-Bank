@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 gap-4">
-    <div class="app-card p-6">
+    <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="mb-4">
             <h2 class="text-xl font-bold">เคลียร์ยอดฝากขยะ</h2>
             <h2 class="text-sm font-light text-gray-500">เปิดรายการ</h2>
@@ -19,13 +19,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">เริ่ม (จาก)</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
                     <input type="date" x-model="form.waste_clearance_period_start" required
                         class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">สิ้นสุด (ถึง)</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
                     <input type="date" x-model="form.waste_clearance_period_end" required
                         class="w-full text-sm border border-gray-300 bg-white rounded px-2 py-1.5">
                 </div>
@@ -42,7 +42,7 @@
     </div>
 
     <div x-data="clearanceHistory()" x-init="init()" @clearance-updated.window="fetchClearances()"
-        class="app-card p-6 space-y-4">
+        class="bg-white rounded-lg shadow-sm p-6 space-y-4">
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">ประวัติการเคลียร์ยอด</h2>
             <button @click="fetchClearances()" class="text-sm text-emerald-600 hover:underline">รีเฟรช</button>
@@ -105,27 +105,37 @@
                         </tr>
                     </template>
                     <template x-for="item in items" :key="item.waste_clearance_id">
-                        <tr class="hover:bg-gray-50 hover:cursor-pointer" >
+                        <tr class="hover:bg-gray-50 hover:cursor-pointer">
                             <td class="py-3 px-4" x-text="formatDate(item.created_at)" @click="openDetail(item)"></td>
-                            <td class="py-3 px-4" x-text="item.faculty_name || item.faculty_id || '-'" @click="openDetail(item)"></td>
+                            <td class="py-3 px-4" x-text="item.faculty_name || item.faculty_id || '-'"
+                                @click="openDetail(item)"></td>
                             <td class="py-3 px-4" @click="openDetail(item)">
-                                <span x-text="formatDate(item.waste_clearance_period_start)" ></span> -
+                                <span x-text="formatDate(item.waste_clearance_period_start)"></span> -
                                 <span x-text="formatDate(item.waste_clearance_period_end)"></span>
                             </td>
                             <td class="py-3 px-4 text-center" @click="openDetail(item)">
                                 <span x-show="item.waste_clearance_status === 'รอการยืนยัน'"
                                     class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">รอการยืนยัน</span>
-                                <span x-show="item.waste_clearance_status === 'อนุมัติ'"
-                                    class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">อนุมัติ</span>
+                                <span x-show="item.waste_clearance_status === 'ยืนยันแล้ว'"
+                                    class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">ยืนยันแล้ว</span>
                             </td>
                             <td class="py-3 px-4 text-center">
-                                <button x-show="item.waste_clearance_status === 'รอการยืนยัน'" class="text-yellow-500 hover:text-yellow-700 hover:cursor-pointer" @click="openManagePage(item.waste_clearance_id)">
+                                <button x-show="item.waste_clearance_status === 'รอการยืนยัน'"
+                                    class="text-yellow-500 hover:text-yellow-700 hover:cursor-pointer"
+                                    @click="openManagePage(item.waste_clearance_id)">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                         <path fill="currentColor"
                                             d="M19 13c.34 0 .67.04 1 .09V8H4v13h9.35c-.22-.63-.35-1.3-.35-2c0-3.31 2.69-6 6-6M9 13v-1.5c0-.28.22-.5.5-.5h5c.28 0 .5.22.5.5V13zm12-6H3V3h18zm1.5 10.25L17.75 22L15 19l1.16-1.16l1.59 1.59l3.59-3.59z" />
                                     </svg>
                                 </button>
-                                <button x-show="item.waste_clearance_status === 'อนุมัติ'"></button>
+                                <span x-show="item.waste_clearance_status === 'ยืนยันแล้ว'"
+                                    class="text-green-600 flex justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5" />
+                                    </svg>
+                                </span>
                             </td>
                         </tr>
                     </template>
@@ -294,6 +304,7 @@
 
     function clearanceHistory() {
         return {
+            userRole: <?php echo json_encode($user->role_name ?? null) ?>,
             items: [],
             faculties: [],
             filters: {
@@ -356,7 +367,12 @@
                 }
             },
             openManagePage(wcid) {
-                window.location.href = `/admin/transactions/clear_waste/manage/${wcid}`;
+                if (this.userRole === 'admin') {
+                    window.location.href = `/admin/transactions/clear_waste/manage/${wcid}`;
+                }
+                if (this.userRole === 'center') {
+                    window.location.href = `/waste_center/transactions/clear_waste/manage/${wcid}`;
+                }
             },
             resetFilters() {
                 this.filters = {
