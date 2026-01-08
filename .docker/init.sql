@@ -1,4 +1,4 @@
--- phpMyAdmin SQL Dump
+﻿-- phpMyAdmin SQL Dump
 -- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
@@ -11,6 +11,8 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+07:00";
 
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -32,9 +34,13 @@ CREATE TABLE `badge` (
   `badge_name` varchar(100) NOT NULL,
   `badge_description` text DEFAULT NULL,
   `badge_condition` text DEFAULT NULL COMMENT 'เช่น "สะสมขยะ 100 kg" หรือ JSON สำหรับ logic',
+  `badge_bonus_score` int(11) DEFAULT 0,
   `badge_image` varchar(255) DEFAULT NULL,
-  `badge_type` varchar(20) DEFAULT NULL COMMENT 'waste, goodness, overall'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `badge_type` varchar(20) DEFAULT NULL COMMENT 'achievement, milestone, special'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Ensure badge_bonus_score exists for upgraded databases
+ALTER TABLE `badge` ADD COLUMN IF NOT EXISTS `badge_bonus_score` int(11) DEFAULT 0;
 
 -- --------------------------------------------------------
 
@@ -50,7 +56,7 @@ CREATE TABLE `clearance_detail` (
   `clearance_detail_clearance_weight` decimal(7,2) DEFAULT NULL,
   `clearance_detail_success` tinyint(4) NOT NULL DEFAULT 0,
   `complete_date` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `clearance_detail`
@@ -82,7 +88,7 @@ CREATE TABLE `donation` (
   `donation_reason` text DEFAULT NULL COMMENT 'เหตุผลถ้าพิเศษ',
   `donation_date` date DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -96,7 +102,7 @@ CREATE TABLE `faculty` (
   `faculty_code` varchar(20) DEFAULT NULL COMMENT 'เช่น ENG, SCI',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `faculty`
@@ -123,6 +129,15 @@ CREATE TABLE `major` (
   `updated_at` datetime 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
+--
+-- Seed data for table `major`
+--
+INSERT INTO `major` (`major_name`, `faculty_id`, `created_at`) VALUES
+('เทคโนโลยีสารสนเทศ', 1, NOW()),
+('คณิตศาสตร์', 1, NOW()),
+('เคมี', 1, NOW()),
+('ฟิสิกส์', 1, NOW());
+
 -- --------------------------------------------------------
 
 --
@@ -136,7 +151,7 @@ CREATE TABLE `faculty_point` (
   `faculty_point_source` varchar(50) DEFAULT NULL COMMENT 'fraction จาก member, donation',
   `faculty_point_date` date DEFAULT NULL,
   `created_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `faculty_point`
@@ -167,12 +182,16 @@ CREATE TABLE `member` (
   `member_password` varchar(255) NOT NULL COMMENT 'hashed',
   `member_email` varchar(100) DEFAULT NULL,
   `faculty_id` int(11) DEFAULT NULL,
+  `major_id` int(11) DEFAULT NULL,
   `role_id` int(11) NOT NULL,
   `member_waste_point` decimal(10,2) DEFAULT 0.00 COMMENT 'แต้มขยะ (จำนวนเต็มจริงๆ แต่ใช้ decimal เผื่อ)',
   `member_goodness_point` decimal(10,2) DEFAULT 0.00 COMMENT 'แต้มความดี',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Ensure major_id exists for upgraded databases
+ALTER TABLE `member` ADD COLUMN IF NOT EXISTS `major_id` int(11) DEFAULT NULL;
 
 --
 -- Dumping data for table `member`
@@ -197,7 +216,7 @@ CREATE TABLE `member_badge` (
   `member_id` int(11) DEFAULT NULL,
   `badge_id` int(11) DEFAULT NULL,
   `member_badge_date` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -213,7 +232,7 @@ CREATE TABLE `member_reward` (
   `member_reward_qty` int(11) DEFAULT 1,
   `member_reward_point_used` int(11) DEFAULT NULL,
   `member_reward_status` varchar(20) DEFAULT 'pending' COMMENT 'pending, received, cancelled'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -230,7 +249,7 @@ CREATE TABLE `reward` (
   `reward_image` varchar(255) DEFAULT NULL,
   `reward_active` tinyint(1) DEFAULT 1,
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -242,7 +261,7 @@ CREATE TABLE `role` (
   `role_id` int(11) NOT NULL,
   `role_name` varchar(50) NOT NULL COMMENT 'เช่น member, faculty_staff, central_admin',
   `role_name_th` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `role`
@@ -264,7 +283,7 @@ CREATE TABLE `system_log` (
   `system_log_action` varchar(100) DEFAULT NULL,
   `system_log_detail` text DEFAULT NULL,
   `system_log_timestamp` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -278,7 +297,7 @@ CREATE TABLE `waste_category` (
   `waste_category_co2_per_kg` decimal(10,4) DEFAULT NULL COMMENT 'ค่า CO₂e ลดได้ต่อ kg (สำหรับ carbon impact)',
   `waste_category_active` tinyint(1) DEFAULT 1,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `waste_category`
@@ -310,7 +329,7 @@ CREATE TABLE `waste_clearance` (
   `waste_clearance_approved_by` int(11) DEFAULT NULL COMMENT 'เจ้าหน้าที่ที่ทำการอนุมัติรายการเคลียร์',
   `created_at` datetime DEFAULT NULL,
   `approved_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `waste_clearance`
@@ -336,7 +355,7 @@ CREATE TABLE `waste_sale` (
   `waste_sale_buyer` varchar(100) DEFAULT NULL,
   `waste_sale_date` date DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -360,7 +379,7 @@ CREATE TABLE `waste_transaction` (
   `waste_transaction_status` enum('อยู่ที่คลังคณะ','เตรียมนำเข้าศูนย์ใหญ่','อยู่ที่คลังศูนย์ใหญ่','จำหน่ายแล้ว') DEFAULT NULL,
   `waste_clearance_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `waste_transaction`
@@ -392,7 +411,7 @@ CREATE TABLE `waste_type` (
   `waste_type_active` tinyint(1) DEFAULT 1,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `waste_type`
@@ -459,6 +478,11 @@ ALTER TABLE `member`
   ADD UNIQUE KEY `member_email_UNIQUE` (`member_email`),
   ADD KEY `fk_member_faculty_id` (`faculty_id`),
   ADD KEY `fk_member_role_id` (`role_id`);
+
+-- Indexes for table `major`
+ALTER TABLE `major`
+  ADD PRIMARY KEY (`major_id`),
+  ADD KEY `fk_major_faculty_id` (`faculty_id`);
 
 --
 -- Indexes for table `member_badge`
@@ -576,6 +600,10 @@ ALTER TABLE `faculty_point`
 ALTER TABLE `member`
   MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
+-- AUTO_INCREMENT for table `major`
+ALTER TABLE `major`
+  MODIFY `major_id` int(11) NOT NULL AUTO_INCREMENT;
+
 --
 -- AUTO_INCREMENT for table `member_badge`
 --
@@ -666,6 +694,10 @@ ALTER TABLE `faculty_point`
 ALTER TABLE `member`
   ADD CONSTRAINT `fk_member_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`),
   ADD CONSTRAINT `fk_member_role_id` FOREIGN KEY (`role_id`) REFERENCES `role` (`role_id`);
+
+-- Constraints for table `major`
+ALTER TABLE `major`
+  ADD CONSTRAINT `fk_major_faculty_id` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`);
 
 --
 -- Constraints for table `member_badge`

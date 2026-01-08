@@ -1,5 +1,5 @@
 <div class="grid grid-cols-1 gap-4">
-    <div class="bg-white rounded-lg shadow p-6">
+    <div class="app-card p-6">
         <div class="mb-4">
             <h2 class="text-xl font-bold">เคลียร์ยอดฝากขยะ</h2>
             <h2 class="text-sm font-light text-gray-500">เปิดรายการ</h2>
@@ -32,20 +32,20 @@
 
                 <div class="md:col-span-3 flex justify-end">
                     <button type="submit"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition">ยืนยัน</button>
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full shadow transition">ยืนยัน</button>
                 </div>
             </form>
 
-            <div x-show="submitting" class="text-sm text-blue-600">กำลังส่งคำขอยืนยัน...</div>
+            <div x-show="submitting" class="text-sm text-emerald-600">กำลังส่งคำขอยืนยัน...</div>
         </div>
 
     </div>
 
     <div x-data="clearanceHistory()" x-init="init()" @clearance-updated.window="fetchClearances()"
-        class="bg-white rounded-lg shadow p-6 space-y-4">
+        class="app-card p-6 space-y-4">
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">ประวัติการเคลียร์ยอด</h2>
-            <button @click="fetchClearances()" class="text-sm text-blue-600 hover:underline">รีเฟรช</button>
+            <button @click="fetchClearances()" class="text-sm text-emerald-600 hover:underline">รีเฟรช</button>
         </div>
         <!-- Filters -->
         <div class="bg-gray-50 p-4 rounded border border-gray-100">

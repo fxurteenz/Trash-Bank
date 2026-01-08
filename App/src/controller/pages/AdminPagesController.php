@@ -103,6 +103,42 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function ManageRewards()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('manages/rewards', [
+                'pages' => "manageRewards",
+                'title' => 'จัดการของรางวัล',
+                'script' => '../../js/ManageRewards.js'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function ManageBadges()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('manages/badges', [
+                'pages' => "manageBadges",
+                'title' => 'จัดการเหรียญตรา',
+                'script' => '../../js/ManageBadges.js'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
     public function TransactionWaste()
     {
         try {

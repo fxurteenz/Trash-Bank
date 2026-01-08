@@ -80,6 +80,8 @@ class Routes
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
+            ["GET", "/manage/rewards", [AdminPagesController::class, "ManageRewards"]],
+            ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],

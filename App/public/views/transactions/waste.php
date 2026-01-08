@@ -1,24 +1,24 @@
 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
 
     <div x-data="depositFormHandler()" x-init="initData()"
-        class="bg-white md:col-span-3 rounded-lg space-y-4 shadow px-4 py-4">
+        class="app-card md:col-span-3 space-y-4 px-4 py-4">
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">ฝากขยะ</h2>
-            <div x-show="isSubmitting" class="text-xs text-blue-600">กำลังบันทึก...</div>
+            <div x-show="isSubmitting" class="text-xs text-emerald-600">กำลังบันทึก...</div>
         </div>
 
         <form @submit.prevent="confirmSubmit" class="space-y-4 text-sm">
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">ผู้ฝาก</label>
                 <input x-model="form.depositor_member" required
-                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
+                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-emerald-500 focus:border-emerald-500"
                     type="text" placeholder="เบอร์โทรศัพท์/รหัสประจำตัว">
             </div>
 
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">หมวดหมู่/ประเภท</label>
                 <select x-model="form.waste_category_id" @change="fetchTypeByCategory" required
-                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500 bg-white">
+                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-emerald-500 focus:border-emerald-500 bg-white">
                     <option value="" disabled selected>-- เลือกหมวดหมู่ขยะ --</option>
                     <template x-for="category in DropdownWasteCategories"
                         :key="'waste_category-' + category.waste_category_id">
@@ -30,7 +30,7 @@
             <div class="w-full flex items-center justify-between">
                 <label class="w-1/3 font-medium text-gray-700">ชนิด/รูปแบบ</label>
                 <select x-model="form.waste_type_id" required :disabled="!form.waste_category_id || isFetchingTypes"
-                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
+                    class="w-2/3 px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-emerald-500 focus:border-emerald-500 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
                     <option value="" disabled selected>-- กรุณาเลือกหมวดหมู่ก่อน --</option>
                     <template x-for="type in DropdownWasteTypes" :key="'waste_type-' + type.waste_type_id">
                         <option :value="type.waste_type_id" x-text="type.waste_type_name"></option>
@@ -42,7 +42,7 @@
                 <label class="w-1/3 font-medium text-gray-700">น้ำหนัก (กก.)</label>
                 <div class="w-2/3 flex flex-col">
                     <input x-model="form.deposit_weight" required min="0.01" step="0.01"
-                        class="px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-blue-500 focus:border-blue-500"
+                        class="px-3 py-2 border border-gray-300 shadow-sm rounded focus:ring-emerald-500 focus:border-emerald-500"
                         type="number" placeholder="น้ำหนักขยะ(กิโลกรัม)">
                     <span class="text-gray-400 text-xs text-end">หลังบันทึกระบบจะปัดน้ำนหนักเป็นทศนิยม 1 ตำแหน่ง</span>
                 </div>
@@ -51,7 +51,7 @@
 
             <div class="flex justify-end pt-2">
                 <button type="submit" :disabled="isSubmitting"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow disabled:opacity-50 disabled:cursor-not-allowed transition">
+                    class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-4 rounded-full shadow disabled:opacity-50 disabled:cursor-not-allowed transition">
                     บันทึกรายการ
                 </button>
             </div>

@@ -103,12 +103,14 @@ class BadgeModel
                         badge_name, 
                         badge_description, 
                         badge_condition, 
+                        badge_bonus_score,
                         badge_image, 
                         badge_type
                     ) VALUES (
                         :badge_name, 
                         :badge_description, 
                         :badge_condition, 
+                        :badge_bonus_score,
                         :badge_image, 
                         :badge_type
                     )";
@@ -117,6 +119,7 @@ class BadgeModel
             $stmt->bindValue(':badge_name', $data['badge_name']);
             $stmt->bindValue(':badge_description', $data['badge_description'] ?? null);
             $stmt->bindValue(':badge_condition', $data['badge_condition'] ?? null);
+            $stmt->bindValue(':badge_bonus_score', isset($data['badge_bonus_score']) ? (int)$data['badge_bonus_score'] : 0, PDO::PARAM_INT);
             $stmt->bindValue(':badge_image', $data['badge_image'] ?? null);
             $stmt->bindValue(':badge_type', $data['badge_type'] ?? null);
             
@@ -146,6 +149,10 @@ class BadgeModel
             if (isset($data['badge_condition'])) {
                 $fields[] = "badge_condition = :badge_condition";
                 $params[':badge_condition'] = $data['badge_condition'];
+            }
+            if (isset($data['badge_bonus_score'])) {
+                $fields[] = "badge_bonus_score = :badge_bonus_score";
+                $params[':badge_bonus_score'] = (int)$data['badge_bonus_score'];
             }
             if (isset($data['badge_image'])) {
                 $fields[] = "badge_image = :badge_image";
