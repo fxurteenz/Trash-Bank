@@ -39,5 +39,8 @@ COPY ./.docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 # ให้สิทธิ์ execute ไฟล์
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# คำสั่งเริ่มต้น
-CMD ["/usr/local/bin/entrypoint.sh", "apache2-foreground"]
+# สั่งให้ใช้ script นี้เป็นด่านหน้าก่อนเริ่ม container
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# คำสั่งปิดท้าย (จะถูกส่งไปที่ exec "$@" ใน script)
+CMD ["apache2-foreground"]
