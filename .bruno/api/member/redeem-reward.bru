@@ -1,0 +1,27 @@
+meta {
+  name: Redeem Reward
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{domain}}/api/members/redeem/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "reward_id": 1,
+    "quantity": 1
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

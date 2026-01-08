@@ -1,0 +1,27 @@
+meta {
+  name: Update Badge
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{domain}}/api/badges/update/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "badge_name": "นักรีไซเคิลมือใหม่ (แก้ไข)",
+    "badge_description": "ทิ้งขยะรีไซเคิล 10 กก. ขึ้นไป"
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

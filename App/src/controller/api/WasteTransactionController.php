@@ -111,6 +111,38 @@ class WasteTransactionController extends RouterBase
         }
     }
 
+    public function GetAllByMember($memberId)
+    {
+        try {
+            Authentication::MemberAuth();
+            $result = self::$WasteTransactionModel->GetAllTransactionByMemberId($memberId, self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
     public function Create()
     {
         try {

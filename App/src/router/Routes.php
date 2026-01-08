@@ -11,6 +11,9 @@ use App\Controller\Api\FacultyController;
 use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
+use App\Controller\Api\RewardController;
+use App\Controller\Api\BadgeController;
+use App\Controller\Api\MajorController;
 
 use App\Controller\Pages\OperaterPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -84,10 +87,12 @@ class Routes
         /* api/members */
         $this->addPrefixedRoutes('/api/members', [
             ['GET', '', [MemberController::class, 'GetAll']],
-            // ['GET', '/[i:id]', [MemberController::class, 'GetUserById']],
+            ['GET', '/dashboard/[i:id]', [MemberController::class, 'GetDashboard']],
+            ['GET', '/profile/[i:id]', [MemberController::class, 'GetProfile']],
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
             ['POST', '/delete', [MemberController::class, 'Delete']],
+            ['POST', '/redeem/[i:id]', [MemberController::class, 'RedeemReward']],
         ]);
         /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
@@ -96,6 +101,22 @@ class Routes
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
+        ]);
+        /* /api/rewards */
+        $this->addPrefixedRoutes('/api/rewards', [
+            ['GET', '', [RewardController::class, 'GetAll']],
+            ['GET', '/[i:id]', [RewardController::class, 'Get']],
+            ['POST', '', [RewardController::class, 'Create']],
+            ['POST', '/update/[i:id]', [RewardController::class, 'Update']],
+            ['POST', '/delete', [RewardController::class, 'Delete']],
+        ]);
+        /* /api/badges */
+        $this->addPrefixedRoutes('/api/badges', [
+            ['GET', '', [BadgeController::class, 'GetAll']],
+            ['GET', '/[i:id]', [BadgeController::class, 'Get']],
+            ['POST', '', [BadgeController::class, 'Create']],
+            ['POST', '/update/[i:id]', [BadgeController::class, 'Update']],
+            ['POST', '/delete', [BadgeController::class, 'Delete']],
         ]);
         /* /api/waste_categories */
         $this->addPrefixedRoutes("/api/waste_categories", [
@@ -117,7 +138,13 @@ class Routes
         ]);
         /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
+            ['GET', "", [ReportController::class, "GetScopedReport"]],
             ['GET', "/overall", [ReportController::class, "GetOverallReport"]],
+            ['GET', "/member/[i:mid]", [ReportController::class, "GetMemberReport"]],
+            ['GET', "/faculty/[i:fid]", [ReportController::class, "GetFacultyReport"]],
+            ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],
+            ['GET', "/leaderboard/faculties", [ReportController::class, "GetFacultyLeaderboard"]],
+            ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
@@ -128,10 +155,21 @@ class Routes
         $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
+            ['GET', "/member/[i:id]", [WasteTransactionController::class, "GetAllByMember"]],
             ['POST', '', [WasteTransactionController::class, 'Create']],
             // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
+        ]);
+        /* /api/majors */
+        $this->addPrefixedRoutes('/api/majors', [
+            ['GET', '', [MajorController::class, 'GetAll']],
+            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
+            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
+            ['POST', '', [MajorController::class, 'Create']],
+            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [MajorController::class, 'DeleteById']],
+            ['POST', '/delete', [MajorController::class, 'Delete']],
         ]);
         /* /api/users */
         $this->addPrefixedRoutes("/api/clearances", [
