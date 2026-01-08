@@ -51,9 +51,11 @@ class Routes
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
 
-        $this->addPrefixedRoutes("/operater", [
+        $this->addPrefixedRoutes("/staff", [
             ["GET", "", [OperaterPagesController::class, 'HomePage']],
-            ["GET", "/redeem", [OperaterPagesController::class, 'RedeemPage']]
+            ["GET", "/transactions/waste", [OperaterPagesController::class, 'WasteTransactionPage']],
+            ["GET", "/transactions/clear_waste", [OperaterPagesController::class, 'ClearWasteTransactionPage']],
+
         ]);
 
         $this->addPrefixedRoutes('/waste_center', [

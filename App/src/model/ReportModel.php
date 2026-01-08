@@ -222,12 +222,14 @@ class ReportModel
 
     public function FacultyReport(int $facultyId, array $query): array
     {
-        [$whereSql, $params] = $this->buildDateFilters($query);
-        $params[':faculty_id'] = $facultyId;
-        $whereSql = empty($whereSql) ? "WHERE w.faculty_id = :faculty_id" : $whereSql . " AND w.faculty_id = :faculty_id";
+        try {
+            [$whereSql, $params] = $this->buildDateFilters($query);
+            $params[':faculty_id'] = $facultyId;
+            $whereSql = empty($whereSql) ? "WHERE w.faculty_id = :faculty_id" : $whereSql . " AND w.faculty_id = :faculty_id";
 
-        $summarySql = "SELECT 
+            $summarySql = "SELECT 
                             COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
+                            COALESCE(SUM(w.waste_transaction_member_point), 0) AS total_member_point,
                             COALESCE(SUM(w.waste_transaction_faculty_fraction), 0) AS faculty_fraction,
                             COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
                             COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2,
@@ -236,19 +238,24 @@ class ReportModel
                        LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
                        {$whereSql}";
 
-        $stmt = $this->Conn->prepare($summarySql);
-        $stmt->execute($params);
-        $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $stmt = $this->Conn->prepare($summarySql);
+            $stmt->execute($params);
+            $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-        $facultySql = "SELECT faculty_id, faculty_name FROM faculty WHERE faculty_id = :faculty_id";
-        $fStmt = $this->Conn->prepare($facultySql);
-        $fStmt->execute([':faculty_id' => $facultyId]);
-        $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $facultySql = "SELECT faculty_id, faculty_name FROM faculty WHERE faculty_id = :faculty_id";
+            $fStmt = $this->Conn->prepare($facultySql);
+            $fStmt->execute([':faculty_id' => $facultyId]);
+            $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-        return [
-            'faculty' => $faculty,
-            'summary' => $summary,
-        ];
+            return [
+                'faculty' => $faculty,
+                'summary' => $summary,
+            ];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
     }
 
     public function MemberLeaderboard(array $query): array
@@ -496,4 +503,6 @@ class ReportModel
             'data' => $rows
         ];
     }
+
+
 }
