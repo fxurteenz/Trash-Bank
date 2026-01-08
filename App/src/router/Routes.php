@@ -161,7 +161,7 @@ class Routes
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
-        /* /api/majors */
+        /* /api/majors */   
         $this->addPrefixedRoutes('/api/majors', [
             ['GET', '', [MajorController::class, 'GetAll']],
             ['GET', '/[i:mid]', [MajorController::class, 'Get']],

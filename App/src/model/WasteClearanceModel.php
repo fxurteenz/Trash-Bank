@@ -285,6 +285,7 @@ class WasteClearanceModel
             }
 
             $this->Conn->beginTransaction();
+            $date = date('Y-m-d H:i:s');
 
             // 1. Get waste_clearance_id
             $sqlGet = "SELECT waste_clearance_id FROM clearance_detail WHERE clearance_detail_id = :id";
@@ -301,12 +302,14 @@ class WasteClearanceModel
             // 2. Update detail
             $sqlUpdate = "UPDATE clearance_detail 
                           SET clearance_detail_clearance_weight = :weight,
-                              clearance_detail_success = 1
+                              clearance_detail_success = 1,
+                              complete_date = :complete_date
                           WHERE clearance_detail_id = :id";
             $stmtUpdate = $this->Conn->prepare($sqlUpdate);
             $stmtUpdate->execute([
                 ':weight' => $weight,
-                ':id' => $cdid
+                ':id' => $cdid,
+                'complete_date' => $date
             ]);
 
             // 3. Check all details for this clearance
@@ -318,31 +321,26 @@ class WasteClearanceModel
 
             // 4. Update master status if all done
             if ($resultCheck['pending'] == 0) {
-                $sqlGetInfo = "SELECT faculty_id, waste_clearance_period_start, waste_clearance_period_end FROM waste_clearance WHERE waste_clearance_id = :wcid";
-                $stmtGetInfo = $this->Conn->prepare($sqlGetInfo);
-                $stmtGetInfo->execute([':wcid' => $wasteClearanceId]);
-                $clearanceInfo = $stmtGetInfo->fetch(PDO::FETCH_ASSOC);
-
                 $sqlUpdateMaster = "UPDATE waste_clearance 
-                                    SET waste_clearance_status = '2' 
+                                    SET waste_clearance_status = '2',
+                                        approved_at = :complete_date
                                     WHERE waste_clearance_id = :wcid";
                 $stmtUpdateMaster = $this->Conn->prepare($sqlUpdateMaster);
-                $stmtUpdateMaster->execute([':wcid' => $wasteClearanceId]);
+                $stmtUpdateMaster->execute([
+                    ':wcid' => $wasteClearanceId,
+                    "complete_date" => $date
+                ]);
 
-                if ($clearanceInfo) {
-                    $sqlUpdateTx = "UPDATE waste_transaction 
-                                    SET waste_transaction_status = 3 
-                                    WHERE faculty_id = :faculty_id 
-                                    AND waste_transaction_date BETWEEN :start AND :end";
-                    $stmtUpdateTx = $this->Conn->prepare($sqlUpdateTx);
-                    $stmtUpdateTx->execute([
-                        ':faculty_id' => $clearanceInfo['faculty_id'],
-                        ':start' => $clearanceInfo['waste_clearance_period_start'],
-                        ':end' => $clearanceInfo['waste_clearance_period_end']
-                    ]);
-                }
+
+                $sqlUpdateTx = "UPDATE waste_transaction 
+                                SET waste_transaction_status = 3 
+                                WHERE waste_clearance_id = :wcid";
+                $stmtUpdateTx = $this->Conn->prepare($sqlUpdateTx);
+                $stmtUpdateTx->execute([
+                    ":wcid" => $wasteClearanceId
+                ]);
             }
-            
+
             $this->Conn->commit();
             return true;
         } catch (PDOException $th) {
