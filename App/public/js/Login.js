@@ -50,7 +50,7 @@ async function OnSubmit(e) {
             if (userRole === 1 || userRole === "1") {
                 window.location.href = "/admin";
             } else if (userRole === 3 || userRole === "3") {
-                window.location.href = "/operater";
+                window.location.href = "/staff";
             } else if (userRole === 4 || userRole === "4") {
                 window.location.href = "/faculty_staff";
             } else if (userRole === 2 || userRole === "2") {

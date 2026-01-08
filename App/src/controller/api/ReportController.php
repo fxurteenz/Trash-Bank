@@ -149,7 +149,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)' 
+                'message' => 'successfully =)'
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -166,6 +166,7 @@ class ReportController
     public function GetFacultyReport($fid)
     {
         try {
+            Authentication::OperateAuth();
             $result = self::$ReportModel->FacultyReport((int) $fid, self::$queryString);
 
             header('Content-Type: application/json');
@@ -173,7 +174,14 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)' 
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -197,7 +205,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)' 
+                'message' => 'successfully =)'
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -221,7 +229,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)' 
+                'message' => 'successfully =)'
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -245,7 +253,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)' 
+                'message' => 'successfully =)'
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
