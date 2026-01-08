@@ -101,6 +101,19 @@ class BadgeController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
+            
+            // Handle file upload
+            if (isset($_FILES['badge_image']) && $_FILES['badge_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../../public/assets/images/badges/';
+                $fileExtension = pathinfo($_FILES['badge_image']['name'], PATHINFO_EXTENSION);
+                $fileName = uniqid('badge_') . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['badge_image']['tmp_name'], $uploadPath)) {
+                    $this->data['badge_image'] = $fileName;
+                }
+            }
+            
             $result = $this->BadgeModel->CreateBadge($this->data);
 
             header('Content-Type: application/json');
@@ -131,6 +144,19 @@ class BadgeController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
+            
+            // Handle file upload
+            if (isset($_FILES['badge_image']) && $_FILES['badge_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../../public/assets/images/badges/';
+                $fileExtension = pathinfo($_FILES['badge_image']['name'], PATHINFO_EXTENSION);
+                $fileName = uniqid('badge_') . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['badge_image']['tmp_name'], $uploadPath)) {
+                    $this->data['badge_image'] = $fileName;
+                }
+            }
+            
             $badge = $this->BadgeModel->UpdateBadge($id, $this->data);
 
             header('Content-Type: application/json');

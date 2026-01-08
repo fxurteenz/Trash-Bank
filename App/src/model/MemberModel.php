@@ -35,6 +35,11 @@ class MemberModel
                 $params[':role_id'] = $query['role_id'];
             }
 
+            if (!empty($query['major_id'])) {
+                $whereClauses[] = "m.major_id = :major_id";
+                $params[':major_id'] = $query['major_id'];
+            }
+
             if (!empty($query['search'])) {
                 $whereClauses[] = "(m.member_name LIKE :search OR m.member_phone LIKE :search OR m.member_email LIKE :search OR m.member_personal_id LIKE :search)";
                 $params[':search'] = "%" . $query['search'] . "%";
@@ -45,12 +50,15 @@ class MemberModel
             $sql = "SELECT 
                         m.*, 
                         f.faculty_name,
+                        maj.major_name,
                         r.role_name,
                         r.role_name_th
                     FROM 
                         member m
                     LEFT JOIN 
                         faculty f ON m.faculty_id = f.faculty_id
+                    LEFT JOIN 
+                        major maj ON m.major_id = maj.major_id
                     LEFT JOIN 
                         role r ON m.role_id = r.role_id
                     {$whereSql}";

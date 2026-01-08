@@ -22,18 +22,86 @@
         .open-sans {
             font-family: "Open Sans", sans-serif;
         }
+        /* Green theme inspired by the provided design */
+        :root {
+            --brand-emerald-50: #ecfdf5;
+            --brand-emerald-100: #d1fae5;
+            --brand-emerald-400: #34d399;
+            --brand-emerald-500: #10b981;
+            --brand-emerald-600: #059669;
+            --brand-lime-400: #a3e635;
+        }
+
+        /* Page background gradient - 70% white, 30% green */
+        .app-gradient-bg {
+            background: linear-gradient(180deg, #ffffff 0%, #f0fdf7 60%, #d1fae5 100%);
+            min-height: 100vh;
+        }
+
+        .app-gradient-header {
+            background-image: linear-gradient(90deg, var(--brand-emerald-500), var(--brand-lime-400));
+        }
+        .app-gradient-sidebar {
+            background-image: linear-gradient(180deg, var(--brand-emerald-600), var(--brand-emerald-500));
+        }
+        .app-card {
+            background: #fff;
+            border: 1px solid var(--brand-emerald-100);
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08);
+        }
+        .app-pill-btn {
+            border-radius: 9999px;
+        }
+        .app-link-active {
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* Apply app-card look to existing card containers */
+        .bg-white.rounded-lg.shadow { 
+            border: 1px solid var(--brand-emerald-100);
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.08);
+        }
+
+        /* Global form control polish */
+        main input[type="text"],
+        main input[type="password"],
+        main input[type="number"],
+        main input[type="date"],
+        main select,
+        main textarea {
+            border-radius: 10px !important;
+            border-color: #e5e7eb !important;
+            box-shadow: 0 1px 2px rgba(16,185,129,0.05);
+        }
+        main input:focus, main select:focus, main textarea:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.25) !important;
+            border-color: var(--brand-emerald-400) !important;
+        }
+
+        /* Map existing utility colors to green theme (non-invasive overrides) */
+        [class*="bg-sky-300"] { background-color: var(--brand-emerald-500) !important; color: #fff; }
+        [class*="hover:bg-sky-400"]:hover { background-color: var(--brand-emerald-600) !important; }
+        [class*="border-teal-500"] { border-color: var(--brand-emerald-500) !important; }
+        [class*="hover:bg-teal-300"]:hover { background-color: var(--brand-emerald-100) !important; }
+        [class*="bg-purple-500"] { background-color: var(--brand-emerald-500) !important; }
+        [class*="hover:bg-purple-600"]:hover { background-color: var(--brand-emerald-600) !important; }
+        [class*="bg-green-100"], [class*="bg-sky-100"], [class*="bg-yellow-100"] { background-color: var(--brand-emerald-50) !important; }
+        [class*="text-sky-500"], [class*="text-yellow-500"], [class*="text-emerald-500"] { color: var(--brand-emerald-600) !important; }
     </style>
 </head>
 
-<body>
-    <div class="bg-gray-100 noto-sans-thai"
+<body class="app-gradient-bg">
+    <div class="noto-sans-thai"
         x-data="{ sidebarOpen: window.innerWidth >= 1024, profileDropdownOpen: false }">
 
         <header
-            class="flex items-center justify-between h-16 bg-white shadow-md fixed top-0 left-0 right-0 z-30 px-4 w-full">
+            class="flex items-center justify-between h-16 app-gradient-header text-white shadow-md fixed top-0 left-0 right-0 z-30 px-4 w-full">
             <div class="flex items-center space-x-4">
                 <button @click="sidebarOpen = !sidebarOpen"
-                    class="text-gray-500 focus:outline-none lg:hidden p-2 hover:bg-gray-100 rounded">
+                    class="text-white/90 focus:outline-none lg:hidden p-2 hover:bg-white/10 rounded">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -41,18 +109,17 @@
                 </button>
 
                 <a href="#" class="flex items-center space-x-2">
-                    <span
-                        class="text-xl font-bold bg-gradient-to-r from-lime-200 void-lime-400 to-lime-600 text-transparent bg-clip-text">Waste-Bank</span>
+                    <span class="text-xl font-bold">Waste-Bank</span>
                 </a>
 
                 <span
-                    class="hidden md:block text-lg text-gray-700 ml-6 border-l pl-4 font-semibold italic"><?= $title ?></span>
+                    class="hidden md:block text-lg ml-6 border-l border-white/30 pl-4 font-semibold italic text-white/90"><?= $title ?></span>
             </div>
 
             <div class="relative" @click.away="profileDropdownOpen = false">
                 <button @click="profileDropdownOpen = !profileDropdownOpen"
                     class="flex items-center focus:outline-none">
-                    <img class="h-10 w-10 rounded-full object-cover border-2 border-lime-500"
+                    <img class="h-10 w-10 rounded-full object-cover border-2 border-white/80"
                         src="/assets/images/4042171.png" alt="Profile">
                 </button>
 
@@ -74,44 +141,46 @@
 
         <div class="flex pt-16 w-full">
             <aside :class="{ 'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen }"
-                class="fixed inset-y-0 left-0 z-20 w-50 bg-stone-800 text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block lg:shadow-none shadow-xl">
+                class="fixed inset-y-0 left-0 z-20 w-56 app-gradient-sidebar text-white transform transition-transform duration-300 lg:translate-x-0 lg:static lg:min-h-screen lg:block shadow-xl rounded-r-xl">
                 <div class="p-4 mt-16 lg:mt-0">
                     <nav class="space-y-1">
                         <a href="/admin"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "bg-lime-500" : "hover:bg-gray-700" ?>">
-                            <span class="font-light">หน้าหลัก</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "dashboard" ? "app-link-active" : "hover:bg-white/10" ?>">
+                            <span class="font-medium">หน้าหลัก</span>
                         </a>
-                        <!-- ส่วนเมนูการจัดการข้อมูล -->
-                        <div class="flex text-nowrap items-center p-1 my-1 border-y-2 border-white text-center">
-                            <span class="font-bold italic w-full text-center">การจัดการข้อมูล</span>
-                        </div>
+                        <div class="text-xs uppercase tracking-wider text-white/70 my-3 pl-2">การจัดการข้อมูล</div>
                         <a href="/admin/manage/waste_type"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการหมวดหมู่ขยะ</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteType" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">จัดการหมวดหมู่ขยะ</span>
                         </a>
                         <a href="/admin/manage/faculty"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFaculty" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการคณะ/สาขา</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageFaculty" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">จัดการคณะ/สาขา</span>
                         </a>
                         <a href="/admin/manage/users"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">จัดการผู้ใช้</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageUsers" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">จัดการผู้ใช้</span>
+                        </a>
+                        <a href="/admin/manage/rewards"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageRewards" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">จัดการของรางวัล</span>
+                        </a>
+                        <a href="/admin/manage/badges"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageBadges" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">จัดการเหรียญตรา</span>
                         </a>
                         <a href="/admin/manage/waste_transaction"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?>  ">
-                            <span class="font-light">รายการฝาก</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">รายการฝาก</span>
                         </a>
-                        <!-- ส่วนเมนูการดำเนินการ -->
-                        <div class="flex text-nowrap items-center p-1 my-1 border-y-2 border-white text-center">
-                            <span class="font-bold italic w-full text-center">การดำเนินการ</span>
-                        </div>
+                        <div class="text-xs uppercase tracking-wider text-white/70 my-3 pl-2">การดำเนินการ</div>
                         <a href="/admin/transactions/waste"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "wasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?> ">
-                            <span class="font-light">ฝากขยะ</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "wasteTransaction" ? "app-link-active" : "hover:bg-white/10" ?> ">
+                            <span class="font-medium">ฝากขยะ</span>
                         </a>
                         <a href="/admin/transactions/clear_waste"
-                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "clearWasteTransaction" ? "bg-lime-500" : "hover:bg-gray-700" ?> ">
-                            <span class="font-light">เคลียร์ยอดฝากขยะ</span>
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "clearWasteTransaction" ? "app-link-active" : "hover:bg-white/10" ?> ">
+                            <span class="font-medium">เคลียร์ยอดฝากขยะ</span>
                         </a>
                     </nav>
                 </div>

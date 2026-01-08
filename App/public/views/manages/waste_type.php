@@ -1,10 +1,10 @@
 <div class="space-y-4 w-full">
-    <div class="bg-white rounded-lg shadow p-6 overflow-x-auto w-full hidden md:block">
+    <div class="app-card p-6 overflow-x-auto w-full hidden md:block">
         <h2 class="text-xl font-bold text-gray-700">ภาพรวมการจัดการประเภทและชนิดขยะ</h2>
         <p class="text-gray-500 text-sm">เลือกหมวดหมู่ด้านล่างเพื่อจัดการประเภทขยะและราคา</p>
     </div>
 
-    <div x-data="WasteCategoryTypeManagement()" x-init="init()" class="bg-white rounded-lg shadow p-6">
+    <div x-data="WasteCategoryTypeManagement()" x-init="init()" class="app-card p-6">
 
         <h2 class="text-xl font-bold mb-2">
             หมวดหมู่ขยะ
@@ -13,10 +13,10 @@
         <div class="flex flex-col md:flex-row justify-between gap-4">
             <div class="flex gap-2">
                 <div @click="openCreateCategoryDialog"
-                    :class="createCategoryDialogShow && !isEditingCategory && 'bg-teal-300'"
-                    class="group cursor-pointer flex items-center py-1 px-2 border-2 border-teal-500 rounded-lg hover:bg-teal-300 space-x-1 w-fit transition-colors">
+                    :class="createCategoryDialogShow && !isEditingCategory && 'bg-emerald-300'"
+                    class="group cursor-pointer flex items-center py-2 px-4 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
                     <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
-                        <svg class="stroke-teal-500 fill-none group-active:stroke-teal-200 group-active:duration-0 duration-300"
+                        <svg class="stroke-emerald-600 fill-none group-active:stroke-emerald-300 group-active:duration-0 duration-300"
                             viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-width="1.5"
                                 d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z">
@@ -31,7 +31,7 @@
                 <button x-show="selectedCategory" @click="openEditCategoryDialog(selectedCategory)"
                     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
                     x-transition:enter-end="opacity-100 scale-100"
-                    class="flex items-center space-x-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-lg hover:bg-amber-200 border border-amber-200 font-medium text-sm">
+                    class="flex items-center space-x-1 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 border border-emerald-200 font-medium text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -43,7 +43,7 @@
                 <button x-show="selectedCategory" @click="confirmDeleteCurrentCategory"
                     x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
                     x-transition:enter-end="opacity-100 scale-100"
-                    class="flex items-center space-x-1 bg-red-100 text-red-700 px-3 py-1 rounded-lg hover:bg-red-200 border border-red-200 font-medium text-sm">
+                    class="flex items-center space-x-1 bg-red-100 text-red-700 px-4 py-2 rounded-full hover:bg-red-200 border border-red-200 font-medium text-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

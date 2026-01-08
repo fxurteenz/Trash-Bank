@@ -2,6 +2,9 @@ function UserTable() {
     return {
         members: [],
         faculties: [], // Store Faculty list
+        createMajors: [], // Store majors for create dialog
+        editMajors: [], // Store majors for edit dialog
+        filterMajors: [], // Store majors for filter dropdown
         checkedMembers: { member_ids: [] },
         selectedUser: null,
         createUserDialogShow: false,
@@ -21,6 +24,7 @@ function UserTable() {
             member_name: "",
             member_email: "",
             faculty_id: "",
+            major_id: "",
             role_id: "",
         },
 
@@ -31,11 +35,13 @@ function UserTable() {
             member_email: "",
             member_password: "",
             faculty_id: "",
+            major_id: "",
             role_id: "",
         },
 
         filters: {
             faculty_id: "",
+            major_id: "",
             role: "",
             search: "",
         },
@@ -52,6 +58,8 @@ function UserTable() {
                 params.append("limit", this.limit);
                 if (this.filters.faculty_id)
                     params.append("faculty_id", this.filters.faculty_id);
+                if (this.filters.major_id)
+                    params.append("major_id", this.filters.major_id);
                 if (this.filters.role) params.append("role", this.filters.role);
                 if (this.filters.search)
                     params.append("search", this.filters.search);
@@ -81,31 +89,87 @@ function UserTable() {
             }
         },
 
+        async fetchMajorsByFaculty(facultyId, formType) {
+            if (!facultyId) {
+                if (formType === 'create') {
+                    this.createMajors = [];
+                    this.createUserForm.major_id = "";
+                } else if (formType === 'edit') {
+                    this.editMajors = [];
+                    this.editUserForm.major_id = "";
+                } else if (formType === 'filter') {
+                    this.filterMajors = [];
+                    this.filters.major_id = "";
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/majors/faculty/${facultyId}`);
+                const result = await res.json();
+                if (result.success) {
+                    if (formType === 'create') {
+                        this.createMajors = result.result;
+                    } else if (formType === 'edit') {
+                        this.editMajors = result.result;
+                    } else if (formType === 'filter') {
+                        this.filterMajors = result.result;
+                    }
+                } else {
+                    if (formType === 'create') {
+                        this.createMajors = [];
+                    } else if (formType === 'edit') {
+                        this.editMajors = [];
+                    } else if (formType === 'filter') {
+                        this.filterMajors = [];
+                    }
+                }
+            } catch (err) {
+                console.error("โหลดข้อมูลสาขาล้มเหลว", err);
+                if (formType === 'create') {
+                    this.createMajors = [];
+                } else if (formType === 'edit') {
+                    this.editMajors = [];
+                } else if (formType === 'filter') {
+                    this.filterMajors = [];
+                }
+            }
+        },
+
         handleFilterChange() {
             this.page = 1;
             this.fetchMembers();
         },
 
+        async handleFacultyFilterChange() {
+            await this.fetchMajorsByFaculty(this.filters.faculty_id, 'filter');
+            this.filters.major_id = "";
+            this.handleFilterChange();
+        },
+
         resetFilters() {
             this.filters = {
                 faculty_id: "",
+                major_id: "",
                 role: "",
                 search: "",
             };
+            this.filterMajors = [];
             this.page = 1;
             this.fetchMembers();
         },
 
         openCreateDialog() {
             this.createUserForm = {
-                member_personal_id: "", // เพิ่ม field นี้ตอน reset
+                member_personal_id: "",
                 member_name: "",
                 member_email: "",
                 member_password: "",
                 faculty_id: "",
+                major_id: "",
                 role_id: "",
             };
-            this.majors = [];
+            this.createMajors = [];
             this.errors.create = {};
             this.createUserDialogShow = true;
         },
@@ -118,11 +182,13 @@ function UserTable() {
                 member_name: user.member_name ?? null,
                 member_email: user.member_email ?? null,
                 faculty_id: user.faculty_id ?? "",
+                major_id: user.major_id ?? "",
                 role_id: user.role_id,
             };
             this.errors.edit = {};
+            
             if (user.faculty_id) {
-                this.editUserForm.major_id = user.major_id ?? "";
+                await this.fetchMajorsByFaculty(user.faculty_id, 'edit');
             }
 
             console.log("Selected User:", user);

@@ -22,11 +22,17 @@
         .open-sans {
             font-family: "Open Sans", sans-serif;
         }
+        
+        /* Page background gradient - 70% white, 30% green */
+        .app-gradient-bg {
+            background: linear-gradient(180deg, #ffffff 0%, #f0fdf7 60%, #d1fae5 100%);
+            min-height: 100vh;
+        }
     </style>
 </head>
 
-<body>
-    <div class="bg-slate-100 noto-sans-thai"
+<body class="app-gradient-bg">
+    <div class="noto-sans-thai"
         x-data="{  sidebarOpen: window.innerWidth >= 1024, profileDropdownOpen: false }">
 
         <header

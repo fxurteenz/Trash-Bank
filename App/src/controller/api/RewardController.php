@@ -101,6 +101,19 @@ class RewardController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
+            
+            // Handle file upload
+            if (isset($_FILES['reward_image']) && $_FILES['reward_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../../public/assets/images/rewards/';
+                $fileExtension = pathinfo($_FILES['reward_image']['name'], PATHINFO_EXTENSION);
+                $fileName = uniqid('reward_') . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['reward_image']['tmp_name'], $uploadPath)) {
+                    $this->data['reward_image'] = $fileName;
+                }
+            }
+            
             $result = $this->RewardModel->CreateReward($this->data);
 
             header('Content-Type: application/json');
@@ -131,6 +144,19 @@ class RewardController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
+            
+            // Handle file upload
+            if (isset($_FILES['reward_image']) && $_FILES['reward_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = __DIR__ . '/../../../public/assets/images/rewards/';
+                $fileExtension = pathinfo($_FILES['reward_image']['name'], PATHINFO_EXTENSION);
+                $fileName = uniqid('reward_') . '.' . $fileExtension;
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['reward_image']['tmp_name'], $uploadPath)) {
+                    $this->data['reward_image'] = $fileName;
+                }
+            }
+            
             $reward = $this->RewardModel->UpdateReward($id, $this->data);
 
             header('Content-Type: application/json');

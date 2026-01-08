@@ -97,19 +97,11 @@ class MajorModel
             $sql =
                 "SELECT 
                     m.major_id, 
-                    m.major_name,
-                    SUM(CASE WHEN a.account_role = 'user' THEN 1 ELSE 0 END) AS count_user,
-                    SUM(CASE WHEN a.account_role = 'faculty_staff' THEN 1 ELSE 0 END) AS count_staff,
-                    SUM(CASE WHEN a.account_role = 'operater' THEN 1 ELSE 0 END) AS count_operater,
-                    COUNT(a.account_id) AS total_all
+                    m.major_name
                 FROM 
                     major m
-                LEFT JOIN 
-                    account a ON m.major_id = a.major_id
                 WHERE 
-                    m.faculty_id = :faculty_id
-                GROUP BY 
-                    m.major_id";
+                    m.faculty_id = :faculty_id";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
