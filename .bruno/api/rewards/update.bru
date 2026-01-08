@@ -1,0 +1,28 @@
+meta {
+  name: Update Reward
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{domain}}/api/rewards/update/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "reward_name": "กระบอกน้ำรักษ์โลก (แก้ไข)",
+    "reward_stock": 95,
+    "reward_active": 1
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

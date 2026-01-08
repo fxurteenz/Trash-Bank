@@ -1,0 +1,27 @@
+meta {
+  name: Get All Rewards
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{domain}}/api/rewards
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~active: 1
+  ~search: 
+  ~limit: 10
+  ~page: 1
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

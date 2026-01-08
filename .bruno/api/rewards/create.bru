@@ -1,0 +1,31 @@
+meta {
+  name: Create Reward
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{domain}}/api/rewards
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "reward_name": "กระบอกน้ำรักษ์โลก",
+    "reward_description": "กระบอกน้ำสแตนเลสคุณภาพดี",
+    "reward_point_required": 500,
+    "reward_stock": 100,
+    "reward_image": null,
+    "reward_active": 1
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

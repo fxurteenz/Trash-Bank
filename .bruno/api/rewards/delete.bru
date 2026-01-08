@@ -1,0 +1,26 @@
+meta {
+  name: Delete Reward
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{domain}}/api/rewards/delete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "reward_id": [1, 2]
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

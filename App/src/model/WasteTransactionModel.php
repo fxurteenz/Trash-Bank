@@ -271,6 +271,89 @@ class WasteTransactionModel
         }
     }
 
+    public function GetAllTransactionByMemberId(int $memberId, array $query): array
+    {
+        try {
+            $whereClauses = ["w.member_id = :member_id"];
+            $params = [':member_id' => $memberId];
+
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_date) >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_date) <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['date'])) {
+                $whereClauses[] = "DATE(w.waste_transaction_date) = :date";
+                $params[':date'] = $query['date'];
+            }
+            if (!empty($query['category'])) {
+                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $params[':category_id'] = $query['category'];
+            }
+            if (!empty($query['type'])) {
+                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $params[':type_id'] = $query['type'];
+            }
+
+            $whereSql = " WHERE " . implode(" AND ", $whereClauses);
+
+            $sql = "SELECT 
+                        w.waste_transaction_id,
+                        w.waste_transaction_date,
+                        w.waste_transaction_weight,
+                        w.waste_transaction_member_point,
+                        w.waste_transaction_rate,
+                        w.waste_transaction_status,
+                        c.waste_category_name,
+                        t.waste_type_name
+                    FROM waste_transaction w
+                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
+                    LEFT JOIN waste_category c ON w.waste_transaction_waste_category = c.waste_category_id
+                    $whereSql
+                    ORDER BY w.waste_transaction_date DESC";
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if ($isPagination) {
+                $countSql = "SELECT COUNT(*) as total FROM waste_transaction w $whereSql";
+                $countStmt = $this->Conn->prepare($countSql);
+                foreach ($params as $key => $val) {
+                    $countStmt->bindValue($key, $val);
+                }
+                $countStmt->execute();
+                $total = (int) $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+            } else {
+                $total = count($rows);
+            }
+
+            return ['data' => $rows, 'total' => $total];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function CreateWasteTransaction(array $data, $staffData): array
     {
         try {

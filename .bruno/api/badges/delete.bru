@@ -1,0 +1,26 @@
+meta {
+  name: Delete Badge
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{domain}}/api/badges/delete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "badge_id": [1, 2]
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

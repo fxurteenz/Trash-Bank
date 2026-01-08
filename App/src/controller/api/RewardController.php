@@ -2,22 +2,25 @@
 namespace App\Controller\Api;
 
 use App\Router\RouterBase;
-use App\Model\MemberModel;
+use App\Model\RewardModel;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 use Exception;
 
-class MemberController extends RouterBase
+class RewardController extends RouterBase
 {
-    private $data, $MemberModel, $queryString;
+    private $data, $RewardModel, $queryString;
+    
     public function __construct()
     {
         $input = file_get_contents('php://input');
         $requestMethod = $_SERVER['REQUEST_METHOD'];
         $contentType = strtolower($_SERVER['CONTENT_TYPE'] ?? '');
+        
         if ($requestMethod == "GET") {
             $this->queryString = $_GET;
         }
+        
         switch (true) {
             case str_contains($contentType, 'application/json'):
                 $this->data = json_decode($input, true);
@@ -35,35 +38,53 @@ class MemberController extends RouterBase
             default:
                 $this->data = $input;
         }
-        $this->MemberModel = new MemberModel();
+        
+        $this->RewardModel = new RewardModel();
     }
-
 
     public function GetAll()
     {
         try {
-            Authentication::AdminAuth();
-            $result = $this->MemberModel->GetAllMembers($this->queryString);
+            $result = $this->RewardModel->GetAllRewards($this->queryString);
             $response = [
                 'success' => TRUE,
                 'data' => $result['data'],
                 'total' => $result['total'],
                 'message' => 'successfully =)'
             ];
+            
             if (isset($this->queryString['page'])) {
                 $response['page'] = (int) $this->queryString['page'];
             }
             if (isset($this->queryString['limit'])) {
                 $response['limit'] = (int) $this->queryString['limit'];
             }
+            
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode($response);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Get($id)
+    {
+        try {
+            $reward = $this->RewardModel->GetRewardById($id);
+            
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $reward,
+                'message' => 'successfully =)'
             ]);
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
@@ -80,13 +101,13 @@ class MemberController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $result = $this->MemberModel->CreateMember($this->data);
+            $result = $this->RewardModel->CreateReward($this->data);
 
             header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
-                'message' => 'Member Created =]',
+                'message' => 'Reward Created =]',
                 'data' => $result
             ]);
         } catch (AuthenticationException $e) {
@@ -106,18 +127,18 @@ class MemberController extends RouterBase
         }
     }
 
-    public function Update($uid)
+    public function Update($id)
     {
         try {
             Authentication::AdminAuth();
-            $user = $this->MemberModel->UpdateMember($uid, $this->data);
+            $reward = $this->RewardModel->UpdateReward($id, $this->data);
 
             header('Content-Type: application/json');
-            http_response_code(201);
+            http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $user,
-                'message' => 'user updated successfully =)'
+                'result' => $reward,
+                'message' => 'Reward updated successfully =)'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
@@ -140,100 +161,14 @@ class MemberController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $affectedRows = $this->MemberModel->DeleteMember($this->data);
+            $affectedRows = $this->RewardModel->DeleteReward($this->data);
+            
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
                 'total' => $affectedRows,
-                'message' => $affectedRows > 0 ? 'users deleted' : 'not found this user Id'
-            ]);
-            return;
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-    public function GetDashboard($member_id)
-    {
-        try {
-            // Authentication::MemberAuth(); // Temporarily disabled for testing
-            $dashboard = $this->MemberModel->GetMemberDashboard($member_id);
-            
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $dashboard,
-                'message' => 'Dashboard data retrieved successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-    public function GetProfile($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $profile = $this->MemberModel->GetMemberProfile($member_id);
-            
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $profile,
-                'message' => 'Profile retrieved successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function RedeemReward($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $result = $this->MemberModel->RedeemReward($member_id, $this->data);
-            
-            header('Content-Type: application/json');
-            http_response_code(201);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $result,
-                'message' => 'Reward redeemed successfully =)'
+                'message' => $affectedRows > 0 ? 'Rewards deleted' : 'Not found this reward Id'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
