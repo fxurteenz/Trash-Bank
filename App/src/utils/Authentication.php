@@ -131,6 +131,22 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
+
+    public static function MemberAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            // Allow members (role_id 2) and admins (role_id 1) for testing
+            if ($authenticated->role_id === 2 || $authenticated->role_id === 1) {
+                return ['success' => true, 'user_data' => $authenticated];
+            } else {
+                throw new AuthenticationException('Forbidden : Member access only.', 403);
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
+
     public static function UserLogout()
     {
         try {

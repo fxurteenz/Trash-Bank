@@ -166,7 +166,7 @@ class MemberController extends RouterBase
     public function GetDashboard($member_id)
     {
         try {
-            // Authentication::MemberAuth(); // Temporarily disabled for testing
+            Authentication::MemberAuth();
             $dashboard = $this->MemberModel->GetMemberDashboard($member_id);
             
             header('Content-Type: application/json');

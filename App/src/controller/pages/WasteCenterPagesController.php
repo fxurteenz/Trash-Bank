@@ -41,6 +41,21 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
+    public function WasteDepositPOS()
+    {
+        try {
+            Authentication::CenterAuth();
+            $this->render('transactions/waste_deposit_pos', [
+                'pages' => "wasteDepositPOS",
+                'title' => 'ระบบฝากขยะ POS'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function ClearTransactionWaste()
     {
         try {
@@ -124,6 +139,36 @@ class WasteCenterPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         } finally {
             exit;
+        }
+    }
+
+    public function WasteSaleTransaction()
+    {
+        try {
+            Authentication::CenterAuth();
+            $this->render('transactions/waste_sale_pos', [
+                'pages' => 'wasteSalePOS',
+                'title' => 'ระบบขายขยะ POS'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function WasteSaleHistory()
+    {
+        try {
+            Authentication::CenterAuth();
+            $this->render('transactions/waste_sale_history', [
+                'pages' => 'wasteSaleHistory',
+                'title' => 'ประวัติการขายขยะ'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 }
