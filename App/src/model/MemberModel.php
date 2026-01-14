@@ -270,17 +270,17 @@ class MemberModel
                         role r ON m.role_id = r.role_id
                     WHERE 
                         m.member_id = :member_id";
-            
+
             $stmt = $this->Conn->prepare($sql);
             $stmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $stmt->execute();
-            
+
             $member = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$member) {
                 throw new Exception("Member not found", 404);
             }
-            
+
             // Get member badges
             $badgeSql = "SELECT 
                             b.*,
@@ -293,14 +293,14 @@ class MemberModel
                             mb.member_id = :member_id
                         ORDER BY 
                             mb.member_badge_date DESC";
-            
+
             $badgeStmt = $this->Conn->prepare($badgeSql);
             $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $badgeStmt->execute();
             $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
-            
+
             $member['badges'] = $badges;
-            
+
             return $member;
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
@@ -311,46 +311,46 @@ class MemberModel
     {
         try {
             $this->Conn->beginTransaction();
-            
+
             // Get member's current points
             $memberSql = "SELECT (member_waste_point + member_goodness_point) as total_points FROM member WHERE member_id = :member_id FOR UPDATE";
             $memberStmt = $this->Conn->prepare($memberSql);
             $memberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $memberStmt->execute();
             $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$member) {
                 throw new Exception("Member not found", 404);
             }
-            
+
             // Get reward details
             $rewardSql = "SELECT * FROM reward WHERE reward_id = :reward_id FOR UPDATE";
             $rewardStmt = $this->Conn->prepare($rewardSql);
             $rewardStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
             $rewardStmt->execute();
             $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$reward) {
                 throw new Exception("Reward not found", 404);
             }
-            
+
             if (!$reward['reward_active']) {
                 throw new Exception("Reward is not active", 400);
             }
-            
+
             $qty = $data['quantity'] ?? 1;
             $totalPoints = $reward['reward_point_required'] * $qty;
-            
+
             // Check if member has enough points
             if ($member['total_points'] < $totalPoints) {
                 throw new Exception("Insufficient points", 400);
             }
-            
+
             // Check if reward has enough stock
             if ($reward['reward_stock'] < $qty) {
                 throw new Exception("Insufficient stock", 400);
             }
-            
+
             // Create member_reward record
             $insertSql = "INSERT INTO member_reward (
                             member_id, 
@@ -367,14 +367,14 @@ class MemberModel
                             :points, 
                             'pending'
                         )";
-            
+
             $insertStmt = $this->Conn->prepare($insertSql);
             $insertStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $insertStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
             $insertStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
             $insertStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
             $insertStmt->execute();
-            
+
             // Update member points (deduct from waste_point first, then goodness_point if needed)
             $updateMemberSql = "UPDATE member 
                                SET member_waste_point = GREATEST(0, member_waste_point - :points),
@@ -384,16 +384,16 @@ class MemberModel
             $updateMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
             $updateMemberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $updateMemberStmt->execute();
-            
+
             // Update reward stock
             $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock - :qty WHERE reward_id = :reward_id";
             $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
             $updateRewardStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
             $updateRewardStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
             $updateRewardStmt->execute();
-            
+
             $this->Conn->commit();
-            
+
             return [
                 'member_reward_id' => $this->Conn->lastInsertId(),
                 'reward_name' => $reward['reward_name'],
@@ -435,12 +435,12 @@ class MemberModel
                             role r ON m.role_id = r.role_id
                         WHERE 
                             m.member_id = :member_id";
-            
+
             $memberStmt = $this->Conn->prepare($memberSql);
             $memberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $memberStmt->execute();
             $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (!$member) {
                 throw new Exception("Member not found", 404);
             }
@@ -454,7 +454,7 @@ class MemberModel
                             waste_transaction wt
                         WHERE 
                             wt.member_id = :member_id";
-            
+
             $statsStmt = $this->Conn->prepare($statsSql);
             $statsStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $statsStmt->execute();
@@ -494,7 +494,7 @@ class MemberModel
                 
                 ORDER BY activity_date DESC
                 LIMIT 10";
-            
+
             $activitiesStmt = $this->Conn->prepare($activitiesSql);
             $activitiesStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $activitiesStmt->execute();
@@ -516,7 +516,7 @@ class MemberModel
                             mb.member_id = :member_id
                         ORDER BY 
                             mb.member_badge_date DESC";
-            
+
             $badgesStmt = $this->Conn->prepare($badgesSql);
             $badgesStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
             $badgesStmt->execute();
@@ -538,7 +538,7 @@ class MemberModel
                         ORDER BY 
                             reward_point_required ASC
                         LIMIT 6";
-            
+
             $rewardsStmt = $this->Conn->prepare($rewardsSql);
             $rewardsStmt->execute();
             $rewards = $rewardsStmt->fetchAll(PDO::FETCH_ASSOC);

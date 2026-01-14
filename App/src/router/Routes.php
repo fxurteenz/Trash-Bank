@@ -7,6 +7,7 @@ use App\Controller\Api\LeaderController;
 use App\Controller\Api\MemberController;
 use App\Controller\Api\WasteClearanceController;
 use App\Controller\Api\WasteTransactionController;
+use App\Controller\Api\WasteSaleController;
 use App\Controller\Api\FacultyController;
 use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
@@ -62,7 +63,10 @@ class Routes
         $this->addPrefixedRoutes('/waste_center', [
             ['GET', '', [WasteCenterPagesController::class, 'HomePage']],
             ['GET', '/transactions/waste', [WasteCenterPagesController::class, 'TransactionWaste']],
+            ['GET', '/transactions/waste_deposit_pos', [WasteCenterPagesController::class, 'WasteDepositPOS']],
             ['GET', '/transactions/clear_waste', [WasteCenterPagesController::class, 'ClearTransactionWaste']],
+            ['GET', '/transactions/waste_sale', [WasteCenterPagesController::class, 'WasteSaleTransaction']],
+            ['GET', '/transactions/waste_sale_history', [WasteCenterPagesController::class, 'WasteSaleHistory']],
             ['GET', '/manage/waste_type', [WasteCenterPagesController::class, 'ManageWasteType']],
             ['GET', '/manage/waste_transaction', [WasteCenterPagesController::class, 'ManageWasteTransaction']],
             ['GET', '/manage/rewards', [WasteCenterPagesController::class, 'ManageRewards']],
@@ -167,6 +171,17 @@ class Routes
             // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
             ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
+        ]);
+        /* /api/waste_sales */
+        $this->addPrefixedRoutes("/api/waste_sales", [
+            ['GET', "", [WasteSaleController::class, "GetAll"]],
+            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
+            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
+            ['POST', '', [WasteSaleController::class, 'Create']],
+            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
+            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [

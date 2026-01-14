@@ -75,7 +75,35 @@ class MemberController extends RouterBase
             exit;
         }
     }
+    public function Get($member_id)
+    {
+        try {
+            Authentication::MemberAuth();
+            $profile = $this->MemberModel->GetMemberProfile($member_id);
 
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $profile,
+                'message' => 'Profile retrieved successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
     public function Create()
     {
         try {
@@ -166,7 +194,7 @@ class MemberController extends RouterBase
     public function GetDashboard($member_id)
     {
         try {
-            // Authentication::MemberAuth(); // Temporarily disabled for testing
+            Authentication::MemberAuth();
             $dashboard = $this->MemberModel->GetMemberDashboard($member_id);
             
             header('Content-Type: application/json');

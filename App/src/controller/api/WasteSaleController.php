@@ -1,15 +1,15 @@
 <?php
 namespace App\Controller\Api;
 
-use App\Model\WasteTransactionModel;
+use App\Model\WasteSaleModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 use Exception;
 
-class WasteTransactionController extends RouterBase
+class WasteSaleController extends RouterBase
 {
-    private static $Data, $WasteTransactionModel, $QueryString;
+    private static $Data, $WasteSaleModel, $QueryString;
 
     public function __construct()
     {
@@ -39,21 +39,24 @@ class WasteTransactionController extends RouterBase
                 self::$Data = [];
         }
 
-        self::$WasteTransactionModel = new WasteTransactionModel();
+        self::$WasteSaleModel = new WasteSaleModel();
     }
 
+    /**
+     * Get all waste sales with optional filters
+     */
     public function GetAll()
     {
         try {
             Authentication::OperateAuth();
-            $deposits = self::$WasteTransactionModel->GetAllTransaction(self::$QueryString);
+            $sales = self::$WasteSaleModel->GetAllSales(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $deposits,
-                'message' => 'successfully =)'
+                'result' => $sales,
+                'message' => 'Successfully fetched waste sales'
             ]);
         } catch (AuthenticationException $e) {
             error_log("ERROR AUTH : " . $e->getMessage());
@@ -76,62 +79,32 @@ class WasteTransactionController extends RouterBase
         }
     }
 
-    public function GetAllByOperater()
-    {
-        try {
-            $user = Authentication::OperateAuth();
-            error_log("USER DATA :" . print_r($user, 1));
-            $deposits = self::$WasteTransactionModel->GetAllTransactionByStaffId(self::$QueryString, $user);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'result' => $deposits,
-                'message' => 'successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            error_log("ERROR AUTH : " . $e->getMessage());
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 403);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            error_log("ERROR EXCEPTION: " . $e->getMessage());
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function GetAllByMember($memberId)
+    /**
+     * Get sales summary (grouped by waste type)
+     */
+    public function GetSummary()
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->GetAllTransactionByMemberId($memberId, self::$QueryString);
+            $summary = self::$WasteSaleModel->GetSalesSummary(self::$QueryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
-                'message' => 'successfully =)'
+                'result' => $summary,
+                'message' => 'Successfully fetched sales summary'
             ]);
         } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
@@ -143,29 +116,72 @@ class WasteTransactionController extends RouterBase
         }
     }
 
+    /**
+     * Get single waste sale by ID
+     */
+    public function GetById($id)
+    {
+        try {
+            Authentication::OperateAuth();
+            $sale = self::$WasteSaleModel->GetSaleById($id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $sale,
+                'message' => 'Successfully fetched waste sale'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    /**
+     * Create a single waste sale
+     */
     public function Create()
     {
         try {
-            $operaterData = Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
+            Authentication::OperateAuth();
+            
+            $result = self::$WasteSaleModel->CreateSale(self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => 'trasaction completed successfully =)'
+                'message' => 'Waste sale created successfully'
             ]);
         } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -175,62 +191,39 @@ class WasteTransactionController extends RouterBase
         }
     }
 
-    // public function Update($id)
-    // {
-    //     try {
-    //         Authentication::OperateAuth();
-
-    //         $result = self::$WasteTransactionModel->UpdateWasteTransaction($id, self::$Data);
-
-    //         header('Content-Type: application/json');
-    //         http_response_code(200);
-    //         echo json_encode([
-    //             'success' => TRUE,
-    //             'result' => $result,
-    //             'message' => 'deposit updated successfully =)'
-    //         ]);
-    //     } catch (AuthenticationException $e) {
-    //         header('Content-Type: application/json');
-    //         http_response_code($e->getCode() ?: 401);
-    //         echo json_encode([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     } catch (Exception $e) {
-    //         header('Content-Type: application/json');
-    //         http_response_code($e->getCode() ?: 400);
-    //         echo json_encode([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ]);
-    //     } finally {
-    //         exit;
-    //     }
-    // }
-
-    public function DeleteById($id)
+    /**
+     * Create multiple waste sales in batch (POS-style)
+     */
+    public function CreateBatch()
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->DeleteWasteTransactionById($id);
+            
+            if (empty(self::$Data['sales']) || !is_array(self::$Data['sales'])) {
+                throw new Exception("Invalid batch data format. Expected 'sales' array.");
+            }
+
+            $result = self::$WasteSaleModel->CreateBatchSales(self::$Data['sales']);
 
             header('Content-Type: application/json');
-            http_response_code(200);
+            http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
-                'data' => $result,
-                'message' => 'transaction deleted successfully =)'
+                'result' => $result,
+                'message' => 'Batch waste sales created successfully'
             ]);
         } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
+            http_response_code($e->getCode() ?: 403);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
         } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
+            http_response_code(400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -240,27 +233,122 @@ class WasteTransactionController extends RouterBase
         }
     }
 
-    public function Delete()
+    /**
+     * Update waste sale
+     */
+    public function Update($id)
     {
         try {
-            Authentication::AdminAuth();
-            $result = self::$WasteTransactionModel->DeleteWasteTransaction(self::$Data);
+            Authentication::OperateAuth();
+            
+            $result = self::$WasteSaleModel->UpdateSale($id, self::$Data);
 
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => "Successfully deleted $result items."
+                'message' => 'Waste sale updated successfully'
             ]);
         } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
             header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    /**
+     * Delete waste sale by ID
+     */
+    public function DeleteById($id)
+    {
+        try {
+            Authentication::OperateAuth();
+            
+            $deleted = self::$WasteSaleModel->DeleteSaleById($id);
+
+            if (!$deleted) {
+                throw new Exception("Waste sale not found or could not be deleted");
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'message' => 'Waste sale deleted successfully'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    /**
+     * Delete multiple waste sales
+     */
+    public function Delete()
+    {
+        try {
+            Authentication::OperateAuth();
+            
+            if (empty(self::$Data['ids']) || !is_array(self::$Data['ids'])) {
+                throw new Exception("Invalid IDs provided");
+            }
+
+            $result = self::$WasteSaleModel->DeleteSales(self::$Data['ids']);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'Waste sales deleted successfully'
+            ]);
+        } catch (AuthenticationException $e) {
+            error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         } finally {
             exit;
         }

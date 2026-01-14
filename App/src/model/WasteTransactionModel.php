@@ -48,11 +48,11 @@ class WasteTransactionModel
             }
             // กรองตามหมวดหมู่หรือชนิดขยะ
             if (!empty($query['category'])) {
-                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $whereClauses[] = "d.waste_category_id = :category_id";
                 $params[':category_id'] = $query['category'];
             }
             if (!empty($query['type'])) {
-                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $whereClauses[] = "d.waste_type_id = :type_id";
                 $params[':type_id'] = $query['type'];
             }
             // กรองตามเจ้าหน้าที่ หรือ ผู้ฝาก
@@ -90,18 +90,27 @@ class WasteTransactionModel
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sql = "SELECT 
-                    w.*,a.member_id, a.member_name, a.member_personal_id, a.member_phone,a.member_email,
+                    d.waste_transaction_detail_id AS waste_transaction_id, -- Alias for backward compatibility
+                    w.waste_transaction_id AS transaction_header_id,
+                    w.waste_transaction_date,
+                    w.created_at,
+                    d.waste_transaction_detail_weight AS waste_transaction_weight,
+                    d.waste_transaction_detail_point AS waste_transaction_member_point,
+                    d.waste_transaction_detail_rate AS waste_transaction_rate,
+                    d.waste_transaction_detail_status AS waste_transaction_status,
+                    a.member_id, a.member_name, a.member_personal_id, a.member_phone,a.member_email,
                     f.faculty_id, f.faculty_name,
                     t.waste_type_name, c.waste_category_name,
                     s.member_id AS staff_id,s.member_name AS staff_name, s.member_phone AS staff_tel, 
                     s.member_email AS staff_email, s.member_personal_id AS staff_personal_id
                 FROM 
-                    waste_transaction w
+                    waste_transaction_detail d
+                JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id
                 LEFT JOIN member a ON w.member_id = a.member_id
                 LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
                 LEFT JOIN member s ON w.staff_id = s.member_id
-                LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
-                LEFT JOIN waste_category c ON t.waste_category_id = c.waste_category_id
+                LEFT JOIN waste_type t ON d.waste_type_id = t.waste_type_id
+                LEFT JOIN waste_category c ON d.waste_category_id = c.waste_category_id
                 {$whereSql}
                 ORDER BY w.created_at DESC";
 
@@ -133,7 +142,11 @@ class WasteTransactionModel
 
             if ($isPagination) {
                 // ต้อง JOIN member a ด้วยหากมีการกรองตาม faculty_id ในการนับจำนวนทั้งหมด
-                $sqlCount = "SELECT COUNT(*) AS allDeposit FROM waste_transaction w LEFT JOIN member a ON w.member_id = a.member_id {$whereSql}";
+                $sqlCount = "SELECT COUNT(*) AS allDeposit 
+                             FROM waste_transaction_detail d 
+                             JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id 
+                             LEFT JOIN member a ON w.member_id = a.member_id 
+                             {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
@@ -183,11 +196,11 @@ class WasteTransactionModel
             }
             // กรองตามหมวดหมู่หรือชนิดขยะ
             if (!empty($query['category'])) {
-                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $whereClauses[] = "d.waste_category_id = :category_id";
                 $params[':category_id'] = $query['category'];
             }
             if (!empty($query['type'])) {
-                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $whereClauses[] = "d.waste_type_id = :type_id";
                 $params[':type_id'] = $query['type'];
             }
 
@@ -213,15 +226,23 @@ class WasteTransactionModel
             $whereSql = " WHERE " . implode(" AND ", $whereClauses);
 
             $sql = "SELECT 
-                        w.*, a.member_id, a.member_name, a.member_personal_id, 
+                        d.waste_transaction_detail_id AS waste_transaction_id,
+                        w.waste_transaction_id AS transaction_header_id,
+                        w.waste_transaction_date,
+                        d.waste_transaction_detail_weight AS waste_transaction_weight,
+                        d.waste_transaction_detail_point AS waste_transaction_member_point,
+                        d.waste_transaction_detail_rate AS waste_transaction_rate,
+                        d.waste_transaction_detail_status AS waste_transaction_status,
+                        a.member_id, a.member_name, a.member_personal_id, 
                         a.member_phone, a.member_email,f.faculty_id, 
                         f.faculty_name, c.waste_category_name, t.waste_type_name
                     FROM 
-                        waste_transaction w
+                        waste_transaction_detail d
+                    JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id
                     LEFT JOIN member a ON w.member_id = a.member_id
                     LEFT JOIN faculty f ON a.faculty_id = f.faculty_id
-                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
-                    LEFT JOIN waste_category c ON t.waste_category_id = c.waste_category_id
+                    LEFT JOIN waste_type t ON d.waste_type_id = t.waste_type_id
+                    LEFT JOIN waste_category c ON d.waste_category_id = c.waste_category_id
                     $whereSql
                     ORDER BY w.created_at DESC";
 
@@ -251,7 +272,11 @@ class WasteTransactionModel
             $deposits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS allDeposit FROM waste_transaction w LEFT JOIN member a ON w.member_id = a.member_id $whereSql";
+                $sqlCount = "SELECT COUNT(*) AS allDeposit 
+                             FROM waste_transaction_detail d 
+                             JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id 
+                             LEFT JOIN member a ON w.member_id = a.member_id 
+                             $whereSql";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
@@ -290,28 +315,29 @@ class WasteTransactionModel
                 $params[':date'] = $query['date'];
             }
             if (!empty($query['category'])) {
-                $whereClauses[] = "w.waste_transaction_waste_category = :category_id";
+                $whereClauses[] = "d.waste_category_id = :category_id";
                 $params[':category_id'] = $query['category'];
             }
             if (!empty($query['type'])) {
-                $whereClauses[] = "w.waste_transaction_waste_type = :type_id";
+                $whereClauses[] = "d.waste_type_id = :type_id";
                 $params[':type_id'] = $query['type'];
             }
 
             $whereSql = " WHERE " . implode(" AND ", $whereClauses);
 
             $sql = "SELECT 
-                        w.waste_transaction_id,
+                        d.waste_transaction_detail_id AS waste_transaction_id,
                         w.waste_transaction_date,
-                        w.waste_transaction_weight,
-                        w.waste_transaction_member_point,
-                        w.waste_transaction_rate,
-                        w.waste_transaction_status,
+                        d.waste_transaction_detail_weight AS waste_transaction_weight,
+                        d.waste_transaction_detail_point AS waste_transaction_member_point,
+                        d.waste_transaction_detail_rate AS waste_transaction_rate,
+                        d.waste_transaction_detail_status AS waste_transaction_status,
                         c.waste_category_name,
                         t.waste_type_name
-                    FROM waste_transaction w
-                    LEFT JOIN waste_type t ON w.waste_transaction_waste_type = t.waste_type_id
-                    LEFT JOIN waste_category c ON w.waste_transaction_waste_category = c.waste_category_id
+                    FROM waste_transaction_detail d
+                    JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id
+                    LEFT JOIN waste_type t ON d.waste_type_id = t.waste_type_id
+                    LEFT JOIN waste_category c ON d.waste_category_id = c.waste_category_id
                     $whereSql
                     ORDER BY w.waste_transaction_date DESC";
 
@@ -335,7 +361,7 @@ class WasteTransactionModel
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $countSql = "SELECT COUNT(*) as total FROM waste_transaction w $whereSql";
+                $countSql = "SELECT COUNT(*) as total FROM waste_transaction_detail d JOIN waste_transaction w ON d.waste_transaction_id = w.waste_transaction_id $whereSql";
                 $countStmt = $this->Conn->prepare($countSql);
                 foreach ($params as $key => $val) {
                     $countStmt->bindValue($key, $val);
@@ -366,78 +392,115 @@ class WasteTransactionModel
                 throw new Exception('กรุณาลองอีกครั้ง, ระบุข้อมูลผู้ทำการฝาก', 400);
             }
 
-            if (empty($data['waste_category_id'])) {
-                // error_log("ERROR : waste_type is missing");
-                throw new Exception('กรุณาลองอีกครั้ง, เลือกหมวดหมู่ขยะ', 400);
+            // Prepare items
+            $items = [];
+            if (isset($data['items']) && is_array($data['items'])) {
+                $items = $data['items'];
+            } elseif (isset($data['waste_category_id']) && isset($data['waste_type_id']) && isset($data['deposit_weight'])) {
+                // Support single item (legacy)
+                $items[] = $data;
             }
 
-            if (empty($data['waste_type_id'])) {
-                // error_log("ERROR : waste_type is missing");
-                throw new Exception('กรุณาลองอีกครั้ง, เลือกประเภทขยะ', 400);
-            }
-
-            if (!isset($data['deposit_weight'])) {
-                // error_log("ERROR : transaction_deposit_weight missing");
-                throw new Exception('กรุณาลองอีกครั้ง, ระบุน้ำหนักที่ฝาก', 400);
+            if (empty($items)) {
+                throw new Exception('กรุณาลองอีกครั้ง, ไม่พบรายการขยะ', 400);
             }
 
             /* Start SQL Transaction */
             $this->Conn->beginTransaction();
 
             $user = self::GetDepositorAccount($this->Conn, $data["depositor_member"]);
-            $rateResult = self::GetWasteTypeRate($this->Conn, $data["waste_type_id"]);
-
-            $payload = [];
-            $payload["member_id"] = $user["member_id"];
-            $payload["faculty_id"] = $user["faculty_id"];
-            $payload["staff_id"] = $staffData["user_data"]->member_id;
-            $payload["waste_transaction_waste_category"] = $data["waste_category_id"];
-            $payload["waste_transaction_waste_type"] = $data["waste_type_id"];
-            $payload["waste_transaction_weight"] = $data["deposit_weight"];
-            $payload["waste_transaction_rate"] = $rateResult["waste_type_price"];
-            $value = $rateResult["waste_type_price"] * $data["deposit_weight"];
-            $integer_point = (int) floor($value);
-
-            $payload["waste_transaction_member_point"] = $integer_point;
-            $payload["waste_transaction_faculty_fraction"] = $value - $integer_point;
-
-            $payload["waste_transaction_status"] = 1;
-            $payload["waste_transaction_date"] = date('Y-m-d');
-            $payload["created_at"] = date('Y-m-d H:i:s');
-
-            error_log("TRANSACTION DEPOSIT_WASTE DATA : " . print_r($payload, 1));
-
-            $setClauses = [];
-            foreach ($payload as $column => $value) {
-                if (isset($value) && $value !== '') {
-                    $setClauses[] = "`{$column}` = :{$column}";
-                }
-            }
-            $setClauseString = implode(', ', $setClauses);
-
-            $sql =
-                "INSERT INTO 
-                    waste_transaction
-                SET
-                    {$setClauseString}
-                ";
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->execute($payload);
-            $insertedId = $this->Conn->lastInsertId();
 
             if (empty($user["member_id"]) || empty($user["faculty_id"])) {
                 throw new Exception("ERROR : Check faculty's user", 400);
             }
 
-            $updatedUser = self::UpdateMemberPoint($this->Conn, $user["member_id"], $integer_point);
-            $updatedFaculty = self::CreateFacultyPointHistory($this->Conn, $user["faculty_id"], $payload["waste_transaction_faculty_fraction"]);
+            $totalMemberPoints = 0;
+            $totalFacultyFraction = 0;
+            $totalWeight = 0;
+            $details = [];
+
+            foreach ($items as $item) {
+                if (empty($item['waste_category_id']) || empty($item['waste_type_id']) || !isset($item['deposit_weight'])) {
+                    throw new Exception('ข้อมูลรายการขยะไม่ครบถ้วน', 400);
+                }
+
+                $rateResult = self::GetWasteTypeRate($this->Conn, $item["waste_type_id"]);
+
+                $value = $rateResult["waste_type_price"] * $item["deposit_weight"];
+                $integer_point = (int) floor($value);
+                $fraction = $value - $integer_point;
+
+                $totalWeight += $item["deposit_weight"];
+                $totalMemberPoints += $integer_point;
+                $totalFacultyFraction += $fraction;
+
+                $details[] = [
+                    'waste_category_id' => $item["waste_category_id"],
+                    'waste_type_id' => $item["waste_type_id"],
+                    'weight' => $item["deposit_weight"],
+                    'rate' => $rateResult["waste_type_price"],
+                    'point' => $integer_point,
+                    'fraction' => $fraction
+                ];
+            }
+
+            // 1. Insert Header (waste_transaction)
+            $headerSql = "INSERT INTO waste_transaction SET 
+                member_id = :mid, faculty_id = :fid, staff_id = :sid,
+                waste_transaction_total_weight = :tw,
+                waste_transaction_total_point = :tp,
+                waste_transaction_total_fraction = :tf,
+                waste_transaction_date = :date,
+                waste_transaction_status = 'completed',
+                created_at = :created";
+
+            $stmtHeader = $this->Conn->prepare($headerSql);
+            $stmtHeader->execute([
+                ':mid' => $user["member_id"],
+                ':fid' => $user["faculty_id"],
+                ':sid' => $staffData["user_data"]->member_id,
+                ':tw' => $totalWeight,
+                ':tp' => $totalMemberPoints,
+                ':tf' => $totalFacultyFraction,
+                ':date' => date('Y-m-d'),
+                ':created' => date('Y-m-d H:i:s')
+            ]);
+            $transactionId = $this->Conn->lastInsertId();
+
+            // 2. Insert Details (waste_transaction_detail)
+            $detailSql = "INSERT INTO waste_transaction_detail SET
+                waste_transaction_id = :tid,
+                waste_category_id = :cid,
+                waste_type_id = :typeid,
+                waste_transaction_detail_weight = :w,
+                waste_transaction_detail_rate = :r,
+                waste_transaction_detail_point = :p,
+                waste_transaction_detail_fraction = :f,
+                waste_transaction_detail_status = 'อยู่ที่คลังคณะ'";
+
+            $stmtDetail = $this->Conn->prepare($detailSql);
+            foreach ($details as $d) {
+                $stmtDetail->execute([
+                    ':tid' => $transactionId,
+                    ':cid' => $d['waste_category_id'],
+                    ':typeid' => $d['waste_type_id'],
+                    ':w' => $d['weight'],
+                    ':r' => $d['rate'],
+                    ':p' => $d['point'],
+                    ':f' => $d['fraction']
+                ]);
+            }
+
+            $updatedUser = self::UpdateMemberPoint($this->Conn, $user["member_id"], $totalMemberPoints);
+            $updatedFaculty = self::CreateFacultyPointHistory($this->Conn, $user["faculty_id"], $totalFacultyFraction);
 
             $this->Conn->commit();
 
             return [
-                'transaction_id' => $insertedId,
+                'transaction_id' => $transactionId,
                 'total_member_point' => $updatedUser['member_waste_point'],
-                'total_faculty_point' => $updatedFaculty['faculty_point'] ?? null
+                'total_faculty_point' => $updatedFaculty['faculty_point'] ?? null,
+                'items_count' => count($details)
             ];
 
         } catch (PDOException $e) {
@@ -462,7 +525,7 @@ class WasteTransactionModel
                 throw new Exception('ID is required for deletion', 400);
             }
 
-            $sql = "DELETE FROM waste_transaction WHERE waste_transaction_id = :waste_transaction_id";
+            $sql = "DELETE FROM waste_transaction_detail WHERE waste_transaction_detail_id = :waste_transaction_id";
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute(['waste_transaction_id' => $id]);
 
@@ -492,7 +555,7 @@ class WasteTransactionModel
             $this->Conn->beginTransaction();
 
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM waste_transaction WHERE waste_transaction_id IN ($placeholders)";
+            $sql = "DELETE FROM waste_transaction_detail WHERE waste_transaction_detail_id IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);
 
@@ -545,7 +608,7 @@ class WasteTransactionModel
         }
     }
 
-    private static function GetDepositorAccount($conn, $identifier)
+    private static function GetDepositorAccount($conn, $mid)
     {
         try {
             $sql =
@@ -554,16 +617,13 @@ class WasteTransactionModel
                 FROM
                     member
                 WHERE
-                    member_personal_id = :identifier OR
-                    member_phone = :identifier OR
-                    member_email = :identifier OR
-                    member_name = :identifier
+                    member_id = :mid 
                 ";
             $stmt = $conn->prepare($sql);
-            $stmt->execute(["identifier" => $identifier]);
+            $stmt->execute(["mid" => $mid]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             if (!$result) {
-                throw new Exception("member not found with identifier: " . htmlspecialchars($identifier) . "'", 404);
+                throw new Exception("member not found with mid: " . htmlspecialchars($mid) . "'", 404);
             }
             return $result;
         } catch (PDOException $e) {
@@ -621,18 +681,20 @@ class WasteTransactionModel
     private static function CreateFacultyPointHistory($conn, $facultyId, $point)
     {
         try {
-            // if ($point == 0) {
-            //     $selectSql = "SELECT faculty_point FROM faculty WHERE faculty_id = :faculty_id";
-            //     $stmt = $conn->prepare($selectSql);
-            //     $stmt->execute(["faculty_id" => $facultyId]);
-            //     $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
+            // If no new points are added, just return the current total.
+            if ($point == 0) {
+                $selectSql = "SELECT SUM(faculty_point_amount) AS faculty_point FROM faculty_point WHERE faculty_id = :faculty_id";
+                $stmt = $conn->prepare($selectSql);
+                $stmt->execute(["faculty_id" => $facultyId]);
+                $faculty = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            //     if (!$faculty) {
-            //         throw new Exception("faculty not found ID: " . htmlspecialchars($facultyId), 404);
-            //     }
+                // If there are no records yet, the sum will be NULL. Return 0.
+                if (!$faculty || $faculty['faculty_point'] === null) {
+                    return ['faculty_point' => 0];
+                }
+                return $faculty;
+            }
 
-            //     return $faculty;
-            // }
             $payload = [];
             $payload["faculty_id"] = $facultyId;
             $payload["faculty_point_amount"] = $point;
@@ -648,18 +710,18 @@ class WasteTransactionModel
             }
             $setClauseString = implode(', ', $setClauses);
 
-            $updateSql =
+            $insertSql =
                 "INSERT INTO
                     faculty_point
                 SET
                     {$setClauseString}
                 ";
-            $stmt = $conn->prepare($updateSql);
+            $stmt = $conn->prepare($insertSql);
             $stmt->execute($payload);
 
             $rowCount = $stmt->rowCount();
             if ($rowCount === 0) {
-                throw new Exception("Faculty not found or points not updated for faculty ID: " . htmlspecialchars($facultyId) . "   " . htmlspecialchars($point), 404);
+                throw new Exception("Failed to create faculty point history for faculty ID: " . htmlspecialchars($facultyId), 500);
             }
 
             $selectSql = "SELECT SUM(faculty_point_amount) AS faculty_point FROM faculty_point WHERE faculty_id = :faculty_id";
@@ -670,7 +732,7 @@ class WasteTransactionModel
             return $updatedFaculty;
 
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            throw new Exception("Database error in CreateFacultyPointHistory: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw $e;
         }
