@@ -1,111 +1,164 @@
-<div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-6">
-    <!-- Page Intro -->
+<div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-6 relative">
     <div class="mb-8">
         <h1 class="text-4xl font-bold text-slate-900 mb-2">🏪 ระบบฝากขยะแบบ POS</h1>
-        <p class="text-slate-600 text-lg">บันทึกการฝากขยะอย่างรวดเร็ว - ใช้เพียงแป้นพิมพ์เท่านั้น</p>
+        <p class="text-slate-600 text-lg">บันทึกการฝากขยะอย่างรวดเร็ว - ค้นหาสมาชิกและลงรายการ</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Main Input Area -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Member Selection -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover relative z-20">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-bold text-slate-900">
                         <span x-show="!currentMember">🔍 ค้นหาสมาชิก</span>
                         <span x-show="currentMember" class="text-emerald-600">✅ ยืนยันสมาชิก</span>
                     </h2>
-                    <button x-show="currentMember" @click="resetMember()" 
+                    <button x-show="currentMember" @click="resetMember()"
                         class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                         🔄 เปลี่ยน
                     </button>
                 </div>
 
-                <div x-show="!currentMember" class="space-y-3">
-                    <label class="block text-sm font-semibold text-slate-700">รหัสนักศึกษา / รหัสสมาชิก</label>
-                    <div class="flex gap-2">
-                        <input x-ref="memberInput" x-model="memberSearch" @keydown.enter="searchMember()"
-                            type="text" placeholder="กรอกรหัสแล้วกด Enter"
-                            class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition">
-                        <button @click="searchMember()"
-                            class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors">
-                            ค้นหา
-                        </button>
+                <div x-show="!currentMember" class="space-y-3 relative" @click.away="showDropdown = false">
+                    <label class="block text-sm font-semibold text-slate-700">รหัสนักศึกษา / รหัสสมาชิก / ชื่อ</label>
+
+                    <div class="relative">
+                        <div class="flex gap-2">
+                            <input x-ref="memberInput" x-model="memberSearch"
+                                @input.debounce.300ms="searchMember(false)" @focus="showDropdown = true"
+                                @keydown.enter.prevent="handleEnterKey()" @keydown.escape="showDropdown = false"
+                                @keydown.arrow-down.prevent="moveSelection(1)" @keydown.tab.prevent="moveSelection(1)"
+                                @keydown.arrow-up.prevent="moveSelection(-1)" type="text"
+                                placeholder="พิมพ์ชื่อ หรือ รหัส..."
+                                class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                                autocomplete="off">
+
+                            <!-- <button @click="searchMember(true)"
+                                class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors">
+                                ค้นหา
+                            </button> -->
+                        </div>
+
+                        <div x-show="showDropdown && (searchResults.length > 0 || isSearching)" x-ref="dropdownList"
+                            x-transition.opacity.duration.200ms
+                            class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+
+                            <div x-show="isSearching" class="p-4 text-center text-slate-500">
+                                <span class="inline-block animate-spin mr-2">⏳</span> กำลังค้นหา...
+                            </div>
+
+                            <ul x-show="!isSearching && searchResults.length > 0">
+                                <template x-for="(member, index) in searchResults" :key="member.member_id">
+                                    <li @click="selectMember(member)" :id="'member-item-' + index"
+                                        :class="{ 'bg-emerald-100 ring-1 ring-inset ring-emerald-300': index === selectedIndex, 'hover:bg-emerald-50': index !== selectedIndex }"
+                                        class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <p class="font-bold text-slate-800 group-hover:text-emerald-700"
+                                                    x-text="member.member_name || 'ไม่ระบุชื่อ'"></p>
+                                                <p class="text-xs text-slate-500">
+                                                    <span x-text="member.role_name_th"></span> •
+                                                    <span x-text="member.faculty_name"></span>
+                                                </p>
+                                            </div>
+                                            <div class="text-right">
+                                                <span
+                                                    class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600"
+                                                    x-text="member.member_phone"></span>
+                                                <div class="text-xs text-emerald-600 mt-1 font-semibold">แต้ม: <span
+                                                        x-text="member.member_waste_point"></span></div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+
+                            <div x-show="!isSearching && searchResults.length === 0 && memberSearch.length > 0"
+                                class="p-4 text-center text-slate-500">
+                                ❌ ไม่พบข้อมูลสมาชิก
+                            </div>
+                        </div>
                     </div>
-                    <p class="text-xs text-slate-500">💡 กด <kbd class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> เพื่อค้นหา</p>
+
+                    <p class="text-xs text-slate-500">
+                        💡 ใช้ปุ่ม <kbd class="bg-slate-100 px-2 py-1 rounded">⬇️</kbd> <kbd
+                            class="bg-slate-100 px-2 py-1 rounded">⬆️</kbd> เพื่อเลือก และ <kbd
+                            class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> ยืนยัน
+                    </p>
                 </div>
 
-                <div x-show="currentMember" class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
+                <div x-show="currentMember"
+                    class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
                     <div class="space-y-2">
                         <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สมาชิก</p>
-                        <p class="text-2xl font-bold text-slate-900" x-text="currentMember?.member_name"></p>
+                        <p class="text-2xl font-bold text-slate-900"
+                            x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'"></p>
                         <div class="flex gap-4 text-sm text-slate-600">
-                            <span>ID: <span class="font-semibold" x-text="currentMember?.member_studentId"></span></span>
-                            <span>แต้ม: <span class="font-bold text-emerald-600" x-text="currentMember?.member_point"></span></span>
+                            <span>Phone: <span class="font-semibold" x-text="currentMember?.member_phone"></span></span>
+                            <span>Faculty: <span class="font-semibold"
+                                    x-text="currentMember?.faculty_name"></span></span>
+                            <span>แต้มสะสม: <span class="font-bold text-emerald-600"
+                                    x-text="currentMember?.member_waste_point"></span></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Item Entry Form -->
-            <div x-show="currentMember" class="bg-white rounded-xl shadow-md p-6 card-hover">
+            <div x-show="currentMember" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
                 <h2 class="text-2xl font-bold text-slate-900 mb-5">📝 เพิ่มรายการขยะ</h2>
-                
-                <div class="grid grid-cols-12 gap-3 items-end mb-4">
-                    <!-- Waste Type -->
+
+                <div class="grid grid-cols-12 gap-3">
                     <div class="col-span-5">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
-                            @keydown.tab.prevent="$refs.weightInput.focus()"
-                            @keydown.enter="handleWasteCodeEnter()" @input="searchWasteType()"
-                            type="text" placeholder="พิมพ์รหัส/ชื่อ"
+                            @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="handleWasteCodeEnter()"
+                            @input="searchWasteType()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
                             class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
                             list="wasteTypeList" autocomplete="off">
                         <datalist id="wasteTypeList">
                             <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
-                                <option :value="type.waste_type_id" :label="`${type.waste_type_id} - ${type.waste_type_name}`"></option>
+                                <option :value="type.waste_type_id"
+                                    :label="`${type.waste_category_name} : ${type.waste_type_name}`"></option>
                             </template>
                         </datalist>
-                        <p x-show="selectedWasteType" class="text-xs text-emerald-600 mt-2 font-medium" x-text="selectedWasteType?.waste_type_name"></p>
+                        <p class="text-xs text-emerald-600 mt-2 font-medium"
+                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name}`:  'ระบุรหัสชนิดขยะ'">
+                        </p>
                     </div>
 
-                    <!-- Weight -->
                     <div class="col-span-4">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">น้ำหนัก (กก.)</label>
-                        <input x-ref="weightInput" x-model="itemForm.weight"
-                            @keydown.enter="addItem()" @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()"
-                            type="number" step="0.01" min="0.01" placeholder="0.00"
+                        <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="addItem()"
+                            @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()" type="number" step="0.01"
+                            placeholder="0.00"
                             class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                        <p class="text-xs text-slate-500 mt-2 font-medium">ใส่ค่าลบ (เช่น -2) เพื่อลดน้ำหนัก</p>
                     </div>
 
-                    <!-- Add Button -->
-                    <div class="col-span-3">
+                    <div class="col-span-3 my-auto">
                         <button @click="addItem()"
                             class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
                             ➕ เพิ่ม
                         </button>
                     </div>
                 </div>
-
-                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-                    💡 กรอกรหัส → <kbd class="bg-white px-2 py-1 rounded border">Tab</kbd> → 
-                    น้ำหนัก → <kbd class="bg-white px-2 py-1 rounded border">Enter</kbd> เพื่อเพิ่ม
-                </div>
             </div>
 
-            <!-- Items List -->
-            <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">🛒 รายการที่บันทึก <span class="text-blue-600" x-text="items.length"></span></h2>
-                
+            <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">🛒 รายการที่บันทึก <span class="text-blue-600"
+                        x-text="items.length"></span></h2>
                 <div class="space-y-2 max-h-96 overflow-y-auto">
                     <template x-for="(item, index) in items" :key="index">
-                        <div class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
+                        <div
+                            class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
                             <div class="flex-1">
                                 <div class="flex items-center gap-3">
-                                    <span class="text-lg font-bold text-slate-400 w-8 text-center" x-text="index + 1"></span>
+                                    <span class="text-lg font-bold text-slate-400 w-8 text-center"
+                                        x-text="index + 1"></span>
                                     <div>
                                         <p class="font-semibold text-slate-900" x-text="item.waste_type_name"></p>
-                                        <p class="text-sm text-slate-600" x-text="'น้ำหนัก: ' + item.weight.toFixed(2) + ' กก.'"></p>
+                                        <p class="text-sm text-slate-600"
+                                            x-text="'น้ำหนัก: ' + item.weight.toFixed(2) + ' กก.'"></p>
                                     </div>
                                 </div>
                             </div>
@@ -119,14 +172,12 @@
             </div>
         </div>
 
-        <!-- Summary Sidebar -->
         <div class="space-y-6">
-            <!-- Summary Card -->
-            <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
+            <div
+                class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
                 <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
                     <span class="text-2xl">📊</span> สรุป
                 </h3>
-                
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <span class="text-emerald-100">จำนวนรายการ</span>
@@ -143,27 +194,21 @@
                         <p class="text-4xl font-bold" x-text="totalPoints.toFixed(0)"></p>
                     </div>
                 </div>
-
-                <!-- Submit Buttons -->
                 <div class="mt-6 space-y-3">
-                    <button @click="submitTransaction()"
-                        :disabled="items.length === 0 || isSubmitting"
+                    <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
                         :class="items.length === 0 || isSubmitting ? 'bg-emerald-700 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-emerald-600'"
                         class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
                         <span x-show="!isSubmitting">✅ บันทึกทั้งหมด</span>
                         <span x-show="isSubmitting">⏳ กำลังบันทึก...</span>
                     </button>
-                    
                     <button @click="cancelAll()" :disabled="items.length === 0"
                         class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         ❌ ยกเลิกทั้งหมด
                     </button>
                 </div>
-
-                <p class="text-center text-emerald-100 text-xs mt-4">กด <kbd class="bg-emerald-600 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
+                <p class="text-center text-emerald-100 text-xs mt-4">กด <kbd
+                        class="bg-emerald-600 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
             </div>
-
-            <!-- Daily Stats -->
             <div class="bg-white rounded-xl shadow-md p-6">
                 <h3 class="text-lg font-bold text-slate-900 mb-4">📈 สถิติวันนี้</h3>
                 <div class="space-y-3">
@@ -181,235 +226,340 @@
         </div>
     </div>
 
-    <!-- Keyboard Shortcuts -->
     <div @keydown.ctrl.enter.window="submitTransaction()"></div>
 </div>
 
 <script>
-function WasteDepositPOSHandler() {
-    return {
-        memberSearch: '',
-        currentMember: null,
-        itemForm: { wasteCode: '', weight: '' },
-        wasteTypes: [],
-        filteredWasteTypes: [],
-        selectedWasteType: null,
-        items: [],
-        isSubmitting: false,
-        todayStats: { count: 0, weight: 0 },
+    function WasteDepositPOSHandler() {
+        return {
+            // --- Member Search & Dropdown State ---
+            memberSearch: '',
+            currentMember: null,
+            searchResults: [],
+            showDropdown: false,
+            isSearching: false,
+            selectedIndex: -1,
 
-        get totalWeight() {
-            return this.items.reduce((sum, item) => sum + parseFloat(item.weight || 0), 0);
-        },
+            // --- Transaction State ---
+            itemForm: { wasteCode: '', weight: '' },
+            wasteTypes: [],
+            filteredWasteTypes: [],
+            selectedWasteType: null,
+            items: [],
+            isSubmitting: false,
+            todayStats: { count: 0, weight: 0 },
 
-        get totalPoints() {
-            return this.items.reduce((sum, item) => {
-                const price = parseFloat(item.waste_type_price || 0);
-                const weight = parseFloat(item.weight || 0);
-                return sum + (price * weight);
-            }, 0);
-        },
+            // --- Computed ---
+            get totalWeight() {
+                return this.items.reduce((sum, item) => sum + parseFloat(item.weight || 0), 0);
+            },
 
-        async init() {
-            await this.loadWasteTypes();
-            await this.loadTodayStats();
-            this.focusMemberInput();
-        },
+            get totalPoints() {
+                return this.items.reduce((sum, item) => {
+                    const price = parseFloat(item.waste_type_price || 0);
+                    const weight = parseFloat(item.weight || 0);
+                    return sum + (price * weight);
+                }, 0);
+            },
 
-        focusMemberInput() {
-            this.$nextTick(() => {
-                if (this.$refs.memberInput) {
-                    this.$refs.memberInput.focus();
+            // --- Init ---
+            async init() {
+                await this.loadWasteTypes();
+                await this.loadTodayStats();
+                this.focusMemberInput();
+            },
+
+            focusMemberInput() {
+                this.$nextTick(() => {
+                    if (this.$refs.memberInput) {
+                        this.$refs.memberInput.focus();
+                    }
+                });
+            },
+
+            // --- Member Logic ---
+            async searchMember(force = false) {
+                if (!this.memberSearch.trim()) {
+                    this.searchResults = [];
+                    this.showDropdown = false;
+                    this.selectedIndex = -1;
+                    return;
                 }
-            });
-        },
 
-        async loadWasteTypes() {
-            try {
-                const response = await fetch('/api/waste_types');
-                const result = await response.json();
-                if (result.success) {
-                    this.wasteTypes = result.result || [];
-                    this.filteredWasteTypes = this.wasteTypes;
-                }
-            } catch (error) {
-                console.error('Error loading waste types:', error);
-                this.showNotification('ไม่สามารถโหลดข้อมูลชนิดขยะได้', 'error');
-            }
-        },
+                this.isSearching = true;
+                this.showDropdown = true;
+                this.selectedIndex = -1;
 
-        async searchMember() {
-            if (!this.memberSearch.trim()) {
-                this.showNotification('กรุณากรอกรหัสสมาชิก', 'warning');
-                return;
-            }
+                try {
+                    const response = await fetch(`/api/members?page=1&limit=10&search=${encodeURIComponent(this.memberSearch)}`);
+                    const result = await response.json();
 
-            try {
-                const response = await fetch(`/api/members?search=${encodeURIComponent(this.memberSearch)}`);
-                const result = await response.json();
+                    if (result.success) {
+                        this.searchResults = result.data || [];
 
-                if (result.success && result.result?.data?.length > 0) {
-                    this.currentMember = result.result.data[0];
-                    this.memberSearch = '';
-                    this.showNotification('✅ พบสมาชิก: ' + this.currentMember.member_name, 'success');
-                    
-                    this.$nextTick(() => {
-                        if (this.$refs.wasteCodeInput) {
-                            this.$refs.wasteCodeInput.focus();
+                        if (force && this.searchResults.length > 0) {
+                            this.selectedIndex = 0;
+                        } else if (force && this.searchResults.length === 0) {
+                            this.showNotification('❌ ไม่พบสมาชิก', 'error');
                         }
-                    });
-                } else {
-                    this.showNotification('❌ ไม่พบสมาชิก กรุณาลองใหม่', 'error');
+                    } else {
+                        this.searchResults = [];
+                    }
+                } catch (error) {
+                    console.error('Error searching member:', error);
+                    this.searchResults = [];
+                } finally {
+                    this.isSearching = false;
                 }
-            } catch (error) {
-                console.error('Error searching member:', error);
-                this.showNotification('เกิดข้อผิดพลาดในการค้นหา', 'error');
-            }
-        },
+            },
 
-        resetMember() {
-            this.currentMember = null;
-            this.items = [];
-            this.clearItemForm();
-            this.focusMemberInput();
-        },
-
-        searchWasteType() {
-            const search = this.itemForm.wasteCode.toLowerCase();
-            this.filteredWasteTypes = this.wasteTypes.filter(type => 
-                type.waste_type_id.toString().includes(search) ||
-                type.waste_type_name.toLowerCase().includes(search)
-            );
-
-            const exactMatch = this.wasteTypes.find(type => 
-                type.waste_type_id.toString() === this.itemForm.wasteCode
-            );
-            this.selectedWasteType = exactMatch || null;
-        },
-
-        handleWasteCodeEnter() {
-            if (this.selectedWasteType) {
-                this.$refs.weightInput.focus();
-            }
-        },
-
-        addItem() {
-            if (!this.itemForm.wasteCode || !this.selectedWasteType) {
-                this.showNotification('❌ กรุณาเลือกชนิดขยะ', 'error');
-                this.$refs.wasteCodeInput.focus();
-                return;
-            }
-
-            if (!this.itemForm.weight || parseFloat(this.itemForm.weight) <= 0) {
-                this.showNotification('❌ กรุณากรอกน้ำหนัก', 'error');
-                this.$refs.weightInput.focus();
-                return;
-            }
-
-            this.items.push({
-                waste_type_id: this.selectedWasteType.waste_type_id,
-                waste_type_name: this.selectedWasteType.waste_type_name,
-                waste_type_price: this.selectedWasteType.waste_type_price,
-                weight: parseFloat(this.itemForm.weight)
-            });
-
-            this.showNotification('✅ เพิ่มรายการแล้ว', 'success');
-            this.clearItemForm();
-            this.$refs.wasteCodeInput.focus();
-        },
-
-        removeItem(index) {
-            this.items.splice(index, 1);
-            this.showNotification('🗑️ ลบรายการแล้ว', 'info');
-        },
-
-        clearItemForm() {
-            this.itemForm.wasteCode = '';
-            this.itemForm.weight = '';
-            this.selectedWasteType = null;
-            this.filteredWasteTypes = this.wasteTypes;
-        },
-
-        async submitTransaction() {
-            if (this.items.length === 0) {
-                this.showNotification('❌ ไม่มีรายการที่จะบันทึก', 'warning');
-                return;
-            }
-
-            if (!this.currentMember) {
-                this.showNotification('❌ กรุณาเลือกสมาชิก', 'warning');
-                return;
-            }
-
-            this.isSubmitting = true;
-
-            try {
-                const promises = this.items.map(item => 
-                    fetch('/api/waste_transactions', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            member_id: this.currentMember.member_id,
-                            waste_type_id: item.waste_type_id,
-                            waste_transaction_weight: item.weight
-                        })
-                    })
-                );
-
-                const results = await Promise.all(promises);
-                const allSuccess = results.every(r => r.ok);
-
-                if (allSuccess) {
-                    this.showNotification(`✅ บันทึก ${this.items.length} รายการสำเร็จ!`, 'success');
-                    await this.loadTodayStats();
-                    this.items = [];
-                    this.resetMember();
-                } else {
-                    this.showNotification('⚠️ บางรายการบันทึกไม่สำเร็จ', 'error');
+            handleEnterKey() {
+                if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
+                    this.selectMember(this.searchResults[this.selectedIndex]);
+                } else if (this.memberSearch.trim()) {
+                    this.searchMember(true);
                 }
-            } catch (error) {
-                console.error('Error submitting:', error);
-                this.showNotification('❌ เกิดข้อผิดพลาดในการบันทึก', 'error');
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
+            },
 
-        cancelAll() {
-            if (confirm('ต้องการยกเลิกรายการทั้งหมดใช่หรือไม่?')) {
+            // --- แก้ไขฟังก์ชัน moveSelection ให้วน Loop ได้ ---
+            moveSelection(step) {
+                if (!this.showDropdown || this.searchResults.length === 0) return;
+
+                // 1. เปลี่ยนตำแหน่ง
+                this.selectedIndex += step;
+
+                // 2. ตรวจสอบเงื่อนไขวน Loop
+                if (this.selectedIndex >= this.searchResults.length) {
+                    // ถ้าเกินรายการสุดท้าย -> วนกลับไปรายการแรก
+                    this.selectedIndex = 0;
+                } else if (this.selectedIndex < 0) {
+                    // ถ้าถอยหลังเลยรายการแรก -> วนไปรายการสุดท้าย
+                    this.selectedIndex = this.searchResults.length - 1;
+                }
+
+                // 3. Scroll ให้รายการที่เลือกโชว์ขึ้นมา
+                this.$nextTick(() => {
+                    const el = document.getElementById('member-item-' + this.selectedIndex);
+                    if (el) {
+                        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    }
+                });
+            },
+
+            selectMember(member) {
+                this.currentMember = member;
+                this.memberSearch = '';
+                this.searchResults = [];
+                this.showDropdown = false;
+                this.selectedIndex = -1;
+
+                this.showNotification('✅ เลือกสมาชิก: ' + (member.member_name || 'ไม่ระบุชื่อ'), 'success');
+
+                this.$nextTick(() => {
+                    if (this.$refs.wasteCodeInput) {
+                        this.$refs.wasteCodeInput.focus();
+                    }
+                });
+            },
+
+            resetMember() {
+                this.currentMember = null;
                 this.items = [];
                 this.clearItemForm();
-                this.showNotification('❌ ยกเลิกทั้งหมดแล้ว', 'info');
-            }
-        },
+                this.focusMemberInput();
+                this.searchResults = [];
+                this.showDropdown = false;
+                this.selectedIndex = -1;
+            },
 
-        async loadTodayStats() {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const response = await fetch(`/api/waste_transactions?date=${today}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    const data = result.result?.data || [];
-                    this.todayStats.count = data.length;
-                    this.todayStats.weight = data.reduce((sum, t) => sum + parseFloat(t.waste_transaction_weight || 0), 0);
+            // --- Data Loading ---
+            async loadWasteTypes() {
+                try {
+                    const response = await fetch('/api/waste_types');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.wasteTypes = result.data || [];
+                        this.filteredWasteTypes = this.wasteTypes;
+                    }
+                } catch (error) {
+                    console.error('Error loading waste types:', error);
+                    this.showNotification('ไม่สามารถโหลดข้อมูลชนิดขยะได้', 'error');
                 }
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        },
+            },
 
-        showNotification(message, type = 'info') {
-            const emoji = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-            console.log(`${emoji[type]} ${message}`);
-        }
-    };
-}
+            // --- Item Form Logic ---
+            searchWasteType() {
+                const search = this.itemForm.wasteCode.toLowerCase();
+                this.filteredWasteTypes = this.wasteTypes.filter(type =>
+                    type.waste_type_id.toString().includes(search) ||
+                    type.waste_type_name.toLowerCase().includes(search)
+                );
+
+                const exactMatch = this.wasteTypes.find(type =>
+                    type.waste_type_id.toString() === this.itemForm.wasteCode
+                );
+                this.selectedWasteType = exactMatch || null;
+            },
+
+            handleWasteCodeEnter() {
+                if (this.selectedWasteType) {
+                    this.$refs.weightInput.focus();
+                }
+            },
+
+            addItem() {
+                if (!this.itemForm.wasteCode || !this.selectedWasteType) {
+                    this.showNotification('❌ กรุณาเลือกชนิดขยะ', 'error');
+                    this.$refs.wasteCodeInput.focus();
+                    return;
+                }
+
+                // (เรายอมให้กรอกค่าติดลบได้ แต่ห้ามเป็นค่าว่างหรือ 0 เฉยๆ ในตอนแรกถ้าไม่มีรายการ)
+                const weightToAdd = parseFloat(this.itemForm.weight);
+                if (!weightToAdd || isNaN(weightToAdd)) {
+                    this.showNotification('❌ กรุณากรอกน้ำหนัก', 'error');
+                    this.$refs.weightInput.focus();
+                    return;
+                }
+
+                const existingIndex = this.items.findIndex(item =>
+                    item.waste_type_id === this.selectedWasteType.waste_type_id
+                );
+
+                if (existingIndex !== -1) {
+                    const currentWeight = parseFloat(this.items[existingIndex].weight);
+                    const newWeight = currentWeight + weightToAdd;
+
+                    if (newWeight <= 0) {
+                        // ถ้าผลลัพธ์ <= 0 ให้ลบรายการออก
+                        this.items.splice(existingIndex, 1);
+                        this.showNotification(`🗑️ ลบรายการ ${this.selectedWasteType.waste_type_name} ออกแล้ว (น้ำหนักเหลือ ${newWeight})`, 'warning');
+                    } else {
+                        // ถ้ายังมีค่าบวก ให้อัปเดตค่าใหม่
+                        this.items[existingIndex].weight = newWeight;
+                        const action = weightToAdd > 0 ? 'เพิ่ม' : 'ลด';
+                        this.showNotification(`✅ ${action}น้ำหนักเป็น ${newWeight.toFixed(2)} กก.`, 'success');
+                    }
+
+                } else {
+                    // --- กรณี B: รายการใหม่ ---
+                    if (weightToAdd <= 0) {
+                        // ห้ามเพิ่มรายการใหม่ด้วยค่าติดลบหรือ 0
+                        this.showNotification('❌ รายการใหม่ต้องมีน้ำหนักมากกว่า 0', 'error');
+                        this.$refs.weightInput.focus();
+                        return;
+                    }
+
+                    this.items.push({
+                        waste_category_id: this.selectedWasteType.waste_category_id,
+                        waste_type_id: this.selectedWasteType.waste_type_id,
+                        waste_type_name: this.selectedWasteType.waste_type_name,
+                        waste_type_price: this.selectedWasteType.waste_type_price,
+                        weight: weightToAdd
+                    });
+                    this.showNotification('✅ เพิ่มรายการใหม่แล้ว', 'success');
+                }
+                this.clearItemForm();
+                this.$refs.wasteCodeInput.focus();
+            },
+
+            removeItem(index) {
+                this.items.splice(index, 1);
+                this.showNotification('🗑️ ลบรายการแล้ว', 'info');
+            },
+
+            clearItemForm() {
+                this.itemForm.wasteCode = '';
+                this.itemForm.weight = '';
+                this.selectedWasteType = null;
+                this.filteredWasteTypes = this.wasteTypes;
+            },
+
+            // --- Submission Logic ---
+            async submitTransaction() {
+                if (this.items.length === 0) {
+                    this.showNotification('❌ ไม่มีรายการที่จะบันทึก', 'warning');
+                    return;
+                }
+                if (!this.currentMember) {
+                    this.showNotification('❌ กรุณาเลือกสมาชิก', 'warning');
+                    return;
+                }
+
+                this.isSubmitting = true;
+                try {
+                    const payload = {
+                        depositor_member: this.currentMember.member_id,
+                        items: this.items.map(item => ({
+                            waste_category_id: item.waste_category_id,
+                            waste_type_id: item.waste_type_id,
+                            deposit_weight: item.weight
+                        }))
+                    };
+
+                    const response = await fetch('/api/waste_transactions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        this.showNotification(`✅ บันทึก ${result.result.items_count || this.items.length} รายการสำเร็จ!`, 'success');
+                        await this.loadTodayStats();
+                        this.items = [];
+                        this.resetMember();
+                    } else {
+                        throw new Error(result.message || 'บางรายการบันทึกไม่สำเร็จ');
+                    }
+                } catch (error) {
+                    console.error('Error submitting:', error);
+                    this.showNotification(`❌ เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'error');
+                } finally {
+                    this.isSubmitting = false;
+                }
+            },
+
+            cancelAll() {
+                if (confirm('ต้องการยกเลิกรายการทั้งหมดใช่หรือไม่?')) {
+                    this.items = [];
+                    this.clearItemForm();
+                    this.showNotification('❌ ยกเลิกทั้งหมดแล้ว', 'info');
+                }
+            },
+
+            async loadTodayStats() {
+                try {
+                    const today = new Date().toISOString().split('T')[0];
+                    const response = await fetch(`/api/waste_transactions?date=${today}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const data = result.result?.data || [];
+                        this.todayStats.count = data.length;
+                        this.todayStats.weight = data.reduce((sum, t) => sum + parseFloat(t.waste_transaction_weight || 0), 0);
+                    }
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                }
+            },
+
+            showNotification(message, type = 'info') {
+                const emoji = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+                console.log(`${emoji[type]} ${message}`);
+            }
+        };
+    }
 </script>
 
 <style>
-kbd {
-    font-family: monospace;
-    font-size: 0.85em;
-}
+    kbd {
+        font-family: monospace;
+        font-size: 0.85em;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
 </style>
