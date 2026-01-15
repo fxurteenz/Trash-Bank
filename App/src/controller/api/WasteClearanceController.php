@@ -160,4 +160,36 @@ class WasteClearanceController extends RouterBase
             ]);
         }
     }
+
+    public function Cancel($wcid)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$WasteClearanceModel->CancelClearance($wcid);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $result,
+                'message' => 'ยกเลิกรายการเคลียร์ยอดเรียบร้อยแล้ว'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
 }

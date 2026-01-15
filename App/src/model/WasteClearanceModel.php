@@ -333,6 +333,67 @@ class WasteClearanceModel
         }
     }
 
+    public function CancelClearance($clearance_id)
+    {
+        try {
+            if (empty($clearance_id)) {
+                throw new Exception('Clearance ID is required', 400);
+            }
+
+            $this->Conn->beginTransaction();
+
+            // 1. ตรวจสอบสถานะของ Clearance
+            $sqlCheck = "SELECT waste_clearance_status FROM waste_clearance WHERE waste_clearance_id = :id";
+            $stmtCheck = $this->Conn->prepare($sqlCheck);
+            $stmtCheck->execute([':id' => $clearance_id]);
+            $status = $stmtCheck->fetchColumn();
+
+            if (!$status) {
+                throw new Exception('ไม่พบรายการเคลียร์ยอดนี้', 404);
+            }
+
+            // อนุญาตให้ยกเลิกได้เฉพาะรายการที่ยัง "รอการยืนยัน"
+            if ($status !== 'รอการยืนยัน') {
+                throw new Exception('ไม่สามารถยกเลิกรายการที่ยืนยันไปแล้วหรือถูกยกเลิกไปแล้วได้', 400);
+            }
+
+            // 2. อัปเดต `waste_transaction_detail` ให้กลับไปสถานะเดิม
+            // ตั้ง `waste_clearance_id` เป็น NULL และเปลี่ยนสถานะกลับเป็น 'อยู่ที่คลังคณะ'
+            $sqlUpdateDetail = "UPDATE waste_transaction_detail
+                                SET waste_clearance_id = NULL,
+                                    waste_transaction_detail_status = 'อยู่ที่คลังคณะ'
+                                WHERE waste_clearance_id = :id";
+            $stmtUpdate = $this->Conn->prepare($sqlUpdateDetail);
+            $stmtUpdate->execute([':id' => $clearance_id]);
+
+            // 3. ลบรายการย่อยใน `clearance_detail`
+            $sqlDeleteDetail = "DELETE FROM clearance_detail WHERE waste_clearance_id = :id";
+            $stmtDeleteDetail = $this->Conn->prepare($sqlDeleteDetail);
+            $stmtDeleteDetail->execute([':id' => $clearance_id]);
+
+            // 4. ลบรายการหลักใน `waste_clearance`
+            $sqlDeleteMaster = "DELETE FROM waste_clearance WHERE waste_clearance_id = :id";
+            $stmtDeleteMaster = $this->Conn->prepare($sqlDeleteMaster);
+            $stmtDeleteMaster->execute([':id' => $clearance_id]);
+
+            $this->Conn->commit();
+
+            return ['message' => 'ยกเลิกรายการเคลียร์ยอดสำเร็จ'];
+
+        } catch (PDOException $th) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            error_log("CancelClearance PDO Error: " . $th->getMessage());
+            throw new Exception("Database Error: " . $th->getMessage(), 500);
+        } catch (Exception $ex) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
+        }
+    }
+
     // --- Static Helper Functions ---
 
     protected static function GetPeriodTransactions($query, $conn)

@@ -23,7 +23,7 @@ class FacultyModel
             $params = [];
 
             if (!empty($query['search'])) {
-                $whereClauses[] = "faculty_name LIKE :search";
+                $whereClauses[] = "(faculty_name LIKE :search OR faculty_id LIKE :search OR faculty_code LIKE :search)";
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 

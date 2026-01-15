@@ -175,6 +175,7 @@ class AdminPagesController extends RouterBase
             exit;
         }
     }
+
     public function ManageTransactionClearance($wcid)
     {
         try {

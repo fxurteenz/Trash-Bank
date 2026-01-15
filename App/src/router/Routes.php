@@ -199,6 +199,7 @@ class Routes
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
             ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
+            ['DELETE', "/[i:wcid]", [WasteClearanceController::class, "Cancel"]],
         ]);
 
     }
