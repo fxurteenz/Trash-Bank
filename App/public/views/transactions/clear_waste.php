@@ -12,9 +12,9 @@
 
         <div x-data="centerConfirmForm()" x-init="init()" class="space-y-4">
 
-            <form @submit.prevent="confirmSubmit" class="grid grid-cols-12 gap-4 items-end">
+            <form @submit.prevent="confirmSubmit" class="grid grid-cols-3 md:grid-cols-12 gap-4 items-end">
                 <!-- ช่องกรอกคณะ -->
-                <div class="relative col-span-4" @click.away="showDropdown = false">
+                <div class="relative md:col-span-4" @click.away="showDropdown = false">
                     <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
 
                     <div x-show="!currentFaculty">
@@ -65,7 +65,7 @@
 
                 </div>
 
-                <div class="col-span-3">
+                <div class="md:col-span-3">
                     <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
                     <div class="relative w-full text-gray-700">
                         <input x-ref="startDateInput" type="date" x-model="form.waste_clearance_period_start" required
@@ -80,7 +80,7 @@
                     </div>
                 </div>
 
-                <div class="col-span-3">
+                <div class="md:col-span-3">
                     <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
                     <div class="relative w-full text-gray-700">
                         <input type="date" x-model="form.waste_clearance_period_end" required
@@ -95,7 +95,7 @@
                     </div>
                 </div>
 
-                <div class="col-span-2">
+                <div class="col-span-3 md:col-span-2">
                     <button type="submit"
                         class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-full shadow transition">ยืนยัน</button>
                 </div>
@@ -124,7 +124,7 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
                     <select x-model="filters.faculty" @change="fetchClearances()"
-                        class="w-full bg-white px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                        class="w-full text-xs bg-white px-4 py-1.5 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
                         <option value="">ทั้งหมด</option>
                         <template x-for="f in faculties" :key="f.faculty_id">
                             <option :value="f.faculty_id" x-text="f.faculty_name"></option>
@@ -135,7 +135,7 @@
                     <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
                     <div class="relative w-full text-gray-700">
                         <input type="date" x-model="filters.stat_date" @change="fetchClearances()"
-                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+                            class="w-full text-sm px-2 py-1.5 bg-white border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
 
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@
                     <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
                    <div class="relative w-full text-gray-700">
                         <input x-ref="startDateInput" type="date" x-model="filters.end_date" @change="fetchClearances()"
-                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+                            class="w-full text-sm px-2 py-1.5 bg-white border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
 
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
