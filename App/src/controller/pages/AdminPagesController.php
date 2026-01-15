@@ -143,7 +143,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('transactions/waste_deposit_pos', [
+            $this->render('transactions/waste_deposit', [
                 'pages' => "wasteTransaction",
                 'title' => 'ระบบฝากขยะ'
             ], self::$AdminTemplate);

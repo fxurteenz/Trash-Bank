@@ -426,7 +426,7 @@ class WasteTransactionModel
 
                 $rateResult = self::GetWasteTypeRate($this->Conn, $item["waste_type_id"]);
 
-                $value = $rateResult["waste_type_price"] * $item["deposit_weight"];
+                $value = ($rateResult["waste_type_price"] * $item["deposit_weight"])/ 2 * 10;
                 $integer_point = (int) floor($value);
                 $fraction = $value - $integer_point;
 

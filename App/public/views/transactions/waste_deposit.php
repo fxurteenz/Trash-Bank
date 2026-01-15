@@ -1,13 +1,14 @@
 <div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-6 relative">
     <div class="mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">🏪 ระบบฝากขยะแบบ POS</h1>
-        <p class="text-slate-600 text-lg">บันทึกการฝากขยะอย่างรวดเร็ว - ค้นหาสมาชิกและลงรายการ</p>
+        <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบฝากขยะ</h1>
+        <p class="text-slate-600 text-lg">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
-
+            <!-- ส่วนกรอกผู้ฝาก -->
             <div class="bg-white rounded-xl shadow-md p-6 card-hover relative z-20">
+                <!-- ฟอร์ม -->
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-2xl font-bold text-slate-900">
                         <span x-show="!currentMember">🔍 ค้นหาสมาชิก</span>
@@ -18,9 +19,9 @@
                         🔄 เปลี่ยน
                     </button>
                 </div>
-
+                <!-- dropdown เลือกสมาชิก -->
                 <div x-show="!currentMember" class="space-y-3 relative" @click.away="showDropdown = false">
-                    <label class="block text-sm font-semibold text-slate-700">รหัสนักศึกษา / รหัสสมาชิก / ชื่อ</label>
+                    <label class="block text-sm font-semibold text-slate-700">เบอร์โทร หรือ ชื่อสมาชิก</label>
 
                     <div class="relative">
                         <div class="flex gap-2">
@@ -29,14 +30,9 @@
                                 @keydown.enter.prevent="handleEnterKey()" @keydown.escape="showDropdown = false"
                                 @keydown.arrow-down.prevent="moveSelection(1)" @keydown.tab.prevent="moveSelection(1)"
                                 @keydown.arrow-up.prevent="moveSelection(-1)" type="text"
-                                placeholder="พิมพ์ชื่อ หรือ รหัส..."
+                                placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก"
                                 class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
                                 autocomplete="off">
-
-                            <!-- <button @click="searchMember(true)"
-                                class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors">
-                                ค้นหา
-                            </button> -->
                         </div>
 
                         <div x-show="showDropdown && (searchResults.length > 0 || isSearching)" x-ref="dropdownList"
@@ -81,12 +77,12 @@
                     </div>
 
                     <p class="text-xs text-slate-500">
-                        💡 ใช้ปุ่ม <kbd class="bg-slate-100 px-2 py-1 rounded">⬇️</kbd> <kbd
-                            class="bg-slate-100 px-2 py-1 rounded">⬆️</kbd> เพื่อเลือก และ <kbd
+                        💡 ใช้ปุ่ม <kbd class="bg-slate-100 px-2 py-1 rounded">⬇️</kbd><kbd
+                            class="bg-slate-100 px-2 py-1 rounded">⬆️</kbd> เพื่อเลือก และ<kbd
                             class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> ยืนยัน
                     </p>
                 </div>
-
+                <!-- แสดงข้อมูลสมาชิก -->
                 <div x-show="currentMember"
                     class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
                     <div class="space-y-2">
@@ -94,20 +90,26 @@
                         <p class="text-2xl font-bold text-slate-900"
                             x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'"></p>
                         <div class="flex gap-4 text-sm text-slate-600">
-                            <span>Phone: <span class="font-semibold" x-text="currentMember?.member_phone"></span></span>
-                            <span>Faculty: <span class="font-semibold"
-                                    x-text="currentMember?.faculty_name"></span></span>
-                            <span>แต้มสะสม: <span class="font-bold text-emerald-600"
-                                    x-text="currentMember?.member_waste_point"></span></span>
+                            <span>
+                                เบอร์โทร : <span class="font-semibold" x-text="currentMember?.member_phone"></span>
+                            </span>
+                            <span>
+                                คณะ : <span class="font-semibold" x-text="currentMember?.faculty_name"></span>
+                            </span>
+                            <span>
+                                แต้มสะสม : <span class="font-bold text-emerald-600"
+                                    x-text="currentMember?.member_waste_point"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-
+            <!-- ฟอร์มกรอกข้อมูลรายการที่ฝาก -->
             <div x-show="currentMember" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
-                <h2 class="text-2xl font-bold text-slate-900 mb-5">📝 เพิ่มรายการขยะ</h2>
 
+                <h2 class="text-2xl font-bold text-slate-900 mb-5">📝 เพิ่มรายการขยะ</h2>
                 <div class="grid grid-cols-12 gap-3">
+
                     <div class="col-span-5">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
@@ -143,7 +145,7 @@
                     </div>
                 </div>
             </div>
-
+            <!-- รายการที่ฝาก -->
             <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
                 <h2 class="text-2xl font-bold text-slate-900 mb-4">🛒 รายการที่บันทึก <span class="text-blue-600"
                         x-text="items.length"></span></h2>
@@ -156,7 +158,12 @@
                                     <span class="text-lg font-bold text-slate-400 w-8 text-center"
                                         x-text="index + 1"></span>
                                     <div>
-                                        <p class="font-semibold text-slate-900" x-text="item.waste_type_name"></p>
+                                        <p>
+                                            <span class="font-light text-slate-900"
+                                                x-text="item.waste_type_id"></span> : 
+                                            <span class="font-semibold text-slate-900"
+                                                x-text="item.waste_type_name"></span>
+                                        </p>
                                         <p class="text-sm text-slate-600"
                                             x-text="'น้ำหนัก: ' + item.weight.toFixed(2) + ' กก.'"></p>
                                     </div>
@@ -258,7 +265,7 @@
                 return this.items.reduce((sum, item) => {
                     const price = parseFloat(item.waste_type_price || 0);
                     const weight = parseFloat(item.weight || 0);
-                    return sum + (price * weight);
+                    return sum + (price * weight) / 2 * 10;
                 }, 0);
             },
 
@@ -291,7 +298,7 @@
                 this.selectedIndex = -1;
 
                 try {
-                    const response = await fetch(`/api/members?page=1&limit=10&search=${encodeURIComponent(this.memberSearch)}`);
+                    const response = await fetch(`/api/members?page=1&limit=10&role=2&search=${encodeURIComponent(this.memberSearch)}`);
                     const result = await response.json();
 
                     if (result.success) {
@@ -532,7 +539,7 @@
             async loadTodayStats() {
                 try {
                     const today = new Date().toISOString().split('T')[0];
-                    const response = await fetch(`/api/waste_transactions?date=${today}`);
+                    const response = await fetch(`/api/waste_transactions/me?date=${today}`);
                     const result = await response.json();
 
                     if (result.success) {

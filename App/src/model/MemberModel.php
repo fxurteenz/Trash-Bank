@@ -30,9 +30,9 @@ class MemberModel
                 $params[':faculty_id'] = $query['faculty_id'];
             }
 
-            if (!empty($query['role_id'])) {
+            if (!empty($query['role'])) {
                 $whereClauses[] = "m.role_id = :role_id";
-                $params[':role_id'] = $query['role_id'];
+                $params[':role_id'] = $query['role'];
             }
 
             if (!empty($query['major_id'])) {
