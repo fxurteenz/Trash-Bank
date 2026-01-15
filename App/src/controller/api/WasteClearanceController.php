@@ -143,8 +143,9 @@ class WasteClearanceController extends RouterBase
     {
         header('Content-Type: application/json');
         try {
-
-            $result = self::$WasteClearanceModel->ConfirmClearance($cdid, self::$Data);
+            $user = Authentication::AdminAuth();
+            $result = self::$WasteClearanceModel->ConfirmClearance($cdid, self::$Data, $user);
+            http_response_code(200);
 
             echo json_encode([
                 'success' => true,

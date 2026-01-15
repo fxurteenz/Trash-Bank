@@ -160,10 +160,11 @@ class AdminPagesController extends RouterBase
     public function TransactionClearance()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('transactions/clear_waste', [
                 'pages' => "clearWasteTransaction",
-                'title' => 'ระบบเคลียร์ยอดฝากขยะ'
+                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

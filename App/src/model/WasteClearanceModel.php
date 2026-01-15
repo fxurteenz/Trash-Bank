@@ -24,10 +24,10 @@ class WasteClearanceModel
                 throw new Exception('Bad Request =(', 400);
             }
             if (empty($data["faculty_id"])) {
-                throw new Exception('ลองใหม่อีกครั้ง, กรุณาระบุคณะ', 400);
+                throw new Exception('กรุณาระบุคณะ', 400);
             }
             if (empty($data["waste_clearance_period_start"]) || empty($data["waste_clearance_period_end"])) {
-                throw new Exception('ลองใหม่อีกครั้ง, กรุณาระบุวันเริ่มต้นและวันสิ้นสุด', 400);
+                throw new Exception('กรุณาระบุวันเริ่มต้นและวันสิ้นสุด', 400);
             }
             if (empty($operaterData["user_data"]->member_id)) {
                 throw new Exception("ไม่สามารถทำรายการได้ กรุณาเข้าสู่ระบบใหม่อีกครั้ง", 400);
@@ -36,25 +36,27 @@ class WasteClearanceModel
             // เริ่ม Transaction
             $this->Conn->beginTransaction();
 
-            // 1. ดึงยอดเงินและแต้ม 
+            // 1. ดึงยอดรวม (Sum) โดย Join ไปที่ transaction_detail
             $periodData = self::GetPeriodTransactions($data, $this->Conn);
 
-            // 2. ดึงรายละเอียดขยะแต่ละประเภท
+            // 2. ดึงรายละเอียดขยะแต่ละประเภท (Group By Type)
             $periodDetail = self::GetTransactionWasteTypeDetail($data, $this->Conn);
 
             // เตรียมข้อมูลสำหรับ INSERT ลง waste_clearance
             $clearancePayload = [];
-            $clearancePayload["faculty_id"] = $data["faculty_id"] ?? null;
+            $clearancePayload["faculty_id"] = $data["faculty_id"];
             $clearancePayload["waste_clearance_period_start"] = $data["waste_clearance_period_start"];
             $clearancePayload["waste_clearance_period_end"] = $data["waste_clearance_period_end"];
             $clearancePayload["waste_clearance_value_total"] = $periodData["value_total"];
             $clearancePayload["waste_clearance_member_point_total"] = $periodData["member_point_total"];
             $clearancePayload["waste_clearance_faculty_point_total"] = $periodData["faculty_point_total"];
-            $clearancePayload["waste_clearance_status"] = "1";
+
+            // ใช้ Enum ตาม DB: 'รอการยืนยัน'
+            $clearancePayload["waste_clearance_status"] = "รอการยืนยัน";
             $clearancePayload["waste_clearance_created_by"] = $operaterData["user_data"]->member_id;
             $clearancePayload["created_at"] = date('Y-m-d H:i:s');
 
-            // สร้าง String สำหรับ INSERT
+            // 3. Insert ลงตารางหลัก (waste_clearance)
             $setClauses = [];
             $updateData = [];
             foreach ($clearancePayload as $column => $value) {
@@ -63,30 +65,33 @@ class WasteClearanceModel
                     $updateData[$column] = $value;
                 }
             }
-            $clearanceSetClauseString = implode(', ', $setClauses);
-
-            // 3. Insert ลงตารางหลัก (waste_clearance)
-            $sql = "INSERT INTO waste_clearance SET {$clearanceSetClauseString}";
+            $sql = "INSERT INTO waste_clearance SET " . implode(', ', $setClauses);
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute($updateData);
             $insertedId = $this->Conn->lastInsertId();
 
-            // 4. อัปเดต waste_transaction ว่า "เตรียมนำเข้าศูนย์ใหญ่"
-            $updateTxSql = "UPDATE waste_transaction 
-                            SET waste_clearance_id = :clearance_id, waste_transaction_status = 2 
-                            WHERE faculty_id = :faculty_id 
-                            AND waste_transaction_date BETWEEN :start_date AND :end_date
-                            AND waste_clearance_id IS NULL";
+            // 4. อัปเดต waste_transaction_detail 
+            // เปลี่ยนสถานะเป็น 'เตรียมนำเข้าศูนย์ใหญ่' และผูก waste_clearance_id
+            $updateDetailSql = "UPDATE waste_transaction_detail wtd
+                                JOIN waste_transaction wt ON wtd.waste_transaction_id = wt.waste_transaction_id
+                                SET 
+                                    wtd.waste_clearance_id = :clearance_id, 
+                                    wtd.waste_transaction_detail_status = 'เตรียมนำเข้าศูนย์ใหญ่'
+                                WHERE 
+                                    wt.faculty_id = :faculty_id 
+                                    AND wt.waste_transaction_date BETWEEN :start_date AND :end_date
+                                    AND wtd.waste_clearance_id IS NULL";
 
-            $stmtUpdateTx = $this->Conn->prepare($updateTxSql);
-            $stmtUpdateTx->execute([
+            $stmtUpdate = $this->Conn->prepare($updateDetailSql);
+            $stmtUpdate->execute([
                 ':clearance_id' => $insertedId,
                 ':faculty_id' => $data['faculty_id'],
                 ':start_date' => $data['waste_clearance_period_start'],
                 ':end_date' => $data['waste_clearance_period_end']
             ]);
 
-            // 5. Insert รายละเอียด (clearance_detail)
+            // 5. Insert รายละเอียดการเคลียร์ (clearance_detail)
+            // เก็บ Snapshot น้ำหนัก ณ วันที่เคลียร์
             if (!empty($periodDetail)) {
                 $sqlDetail = "INSERT INTO clearance_detail (waste_clearance_id, waste_type_id, clearance_detail_transaction_weight) VALUES ";
                 $placeholders = [];
@@ -105,21 +110,17 @@ class WasteClearanceModel
 
             return [
                 "clearance_id" => $insertedId,
-                "start_date" => $data["waste_clearance_period_start"],
-                "end_date" => $data["waste_clearance_period_end"]
+                "message" => "สร้างรายการเคลียร์ยอดเรียบร้อยแล้ว"
             ];
 
         } catch (PDOException $th) {
-            if ($this->Conn->inTransaction()) {
+            if ($this->Conn->inTransaction())
                 $this->Conn->rollBack();
-            }
-            error_log(print_r($th->getMessage(), 1));
-            throw new Exception($th->getMessage(), 500);
+            error_log($th->getMessage());
+            throw new Exception("Database Error: " . $th->getMessage(), 500);
         } catch (Exception $ex) {
-            if ($this->Conn->inTransaction()) {
+            if ($this->Conn->inTransaction())
                 $this->Conn->rollBack();
-            }
-            error_log(print_r($ex->getMessage(), 1));
             throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
         }
     }
@@ -142,13 +143,10 @@ class WasteClearanceModel
                 $whereClauses[] = "wc.waste_clearance_period_end <= :end_date";
                 $params[':end_date'] = $query['end_date'];
             }
+            // รองรับ ENUM status
             if (!empty($query['status'])) {
                 $whereClauses[] = "wc.waste_clearance_status = :status";
                 $params[':status'] = $query['status'];
-            }
-            if (!empty($query['creater'])) {
-                $whereClauses[] = "wc.waste_clearance_created_by = :created_by";
-                $params[':created_by'] = $query['creater'];
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
@@ -157,17 +155,14 @@ class WasteClearanceModel
                         wc.*,
                         f.faculty_name,
                         m.member_name AS creator_name
-                    FROM 
-                        waste_clearance wc
-                    LEFT JOIN 
-                        faculty f ON wc.faculty_id = f.faculty_id
-                    LEFT JOIN 
-                        member m ON wc.waste_clearance_created_by = m.member_id
+                    FROM waste_clearance wc
+                    LEFT JOIN faculty f ON wc.faculty_id = f.faculty_id
+                    LEFT JOIN member m ON wc.waste_clearance_created_by = m.member_id
                     {$whereSql}
                     ORDER BY wc.created_at DESC";
 
+            // Pagination Logic (Simplified)
             $isPagination = isset($query['page']) && isset($query['limit']);
-
             if ($isPagination) {
                 $page = (int) $query['page'];
                 $limit = (int) $query['limit'];
@@ -176,19 +171,18 @@ class WasteClearanceModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-
             foreach ($params as $key => $val) {
                 $stmt->bindValue($key, $val);
             }
-
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
-
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Count Total
+            $total = count($data);
             if ($isPagination) {
                 $sqlCount = "SELECT COUNT(*) AS total FROM waste_clearance wc {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
@@ -197,8 +191,6 @@ class WasteClearanceModel
                 }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
-            } else {
-                $total = count($data);
             }
 
             return ["data" => $data, "total" => $total];
@@ -209,62 +201,48 @@ class WasteClearanceModel
         }
     }
 
-    public function GetClearanceDetail($id, $query = []): array
+    public function GetClearanceDetail($id, $query = [])
     {
         try {
             if (empty($id)) {
                 throw new Exception('ID is required', 400);
             }
 
-            $whereClauses = ["cd.waste_clearance_id = :id"];
-            $params = [':id' => $id];
-
-            if (!empty($query['waste_type'])) {
-                $whereClauses[] = "cd.waste_type_id = :waste_type_id";
-                $params[':waste_type_id'] = $query['waste_type'];
-            }
-
-            if (!empty($query['waste_category'])) {
-                $whereClauses[] = "wt.waste_category_id = :waste_category_id";
-                $params[':waste_category_id'] = $query['waste_category'];
-            }
-
-            $whereSql = "WHERE " . implode(" AND ", $whereClauses);
-
-            $sqlDetail = "SELECT 
-                        cd.*,
-                        wt.waste_type_name,
-                        wt.waste_type_price,
-                        wt.waste_type_co2,
-                        wc.waste_category_name
-                    FROM 
-                        clearance_detail cd
-                    LEFT JOIN 
-                        waste_type wt ON cd.waste_type_id = wt.waste_type_id
-                    LEFT JOIN 
-                        waste_category wc ON wt.waste_category_id = wc.waste_category_id
-                    {$whereSql}";
-
-            $stmt = $this->Conn->prepare($sqlDetail);
-            $stmt->execute($params);
-            $clearanceDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            $sql = "SELECT 
-                        wc.*,
-                        f.faculty_name,
-                        m.member_name AS creator_name
-                    FROM 
-                        waste_clearance wc
-                    LEFT JOIN 
-                        faculty f ON wc.faculty_id = f.faculty_id
-                    LEFT JOIN 
-                        member m ON wc.waste_clearance_created_by = m.member_id
-                    WHERE wc.waste_clearance_id = :id";
-            $stmt = $this->Conn->prepare($sql);
+            // ดึงข้อมูล Header
+            $sqlHeader = "SELECT 
+                                wc.*,
+                                f.faculty_name,
+                                m.member_name AS creator_name,
+                                am.member_name AS approver_name
+                            FROM waste_clearance wc
+                            LEFT JOIN faculty f ON wc.faculty_id = f.faculty_id
+                            LEFT JOIN member m ON wc.waste_clearance_created_by = m.member_id
+                            LEFT JOIN member am ON wc.waste_clearance_approved_by = am.member_id
+                            WHERE wc.waste_clearance_id = :id";
+            $stmt = $this->Conn->prepare($sqlHeader);
             $stmt->execute([':id' => $id]);
-            $details = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $header = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return ['transaction' => $details, 'detail' => $clearanceDetails];
+            if (!$header) {
+                throw new Exception('Clearance not found', 404);
+            }
+
+            // ดึงข้อมูลรายการย่อยใน clearance_detail
+            $sqlDetail = "SELECT 
+                            cd.*,
+                            wt.waste_type_name,
+                            wt.waste_type_price,
+                            wc.waste_category_name
+                        FROM clearance_detail cd
+                        LEFT JOIN waste_type wt ON cd.waste_type_id = wt.waste_type_id
+                        LEFT JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                        WHERE cd.waste_clearance_id = :id";
+
+            $stmtDetail = $this->Conn->prepare($sqlDetail);
+            $stmtDetail->execute([':id' => $id]);
+            $details = $stmtDetail->fetchAll(PDO::FETCH_ASSOC);
+
+            return ['transaction' => $header, 'detail' => $details];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
@@ -272,196 +250,160 @@ class WasteClearanceModel
         }
     }
 
-    public function ConfirmClearance($cdid, $data)
+    public function ConfirmClearance($cdid, $data, $approverData)
     {
         try {
-            if (empty($cdid)) {
+            if (empty($cdid))
                 throw new Exception('ID is required', 400);
-            }
 
+            // ตรวจสอบว่ามี weight ส่งมาไหม (อนุญาตให้เป็น 0 ได้ แต่ห้าม null/empty string)
             $weight = $data['weight'] ?? null;
-            if (!isset($weight) || $weight === '') {
-                throw new Exception('Weight is required', 400);
+            if (!is_numeric($weight)) {
+                throw new Exception('กรุณาระบุน้ำหนักที่ชั่งได้จริง', 400);
             }
 
             $this->Conn->beginTransaction();
-            $date = date('Y-m-d H:i:s');
+            $now = date('Y-m-d H:i:s');
 
-            // 1. Get waste_clearance_id
-            $sqlGet = "SELECT waste_clearance_id FROM clearance_detail WHERE clearance_detail_id = :id";
+            // 1. หา waste_clearance_id จาก detail row
+            $sqlGet = "SELECT waste_clearance_id, waste_type_id FROM clearance_detail WHERE clearance_detail_id = :id";
             $stmtGet = $this->Conn->prepare($sqlGet);
             $stmtGet->execute([':id' => $cdid]);
             $detail = $stmtGet->fetch(PDO::FETCH_ASSOC);
 
             if (!$detail) {
-                throw new Exception('Clearance detail not found', 404);
+                throw new Exception('Detail not found', 404);
             }
+            $wcid = $detail['waste_clearance_id'];
+            $wasteTypeId = $detail['waste_type_id'];
 
-            $wasteClearanceId = $detail['waste_clearance_id'];
-
-            // 2. Update detail
-            $sqlUpdate = "UPDATE clearance_detail 
-                          SET clearance_detail_clearance_weight = :weight,
-                              clearance_detail_success = 1,
-                              complete_date = :complete_date
-                          WHERE clearance_detail_id = :id";
-            $stmtUpdate = $this->Conn->prepare($sqlUpdate);
+            // 2. อัปเดตรายการย่อย (clearance_detail)
+            $sqlUpdateDetail = "UPDATE clearance_detail 
+                                SET clearance_detail_clearance_weight = :weight,
+                                    clearance_detail_success = 1,
+                                    complete_date = :now
+                                WHERE clearance_detail_id = :id";
+            $stmtUpdate = $this->Conn->prepare($sqlUpdateDetail);
             $stmtUpdate->execute([
                 ':weight' => $weight,
                 ':id' => $cdid,
-                'complete_date' => $date
+                ':now' => $now
             ]);
 
-            // 3. Check all details for this clearance
+            // 3. ตรวจสอบว่ารายการใน Clearance นี้ครบทุกตัวหรือยัง
             $sqlCheck = "SELECT COUNT(*) as pending FROM clearance_detail 
                          WHERE waste_clearance_id = :wcid AND clearance_detail_success = 0";
             $stmtCheck = $this->Conn->prepare($sqlCheck);
-            $stmtCheck->execute([':wcid' => $wasteClearanceId]);
+            $stmtCheck->execute([':wcid' => $wcid]);
             $resultCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-            // 4. Update master status if all done
+            // 4. ถ้าครบแล้ว ให้ปิด Job (Update Master Status)
             if ($resultCheck['pending'] == 0) {
+                // 4.1 อัปเดตตารางหลัก waste_clearance
                 $sqlUpdateMaster = "UPDATE waste_clearance 
-                                    SET waste_clearance_status = '2',
-                                        approved_at = :complete_date
+                                    SET waste_clearance_status = 'ยืนยันแล้ว',
+                                        waste_clearance_approved_by = :approver,
+                                        approved_at = :now
                                     WHERE waste_clearance_id = :wcid";
-                $stmtUpdateMaster = $this->Conn->prepare($sqlUpdateMaster);
-                $stmtUpdateMaster->execute([
-                    ':wcid' => $wasteClearanceId,
-                    "complete_date" => $date
+                $stmtMaster = $this->Conn->prepare($sqlUpdateMaster);
+                $stmtMaster->execute([
+                    ':wcid' => $wcid,
+                    ':approver' => $approverData['user_data']->member_id ?? null,
+                    ':now' => $now
                 ]);
 
-
-                $sqlUpdateTx = "UPDATE waste_transaction 
-                                SET waste_transaction_status = 3 
+                // 4.2 อัปเดตสถานะ Transaction Detail ว่าของเข้าคลังศูนย์แล้ว
+                $sqlUpdateTx = "UPDATE waste_transaction_detail 
+                                SET waste_transaction_detail_status = 'อยู่ที่คลังศูนย์ใหญ่' 
                                 WHERE waste_clearance_id = :wcid";
-                $stmtUpdateTx = $this->Conn->prepare($sqlUpdateTx);
-                $stmtUpdateTx->execute([
-                    ":wcid" => $wasteClearanceId
-                ]);
+                $stmtTx = $this->Conn->prepare($sqlUpdateTx);
+                $stmtTx->execute([':wcid' => $wcid]);
             }
 
             $this->Conn->commit();
             return true;
         } catch (PDOException $th) {
-            if ($this->Conn->inTransaction()) {
+            if ($this->Conn->inTransaction())
                 $this->Conn->rollBack();
-            }
             throw new Exception("Database error: " . $th->getMessage(), 500);
         } catch (Exception $ex) {
-            if ($this->Conn->inTransaction()) {
+            if ($this->Conn->inTransaction())
                 $this->Conn->rollBack();
-            }
             throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
         }
     }
 
-    // static functions
+    // --- Static Helper Functions ---
+
     protected static function GetPeriodTransactions($query, $conn)
     {
-        try {
-            $faculty_id = $query['faculty_id'] ?? null;
-            $start_date = $query['waste_clearance_period_start'] ?? null;
-            $end_date = $query['waste_clearance_period_end'] ?? null;
+        // ฟังก์ชันนี้จะคำนวณยอดรวมเพื่อเอาไปใส่ในตาราง waste_clearance
+        // ต้อง JOIN waste_transaction_detail เพราะข้อมูล fraction/point อยู่ที่นั่น
 
-            $whereClauses = [];
-            $params = [];
+        $faculty_id = $query['faculty_id'] ?? null;
+        $start_date = $query['waste_clearance_period_start'] ?? null;
+        $end_date = $query['waste_clearance_period_end'] ?? null;
 
-            if ($faculty_id) {
-                $whereClauses[] = "w.faculty_id = :faculty_id";
-                $params[':faculty_id'] = $faculty_id;
-            }
-            if ($start_date && $end_date) {
-                $whereClauses[] = "w.waste_transaction_date BETWEEN :start_date AND :end_date";
-                $params[':start_date'] = $start_date;
-                $params[':end_date'] = $end_date;
-            }
+        $sql = "SELECT 
+                    wt.faculty_id,
+                    f.faculty_name,
+                    -- คำนวณ Point/Fraction รวม
+                    COALESCE(SUM(wtd.waste_transaction_detail_fraction), 0) AS faculty_point_total,
+                    COALESCE(SUM(wtd.waste_transaction_detail_point), 0) AS member_point_total,
+                    -- คำนวณมูลค่ารวม (Weight * Price)
+                    COALESCE(SUM(wtd.waste_transaction_detail_weight * type.waste_type_price), 0) AS value_total
+                FROM waste_transaction wt
+                JOIN waste_transaction_detail wtd ON wt.waste_transaction_id = wtd.waste_transaction_id
+                JOIN waste_type type ON wtd.waste_type_id = type.waste_type_id
+                LEFT JOIN faculty f ON wt.faculty_id = f.faculty_id
+                WHERE wt.faculty_id = :fid 
+                  AND wt.waste_transaction_date BETWEEN :start AND :end
+                  AND wtd.waste_clearance_id IS NULL"; // เช็คที่ detail ว่ายังไม่ถูกเคลียร์
 
-            // กรองเฉพาะรายการที่ยังไม่ถูกเคลียร์ (IS NULL)
-            $whereClauses[] = "w.waste_clearance_id IS NULL";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':fid' => $faculty_id,
+            ':start' => $start_date,
+            ':end' => $end_date
+        ]);
 
-            $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            $sqlFaculty = "SELECT 
-                            f.faculty_id,
-                            f.faculty_name,
-                            COALESCE(SUM(w.waste_transaction_faculty_fraction), 0) AS faculty_point_total,
-                            COALESCE(SUM(w.waste_transaction_member_point), 0) AS member_point_total,
-                            COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS value_total
-                        FROM waste_transaction w
-                        LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                        LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
-                        {$whereSql}";
-
-            $stmtFaculty = $conn->prepare($sqlFaculty);
-            $stmtFaculty->execute($params);
-            $result = $stmtFaculty->fetch(PDO::FETCH_ASSOC);
-
-            if (((float) $result["faculty_point_total"] == 0) && ((int) $result["member_point_total"] == 0) && ((float) $result["value_total"] == 0)) {
-                throw new Exception("ไม่พบรายการขยะตกค้างในช่วงเวลานี้ หรือรายการทั้งหมดถูกเคลียร์ไปแล้ว", 400);
-            }
-
-            if (empty($result["faculty_id"])) {
-                if ($faculty_id) {
-                    throw new Exception("ลองใหม่อีกครั้ง, ไม่พบข้อมูลคณะ", 400);
-                }
-            }
-
-            return $result;
-        } catch (PDOException $th) {
-            throw new Exception($th->getMessage(), 500);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
+        // Validation
+        if (!$result || ($result['faculty_point_total'] == 0 && $result['member_point_total'] == 0 && $result['value_total'] == 0)) {
+            throw new Exception("ไม่พบรายการขยะตกค้างในช่วงเวลานี้ หรือรายการทั้งหมดถูกเคลียร์ไปแล้ว", 400);
         }
+
+        return $result;
     }
 
     protected static function GetTransactionWasteTypeDetail($query, $conn)
     {
-        try {
-            $faculty_id = $query['faculty_id'] ?? null;
-            $start_date = $query['waste_clearance_period_start'] ?? null;
-            $end_date = $query['waste_clearance_period_end'] ?? null;
+        // ฟังก์ชันนี้ดึงข้อมูลเพื่อเอาไป Insert ลง clearance_detail
 
-            $whereClauses = [];
-            $params = [];
+        $faculty_id = $query['faculty_id'] ?? null;
+        $start_date = $query['waste_clearance_period_start'] ?? null;
+        $end_date = $query['waste_clearance_period_end'] ?? null;
 
-            if ($faculty_id) {
-                $whereClauses[] = "w.faculty_id = :faculty_id";
-                $params[':faculty_id'] = $faculty_id;
-            }
+        $sql = "SELECT 
+                    wtd.waste_type_id,
+                    type.waste_type_name,
+                    COALESCE(SUM(wtd.waste_transaction_detail_weight), 0) AS total_weight
+                FROM waste_transaction wt
+                JOIN waste_transaction_detail wtd ON wt.waste_transaction_id = wtd.waste_transaction_id
+                JOIN waste_type type ON wtd.waste_type_id = type.waste_type_id
+                WHERE wt.faculty_id = :fid 
+                  AND wt.waste_transaction_date BETWEEN :start AND :end
+                  AND wtd.waste_clearance_id IS NULL
+                GROUP BY wtd.waste_type_id";
 
-            if ($start_date && $end_date) {
-                $whereClauses[] = "w.waste_transaction_date BETWEEN :start_date AND :end_date";
-                $params[':start_date'] = $start_date;
-                $params[':end_date'] = $end_date;
-            }
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':fid' => $faculty_id,
+            ':start' => $start_date,
+            ':end' => $end_date
+        ]);
 
-            // กรองเฉพาะรายการที่ยังไม่ถูกเคลียร์ (IS NULL)
-            $whereClauses[] = "w.waste_clearance_id IS NULL";
-
-            $whereSql = !empty($whereClauses) ? "WHERE " . implode(" AND ", $whereClauses) : "";
-
-            $sqlType = "SELECT 
-                        wc.waste_category_id,
-                        wc.waste_category_name,
-                        wt.waste_type_id,
-                        wt.waste_type_name,
-                        COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
-                        COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
-                        COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2
-                    FROM waste_transaction w
-                    LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                    LEFT JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
-                    {$whereSql}
-                    GROUP BY wt.waste_type_id";
-
-            $stmtType = $conn->prepare($sqlType);
-            $stmtType->execute($params);
-            return $stmtType->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $th) {
-            throw new Exception($th->getMessage(), 500);
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
-        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
