@@ -94,7 +94,8 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->role_id !== 1) {
+            $roleId = (int) $authenticated->role_id;
+            if ($roleId !== 1) {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
             } else {
                 return ['success' => true, 'user_data' => $authenticated];
@@ -108,7 +109,8 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->role_id === 1 || $authenticated->role_id === 3 || $authenticated->role_id === 4) {
+            $roleId = (int) $authenticated->role_id;
+            if ($roleId === 1 || $roleId === 3 || $roleId === 4) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
@@ -121,8 +123,8 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            // error_log(print_r($authenticated));
-            if ($authenticated->role_id === 1 || $authenticated->role_id === 4) {
+            $roleId = (int) $authenticated->role_id;
+            if ($roleId === 1 || $roleId === 4) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
@@ -136,8 +138,8 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            // Allow members (role_id 2) and admins (role_id 1) for testing
-            if ($authenticated->role_id === 2 || $authenticated->role_id === 1) {
+            $roleId = (int) $authenticated->role_id;
+            if ($roleId === 2 || $roleId === 1) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Member access only.', 403);

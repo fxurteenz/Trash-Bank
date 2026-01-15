@@ -44,10 +44,10 @@ async function OnSubmit(e) {
                 showConfirmButton: false,
             });
 
-            const userRole = result.data.user_data.role_id;
+            const userRole =  parseInt(result.data.user_data.role_id);
             console.log(result);
-
-            if (userRole === 1 || userRole === "1") {
+            
+            if ( userRole === 1 || userRole === "1") {
                 window.location.href = "/admin";
             } else if (userRole === 3 || userRole === "3") {
                 window.location.href = "/staff";
