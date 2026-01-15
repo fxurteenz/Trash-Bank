@@ -5,9 +5,8 @@ use Exception;
 
 class CookieBaker
 {
-    private static $expireTimes = 86400 / 24;
+    private static $expireTimes = 86400;
     private static string $path = '/';
-    private static bool $secure = true;
 
     public static function BakeUserCookie($userToken)
     {
