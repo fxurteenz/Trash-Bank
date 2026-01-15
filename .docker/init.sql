@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `badge` (
-  `badge_id` int(11) NOT NULL,
+  `badge_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `badge_name` varchar(100) NOT NULL,
   `badge_description` text DEFAULT NULL,
   `badge_condition` text DEFAULT NULL COMMENT 'เช่น "สะสมขยะ 100 kg" หรือ JSON สำหรับ logic',
@@ -39,9 +39,9 @@ CREATE TABLE `badge` (
 --
 
 CREATE TABLE `clearance_detail` (
-  `clearance_detail_id` int(11) NOT NULL,
-  `waste_clearance_id` int(11) NOT NULL,
-  `waste_type_id` int(11) NOT NULL,
+  `clearance_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `clearance_detail_transaction_weight` decimal(7,2) NOT NULL,
   `clearance_detail_clearance_weight` decimal(7,2) DEFAULT NULL,
   `clearance_detail_success` tinyint(4) NOT NULL DEFAULT 0,
@@ -55,9 +55,9 @@ CREATE TABLE `clearance_detail` (
 --
 
 CREATE TABLE `donation` (
-  `donation_id` int(11) NOT NULL,
-  `member_id` int(11) DEFAULT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
-  `faculty_id` int(11) DEFAULT NULL COMMENT 'ถ้าบริจาคให้คณะ',
+  `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `member_id` int(6) DEFAULT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
+  `faculty_id` int(3) DEFAULT NULL COMMENT 'ถ้าบริจาคให้คณะ',
   `donation_description` text DEFAULT NULL,
   `donation_estimated_value` decimal(10,2) DEFAULT NULL COMMENT 'มูลค่าประมาณ (1 point ≈ 1 บาท)',
   `donation_goodness_point` int(11) DEFAULT NULL COMMENT 'แต้มความดีให้ donor',
@@ -73,7 +73,7 @@ CREATE TABLE `donation` (
 --
 
 CREATE TABLE `faculty` (
-  `faculty_id` int(11) NOT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `faculty_name` varchar(100) NOT NULL,
   `faculty_code` varchar(20) DEFAULT NULL COMMENT 'เช่น ENG, SCI',
   `created_at` datetime DEFAULT NULL,
@@ -93,8 +93,8 @@ INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `faculty_code`, `created_at
 --
 
 CREATE TABLE `faculty_point` (
-  `faculty_point_id` int(11) NOT NULL,
-  `faculty_id` int(11) DEFAULT NULL,
+  `faculty_point_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `faculty_point_amount` decimal(10,4) DEFAULT NULL,
   `faculty_point_source` varchar(50) DEFAULT NULL COMMENT 'fraction จาก member, donation',
   `faculty_point_date` date DEFAULT NULL,
@@ -120,10 +120,10 @@ INSERT INTO `faculty_point` (`faculty_point_id`, `faculty_id`, `faculty_point_am
 --
 
 CREATE TABLE `major` (
-  `major_id` int(11) NOT NULL,
+  `major_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `major_name` varchar(100) NOT NULL,
   `major_name_en` varchar(100) DEFAULT NULL,
-  `faculty_id` int(11) DEFAULT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -139,15 +139,15 @@ INSERT INTO `major` (`major_id`, `major_name`, `major_name_en`, `faculty_id`, `c
 --
 
 CREATE TABLE `member` (
-  `member_id` int(11) NOT NULL,
+  `member_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `member_personal_id` varchar(20) DEFAULT NULL COMMENT 'รหัสนักศึกษา/อาจารย์',
   `member_name` varchar(100) DEFAULT NULL,
   `member_phone` varchar(20) NOT NULL COMMENT 'ใช้เป็น username',
   `member_password` varchar(255) NOT NULL COMMENT 'hashed',
   `member_email` varchar(100) DEFAULT NULL,
-  `faculty_id` int(11) DEFAULT NULL,
-  `major_id` int(11) DEFAULT NULL,
-  `role_id` int(11) NOT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
+  `major_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
+  `role_id` int(2) UNSIGNED ZEROFILL NOT NULL,
   `member_waste_point` decimal(10,2) DEFAULT 0.00 COMMENT 'แต้มขยะ',
   `member_goodness_point` decimal(10,2) DEFAULT 0.00 COMMENT 'แต้มความดี',
   `created_at` datetime DEFAULT NULL,
@@ -170,9 +170,9 @@ INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_
 --
 
 CREATE TABLE `member_badge` (
-  `member_badge_id` int(11) NOT NULL,
-  `member_id` int(11) DEFAULT NULL,
-  `badge_id` int(11) DEFAULT NULL,
+  `member_badge_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `member_id` int(6) UNSIGNED ZEROFILL DEFAULT NULL,
+  `badge_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `member_badge_date` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -183,9 +183,9 @@ CREATE TABLE `member_badge` (
 --
 
 CREATE TABLE `member_reward` (
-  `member_reward_id` int(11) NOT NULL,
-  `member_id` int(11) DEFAULT NULL,
-  `reward_id` int(11) DEFAULT NULL,
+  `member_reward_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `member_id` int(6) UNSIGNED ZEROFILL DEFAULT NULL,
+  `reward_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `member_reward_date` date DEFAULT NULL,
   `member_reward_qty` int(11) DEFAULT 1,
   `member_reward_point_used` int(11) DEFAULT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE `member_reward` (
 --
 
 CREATE TABLE `reward` (
-  `reward_id` int(11) NOT NULL,
+  `reward_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `reward_name` varchar(100) NOT NULL,
   `reward_description` text DEFAULT NULL,
   `reward_point_required` int(11) DEFAULT NULL,
@@ -216,7 +216,7 @@ CREATE TABLE `reward` (
 --
 
 CREATE TABLE `role` (
-  `role_id` int(11) NOT NULL,
+  `role_id` int(2) UNSIGNED ZEROFILL NOT NULL,
   `role_name` varchar(50) NOT NULL COMMENT 'เช่น member, faculty_staff, central_admin',
   `role_name_th` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -234,8 +234,8 @@ INSERT INTO `role` (`role_id`, `role_name`, `role_name_th`) VALUES
 --
 
 CREATE TABLE `system_log` (
-  `system_log_id` int(11) NOT NULL,
-  `system_log_member_id` int(11) DEFAULT NULL,
+  `system_log_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `system_log_member_id` int(6) UNSIGNED ZEROFILL DEFAULT NULL,
   `system_log_action` varchar(100) DEFAULT NULL,
   `system_log_detail` text DEFAULT NULL,
   `system_log_timestamp` datetime DEFAULT current_timestamp()
@@ -248,9 +248,9 @@ CREATE TABLE `system_log` (
 --
 
 CREATE TABLE `waste_category` (
-  `waste_category_id` int(11) NOT NULL,
+  `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_category_name` varchar(50) NOT NULL COMMENT 'เช่น plastic, paper, metal',
-  `waste_category_co2_per_kg` decimal(10,4) DEFAULT NULL COMMENT 'ค่า CO₂e ลดได้ต่อ kg',
+  `waste_category_co2_per_kg` decimal(6,4) DEFAULT NULL COMMENT 'ค่า CO₂e ลดได้ต่อ kg',
   `waste_category_active` tinyint(1) DEFAULT 1,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -269,16 +269,16 @@ INSERT INTO `waste_category` (`waste_category_id`, `waste_category_name`, `waste
 --
 
 CREATE TABLE `waste_clearance` (
-  `waste_clearance_id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
+  `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_clearance_period_start` date DEFAULT NULL,
   `waste_clearance_period_end` date DEFAULT NULL,
   `waste_clearance_value_total` decimal(12,2) DEFAULT NULL,
   `waste_clearance_member_point_total` int(11) DEFAULT NULL,
   `waste_clearance_faculty_point_total` decimal(12,2) DEFAULT NULL,
   `waste_clearance_status` enum('รอการยืนยัน','ยืนยันแล้ว') DEFAULT 'รอการยืนยัน',
-  `waste_clearance_created_by` int(11) NOT NULL,
-  `waste_clearance_approved_by` int(11) DEFAULT NULL,
+  `waste_clearance_created_by` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_clearance_approved_by` int(6) UNSIGNED ZEROFILL DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `approved_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -290,8 +290,9 @@ CREATE TABLE `waste_clearance` (
 --
 
 CREATE TABLE `waste_sale` (
-  `waste_sale_id` int(11) NOT NULL,
-  `waste_sale_category_id` int(11) DEFAULT NULL,
+  `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_sale_category_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
+  `waste_sale_type_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `waste_sale_weight` decimal(10,3) DEFAULT NULL,
   `waste_sale_actual_price` decimal(12,2) DEFAULT NULL,
   `waste_sale_buyer` varchar(100) DEFAULT NULL,
@@ -306,10 +307,10 @@ CREATE TABLE `waste_sale` (
 --
 
 CREATE TABLE `waste_transaction` (
-  `waste_transaction_id` int(11) NOT NULL AUTO_INCREMENT,
-  `member_id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `staff_id` int(11) NOT NULL,
+  `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `member_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
+  `staff_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `waste_transaction_total_weight` decimal(10,2) NOT NULL DEFAULT 0.00,
   `waste_transaction_total_point` int(11) NOT NULL DEFAULT 0,
   `waste_transaction_total_fraction` decimal(10,4) NOT NULL DEFAULT 0.0000,
@@ -321,16 +322,16 @@ CREATE TABLE `waste_transaction` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `waste_transaction_detail` (
-  `waste_transaction_detail_id` int(11) NOT NULL AUTO_INCREMENT,
-  `waste_transaction_id` int(11) NOT NULL,
-  `waste_category_id` int(11) NOT NULL,
-  `waste_type_id` int(11) NOT NULL,
+  `waste_transaction_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL,
+  `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_transaction_detail_weight` decimal(10,2) NOT NULL,
   `waste_transaction_detail_rate` decimal(10,2) NOT NULL,
   `waste_transaction_detail_point` int(11) NOT NULL,
   `waste_transaction_detail_fraction` decimal(10,4) NOT NULL,
   `waste_transaction_detail_status` enum('อยู่ที่คลังคณะ','เตรียมนำเข้าศูนย์ใหญ่','อยู่ที่คลังศูนย์ใหญ่','จำหน่ายแล้ว') DEFAULT 'อยู่ที่คลังคณะ',
-  `waste_clearance_id` int(11) DEFAULT NULL,
+  `waste_clearance_id` int(11) UNSIGNED ZEROFILL DEFAULT NULL,
   PRIMARY KEY (`waste_transaction_detail_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -341,11 +342,11 @@ CREATE TABLE `waste_transaction_detail` (
 --
 
 CREATE TABLE `waste_type` (
-  `waste_type_id` int(11) NOT NULL,
+  `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_type_name` varchar(50) NOT NULL,
   `waste_type_price` decimal(10,2) NOT NULL,
   `waste_type_co2` decimal(10,4) NOT NULL,
-  `waste_category_id` int(11) DEFAULT NULL,
+  `waste_category_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `waste_type_active` tinyint(1) DEFAULT 1,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
@@ -469,24 +470,24 @@ ALTER TABLE `waste_type`
 -- AUTO_INCREMENT for dumped tables
 --
 
-ALTER TABLE `badge` MODIFY `badge_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `clearance_detail` MODIFY `clearance_detail_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `donation` MODIFY `donation_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `faculty` MODIFY `faculty_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-ALTER TABLE `faculty_point` MODIFY `faculty_point_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-ALTER TABLE `major` MODIFY `major_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-ALTER TABLE `member` MODIFY `member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
-ALTER TABLE `member_badge` MODIFY `member_badge_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `member_reward` MODIFY `member_reward_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `reward` MODIFY `reward_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `role` MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-ALTER TABLE `system_log` MODIFY `system_log_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `waste_category` MODIFY `waste_category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-ALTER TABLE `waste_clearance` MODIFY `waste_clearance_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `waste_sale` MODIFY `waste_sale_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `waste_transaction` MODIFY `waste_transaction_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `waste_transaction_detail` MODIFY `waste_transaction_detail_id` int(11) NOT NULL AUTO_INCREMENT;
-ALTER TABLE `waste_type` MODIFY `waste_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+ALTER TABLE `badge` MODIFY `badge_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `clearance_detail` MODIFY `clearance_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `donation` MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `faculty` MODIFY `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+ALTER TABLE `faculty_point` MODIFY `faculty_point_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+ALTER TABLE `major` MODIFY `major_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `member` MODIFY `member_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+ALTER TABLE `member_badge` MODIFY `member_badge_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `member_reward` MODIFY `member_reward_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `reward` MODIFY `reward_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `role` MODIFY `role_id` int(2) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+ALTER TABLE `system_log` MODIFY `system_log_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `waste_category` MODIFY `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+ALTER TABLE `waste_clearance` MODIFY `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `waste_sale` MODIFY `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `waste_transaction` MODIFY `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `waste_transaction_detail` MODIFY `waste_transaction_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+ALTER TABLE `waste_type` MODIFY `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
