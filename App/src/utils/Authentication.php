@@ -119,6 +119,7 @@ class Authentication
             throw new AuthenticationException($th->getMessage(), 403);
         }
     }
+    
     public static function CenterAuth(): array
     {
         try {

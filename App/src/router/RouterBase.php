@@ -27,6 +27,11 @@ class RouterBase
             include $viewPath;
         }
     }
+    protected function redirect(string $url)
+    {
+        header("Location: {$url}");
+        exit;
+    }
 
     protected function errorPage(int $code, string $view)
     {
