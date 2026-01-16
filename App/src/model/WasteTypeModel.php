@@ -230,6 +230,7 @@ class WasteTypeModel
 
             return ['data' => $data, 'total' => $result];
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             $erresult = DatabaseException::handle($e);
             throw new Exception($erresult['message'], $erresult['code'] ?: 500);
         } catch (Exception $e) {
