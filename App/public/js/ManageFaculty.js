@@ -5,7 +5,7 @@ function FacultyMajor() {
         AllFacultyData: [],
         facultyPage: 1,
         facultyTotalPages: 1,
-        facultyLimit: 5,
+        facultyLimit: 7,
         facultyListForSelect: [],
 
         // Major States

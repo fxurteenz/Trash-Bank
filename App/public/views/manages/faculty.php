@@ -93,12 +93,20 @@
                         </template>
                     </tbody>
                 </table>
-                <div class="mt-4 flex justify-center items-center space-x-2">
+
+                <div class="flex items-center justify-between mt-4 text-xs">
                     <button @click="changeFacultyPage(facultyPage - 1)" :disabled="facultyPage <= 1"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
                         ก่อนหน้า
                     </button>
-                    <span x-text="`หน้า ${facultyPage} จาก ${facultyTotalPages}`"></span>
+                    <div class="flex items-center space-x-2">
+                        <template x-for="p in facultyTotalPages">
+                            <button class="px-2 py-1 rounded"
+                                :class="p === facultyPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+                                @click="page = p; changeFacultyPage(p)" x-text="p"></button>
+                        </template>
+                    </div>
+                    <!-- <span x-text="`หน้า ${facultyPage} จาก ${facultyTotalPages}`"></span> -->
                     <button @click="changeFacultyPage(facultyPage + 1)" :disabled="facultyPage >= facultyTotalPages"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
                         ถัดไป
@@ -285,12 +293,19 @@
                         </div>
                     </template>
                 </div>
-                <div class="mt-4 flex justify-center items-center space-x-2">
+                <div class="flex items-center justify-between mt-4 text-xs">
                     <button @click="changeMajorPage(majorPage - 1)" :disabled="majorPage <= 1"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
                         ก่อนหน้า
                     </button>
-                    <span x-text="`หน้า ${majorPage} จาก ${majorTotalPages}`"></span>
+                    <div class="flex items-center space-x-2">
+                        <template x-for="p in majorTotalPages">
+                            <button class="px-2 py-1 rounded"
+                                :class="p === majorPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+                                @click="page = p; changeMajorPage(p)" x-text="p"></button>
+                        </template>
+                    </div>
+
                     <button @click="changeMajorPage(majorPage + 1)" :disabled="majorPage >= majorTotalPages"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
                         ถัดไป

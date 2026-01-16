@@ -66,7 +66,6 @@ function UserTable() {
 
                 const res = await fetch(`/api/members?${params.toString()}`);
                 let result = await res.json();
-                console.log(result.data);
 
                 this.members = result.data;
                 this.totalPages = Math.ceil(result.total / this.limit);
@@ -183,7 +182,7 @@ function UserTable() {
                 member_email: user.member_email ?? null,
                 faculty_id: user.faculty_id ?? "",
                 major_id: user.major_id ?? "",
-                role_id: user.role_id,
+                role_id: parseInt(user.role_id),
             };
             this.errors.edit = {};
             
@@ -242,6 +241,9 @@ function UserTable() {
                 confirmButtonText: "ยืนยัน",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
             });
 
             if (result.isConfirmed) {
@@ -330,6 +332,58 @@ function UserTable() {
             }
         },
 
+        async confirmDeleteUser(member) {
+            if (!member) return;
+
+            const result = await Swal.fire({
+                title: "ยืนยันการลบ",
+                text: `ต้องการลบผู้ใช้ "${member.member_name}" ใช่หรือไม่?`,
+                icon: "warning",
+                showConfirmButton: true,
+                confirmButtonText: "ยืนยันการลบ",
+                confirmButtonColor: "#d33",
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const deleteRes = await fetch("/api/members/bulk-del", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ member_ids: [member.member_id] }),
+                    });
+                    const delResult = await deleteRes.json();
+
+                    if (delResult.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "ลบสำเร็จ",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                        this.fetchMembers();
+                    } else {
+                        throw new Error(
+                            delResult.message || "Something went wrong"
+                        );
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "ลบรายชื่อไม่สำเร็จ",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                }
+            }
+        },
+
         async deleteCheckedUser() {
             if (this.checkedMembers.member_ids.length === 0) return;
 
@@ -342,6 +396,9 @@ function UserTable() {
                 confirmButtonColor: "#d33",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
             });
 
             if (result.isConfirmed) {

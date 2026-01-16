@@ -1,7 +1,7 @@
 <div class="space-y-4 w-full">
 
     <div class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-        <div class="app-card p-6 col-span-2 md:col-span-3 xl:col-span-1">
+        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
@@ -16,9 +16,73 @@
                 </div>
             </div>
         </div>
+
+        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">สมาชิกทังหมด</p>
+                    <p class="text-2xl font-bold text-emerald-700">500</p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M5.85 17.1q1.275-.975 2.85-1.537T12 15t3.3.563t2.85 1.537q.875-1.025 1.363-2.325T20 12q0-3.325-2.337-5.663T12 4T6.337 6.338T4 12q0 1.475.488 2.775T5.85 17.1M12 13q-1.475 0-2.488-1.012T8.5 9.5t1.013-2.488T12 6t2.488 1.013T15.5 9.5t-1.012 2.488T12 13m0 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">ผู้ดูแลระบบ</p>
+                    <p class="text-2xl font-bold text-emerald-700">500</p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M5.85 17.1q1.275-.975 2.85-1.537T12 15t3.3.563t2.85 1.537q.875-1.025 1.363-2.325T20 12q0-3.325-2.337-5.663T12 4T6.337 6.338T4 12q0 1.475.488 2.775T5.85 17.1M12 13q-1.475 0-2.488-1.012T8.5 9.5t1.013-2.488T12 6t2.488 1.013T15.5 9.5t-1.012 2.488T12 13m0 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">เจ้าหน้าที่คณะ</p>
+                    <p class="text-2xl font-bold text-emerald-700">500</p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M5.85 17.1q1.275-.975 2.85-1.537T12 15t3.3.563t2.85 1.537q.875-1.025 1.363-2.325T20 12q0-3.325-2.337-5.663T12 4T6.337 6.338T4 12q0 1.475.488 2.775T5.85 17.1M12 13q-1.475 0-2.488-1.012T8.5 9.5t1.013-2.488T12 6t2.488 1.013T15.5 9.5t-1.012 2.488T12 13m0 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">เจ้าหน้าที่ศูนย์ใหญ่</p>
+                    <p class="text-2xl font-bold text-emerald-700">500</p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M5.85 17.1q1.275-.975 2.85-1.537T12 15t3.3.563t2.85 1.537q.875-1.025 1.363-2.325T20 12q0-3.325-2.337-5.663T12 4T6.337 6.338T4 12q0 1.475.488 2.775T5.85 17.1M12 13q-1.475 0-2.488-1.012T8.5 9.5t1.013-2.488T12 6t2.488 1.013T15.5 9.5t-1.012 2.488T12 13m0 9q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div x-data="UserTable()" x-init="initData()" class="app-card p-6 overflow-x-auto w-full">
+    <div x-data="UserTable()" x-init="initData()" class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
             <h2 class="text-xl font-bold">รายชื่อผู้ใช้งาน</h2>
             <div class="flex gap-2">
@@ -74,7 +138,7 @@
         </div>
 
         <div class="flex justify-between mb-1 text-gray-700 text-xs font-regular">
-            <div class="flex justify-end mb-1 text-xs space-x-2">
+            <div class="flex justify-end text-xs space-x-2">
                 <div @click="openCreateDialog" :class="createUserDialogShow && 'bg-emerald-300'"
                     class="group cursor-pointer flex items-center py-2 px-4 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 transition-colors font-medium text-emerald-700">
                     <button class="group-hover:rotate-90 duration-300" title="Add New">
@@ -91,11 +155,11 @@
                 </div>
 
                 <button
-                    class="group flex items-center py-1 px-2 border-2 border-orange-500 rounded-lg space-x-1 cursor-pointer hover:bg-orange-300 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="group cursor-pointer flex items-center py-2 px-4 border-2 border-red-500 rounded-full hover:bg-red-100 space-x-1 transition-colors font-medium text-red-700 disabled:opacity-50"
                     @click="deleteCheckedUser" :disabled="checkedMembers.member_ids.length === 0">
                     <div :class="[checkedMembers.member_ids.length === 0 ? 'opacity-100' : 'opacity-100 group-hover:rotate-90']"
                         class="duration-300 transition-transform">
-                        <svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 16 16"
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 16 16"
                             xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 8h8m2.5 0a6.5 6.5 0 1 1-13 0a6.5 6.5 0 0 1 13 0Z" stroke-width="1.5" />
                         </svg>
@@ -105,62 +169,95 @@
             </div>
         </div>
 
-        <table class="w-full table-fixed border-collapse border border-emerald-300 text-sm">
-            <thead class="bg-emerald-100 text-xs">
-                <tr>
-                    <th class="border border-emerald-300 px-4 py-2 w-1/18">เลือก</th>
-                    <th class="border border-emerald-300 bg-emerald-200 px-4 py-2 w-2/18">รหัสประจำตัว</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-2/18 hidden lg:table-cell">เบอร์โทรศัพท์</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-2/18">ชื่อ</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-2/18 hidden xl:table-cell">คณะ</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-2/18 hidden xl:table-cell">สาขา</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-3/18 hidden xl:table-cell">อีเมล์</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-2/18">บทบาท</th>
-                    <th class="border border-emerald-300 px-4 py-2 w-1/18">คะแนน</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="member in members" :key="member.member_id">
-                    <tr class="hover:bg-emerald-50 cursor-pointer"
-                        :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
-                        <td class="border border-gray-300 px-2 py-2 text-center" @click.stop>
-                            <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
-                                x-model="checkedMembers.member_ids">
-                        </td>
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 bg-emerald-100 px-2 py-2 overflow-hidden text-ellipsis text-xs "
-                            x-text="member.member_personal_id ?? 'ไม่ระบุ'"></td>
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
-                            x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                            x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
-
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
-                            x-text="member.faculty_name ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
-                            x-text="member.major_name ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
-                            x-text="member.member_email ?? 'ไม่ระบุ'"></td>
-
-                        <td @click="selectingRow(member)"
-                            class="border border-gray-300 px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                            x-text="member.role_name_th || 'ไม่ระบุ'">
-                        </td>
-
-                        <td @click="selectingRow(member)" class="border border-gray-300 px-2 py-2 text-xs"
-                            x-text="member.member_score ?? '0'"></td>
+        <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            เลือก</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            เบอร์โทรศัพท์
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            ชื่อ
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            คณะ
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            สาขา
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            บทบาท
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            แต้มขยะ
+                        </th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                        </th>
                     </tr>
-                </template>
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <template x-for="member in members" :key="member.member_id">
+                        <tr class="hover:bg-emerald-50 cursor-pointer"
+                            :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
+                            <td class="px-2 py-2 text-center" @click.stop>
+                                <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
+                                    x-model="checkedMembers.member_ids">
+                            </td>
+                            <td @click="selectingRow(member)"
+                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
+                                x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
+
+                            <td @click="selectingRow(member)" class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                                x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
+
+                            <td @click="selectingRow(member)"
+                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
+                                x-text="member.faculty_name ?? 'ไม่ระบุ'"></td>
+
+                            <td @click="selectingRow(member)"
+                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
+                                x-text="member.major_name ?? 'ไม่ระบุ'"></td>
+
+                            <td @click="selectingRow(member)" class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                                x-text="member.role_name_th || 'ไม่ระบุ'">
+                            </td>
+
+                            <td @click="selectingRow(member)" class="px-2 py-2 text-xs text-end"
+                                x-text="member.member_waste_point ?? '0'"></td>
+                            <td
+                                class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2">
+                                <button @click.stop="selectingRow(member)"
+                                    class=" bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg> <span>&nbsp;แก้ไข</span>
+                                </button>
+                                <button @click.stop="confirmDeleteUser(member)"
+                                    class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg> <span>&nbsp;ลบ</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
 
         <div class="flex items-center justify-between mt-4 text-xs">
             <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" :disabled="page <= 1"
@@ -183,7 +280,7 @@
         <dialog x-show="createUserDialogShow" x-ref="createUserDialog" @click.self="createUserDialogShow = false"
             @close="createUserDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
             x-init="$watch('createUserDialogShow', value => {if (value) $refs.createUserDialog.showModal();else $refs.createUserDialog.close();})">
-            <div class="app-card p-6 w-96 max-w-full">
+            <div class="bg-white rounded-md shadow p-6 w-96 max-w-full">
                 <div class="flex justify-between items-center mb-3">
                     <h3 class="font-bold text-lg">เพิ่มผู้ใช้งานใหม่</h3>
                     <svg class="cursor-pointer hover:scale-110 transition-transform"
@@ -309,7 +406,7 @@
         <dialog x-ref="editUserDialog" x-show="editUserDialogShow" @click.self="editUserDialogShow = false"
             @close="editUserDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
             x-init="$watch('editUserDialogShow', value => {if (value) $refs.editUserDialog.showModal();else $refs.editUserDialog.close();})">
-            <div class="app-card p-6 w-96 max-w-full">
+            <div class="bg-white rounded-md shadow p-6 w-96 max-w-full">
                 <h3 class="font-bold text-lg mb-3">แก้ไขข้อมูล</h3>
 
                 <div class="grid grid-1 space-y-2 text-xs">
