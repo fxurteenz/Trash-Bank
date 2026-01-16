@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Jan 16, 2026 at 03:06 AM
+-- Generation Time: Jan 16, 2026 at 04:32 AM
 -- Server version: 12.1.2-MariaDB-ubu2404
 -- PHP Version: 8.3.26
 
@@ -185,11 +185,12 @@ CREATE TABLE `member` (
 INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
 (000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, NULL, NULL, 01, 0.00, 0.00, NULL, NULL),
 (000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 15.00, 0.00, '2025-12-28 01:07:57', NULL),
-(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, NULL, 02, 10.00, 0.00, '2025-12-28 13:37:56', NULL),
+(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, 10.00, 0.00, '2025-12-28 13:37:56', NULL),
 (000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 02, 51.00, 0.00, '2025-12-30 13:11:06', NULL),
 (000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, NULL, NULL, 04, 0.00, 0.00, '2026-01-02 23:02:14', NULL),
 (000045, NULL, 'จิ๋ว', '0789123456', '$2y$12$zSGJkg5RXGqkIjo.EJODduSVuV2gkaRQ9olLv3WBX0vPsKMMZX0yG', NULL, 004, NULL, 02, 31.00, 0.00, '2026-01-08 01:06:23', NULL),
-(000046, NULL, NULL, '0912345678', '$2y$12$efplvrv7noSANjwrFtRBg.RPKUNPDnFqnmRjPn66lUj35QwQtKI22', NULL, 001, NULL, 03, 0.00, 0.00, '2026-01-08 23:07:10', NULL);
+(000046, NULL, 'เจ้าหน้าที่คณะวิทย์', '0912345678', '$2y$12$efplvrv7noSANjwrFtRBg.RPKUNPDnFqnmRjPn66lUj35QwQtKI22', NULL, 001, NULL, 03, 0.00, 0.00, '2026-01-08 23:07:10', NULL),
+(000047, NULL, 'ภูมิ', '0234567891', '$2y$12$hRwAXnBqAyG400lihC8Im.3xd3pBcSjhQdT/28/kSbmvCLukcPkee', NULL, 001, 007, 02, 0.00, 0.00, '2026-01-16 11:06:48', NULL);
 
 -- --------------------------------------------------------
 
@@ -248,6 +249,16 @@ CREATE TABLE `role` (
   `role_name` varchar(50) NOT NULL COMMENT 'เช่น member, faculty_staff, central_admin',
   `role_name_th` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role`
+--
+
+INSERT INTO `role` (`role_id`, `role_name`, `role_name_th`) VALUES
+(01, 'admin', 'ผู้ดูแลระบบ'),
+(02, 'member', 'สมาชิก'),
+(03, 'staff', 'เจ้าหน้าที่คณะ'),
+(04, 'center', 'ผู้ดูแลระบบกลาง');
 
 -- --------------------------------------------------------
 
@@ -588,7 +599,7 @@ ALTER TABLE `major`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `member_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `member_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `member_badge`
@@ -612,7 +623,7 @@ ALTER TABLE `reward`
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `role_id` int(2) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `role_id` int(2) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `system_log`
