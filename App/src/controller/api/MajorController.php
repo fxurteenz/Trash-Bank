@@ -5,11 +5,11 @@ use App\Model\MajorModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
-use App\Utils\Database;
+
 use Exception;
 class MajorController extends RouterBase
 {
-    private static $Data, $MajorModel, $Database, $QueryString;
+    private static $Data, $MajorModel, $QueryString;
 
     public function __construct()
     {
@@ -37,7 +37,6 @@ class MajorController extends RouterBase
                 self::$Data = $input;
         }
 
-        self::$Database = new Database();
         self::$MajorModel = new MajorModel();
     }
 
@@ -74,17 +73,25 @@ class MajorController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::OperateAuth();
             [$majors, $total] = self::$MajorModel->GetAllMajor(self::$QueryString);
 
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
+            $response = [
                 'success' => TRUE,
                 'result' => $majors,
                 'total' => $total,
-                'message' => 'successfully =)'
-            ]);
+                'message' => 'successfully =_=_='
+            ];
+
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
         } catch (AuthenticationException $e) {
             error_log("ERROR AUTH : " . $e->getMessage());
             http_response_code($e->getCode() ?: 403);
@@ -107,7 +114,6 @@ class MajorController extends RouterBase
     public function GetByFaculty($fid)
     {
         try {
-            Authentication::OperateAuth();
             [$majors, $total] = self::$MajorModel->GetMajorByFaculty($fid, self::$QueryString);
 
             header('Content-Type: application/json');

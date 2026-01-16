@@ -3,19 +3,26 @@ function FacultyMajor() {
         selectedFaculty: null,
         selectedFacultyShow: false,
         AllFacultyData: [],
+        facultyPage: 1,
+        facultyTotalPages: 1,
+        facultyLimit: 5,
+        facultyListForSelect: [],
 
         // Major States
         selectedMajor: null,
         selectedMajorShow: false,
         AllMajorData: [],
+        majorPage: 1,
+        majorTotalPages: 1,
+        majorLimit: 6,
         
         // Faculty Major Modal
         facultyMajorModalShow: false,
         facultyMajorList: [],
 
         // Dialog States
-        createFacultyDialogShow: false,
-        createMajorDialogShow: false,
+        facultyDialogShow: false,
+        majorDialogShow: false,
 
         // Edit States
         isEditingFaculty: false,
@@ -27,11 +34,15 @@ function FacultyMajor() {
             faculty_name: null,
             faculty_code: null,
         },
+        facultyFormErrors: {},
         majorForm: {
             major_id: null,
             major_name: null,
+            major_name_en: null,
+            major_code: null,
             faculty_id: null,
         },
+        majorFormErrors: {},
 
         CloseFacultyDetail() {
             this.selectedFacultyShow = false;
@@ -78,51 +89,103 @@ function FacultyMajor() {
             this.selectedMajorShow = true;
         },
 
-        async fetchAllFaculty() {
+        async fetchAllFaculty(page = 1) {
             try {
-                const res = await fetch("/api/faculties");
+                const res = await fetch(`/api/faculties?page=${page}&limit=${this.facultyLimit}`);
                 const result = await res.json();
-
+                
                 if (result.success) {
                     this.AllFacultyData = result.data;
+                    this.facultyPage = result.page;
+                    this.facultyTotalPages = Math.ceil(result.total / this.facultyLimit);
                 }
             } catch (error) {
                 console.error(error);
             }
         },
 
-        async fetchAllMajors() {
+        async fetchAllFacultiesForSelect() {
             try {
-                const res = await fetch("/api/majors");
+                const res = await fetch("/api/faculties");
+                const result = await res.json();
+                
+                if (result.success) {
+                    this.facultyListForSelect = result.data;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        },
+
+        async fetchAllMajors(page = 1) {
+            try {
+                const res = await fetch(`/api/majors?page=${page}&limit=${this.majorLimit}`);
                 const result = await res.json();
 
                 if (result.success) {
                     this.AllMajorData = result.result;
+                    this.majorPage = page;
+                    this.majorTotalPages = Math.ceil(result.total / this.majorLimit);
                 }
             } catch (error) {
                 console.error(error);
             }
         },
 
+        changeFacultyPage(page) {
+            if (page < 1 || page > this.facultyTotalPages) return;
+            this.fetchAllFaculty(page);
+        },
+
+        changeMajorPage(page) {
+            if (page < 1 || page > this.majorTotalPages) return;
+            this.fetchAllMajors(page);
+        },
+
         // --- Major CRUD ---
+        validateMajorForm() {
+            this.majorFormErrors = {};
+            const { major_name, faculty_id } = this.majorForm;
+            if (!major_name || major_name.trim() === '') {
+                this.majorFormErrors.major_name = 'กรุณากรอกชื่อสาขา';
+            }
+            if (!faculty_id) {
+                this.majorFormErrors.faculty_id = 'กรุณาเลือกคณะ';
+            }
+            return Object.keys(this.majorFormErrors).length === 0;
+        },
+
         openCreateMajorDialog() {
             this.isEditingMajor = false;
             this.majorForm = {
                 major_id: null,
                 major_name: null,
+                major_name_en: null,
+                major_code: null,
                 faculty_id: null,
             };
-            this.createMajorDialogShow = true;
+            this.majorFormErrors = {};
+            this.majorDialogShow = true;
         },
 
         openEditMajorDialog(major) {
             this.isEditingMajor = true;
-            this.majorForm = { ...major };
-            this.createMajorDialogShow = true;
+            this.majorForm = {
+                major_id: major.major_id,
+                major_name: major.major_name,
+                major_name_en: major.major_name_en,
+                major_code: major.major_code,
+                faculty_id: major.faculty_id,
+            };
+            this.majorFormErrors = {};
+            this.majorDialogShow = true;
         },
 
         async submitMajorForm() {
-            this.createMajorDialogShow = false;
+            if (!this.validateMajorForm()) {
+                return;
+            }
+            this.majorDialogShow = false;
             const action = this.isEditingMajor ? "แก้ไข" : "เพิ่ม";
             const url = this.isEditingMajor
                 ? `/api/majors/update/${this.majorForm.major_id}`
@@ -138,6 +201,9 @@ function FacultyMajor() {
                     confirmButtonColor: "#8b5cf6",
                     showCancelButton: true,
                     cancelButtonText: "ยกเลิก",
+                    didOpen: () => {
+                        Swal.getConfirmButton().focus();
+                    }
                 });
 
                 if (confirmed.isConfirmed) {
@@ -167,11 +233,15 @@ function FacultyMajor() {
                         this.majorForm = {
                             major_id: null,
                             major_name: null,
+                            major_name_en: null,
+                            major_code: null,
                             faculty_id: null,
                         };
                     } else {
                         throw result;
                     }
+                } else {
+                    this.majorDialogShow = true;
                 }
             } catch (error) {
                 console.error(error);
@@ -180,7 +250,7 @@ function FacultyMajor() {
                     title: "ผิดพลาด",
                     text: `${action}สาขาไม่สำเร็จ`,
                 });
-                this.createMajorDialogShow = true;
+                this.majorDialogShow = true;
             }
         },
 
@@ -193,6 +263,9 @@ function FacultyMajor() {
                 showCancelButton: true,
                 confirmButtonText: "ลบเลย",
                 confirmButtonColor: "#d33",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                }
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
@@ -227,6 +300,15 @@ function FacultyMajor() {
         },
 
         // --- Faculty CRUD ---
+        validateFacultyForm() {
+            this.facultyFormErrors = {};
+            const { faculty_name, faculty_code } = this.facultyForm;
+            if (!faculty_name || faculty_name.trim() === '') {
+                this.facultyFormErrors.faculty_name = 'กรุณากรอกชื่อคณะ';
+            }
+            return Object.keys(this.facultyFormErrors).length === 0;
+        },
+
         openCreateFacultyDialog() {
             this.isEditingFaculty = false;
             this.facultyForm = {
@@ -234,17 +316,23 @@ function FacultyMajor() {
                 faculty_name: null,
                 faculty_code: null,
             };
-            this.createFacultyDialogShow = true;
+            this.facultyFormErrors = {};
+            this.facultyDialogShow = true;
         },
 
         openEditFacultyDialog(faculty) {
             this.isEditingFaculty = true;
-            this.facultyForm = { ...faculty };
-            this.createFacultyDialogShow = true;
+            this.facultyForm = { faculty_id: faculty.faculty_id, faculty_name: faculty.faculty_name, faculty_code: faculty.faculty_code};
+            this.facultyFormErrors = {};
+            this.facultyDialogShow = true;
+            
         },
 
         async submitFacultyForm() {
-            this.createFacultyDialogShow = false;
+            if (!this.validateFacultyForm()) {
+                return;
+            }
+            this.facultyDialogShow = false;
             const action = this.isEditingFaculty ? "แก้ไข" : "เพิ่ม";
             const url = this.isEditingFaculty
                 ? `/api/faculties/update/${this.facultyForm.faculty_id}`
@@ -260,6 +348,9 @@ function FacultyMajor() {
                     confirmButtonColor: "#ff8f4eff",
                     showCancelButton: true,
                     cancelButtonText: "ยกเลิก",
+                    didOpen: () => {
+                        Swal.getConfirmButton().focus();
+                    }
                 });
 
                 if (confirmed.isConfirmed) {
@@ -303,7 +394,7 @@ function FacultyMajor() {
                     title: "ผิดพลาด",
                     text: `${action}คณะไม่สำเร็จ`,
                 });
-                this.createFacultyDialogShow = true;
+                this.facultyDialogShow = true;
             }
         },
 
@@ -316,6 +407,9 @@ function FacultyMajor() {
                 showCancelButton: true,
                 confirmButtonText: "ลบเลย",
                 confirmButtonColor: "#d33",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                }
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {

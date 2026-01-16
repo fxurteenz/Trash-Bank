@@ -5,11 +5,11 @@ use App\Model\FacultyModel;
 use App\Router\RouterBase;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
-use App\Utils\Database;
+
 use Exception;
 class FacultyController extends RouterBase
 {
-    private static $Data, $FacultyModel, $Database, $QueryString;
+    private static $Data, $FacultyModel,  $QueryString;
 
     public function __construct()
     {
@@ -37,7 +37,6 @@ class FacultyController extends RouterBase
                 self::$Data = [];
         }
 
-        self::$Database = new Database();
         self::$FacultyModel = new FacultyModel();
     }
 

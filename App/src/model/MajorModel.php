@@ -45,13 +45,29 @@ class MajorModel
     public function GetAllMajor($query): array
     {
         try {
+            $whereClauses = [];
+            $params = [];
+
+            if (!empty($query['name'])) {
+                $whereClauses[] = "m.major_name LIKE :major_name";
+                $params[':major_name'] = "%" . $query['name'] . "%";
+            }
+            
+            if (!empty($query['faculty'])) {
+                $whereClauses[] = "m.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $query['faculty'];
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
             $sql = "SELECT 
                         m.*, 
                         f.faculty_name
                     FROM 
                         major m
                     LEFT JOIN 
-                        faculty f ON m.faculty_id = f.faculty_id";
+                        faculty f ON m.faculty_id = f.faculty_id
+                    {$whereSql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -65,6 +81,10 @@ class MajorModel
 
             $stmt = $this->Conn->prepare($sql);
 
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -74,8 +94,11 @@ class MajorModel
             $majors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allMajor FROM major';
+                $sqlCount = "SELECT COUNT(*) AS allMajor FROM major m{$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
+                 foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allMajor'];
             } else {
@@ -144,30 +167,46 @@ class MajorModel
     public function CreateMajor(array $data): int
     {
         try {
-            // Validate แบบเดียวกับ WasteTypeModel
-            if (!is_array($data)) {
-                throw new Exception('Invalid data format', 400);
-            }
-            if (empty($data['faculty_id'])) {
-                throw new Exception('Faculty ID is not provided', 400);
-            }
-            if (empty($data['major_name'])) {
-                throw new Exception('Major name is not provided', 400);
+            if (!is_array($data) || empty($data['major_name']) || empty($data['faculty_id'])) {
+                throw new Exception('Invalid or incomplete data provided', 400);
             }
 
-            // ใช้การ Insert แบบระบุ Field ชัดเจน (หรือจะใช้แบบ dynamic set เหมือน WasteType ก็ได้ แต่แบบนี้อ่านง่ายสำหรับ Create)
-            $sql = "INSERT INTO major (faculty_id, major_name) VALUES (:faculty_id, :major_name)";
+            $data['created_at'] = date('Y-m-d H:i:s');
+
+            $columns = [];
+            $placeholders = [];
+            $insertData = [];
+
+            // Define allowed fields to prevent SQL injection from unexpected data keys
+            $allowedFields = ['faculty_id', 'major_name', 'major_name_en', 'major_code', 'created_at'];
+
+            foreach ($allowedFields as $field) {
+                if (isset($data[$field]) && !is_null($data[$field])) {
+                    $columns[] = "`{$field}`";
+                    $placeholders[] = ":{$field}";
+                    $insertData[$field] = $data[$field];
+                }
+            }
+            
+            if (empty($columns)) {
+                throw new Exception('No valid data to insert', 400);
+            }
+
+            $sql = sprintf(
+                "INSERT INTO major (%s) VALUES (%s)",
+                implode(', ', $columns),
+                implode(', ', $placeholders)
+            );
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute([
-                'faculty_id' => $data['faculty_id'],
-                'major_name' => $data['major_name']
-            ]);
+            $stmt->execute($insertData);
 
             return $stmt->rowCount();
 
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            // Log the detailed PDO error for debugging, but return a generic message to the user
+            error_log("Database error in CreateMajor: " . $e->getMessage());
+            throw new Exception("Database error occurred while creating the major.", 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -179,6 +218,8 @@ class MajorModel
             if ((empty($data) && !is_array($data)) || empty($id)) {
                 throw new Exception('Bad Request', 400);
             }
+            
+            $data['updated_at'] = date('Y-m-d H:i:s');
 
             $setClauses = [];
             $updateData = [];
