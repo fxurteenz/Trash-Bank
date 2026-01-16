@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Jan 16, 2026 at 04:32 AM
+-- Generation Time: Jan 16, 2026 at 08:03 AM
 -- Server version: 12.1.2-MariaDB-ubu2404
 -- PHP Version: 8.3.26
 
@@ -398,13 +398,14 @@ CREATE TABLE `waste_type` (
 --
 
 INSERT INTO `waste_type` (`waste_type_id`, `waste_type_name`, `waste_type_price`, `waste_type_co2`, `waste_category_id`, `waste_type_active`, `created_at`, `updated_at`) VALUES
-(001, 'กระดาษขาวดำ', 2.00, 0.8300, 003, 1, '2025-12-29 16:53:49', '2026-01-01 04:37:48'),
+(001, 'ขาวดำ A/B (สนง.)', 2.00, 0.9000, 003, 1, '2025-12-29 16:53:49', '2026-01-16 14:45:34'),
 (004, 'กระดาษลัง', 2.00, 3.1400, 003, 1, '2025-12-29 17:44:33', '2026-01-01 04:39:09'),
 (005, 'ขวดแก้วใส', 1.00, 0.2800, 004, 1, '2025-12-29 17:46:15', '2025-12-29 17:46:15'),
 (006, 'สีขุ่น/รวม', 0.40, 0.2800, 004, 1, '2025-12-29 17:47:53', '2025-12-29 17:53:01'),
 (007, 'สีชา/เขียว+ฝา', 0.90, 0.2800, 004, 1, '2025-12-29 17:50:43', '2025-12-29 17:50:43'),
 (008, 'พลาสติกรวมสี', 2.00, 0.4000, 011, 1, '2026-01-01 19:05:40', '2026-01-01 19:43:05'),
-(009, 'ขวด PET ', 4.00, 0.6300, 002, 1, '2026-01-01 19:42:11', '2026-01-01 19:42:38');
+(009, 'ขวด PET ', 4.00, 0.6300, 002, 1, '2026-01-01 19:42:11', '2026-01-01 19:42:38'),
+(011, 'ย่อย (หนังสือ - นสพ.)', 4.00, 0.8000, 003, 1, '2026-01-16 14:44:52', '2026-01-16 14:45:44');
 
 --
 -- Indexes for dumped tables
@@ -635,7 +636,7 @@ ALTER TABLE `system_log`
 -- AUTO_INCREMENT for table `waste_category`
 --
 ALTER TABLE `waste_category`
-  MODIFY `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `waste_clearance`
@@ -665,7 +666,7 @@ ALTER TABLE `waste_transaction_detail`
 -- AUTO_INCREMENT for table `waste_type`
 --
 ALTER TABLE `waste_type`
-  MODIFY `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
