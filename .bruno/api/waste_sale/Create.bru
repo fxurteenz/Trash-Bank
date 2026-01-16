@@ -1,0 +1,20 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{api_domain}}/waste_sales
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  waste_sale_date: 2027-01-16
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

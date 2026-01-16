@@ -1,0 +1,25 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api_domain}}/majors
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "major_name": "null",
+    "major_name_en": "null",
+    "major_code": "null",
+    "faculty_id": "null"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

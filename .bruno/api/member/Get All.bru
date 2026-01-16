@@ -1,19 +1,23 @@
 meta {
   name: Get All
   type: http
-  seq: 5
+  seq: 1
 }
 
 get {
-  url: {{api_domain}}/members?search=56&limit=5&page=1
+  url: {{api_domain}}/members?faculty_id=1
   body: none
   auth: inherit
 }
 
 params:query {
-  search: 56
-  limit: 5
-  page: 1
+  faculty_id: 1
+  ~search: 56
+  ~limit: 5
+  ~page: 1
+  ~major_id: 7
+  ~role: BUG
+  ~search: 
 }
 
 settings {

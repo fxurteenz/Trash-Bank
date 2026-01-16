@@ -1,20 +1,20 @@
 meta {
-  name: GetAll
+  name: /GetAll
   type: http
   seq: 1
 }
 
 get {
-  url: {{api_domain}}/waste_types
+  url: {{api_domain}}/majors?name=ว
   body: none
   auth: inherit
 }
 
 params:query {
+  name: ว
   ~page: 1
-  ~limit: 10
-  ~search: 
-  ~active: NOT ADD
+  ~limit: 2
+  ~faculty: 
 }
 
 settings {

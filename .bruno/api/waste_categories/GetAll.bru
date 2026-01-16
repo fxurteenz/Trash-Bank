@@ -5,16 +5,16 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/waste_types
+  url: {{api_domain}}/waste_categories
   body: none
   auth: inherit
 }
 
 params:query {
   ~page: 1
-  ~limit: 10
-  ~search: 
-  ~active: NOT ADD
+  ~limit: 5
+  ~search: ขวด
+  ~active: 0
 }
 
 settings {
