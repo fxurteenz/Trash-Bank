@@ -46,7 +46,7 @@ class Routes
     {
         // Guest
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
 
         // PAGES 
@@ -92,6 +92,7 @@ class Routes
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+            ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
         ]);
 
         /* API */

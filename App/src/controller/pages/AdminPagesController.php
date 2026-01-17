@@ -13,11 +13,12 @@ class AdminPagesController extends RouterBase
     public function DashBoard()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('admin/adminDashboard', [
                 'pages' => 'dashboard',
                 'title' => 'ผู้ดูแลระบบ',
-                'module' => '../../js/Dashboard.mjs'
+                'module' => '../../js/Dashboard.mjs',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
@@ -32,11 +33,12 @@ class AdminPagesController extends RouterBase
     public function ManageUsers()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/users', [
                 'pages' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
-                'script' => '../../js/ManageUsers.js'
+                'script' => '../../js/ManageUsers.js',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             $this->errorPage(403, '403');
@@ -51,11 +53,12 @@ class AdminPagesController extends RouterBase
     public function ManageFaculty()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/faculty', [
                 'pages' => "manageFaculty",
                 'title' => 'จัดการคณะ/สาขา',
-                'script' => '../../js/ManageFaculty.js'
+                'script' => '../../js/ManageFaculty.js',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -70,10 +73,11 @@ class AdminPagesController extends RouterBase
     public function ManageWasteType()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/waste_type', [
                 'pages' => "manageWasteType",
-                'title' => 'จัดการหมวดหมู่ขยะ'
+                'title' => 'จัดการหมวดหมู่ขยะ',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -88,10 +92,11 @@ class AdminPagesController extends RouterBase
     public function ManageWasteTransaction()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/waste_transaction', [
                 'pages' => "manageWasteTransaction",
-                'title' => 'ประวัติการดำเนินการ'
+                'title' => 'ประวัติการดำเนินการ',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -106,11 +111,12 @@ class AdminPagesController extends RouterBase
     public function ManageRewards()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/rewards', [
                 'pages' => "manageRewards",
                 'title' => 'จัดการของรางวัล',
-                'script' => '../../js/ManageRewards.js'
+                'script' => '../../js/ManageRewards.js',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             header('location: /');
@@ -124,11 +130,12 @@ class AdminPagesController extends RouterBase
     public function ManageBadges()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('manages/badges', [
                 'pages' => "manageBadges",
                 'title' => 'จัดการเหรียญตรา',
-                'script' => '../../js/ManageBadges.js'
+                'script' => '../../js/ManageBadges.js',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             header('location: /');
@@ -142,10 +149,11 @@ class AdminPagesController extends RouterBase
     public function TransactionWaste()
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('transactions/waste_deposit', [
                 'pages' => "wasteTransaction",
-                'title' => 'ระบบฝากขยะ'
+                'title' => 'ระบบฝากขยะ',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -179,11 +187,31 @@ class AdminPagesController extends RouterBase
     public function ManageTransactionClearance($wcid)
     {
         try {
-            Authentication::AdminAuth();
+            $user = Authentication::AdminAuth();
             $this->render('transactions/manage/clear_waste', [
                 'pages' => "clearWasteTransaction",
                 'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-                'wcid' => $wcid
+                'wcid' => $wcid,
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function TransactionWasteSale()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('transactions/waste_sale', [
+                'pages' => "saleWasteTransaction",
+                'title' => 'ระบบบันทึกการจำหน่ายออก',
+                'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
