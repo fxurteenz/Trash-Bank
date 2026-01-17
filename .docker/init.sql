@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Jan 16, 2026 at 08:03 AM
+-- Generation Time: Jan 16, 2026 at 06:03 PM
 -- Server version: 12.1.2-MariaDB-ubu2404
 -- PHP Version: 8.3.26
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `badge` (
   `badge_id` int(3) UNSIGNED ZEROFILL NOT NULL,
-  `badge_name` varchar(100) NOT NULL,
+  `badge_name` varchar(50) NOT NULL,
   `badge_description` text DEFAULT NULL,
   `badge_condition` text DEFAULT NULL COMMENT 'เช่น "สะสมขยะ 100 kg" หรือ JSON สำหรับ logic',
   `badge_image` varchar(255) DEFAULT NULL,
@@ -43,14 +43,24 @@ CREATE TABLE `badge` (
 --
 
 CREATE TABLE `clearance_detail` (
-  `clearance_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL,
-  `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `clearance_detail_transaction_weight` decimal(7,2) NOT NULL,
   `clearance_detail_clearance_weight` decimal(7,2) DEFAULT NULL,
   `clearance_detail_success` tinyint(4) NOT NULL DEFAULT 0,
   `complete_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `clearance_detail`
+--
+
+INSERT INTO `clearance_detail` (`clearance_detail_id`, `waste_clearance_id`, `waste_type_id`, `clearance_detail_transaction_weight`, `clearance_detail_clearance_weight`, `clearance_detail_success`, `complete_date`) VALUES
+(000003, 000003, 006, 8.24, 8.24, 1, '2026-01-16 23:47:44'),
+(000004, 000003, 009, 5.31, 5.31, 1, '2026-01-16 23:47:47'),
+(000005, 000004, 006, 1.00, 1.00, 1, '2026-01-17 00:00:39'),
+(000006, 000004, 009, 1.00, 1.00, 1, '2026-01-17 00:00:41');
 
 -- --------------------------------------------------------
 
@@ -78,7 +88,7 @@ CREATE TABLE `donation` (
 
 CREATE TABLE `faculty` (
   `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
-  `faculty_name` varchar(100) NOT NULL,
+  `faculty_name` varchar(50) NOT NULL,
   `faculty_code` varchar(20) DEFAULT NULL COMMENT 'เช่น ENG, SCI',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL
@@ -104,7 +114,7 @@ INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `faculty_code`, `created_at
 --
 
 CREATE TABLE `faculty_point` (
-  `faculty_point_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `faculty_point_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `faculty_point_amount` decimal(10,4) DEFAULT NULL,
   `faculty_point_source` varchar(50) DEFAULT NULL COMMENT 'fraction จาก member, donation',
@@ -116,16 +126,19 @@ CREATE TABLE `faculty_point` (
 --
 
 INSERT INTO `faculty_point` (`faculty_point_id`, `faculty_id`, `faculty_point_amount`, `faculty_point_source`, `created_at`) VALUES
-(00000000001, 001, 0.8000, 'member', '2025-12-29 12:27:22'),
-(00000000002, 002, 0.6500, 'member', '2025-12-30 12:31:33'),
-(00000000003, 002, 0.3240, 'member', '2025-12-30 12:33:22'),
-(00000000004, 001, 0.4600, 'member', '2025-12-30 13:12:11'),
-(00000000006, 001, 0.4600, 'member', '2026-01-01 01:08:33'),
-(00000000007, 001, 0.3760, 'member', '2026-01-01 01:13:18'),
-(00000000008, 004, 0.2800, 'member', '2026-01-08 01:10:58'),
-(00000000009, 004, 0.0400, 'member', '2026-01-08 01:16:52'),
-(00000000010, 004, 0.8800, 'member', '2026-01-08 01:35:46'),
-(00000000011, 001, 0.1200, 'member', '2026-01-09 02:55:06');
+(000001, 001, 0.8000, 'member', '2025-12-29 12:27:22'),
+(000002, 002, 0.6500, 'member', '2025-12-30 12:31:33'),
+(000003, 002, 0.3240, 'member', '2025-12-30 12:33:22'),
+(000004, 001, 0.4600, 'member', '2025-12-30 13:12:11'),
+(000006, 001, 0.4600, 'member', '2026-01-01 01:08:33'),
+(000007, 001, 0.3760, 'member', '2026-01-01 01:13:18'),
+(000008, 004, 0.2800, 'member', '2026-01-08 01:10:58'),
+(000009, 004, 0.0400, 'member', '2026-01-08 01:16:52'),
+(000010, 004, 0.8800, 'member', '2026-01-08 01:35:46'),
+(000011, 001, 0.1200, 'member', '2026-01-09 02:55:06'),
+(000012, 001, 1.2000, 'member', '2026-01-16 22:47:48'),
+(000013, 001, 0.6800, 'member', '2026-01-16 22:53:21'),
+(000014, 001, 0.6800, 'member', '2026-01-16 23:25:57');
 
 -- --------------------------------------------------------
 
@@ -135,8 +148,8 @@ INSERT INTO `faculty_point` (`faculty_point_id`, `faculty_id`, `faculty_point_am
 
 CREATE TABLE `major` (
   `major_id` int(3) UNSIGNED ZEROFILL NOT NULL,
-  `major_name` varchar(100) NOT NULL,
-  `major_name_en` varchar(100) DEFAULT NULL,
+  `major_name` varchar(50) NOT NULL,
+  `major_name_en` varchar(50) DEFAULT NULL,
   `major_code` varchar(4) DEFAULT NULL,
   `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
@@ -165,7 +178,7 @@ INSERT INTO `major` (`major_id`, `major_name`, `major_name_en`, `major_code`, `f
 CREATE TABLE `member` (
   `member_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `member_personal_id` varchar(20) DEFAULT NULL COMMENT 'รหัสนักศึกษา/อาจารย์',
-  `member_name` varchar(100) DEFAULT NULL,
+  `member_name` varchar(50) DEFAULT NULL,
   `member_phone` varchar(20) NOT NULL COMMENT 'ใช้เป็น username',
   `member_password` varchar(255) NOT NULL COMMENT 'hashed',
   `member_email` varchar(100) DEFAULT NULL,
@@ -184,13 +197,13 @@ CREATE TABLE `member` (
 
 INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
 (000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, NULL, NULL, 01, 0.00, 0.00, NULL, NULL),
-(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 15.00, 0.00, '2025-12-28 01:07:57', NULL),
-(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, 10.00, 0.00, '2025-12-28 13:37:56', NULL),
+(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 215.00, 0.00, '2025-12-28 01:07:57', NULL),
+(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, 32.00, 0.00, '2025-12-28 13:37:56', NULL),
 (000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 02, 51.00, 0.00, '2025-12-30 13:11:06', NULL),
 (000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, NULL, NULL, 04, 0.00, 0.00, '2026-01-02 23:02:14', NULL),
 (000045, NULL, 'จิ๋ว', '0789123456', '$2y$12$zSGJkg5RXGqkIjo.EJODduSVuV2gkaRQ9olLv3WBX0vPsKMMZX0yG', NULL, 004, NULL, 02, 31.00, 0.00, '2026-01-08 01:06:23', NULL),
 (000046, NULL, 'เจ้าหน้าที่คณะวิทย์', '0912345678', '$2y$12$efplvrv7noSANjwrFtRBg.RPKUNPDnFqnmRjPn66lUj35QwQtKI22', NULL, 001, NULL, 03, 0.00, 0.00, '2026-01-08 23:07:10', NULL),
-(000047, NULL, 'ภูมิ', '0234567891', '$2y$12$hRwAXnBqAyG400lihC8Im.3xd3pBcSjhQdT/28/kSbmvCLukcPkee', NULL, 001, 007, 02, 0.00, 0.00, '2026-01-16 11:06:48', NULL);
+(000047, NULL, 'ภูมิ', '0234567891', '$2y$12$hRwAXnBqAyG400lihC8Im.3xd3pBcSjhQdT/28/kSbmvCLukcPkee', NULL, 001, 007, 02, 185.00, 0.00, '2026-01-16 11:06:48', NULL);
 
 -- --------------------------------------------------------
 
@@ -306,7 +319,7 @@ INSERT INTO `waste_category` (`waste_category_id`, `waste_category_name`, `waste
 --
 
 CREATE TABLE `waste_clearance` (
-  `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL,
+  `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_clearance_period_start` date DEFAULT NULL,
   `waste_clearance_period_end` date DEFAULT NULL,
@@ -320,6 +333,14 @@ CREATE TABLE `waste_clearance` (
   `approved_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `waste_clearance`
+--
+
+INSERT INTO `waste_clearance` (`waste_clearance_id`, `faculty_id`, `waste_clearance_period_start`, `waste_clearance_period_end`, `waste_clearance_value_total`, `waste_clearance_member_point_total`, `waste_clearance_faculty_point_total`, `waste_clearance_status`, `waste_clearance_created_by`, `waste_clearance_approved_by`, `created_at`, `approved_at`) VALUES
+(000003, 001, '2026-01-16', '2026-01-16', 24.54, 122, 0.68, 'ยืนยันแล้ว', 000001, 000001, '2026-01-16 23:47:30', '2026-01-16 23:47:47'),
+(000004, 001, '2026-01-01', '2026-01-16', 4.40, 22, 0.00, 'ยืนยันแล้ว', 000001, 000001, '2026-01-17 00:00:31', '2026-01-17 00:00:41');
+
 -- --------------------------------------------------------
 
 --
@@ -328,14 +349,48 @@ CREATE TABLE `waste_clearance` (
 
 CREATE TABLE `waste_sale` (
   `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL,
-  `waste_sale_category_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
-  `waste_sale_type_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
-  `waste_sale_weight` decimal(10,3) DEFAULT NULL,
-  `waste_sale_actual_price` decimal(12,2) DEFAULT NULL,
+  `waste_sale_total_price` decimal(12,2) DEFAULT 0.00,
+  `waste_sale_total_weight` decimal(12,2) DEFAULT 0.00,
   `waste_sale_buyer` varchar(100) DEFAULT NULL,
   `waste_sale_date` date DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `waste_sale_note` text DEFAULT NULL,
+  `created_by` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_sale_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0 : not completed, 1 : completed',
+  `waste_sale_completed_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `waste_sale`
+--
+
+INSERT INTO `waste_sale` (`waste_sale_id`, `waste_sale_total_price`, `waste_sale_total_weight`, `waste_sale_buyer`, `waste_sale_date`, `waste_sale_note`, `created_by`, `waste_sale_status`, `waste_sale_completed_at`, `created_at`) VALUES
+(000004, 0.00, 0.00, NULL, '2027-01-16', NULL, 000001, 0, NULL, '2026-01-17 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `waste_sale_detail`
+--
+
+CREATE TABLE `waste_sale_detail` (
+  `waste_sale_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
+  `waste_sale_detail_data_weight` decimal(10,2) DEFAULT NULL COMMENT 'น้ำหนักที่บันทึกไว้ในคลังศูนย์',
+  `waste_sale_detail_sold_weight` decimal(10,2) DEFAULT NULL COMMENT 'น้ำหนัก ณ วันที่จำหน่าย',
+  `waste_sale_detail_sold_rate` decimal(10,2) DEFAULT NULL COMMENT 'อัตรารับซื้อต่อหน่วย ณ วันที่จำหน่าย',
+  `waste_sale_detail_total_price` decimal(12,2) DEFAULT NULL COMMENT 'ราคารวม',
+  `waste_sale_detail_status` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `waste_sale_detail`
+--
+
+INSERT INTO `waste_sale_detail` (`waste_sale_detail_id`, `waste_sale_id`, `waste_type_id`, `waste_sale_detail_data_weight`, `waste_sale_detail_sold_weight`, `waste_sale_detail_sold_rate`, `waste_sale_detail_total_price`, `waste_sale_detail_status`) VALUES
+(000001, 000004, 006, 9.24, NULL, NULL, NULL, 0),
+(000002, 000004, 009, 6.31, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -344,7 +399,7 @@ CREATE TABLE `waste_sale` (
 --
 
 CREATE TABLE `waste_transaction` (
-  `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `member_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `staff_id` int(6) UNSIGNED ZEROFILL NOT NULL,
@@ -357,6 +412,15 @@ CREATE TABLE `waste_transaction` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `waste_transaction`
+--
+
+INSERT INTO `waste_transaction` (`waste_transaction_id`, `member_id`, `faculty_id`, `staff_id`, `waste_transaction_total_weight`, `waste_transaction_total_point`, `waste_transaction_total_fraction`, `waste_transaction_date`, `waste_transaction_note`, `waste_transaction_status`, `created_at`) VALUES
+(000001, 000005, 001, 000001, 11.55, 100, 0.6800, '2026-01-16', NULL, 'completed', '2026-01-16 23:25:57'),
+(000002, 000047, 001, 000001, 2.00, 22, 0.0000, '2026-01-16', NULL, 'completed', '2026-01-16 23:26:35'),
+(000005, 000042, 001, 000001, 2.00, 22, 0.0000, '2026-01-10', NULL, 'completed', '2026-01-10 23:44:05');
+
 -- --------------------------------------------------------
 
 --
@@ -364,17 +428,29 @@ CREATE TABLE `waste_transaction` (
 --
 
 CREATE TABLE `waste_transaction_detail` (
-  `waste_transaction_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL,
-  `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL,
+  `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_type_id` int(3) UNSIGNED ZEROFILL NOT NULL,
   `waste_transaction_detail_weight` decimal(10,2) NOT NULL,
   `waste_transaction_detail_rate` decimal(10,2) NOT NULL,
   `waste_transaction_detail_point` int(11) NOT NULL,
   `waste_transaction_detail_fraction` decimal(10,4) NOT NULL,
-  `waste_transaction_detail_status` enum('อยู่ที่คลังคณะ','เตรียมนำเข้าศูนย์ใหญ่','อยู่ที่คลังศูนย์ใหญ่','จำหน่ายแล้ว') DEFAULT 'อยู่ที่คลังคณะ',
-  `waste_clearance_id` int(11) UNSIGNED ZEROFILL DEFAULT NULL
+  `waste_transaction_detail_status` enum('อยู่ที่คลังคณะ','เตรียมนำเข้าศูนย์ใหญ่','อยู่ที่คลังศูนย์ใหญ่','เตรียมจำหน่าย','จำหน่ายแล้ว') DEFAULT 'อยู่ที่คลังคณะ',
+  `waste_clearance_id` int(6) UNSIGNED ZEROFILL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `waste_transaction_detail`
+--
+
+INSERT INTO `waste_transaction_detail` (`waste_transaction_detail_id`, `waste_transaction_id`, `waste_category_id`, `waste_type_id`, `waste_transaction_detail_weight`, `waste_transaction_detail_rate`, `waste_transaction_detail_point`, `waste_transaction_detail_fraction`, `waste_transaction_detail_status`, `waste_clearance_id`) VALUES
+(000001, 000001, 002, 009, 4.31, 4.00, 86, 0.2000, 'เตรียมจำหน่าย', 000003),
+(000002, 000001, 004, 006, 7.24, 0.40, 14, 0.4800, 'เตรียมจำหน่าย', 000003),
+(000003, 000002, 002, 009, 1.00, 4.00, 20, 0.0000, 'เตรียมจำหน่าย', 000003),
+(000004, 000002, 004, 006, 1.00, 0.40, 2, 0.0000, 'เตรียมจำหน่าย', 000003),
+(000005, 000005, 002, 009, 1.00, 4.00, 20, 0.0000, 'เตรียมจำหน่าย', 000004),
+(000006, 000005, 004, 006, 1.00, 0.40, 2, 0.0000, 'เตรียมจำหน่าย', 000004);
 
 -- --------------------------------------------------------
 
@@ -465,7 +541,6 @@ ALTER TABLE `member`
   ADD PRIMARY KEY (`member_id`),
   ADD UNIQUE KEY `member_phone_UNIQUE` (`member_phone`),
   ADD UNIQUE KEY `member_student_id` (`member_personal_id`),
-  ADD UNIQUE KEY `member_name_UNIQUE` (`member_name`),
   ADD UNIQUE KEY `member_email_UNIQUE` (`member_email`),
   ADD KEY `fk_member_faculty_id` (`faculty_id`),
   ADD KEY `fk_member_role_id` (`role_id`),
@@ -526,8 +601,15 @@ ALTER TABLE `waste_clearance`
 -- Indexes for table `waste_sale`
 --
 ALTER TABLE `waste_sale`
-  ADD PRIMARY KEY (`waste_sale_id`),
-  ADD KEY `fk_waste_sale_category_id` (`waste_sale_category_id`);
+  ADD PRIMARY KEY (`waste_sale_id`);
+
+--
+-- Indexes for table `waste_sale_detail`
+--
+ALTER TABLE `waste_sale_detail`
+  ADD PRIMARY KEY (`waste_sale_detail_id`),
+  ADD KEY `fk_wsd_sale_id` (`waste_sale_id`),
+  ADD KEY `fk_wsd_type_id` (`waste_type_id`);
 
 --
 -- Indexes for table `waste_transaction`
@@ -570,7 +652,7 @@ ALTER TABLE `badge`
 -- AUTO_INCREMENT for table `clearance_detail`
 --
 ALTER TABLE `clearance_detail`
-  MODIFY `clearance_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `donation`
@@ -588,7 +670,7 @@ ALTER TABLE `faculty`
 -- AUTO_INCREMENT for table `faculty_point`
 --
 ALTER TABLE `faculty_point`
-  MODIFY `faculty_point_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `faculty_point_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `major`
@@ -636,31 +718,37 @@ ALTER TABLE `system_log`
 -- AUTO_INCREMENT for table `waste_category`
 --
 ALTER TABLE `waste_category`
-  MODIFY `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `waste_category_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `waste_clearance`
 --
 ALTER TABLE `waste_clearance`
-  MODIFY `waste_clearance_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `waste_sale`
 --
 ALTER TABLE `waste_sale`
-  MODIFY `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_sale_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `waste_sale_detail`
+--
+ALTER TABLE `waste_sale_detail`
+  MODIFY `waste_sale_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `waste_transaction`
 --
 ALTER TABLE `waste_transaction`
-  MODIFY `waste_transaction_id` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `waste_transaction_detail`
 --
 ALTER TABLE `waste_transaction_detail`
-  MODIFY `waste_transaction_detail_id` int(11) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `waste_type`
@@ -678,6 +766,13 @@ ALTER TABLE `waste_type`
 ALTER TABLE `clearance_detail`
   ADD CONSTRAINT `fk_clearance_detail_clearance` FOREIGN KEY (`waste_clearance_id`) REFERENCES `waste_clearance` (`waste_clearance_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_clearance_detail_waste_type` FOREIGN KEY (`waste_type_id`) REFERENCES `waste_type` (`waste_type_id`);
+
+--
+-- Constraints for table `waste_sale_detail`
+--
+ALTER TABLE `waste_sale_detail`
+  ADD CONSTRAINT `fk_wsd_sale` FOREIGN KEY (`waste_sale_id`) REFERENCES `waste_sale` (`waste_sale_id`),
+  ADD CONSTRAINT `fk_wsd_type` FOREIGN KEY (`waste_type_id`) REFERENCES `waste_type` (`waste_type_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
