@@ -69,7 +69,7 @@ INSERT INTO `clearance_detail` (`clearance_detail_id`, `waste_clearance_id`, `wa
 --
 
 CREATE TABLE `donation` (
-  `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
   `member_id` int(6) DEFAULT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
   `faculty_id` int(3) DEFAULT NULL COMMENT 'ถ้าบริจาคให้คณะ',
   `donation_description` text DEFAULT NULL,
@@ -77,7 +77,10 @@ CREATE TABLE `donation` (
   `donation_goodness_point` int(11) DEFAULT NULL COMMENT 'แต้มความดีให้ donor',
   `donation_reason` text DEFAULT NULL COMMENT 'เหตุผลถ้าพิเศษ',
   `donation_date` date DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`donation_id`),
+  KEY `fk_donation_member_id` (`member_id`),
+  KEY `fk_donation_faculty_id` (`faculty_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

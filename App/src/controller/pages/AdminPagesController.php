@@ -241,4 +241,22 @@ class AdminPagesController extends RouterBase
             exit;
         }
     }
+
+    public function RedeemRewards()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/redeem_rewards', [
+                'pages' => "redeemRewards",
+                'title' => 'แลกของรางวัล',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
 }
