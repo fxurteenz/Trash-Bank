@@ -94,10 +94,12 @@ class Routes
             ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/donations", [AdminPagesController::class, "ManageDonations"]],
             ["GET", "/manage/redeem_rewards", [AdminPagesController::class, "RedeemRewards"]],
+            ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
+
         ]);
 
         /* API */

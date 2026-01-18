@@ -259,4 +259,23 @@ class AdminPagesController extends RouterBase
             exit;
         }
     }
+
+    public function WasteSaleHistory()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/waste_sale', [
+                'pages' => "wasteSaleHistory",
+                'title' => 'ประวัติการจำหน่ายขยะ',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
 }

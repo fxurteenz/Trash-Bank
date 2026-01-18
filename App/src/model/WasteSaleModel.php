@@ -123,20 +123,29 @@ class WasteSaleModel
             $whereClauses = [];
             $params = [];
 
-            if (!empty($query['start_date'])) {
-                $whereClauses[] = "ws.created_at >= :start_date";
-                $params[':start_date'] = $query['start_date'];
-            }
-            if (!empty($query['end_date'])) {
-                $whereClauses[] = "ws.created_at <= :end_date";
-                $params[':end_date'] = $query['end_date'];
-            }
             if (!empty($query['status'])) {
                 $whereClauses[] = "ws.waste_sale_status = :status";
                 $params[':status'] = $query['status'];
             }
 
+            if (!empty($query['search'])) {
+                $whereClauses[] = "(ws.waste_sale_buyer LIKE :search OR m.member_name LIKE :search)";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+
+            $sqlCount = "SELECT COUNT(*) AS total 
+                         FROM waste_sale ws
+                         LEFT JOIN member m ON ws.created_by = m.member_id
+                         {$whereSql}";
+            $stmtCount = $this->Conn->prepare($sqlCount);
+            foreach ($params as $key => $value) {
+                $stmtCount->bindValue($key, $value);
+            }
+            $stmtCount->execute();
+            $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+
 
             $sql = "SELECT 
                         ws.*,
@@ -165,17 +174,6 @@ class WasteSaleModel
             }
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $total = count($result);
-
-            if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS total FROM waste_sale ws {$whereSql}";
-                $stmtCount = $this->Conn->prepare($sqlCount);
-                foreach ($params as $key => $value) {
-                    $stmtCount->bindValue($key, $value);
-                }
-                $stmtCount->execute();
-                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
-            }
 
             return [
                 'data' => $result,
