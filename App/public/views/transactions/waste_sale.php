@@ -1,7 +1,7 @@
 <div x-data="WasteSaleHandler()" x-init="init()" class="space-y-6 relative">
     <!-- Page Intro -->
     <div class="mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบจำหน่ายขยะ (POS)</h1>
+        <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบจำหน่ายขยะ</h1>
         <p class="text-slate-600 text-lg">สร้างรายการขายตรงจากคลังศูนย์ใหญ่</p>
     </div>
 

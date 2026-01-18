@@ -223,6 +223,44 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function TransactionDonation()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('transactions/donation_pos', [
+                'pages' => "donationTransaction",
+                'title' => 'ระบบรับสิ่งของบริจาค',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function TransactionReward()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('transactions/redeem_reward_pos', [
+                'pages' => "redeeemRewardTransaction",
+                'title' => 'ระบบแลกของรางวัล',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
     public function ManageDonations()
     {
         try {
