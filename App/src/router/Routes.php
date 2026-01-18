@@ -216,6 +216,22 @@ class Routes
             ['POST', '/delete/[i:id]', [MajorController::class, 'DeleteById']],
             ['POST', '/delete', [MajorController::class, 'Delete']],
         ]);
+        /* /api/donations */
+        $this->addPrefixedRoutes("/api/donations", [
+            ['GET', '', [DonationController::class, 'GetAll']],
+            ['GET', '/[i:id]', [DonationController::class, 'Get']],
+            ['POST', '', [DonationController::class, 'Create']],
+            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
+            ['POST', '/delete', [DonationController::class, 'Delete']],
+        ]);
+        /* /api/member_rewards */
+        $this->addPrefixedRoutes("/api/member_rewards", [
+            ['GET', '', [MemberRewardController::class, 'GetAll']],
+            ['GET', '/[i:id]', [MemberRewardController::class, 'Get']],
+            ['POST', '', [MemberRewardController::class, 'Create']],
+            ['POST', '/update/[i:id]', [MemberRewardController::class, 'Update']],
+            ['POST', '/delete', [MemberRewardController::class, 'Delete']],
+        ]);
         /* /api/users */
         $this->addPrefixedRoutes("/api/clearances", [
             ['GET', "", [WasteClearanceController::class, "GetAll"]],
