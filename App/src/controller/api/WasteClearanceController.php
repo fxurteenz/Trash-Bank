@@ -77,7 +77,7 @@ class WasteClearanceController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::OperateAuth();
+            Authentication::CenterAuth();
             $result = self::$WasteClearanceModel->GetAllClearance(self::$QueryString);
 
             header('Content-Type: application/json');
@@ -110,7 +110,7 @@ class WasteClearanceController extends RouterBase
     public function Get($wcid)
     {
         try {
-            Authentication::OperateAuth();
+            Authentication::CenterAuth();
             $result = self::$WasteClearanceModel->GetClearanceDetail($wcid, self::$QueryString);
 
             header('Content-Type: application/json');
