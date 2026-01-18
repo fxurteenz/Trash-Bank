@@ -1,64 +1,130 @@
-<div class="space-y-6">
-    <!-- Page Intro -->
-    <div class="mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">🧹 เคลียร์ยอดฝากขยะ</h1>
-        <p class="text-slate-600 text-lg">ยืนยันและเคลียร์บัญชีฝากขยะของคณะ</p>
+<div class="grid grid-cols-1 gap-4">
+
+    <div class="mb-4">
+        <h2 class="text-4xl font-bold">เคลียร์ยอดฝากขยะ</h2>
+        <h2 class="text-lg font-light text-gray-500">เปิดรายการ</h2>
+    </div>
+    <!-- ส่วนฟอร์ม -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">
+            <span>🔍 ระบุคณะและช่วงเวลา</span>
+        </h2>
+
+        <div x-data="centerConfirmForm()" x-init="init()" class="space-y-4">
+
+            <form @submit.prevent="confirmSubmit" class="grid grid-cols-3 md:grid-cols-12 gap-4 items-end">
+                <!-- ช่องกรอกคณะ -->
+                <div class="relative md:col-span-4" @click.away="showDropdown = false">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
+
+                    <div x-show="!currentFaculty">
+                        <!-- input -->
+                        <input x-ref="facultyInput" x-model="facultySearch" @input.debounce.300ms="searchFaculty()"
+                            @focus="showDropdown = true" @keydown.enter.prevent="handleEnterKey()"
+                            @keydown.tab.prevent="handleTabKey()" @keydown.escape="showDropdown = false"
+                            @keydown.arrow-down.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
+                            type="text" placeholder="กรอกรหัส ชื่อคณะ หรือชื่อย่อคณะ"
+                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                            autocomplete="off" />
+                        <!-- dropdown -->
+                        <div x-show="showDropdown && (facultyResults.length > 0 || isSearching)"
+                            class="absolute top-full left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div x-show="isSearching" class="p-2 text-center text-sm text-gray-500">
+                                🔎 กำลังค้นหา...
+                            </div>
+                            <ul>
+                                <template x-for="(faculty, index) in facultyResults" :key="faculty.faculty_id">
+                                    <li @click="selectFaculty(faculty)"
+                                        :class="{ 'bg-emerald-100': index === selectedIndex, 'hover:bg-emerald-50': index !== selectedIndex }"
+                                        class="px-3 py-2 cursor-pointer border-b border-gray-100 last:border-0">
+                                        <p class="font-semibold" x-text="faculty.faculty_name"></p>
+                                        <p class="text-xs text-gray-600"
+                                            x-text="`ID: ${faculty.faculty_id} | Code: ${faculty.faculty_code || 'N/A'}`">
+                                        </p>
+                                    </li>
+                                </template>
+                            </ul>
+                            <div x-show="!isSearching && facultyResults.length === 0 && facultySearch.length > 0"
+                                class="p-2 text-center text-sm text-gray-500">ไม่พบข้อมูลคณะ</div>
+                        </div>
+                    </div>
+
+                    <!-- selected faculty -->
+                    <div x-show="currentFaculty"
+                        class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 flex justify-between items-center">
+                        <div>
+                            <p class="font-semibold text-emerald-800" x-text="currentFaculty?.faculty_name"></p>
+                            <p class="text-xs text-emerald-600"
+                                x-text="`ID: ${currentFaculty?.faculty_id} | Code: ${currentFaculty?.faculty_code || 'N/A'}`">
+                            </p>
+                        </div>
+                        <button type="button" @click="resetFaculty()" class="text-red-500 hover:text-red-700 text-sm">
+                            เปลี่ยน
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
+                    <div class="relative w-full text-gray-700">
+                        <input x-ref="startDateInput" type="date" x-model="form.waste_clearance_period_start" required
+                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
+                    <div class="relative w-full text-gray-700">
+                        <input type="date" x-model="form.waste_clearance_period_end" required
+                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-3 md:col-span-2">
+                    <button type="submit"
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-full shadow transition">ยืนยัน</button>
+                </div>
+            </form>
+
+            <div x-show="submitting" class="text-sm text-emerald-600">กำลังส่งคำขอยืนยัน...</div>
+        </div>
     </div>
 
-    <!-- Clear Request Form -->
-    <div x-data="centerConfirmForm()" x-init="init()" class="bg-white rounded-xl shadow-md p-6 card-hover">
-        <h2 class="text-2xl font-bold text-slate-900 mb-5">📝 ส่งคำขอเคลียร์ยอด</h2>
+    <div x-data="clearanceHistory()" x-init="init()" @clearance-updated.window="fetchClearances()"
+        class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold">จัดการรายการเคลียร์ยอด</h2>
+            <h2 class="text-lg font-light text-gray-500
+            <button @click=" fetchClearances()" class="text-sm text-emerald-600 hover:underline">รีเฟรช</button>
+        </div>
 
-        <form @submit.prevent="confirmSubmit" class="space-y-4">
+        <!-- Filters -->
+        <div class="bg-gray-50 p-4 rounded border border-gray-100">
+            <div class="w-full flex flex-row-reverse gap-4 items-end">
+                <button @click="resetFilters()"
+                    class="text-sm text-gray-500 hover:text-gray-700 hover:underline">ล้างตัวกรอง</button>
+
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">คณะ</label>
-                    <select x-model="form.faculty_id" required
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition bg-white">
-                        <option value="">-- เลือกคณะ --</option>
-                        <template x-for="f in faculties" :key="f.faculty_id">
-                            <option :value="f.faculty_id" x-text="f.faculty_name"></option>
-                        </template>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">จากวันที่</label>
-                    <input type="date" x-model="form.waste_clearance_period_start" required
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition bg-white">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">ถึงวันที่</label>
-                    <input type="date" x-model="form.waste_clearance_period_end" required
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition bg-white">
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-4">
-                <button type="submit" :disabled="submitting"
-                    class="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg font-semibold transition-colors flex items-center gap-2">
-                    <span x-show="!submitting">✅</span>
-                    <span x-show="submitting">⏳</span>
-                    <span x-text="submitting ? 'กำลังประมวลผล...' : 'ส่งคำขอ'"></span>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- History Section -->
-    <div x-data="clearanceHistory()" x-init="init()" @clearance-updated.window="fetchClearances()"
-        class="space-y-6">
-        
-        <!-- Filters -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-            <h2 class="text-xl font-bold text-slate-900 mb-5">🔍 ตัวกรองประวัติ</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">คณะ</label>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
                     <select x-model="filters.faculty" @change="fetchClearances()"
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white">
+                        class="w-full text-xs bg-white px-4 py-1.5 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
                         <option value="">ทั้งหมด</option>
                         <template x-for="f in faculties" :key="f.faculty_id">
                             <option :value="f.faculty_id" x-text="f.faculty_name"></option>
@@ -66,205 +132,310 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">จากวันที่</label>
-                    <input type="date" x-model="filters.start_date" @change="fetchClearances()"
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
+                    <div class="relative w-full text-gray-700">
+                        <input type="date" x-model="filters.stat_date" @change="fetchClearances()"
+                            class="w-full text-sm px-2 py-1.5 bg-white border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">ถึงวันที่</label>
-                    <input type="date" x-model="filters.end_date" @change="fetchClearances()"
-                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition bg-white">
+                    <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
+                   <div class="relative w-full text-gray-700">
+                        <input x-ref="startDateInput" type="date" x-model="filters.end_date" @change="fetchClearances()"
+                            class="w-full text-sm px-2 py-1.5 bg-white border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <button @click="resetFilters()"
-                    class="px-4 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-semibold transition-colors">
-                    🔄 ล้าง
-                </button>
             </div>
         </div>
 
         <!-- Table -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
-            <div class="p-6 border-b border-slate-200">
-                <h2 class="text-xl font-bold text-slate-900">📋 ประวัติการเคลียร์ยอด</h2>
-                <p class="text-sm text-slate-600 mt-1">พบ <span x-text="items.length"></span> รายการ</p>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-slate-100 border-b-2 border-slate-300">
-                        <tr class="text-left text-sm font-bold text-slate-700">
-                            <th class="px-6 py-4">วันที่ทำรายการ</th>
-                            <th class="px-6 py-4">คณะ</th>
-                            <th class="px-6 py-4">ช่วงเวลา</th>
-                            <th class="px-6 py-4 text-center">สถานะ</th>
-                            <th class="px-6 py-4 text-center">จัดการ</th>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="text-gray-700 border-b border-sky-300 bg-gradient-to-b from-sky-50 to-sky-100">
+                    <tr>
+                        <th class="py-2 px-4">วันที่ทำรายการ</th>
+                        <th class="py-2 px-4">คณะ</th>
+                        <th class="py-2 px-4">ช่วงเวลา</th>
+                        <th class="py-2 px-4 text-center">สถานะ</th>
+                        <th class="py-2 px-4 text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <template x-if="loading">
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-gray-500">
+                                <div class="flex justify-center items-center">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-200">
-                        <template x-if="loading">
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center">
-                                    <span class="text-slate-500">⏳ กำลังโหลด...</span>
-                                </td>
-                            </tr>
-                        </template>
-                        <template x-if="!loading && items.length === 0">
-                            <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                                    <p class="text-lg font-medium">📭 ไม่มีข้อมูล</p>
-                                </td>
-                            </tr>
-                        </template>
-                        <template x-for="item in items" :key="item.waste_clearance_id">
-                            <tr class="hover:bg-slate-50 transition text-sm text-slate-700">
-                                <td class="px-6 py-4 font-medium" x-text="formatDate(item.created_at)"></td>
-                                <td class="px-6 py-4" x-text="item.faculty_name || item.faculty_id || '-'"></td>
-                                <td class="px-6 py-4">
-                                    <span x-text="formatDate(item.waste_clearance_period_start)"></span> - 
-                                    <span x-text="formatDate(item.waste_clearance_period_end)"></span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <template x-if="item.waste_clearance_status === 'รอการยืนยัน'">
-                                        <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">⏳ รอการยืนยัน</span>
-                                    </template>
-                                    <template x-if="item.waste_clearance_status === 'ยืนยันแล้ว'">
-                                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">✅ ยืนยันแล้ว</span>
-                                    </template>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button @click="openDetail(item)"
-                                            class="px-3 py-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-colors">
-                                            👁️ ดู
-                                        </button>
-                                        <template x-if="item.waste_clearance_status === 'รอการยืนยัน' && userRole === 'admin'">
-                                            <button @click="openManagePage(item.waste_clearance_id)"
-                                                class="px-3 py-2 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors">
-                                                ✏️ จัดการ
-                                            </button>
-                                        </template>
-                                    </div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Detail Modal -->
-    <dialog x-show="detailDialogShow" x-ref="detailDialog" @click.self="detailDialogShow = false"
-        class="fixed inset-0 mx-auto my-auto p-6 bg-transparent z-50 backdrop:bg-black/50"
-        x-init="$watch('detailDialogShow', value => {if (value) $refs.detailDialog.showModal();else $refs.detailDialog.close();})">
-        <div class="bg-white p-8 rounded-xl shadow-2xl max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h3 class="text-2xl font-bold text-slate-900">📋 รายละเอียดการเคลียร์ยอด</h3>
-                    <template x-if="detailItem">
-                        <p class="text-sm text-slate-600 mt-2">
-                            <span x-text="formatDate(detailItem.waste_clearance_period_start)"></span> ถึง
-                            <span x-text="formatDate(detailItem.waste_clearance_period_end)"></span>
-                        </p>
                     </template>
-                </div>
-                <button @click="detailDialogShow = false" class="text-slate-400 hover:text-slate-600">
-                    <span class="text-2xl">✕</span>
-                </button>
-            </div>
-
-            <div class="space-y-6" x-show="detailItem">
-                <!-- Info Grid -->
-                <div class="grid grid-cols-3 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <div>
-                        <p class="text-slate-600 text-sm font-medium">วันที่ทำรายการ</p>
-                        <p class="font-bold text-slate-900" x-text="formatDate(detailItem.created_at)"></p>
-                    </div>
-                    <div>
-                        <p class="text-slate-600 text-sm font-medium">คณะ</p>
-                        <p class="font-bold text-slate-900" x-text="detailItem.faculty_name || '-'"></p>
-                    </div>
-                    <div>
-                        <p class="text-slate-600 text-sm font-medium">สถานะ</p>
-                        <p class="font-bold" :class="detailItem.waste_clearance_status === 'ยืนยันแล้ว' ? 'text-green-600' : 'text-yellow-600'"
-                            x-text="detailItem.waste_clearance_status"></p>
-                    </div>
-                </div>
-
-                <!-- Items Table -->
-                <div class="border rounded-lg overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-100 border-b border-slate-300">
-                            <tr class="text-left font-bold text-slate-700">
-                                <th class="px-4 py-3">หมวดหมู่</th>
-                                <th class="px-4 py-3">ประเภท</th>
-                                <th class="px-4 py-3 text-right">น้ำหนัก (ระบบ)</th>
-                                <th class="px-4 py-3 text-right">น้ำหนัก (จริง)</th>
-                                <th class="px-4 py-3 text-center">สถานะ</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200">
-                            <template x-if="detailLoading">
-                                <tr>
-                                    <td colspan="5" class="px-4 py-6 text-center text-slate-500">⏳ กำลังโหลด...</td>
-                                </tr>
-                            </template>
-                            <template x-if="!detailLoading && detailList.length === 0">
-                                <tr>
-                                    <td colspan="5" class="px-4 py-6 text-center text-slate-500">📭 ไม่มีรายการ</td>
-                                </tr>
-                            </template>
-                            <template x-for="d in detailList" :key="d.clearance_detail_id">
-                                <tr class="hover:bg-slate-50 transition">
-                                    <td class="px-4 py-3 font-medium text-slate-900" x-text="d.waste_category_name"></td>
-                                    <td class="px-4 py-3" x-text="d.waste_type_name"></td>
-                                    <td class="px-4 py-3 text-right font-medium" x-text="parseFloat(d.clearance_detail_transaction_weight).toFixed(2)"></td>
-                                    <td class="px-4 py-3 text-right" x-text="d.clearance_detail_clearance_weight ? parseFloat(d.clearance_detail_clearance_weight).toFixed(2) : '-'"></td>
-                                    <td class="px-4 py-3 text-center">
-                                        <span x-show="d.clearance_detail_success == 1" class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">✅ สำเร็จ</span>
-                                        <span x-show="d.clearance_detail_success != 1" class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold">⏳ รอ</span>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                    <template x-if="!loading && items.length === 0">
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+                        </tr>
+                    </template>
+                    <template x-for="item in items" :key="item.waste_clearance_id">
+                        <tr class="hover:bg-gray-50 hover:cursor-pointer">
+                            <td class="py-3 px-4" x-text="formatDate(item.created_at)" @click="openDetail(item)"></td>
+                            <td class="py-3 px-4" x-text="item.faculty_name || item.faculty_id || '-'"
+                                @click="openDetail(item)"></td>
+                            <td class="py-3 px-4" @click="openDetail(item)">
+                                <span x-text="formatDate(item.waste_clearance_period_start)"></span> -
+                                <span x-text="formatDate(item.waste_clearance_period_end)"></span>
+                            </td>
+                            <td class="py-3 px-4 text-center" @click="openDetail(item)">
+                                <span x-show="item.waste_clearance_status === 'รอการยืนยัน'"
+                                    class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">รอการยืนยัน</span>
+                                <span x-show="item.waste_clearance_status === 'ยืนยันแล้ว'"
+                                    class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">ยืนยันแล้ว</span>
+                            </td>
+                            <td class="py-3 px-4 text-center flex justify-center gap-2">
+                                <button x-show="item.waste_clearance_status === 'รอการยืนยัน'"
+                                    class="text-yellow-500 text-xl hover:text-yellow-700 hover:cursor-pointer"
+                                    @click="openManagePage(item.waste_clearance_id)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M14.5 11c.28 0 .5.22.5.5V13H9v-1.5c0-.28.22-.5.5-.5zm5.5 2.55V10h-2v3.06c.69.08 1.36.25 2 .49M21 9H3V3h18zm-2-4H5v2h14zM8.85 19H6v-9H4v11h5.78c-.24-.39-.46-.81-.64-1.25zM17 18c-.56 0-1 .44-1 1s.44 1 1 1s1-.44 1-1s-.44-1-1-1m6 1c-.94 2.34-3.27 4-6 4s-5.06-1.66-6-4c.94-2.34 3.27-4 6-4s5.06 1.66 6 4m-3.5 0a2.5 2.5 0 0 0-5 0a2.5 2.5 0 0 0 5 0" />
+                                    </svg>
+                                </button>
+                                <button x-show="item.waste_clearance_status === 'รอการยืนยัน'"
+                                    class="text-red-500 text-xl hover:text-red-700 hover:cursor-pointer"
+                                    @click="cancleClearance(item.waste_clearance_id)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M14.5 11c.28 0 .5.22.5.5V13H9v-1.5c0-.28.22-.5.5-.5zm4 1c.5 0 1 .07 1.5.18V10h-2v2.03c.17-.03.33-.03.5-.03M6 19v-9H4v11h8.5c-.26-.62-.41-1.3-.47-2zM21 9H3V3h18zm-2-4H5v2h14zm4 13.5c0 2.5-2 4.5-4.5 4.5S14 21 14 18.5s2-4.5 4.5-4.5s4.5 2 4.5 4.5m-3 2.58L15.92 17c-.27.42-.42.94-.42 1.5c0 1.66 1.34 3 3 3c.56 0 1.08-.15 1.5-.42m1.5-2.58c0-1.66-1.34-3-3-3c-.56 0-1.08.15-1.5.42L21.08 20c.27-.42.42-.94.42-1.5" />
+                                    </svg>
+                                </button>
+                                <span x-show="item.waste_clearance_status === 'ยืนยันแล้ว'"
+                                    class="text-green-600 flex justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M20 6 9 17l-5-5" />
+                                    </svg>
+                                </span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
-    </dialog>
+
+        <!-- Detail Dialog -->
+        <dialog x-show="detailDialogShow" x-ref="detailDialog" @click.self="detailDialogShow = false"
+            @close="detailDialogShow = false"
+            class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50 backdrop:bg-gray-500/50"
+            x-init="$watch('detailDialogShow', value => {if (value) $refs.detailDialog.showModal();else $refs.detailDialog.close();})">
+            <div class="bg-white p-6 rounded-lg shadow-xl max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">รายละเอียดการเคลียร์ยอด</h3>
+                        <template x-if="detailItem">
+                            <p class="text-sm text-gray-600">
+                                รอบ: <span x-text="formatDate(detailItem.waste_clearance_period_start)"></span> - <span
+                                    x-text="formatDate(detailItem.waste_clearance_period_end)"></span>
+                            </p>
+                        </template>
+                    </div>
+                    <button @click="detailDialogShow = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-4" x-show="detailItem">
+                    <div
+                        class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm bg-gray-50 p-3 rounded border border-gray-100">
+                        <div>
+                            <span class="block text-gray-500 text-xs">วันที่ทำรายการ</span>
+                            <span class="font-medium" x-text="formatDate(detailItem.created_at)"></span>
+                        </div>
+                        <div>
+                            <span class="block text-gray-500 text-xs">คณะ</span>
+                            <span class="font-medium" x-text="detailItem.faculty_name || '-'"></span>
+                        </div>
+                        <div>
+                            <span class="block text-gray-500 text-xs">สถานะ</span>
+                            <span class="font-medium" x-text="detailItem.waste_clearance_status"></span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border rounded-lg">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th class="py-2 px-3">หมวดหมู่</th>
+                                    <th class="py-2 px-3">ประเภท</th>
+                                    <th class="py-2 px-3 text-right">น้ำหนัก (ระบบ)</th>
+                                    <th class="py-2 px-3 text-right">น้ำหนัก (จริง)</th>
+                                    <th class="py-2 px-3 text-center">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-if="detailLoading">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">กำลังโหลด...</td>
+                                    </tr>
+                                </template>
+                                <template x-if="!detailLoading && detailList.length === 0">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-gray-500">ไม่มีรายการ</td>
+                                    </tr>
+                                </template>
+                                <template x-for="d in detailList" :key="d.clearance_detail_id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-2 px-3" x-text="d.waste_category_name"></td>
+                                        <td class="py-2 px-3" x-text="d.waste_type_name"></td>
+                                        <td class="py-2 px-3 text-right" x-text="d.clearance_detail_transaction_weight">
+                                        </td>
+                                        <td class="py-2 px-3 text-right"
+                                            x-text="d.clearance_detail_clearance_weight || '-'"></td>
+                                        <td class="py-2 px-3 text-center"
+                                            x-text="d.clearance_detail_success == 1 ? 'สำเร็จ' : 'รอ/ไม่สำเร็จ'"></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
+    </div>
 </div>
 
 <script>
     function centerConfirmForm() {
         return {
-            faculties: [],
             submitting: false,
             form: {
                 faculty_id: '',
                 waste_clearance_period_start: '',
                 waste_clearance_period_end: ''
             },
+            // Faculty Search
+            facultySearch: '',
+            facultyResults: [],
+            currentFaculty: null,
+            showDropdown: false,
+            isSearching: false,
+            selectedIndex: -1,
 
-            async init() {
-                try {
-                    const res = await fetch('/api/faculties');
-                    const data = await res.json();
-                    this.faculties = data.data || [];
-                } catch (err) {
-                    console.error('Failed to load faculties', err);
+            init() {
+                // No initial data loading needed for faculty
+                this.$nextTick(() => {
+                    if (this.$refs.facultyInput) {
+                        this.$refs.facultyInput.focus();
+                    }
+                });
+            },
+
+            async searchFaculty() {
+                if (!this.facultySearch.trim()) {
+                    this.facultyResults = [];
+                    this.showDropdown = false;
+                    return;
                 }
+
+                this.isSearching = true;
+                this.showDropdown = true;
+
+                try {
+                    const res = await fetch(`/api/faculties?search=${encodeURIComponent(this.facultySearch)}&limit=10`);
+                    const data = await res.json();
+                    if (data.success) {
+                        this.facultyResults = data.data || [];
+                    } else {
+                        this.facultyResults = [];
+                    }
+                } catch (err) {
+                    console.error('Failed to search faculties', err);
+                    this.facultyResults = [];
+                } finally {
+                    this.isSearching = false;
+                }
+            },
+
+            handleEnterKey() {
+                if (this.selectedIndex >= 0 && this.facultyResults[this.selectedIndex]) {
+                    this.selectFaculty(this.facultyResults[this.selectedIndex]);
+                }
+            },
+
+            handleTabKey() {
+                if (this.showDropdown && this.facultyResults.length > 0) {
+                    this.selectFaculty(this.facultyResults[0]);
+                    this.$nextTick(() => this.$refs.startDateInput.focus());
+                }
+            },
+
+            moveSelection(step) {
+                if (!this.showDropdown || this.facultyResults.length === 0) return;
+                this.selectedIndex += step;
+                if (this.selectedIndex < 0) {
+                    this.selectedIndex = this.facultyResults.length - 1;
+                } else if (this.selectedIndex >= this.facultyResults.length) {
+                    this.selectedIndex = 0;
+                }
+            },
+
+            selectFaculty(faculty) {
+                this.currentFaculty = faculty;
+                this.form.faculty_id = faculty.faculty_id;
+                this.showDropdown = false;
+                this.facultySearch = '';
+                this.facultyResults = [];
+                this.selectedIndex = -1;
+            },
+
+            resetFaculty() {
+                this.currentFaculty = null;
+                this.form.faculty_id = '';
+                this.facultySearch = '';
+                this.facultyResults = [];
+                this.selectedIndex = -1;
+                this.$nextTick(() => this.$refs.facultyInput.focus());
             },
 
             confirmSubmit() {
                 if (!this.form.faculty_id || !this.form.waste_clearance_period_start || !this.form.waste_clearance_period_end) {
-                    alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                    Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
                     return;
                 }
 
-                const faculty = this.faculties.find(f => f.faculty_id == this.form.faculty_id);
-                if (confirm(`ยืนยันการทำรายการ?\n\nคณะ: ${faculty?.faculty_name || '-'}\nวันที่: ${this.form.waste_clearance_period_start} ถึง ${this.form.waste_clearance_period_end}`)) {
-                    this.submit();
-                }
+                Swal.fire({
+                    title: 'ยืนยันการทำรายการนี้ ?',
+                    html: `<div class="text-left text-sm">
+                        <p><b>คณะ:</b> ${this.currentFaculty?.faculty_name || '-'} </p>
+                        <p><b>ช่วงเวลา:</b> ${this.form.waste_clearance_period_start} — ${this.form.waste_clearance_period_end}</p>
+                    </div>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'ใช่, ยืนยัน',
+                    cancelButtonText: 'ยกเลิก'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        await this.submit();
+                    }
+                });
             },
 
             async submit() {
@@ -272,13 +443,15 @@
                 try {
                     const res = await fetch('/api/clearances', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(this.form)
                     });
                     const data = await res.json();
                     if (res.ok) {
-                        alert('ส่งคำขอสำเร็จ');
-                        this.form.faculty_id = '';
+                        Swal.fire('สำเร็จ', data.message || 'ดำเนินการเรียบร้อย', 'success');
+                        this.resetFaculty();
                         this.form.waste_clearance_period_start = '';
                         this.form.waste_clearance_period_end = '';
                         window.dispatchEvent(new CustomEvent('clearance-updated'));
@@ -287,7 +460,7 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('เกิดข้อผิดพลาด: ' + err.message);
+                    Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถส่งคำขอได้', 'error');
                 } finally {
                     this.submitting = false;
                 }
@@ -297,7 +470,8 @@
 
     function clearanceHistory() {
         return {
-            userRole: '<?php echo $user->role_name ?? ""; ?>',
+            // TODO: can't get 
+            userRole: <?php echo json_encode($user["user_data"]->role_name ?? null) ?>,
             items: [],
             faculties: [],
             filters: {
@@ -306,15 +480,13 @@
                 end_date: ''
             },
             detailDialogShow: false,
-            detailItem: null,
+            detailItem: [],
             detailList: [],
             detailLoading: false,
             loading: false,
-
             async init() {
                 await Promise.all([this.fetchFaculties(), this.fetchClearances()]);
             },
-
             async fetchFaculties() {
                 try {
                     const res = await fetch('/api/faculties');
@@ -324,7 +496,6 @@
                     console.error('Failed to load faculties', err);
                 }
             },
-
             async fetchClearances() {
                 this.loading = true;
                 try {
@@ -345,7 +516,6 @@
                     this.loading = false;
                 }
             },
-
             async openDetail(item) {
                 this.detailItem = item;
                 this.detailDialogShow = true;
@@ -363,23 +533,60 @@
                     this.detailLoading = false;
                 }
             },
-
             openManagePage(wcid) {
+                console.log(this.userRole);
+
                 if (this.userRole === 'admin') {
                     window.location.href = `/admin/transactions/clear_waste/manage/${wcid}`;
-                } else if (this.userRole === 'center') {
+                }
+                if (this.userRole === 'center') {
                     window.location.href = `/waste_center/transactions/clear_waste/manage/${wcid}`;
                 }
             },
-
+            async cancleClearance(wcid) {
+                Swal.fire({
+                    title: 'ยืนยันการยกเลิก?',
+                    text: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกรายการนี้?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ยกเลิก',
+                    cancelButtonText: 'ไม่'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const res = await fetch(`/api/clearances/${wcid}`, {
+                                method: 'DELETE'
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                                Swal.fire('สำเร็จ', data.message || 'ยกเลิกรายการเรียบร้อย', 'success');
+                                this.fetchClearances();
+                            } else {
+                                throw new Error(data.message || 'เกิดข้อผิดพลาด');
+                            }
+                        } catch (err) {
+                            Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถยกเลิกรายการได้', 'error');
+                        }
+                    }
+                });
+            },
             resetFilters() {
-                this.filters = { faculty: '', start_date: '', end_date: '' };
+                this.filters = {
+                    faculty: '',
+                    start_date: '',
+                    end_date: ''
+                };
                 this.fetchClearances();
             },
-
             formatDate(d) {
                 if (!d) return '-';
-                return new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
+                return new Date(d).toLocaleDateString('th-TH', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: '2-digit'
+                });
             }
         }
     }

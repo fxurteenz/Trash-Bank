@@ -1,0 +1,22 @@
+meta {
+  name: Confirm Detail
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{api_domain}}/waste_sales/details/1/confirm
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  waste_sale_detail_sold_weight: 9.24
+  waste_sale_detail_sold_rate: 0.40
+  waste_sale_detail_total_price: 4
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

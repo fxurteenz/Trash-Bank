@@ -76,7 +76,7 @@ class WasteClearanceModel
                                 JOIN waste_transaction wt ON wtd.waste_transaction_id = wt.waste_transaction_id
                                 SET 
                                     wtd.waste_clearance_id = :clearance_id, 
-                                    wtd.waste_transaction_detail_status = 'เตรียมนำเข้าศูนย์ใหญ่'
+                                    wtd.waste_transaction_detail_status = 'เตรียมส่งศูนย์'
                                 WHERE 
                                     wt.faculty_id = :faculty_id 
                                     AND wt.waste_transaction_date BETWEEN :start_date AND :end_date
@@ -256,7 +256,6 @@ class WasteClearanceModel
             if (empty($cdid))
                 throw new Exception('ID is required', 400);
 
-            // ตรวจสอบว่ามี weight ส่งมาไหม (อนุญาตให้เป็น 0 ได้ แต่ห้าม null/empty string)
             $weight = $data['weight'] ?? null;
             if (!is_numeric($weight)) {
                 throw new Exception('กรุณาระบุน้ำหนักที่ชั่งได้จริง', 400);
@@ -265,41 +264,35 @@ class WasteClearanceModel
             $this->Conn->beginTransaction();
             $now = date('Y-m-d H:i:s');
 
-            // 1. หา waste_clearance_id จาก detail row
-            $sqlGet = "SELECT waste_clearance_id, waste_type_id FROM clearance_detail WHERE clearance_detail_id = :id";
+            // 1. Find waste_clearance_id from detail row
+            $sqlGet = "SELECT waste_clearance_id FROM clearance_detail WHERE clearance_detail_id = :id";
             $stmtGet = $this->Conn->prepare($sqlGet);
             $stmtGet->execute([':id' => $cdid]);
-            $detail = $stmtGet->fetch(PDO::FETCH_ASSOC);
+            $wcid = $stmtGet->fetchColumn();
 
-            if (!$detail) {
+            if (!$wcid) {
                 throw new Exception('Detail not found', 404);
             }
-            $wcid = $detail['waste_clearance_id'];
-            $wasteTypeId = $detail['waste_type_id'];
 
-            // 2. อัปเดตรายการย่อย (clearance_detail)
+            // 2. Update the specific clearance detail item
             $sqlUpdateDetail = "UPDATE clearance_detail 
                                 SET clearance_detail_clearance_weight = :weight,
                                     clearance_detail_success = 1,
                                     complete_date = :now
                                 WHERE clearance_detail_id = :id";
             $stmtUpdate = $this->Conn->prepare($sqlUpdateDetail);
-            $stmtUpdate->execute([
-                ':weight' => $weight,
-                ':id' => $cdid,
-                ':now' => $now
-            ]);
+            $stmtUpdate->execute([':weight' => $weight, ':id' => $cdid, ':now' => $now]);
 
-            // 3. ตรวจสอบว่ารายการใน Clearance นี้ครบทุกตัวหรือยัง
+            // 3. Check if all items in this clearance are now complete
             $sqlCheck = "SELECT COUNT(*) as pending FROM clearance_detail 
                          WHERE waste_clearance_id = :wcid AND clearance_detail_success = 0";
             $stmtCheck = $this->Conn->prepare($sqlCheck);
             $stmtCheck->execute([':wcid' => $wcid]);
-            $resultCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            $pendingCount = $stmtCheck->fetchColumn();
 
-            // 4. ถ้าครบแล้ว ให้ปิด Job (Update Master Status)
-            if ($resultCheck['pending'] == 0) {
-                // 4.1 อัปเดตตารางหลัก waste_clearance
+            // 4. If all items are complete, finalize the clearance
+            if ($pendingCount == 0) {
+                // 4.1 Update the main waste_clearance record
                 $sqlUpdateMaster = "UPDATE waste_clearance 
                                     SET waste_clearance_status = 'ยืนยันแล้ว',
                                         waste_clearance_approved_by = :approver,
@@ -312,12 +305,42 @@ class WasteClearanceModel
                     ':now' => $now
                 ]);
 
-                // 4.2 อัปเดตสถานะ Transaction Detail ว่าของเข้าคลังศูนย์แล้ว
+                // 4.2 Update the related transaction details
                 $sqlUpdateTx = "UPDATE waste_transaction_detail 
-                                SET waste_transaction_detail_status = 'อยู่ที่คลังศูนย์ใหญ่' 
+                                SET waste_transaction_detail_status = 'ส่งศูนย์แล้ว' 
                                 WHERE waste_clearance_id = :wcid";
                 $stmtTx = $this->Conn->prepare($sqlUpdateTx);
                 $stmtTx->execute([':wcid' => $wcid]);
+                
+                // 4.3 Get Faculty ID for this clearance
+                $stmtGetFaculty = $this->Conn->prepare("SELECT faculty_id FROM waste_clearance WHERE waste_clearance_id = :wcid");
+                $stmtGetFaculty->execute([':wcid' => $wcid]);
+                $facultyId = $stmtGetFaculty->fetchColumn();
+                if (!$facultyId) {
+                    $this->Conn->rollBack();
+                    throw new Exception("Faculty not found for this clearance, cannot update stock.", 404);
+                }
+                
+                // 4.4 Get all confirmed weights and update stocks
+                $sqlGetDetails = "SELECT waste_type_id, clearance_detail_clearance_weight, clearance_detail_transaction_weight 
+                                  FROM clearance_detail WHERE waste_clearance_id = :wcid";
+                $stmtGetDetails = $this->Conn->prepare($sqlGetDetails);
+                $stmtGetDetails->execute([':wcid' => $wcid]);
+                $allClearanceDetails = $stmtGetDetails->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($allClearanceDetails as $detailItem) {
+                    $itemWeight = $detailItem['clearance_detail_clearance_weight'];
+                    $itemTransactionWeight = $detailItem['clearance_detail_transaction_weight'];
+                    $wasteTypeId = $detailItem['waste_type_id'];
+
+                    if (isset($itemWeight) && $itemWeight > 0) {
+                        // Add to central stock
+                        self::UpdateCenterWasteStock($this->Conn, $wasteTypeId, $itemWeight);
+                        
+                        // Subtract from faculty stock
+                        self::DecreaseFacultyWasteStock($this->Conn, $facultyId, $wasteTypeId, $itemTransactionWeight);
+                    }
+                }
             }
 
             $this->Conn->commit();
@@ -332,7 +355,7 @@ class WasteClearanceModel
             throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
         }
     }
-
+    //TODO:edit cancle clerance
     public function CancelClearance($clearance_id)
     {
         try {
@@ -393,8 +416,50 @@ class WasteClearanceModel
             throw new Exception($ex->getMessage(), $ex->getCode() ?: 400);
         }
     }
-
+    // TODO: confirmed detail editing function
     // --- Static Helper Functions ---
+
+    protected static function UpdateCenterWasteStock($conn, $wasteTypeId, $weight)
+    {
+        try {
+            $sql = "INSERT INTO center_waste_stock (waste_type_id, stock_weight, updated_at) 
+                    VALUES (:waste_type_id, :weight, :now)
+                    ON DUPLICATE KEY UPDATE 
+                    stock_weight = stock_weight + VALUES(stock_weight), 
+                    updated_at = VALUES(updated_at)";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                ':waste_type_id' => $wasteTypeId,
+                ':weight' => $weight,
+                ':now' => date('Y-m-d H:i:s')
+            ]);
+        } catch (PDOException $e) {
+            // Re-throw to be caught by the main function's transaction handler
+            throw new Exception("Database error in UpdateCenterWasteStock: " . $e->getMessage(), 500);
+        }
+    }
+
+    protected static function DecreaseFacultyWasteStock($conn, $facultyId, $wasteTypeId, $weight)
+    {
+        try {
+            $sql = "UPDATE faculty_waste_stock 
+                    SET stock_weight = stock_weight - :weight, 
+                        updated_at = :now
+                    WHERE faculty_id = :faculty_id AND waste_type_id = :waste_type_id";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                ':weight' => $weight,
+                ':now' => date('Y-m-d H:i:s'),
+                ':faculty_id' => $facultyId,
+                ':waste_type_id' => $wasteTypeId,
+            ]);
+        } catch (PDOException $e) {
+            // Re-throw to be caught by the main function's transaction handler
+            throw new Exception("Database error in DecreaseFacultyWasteStock: " . $e->getMessage(), 500);
+        }
+    }
 
     protected static function GetPeriodTransactions($query, $conn)
     {
@@ -431,7 +496,7 @@ class WasteClearanceModel
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Validation
-        if (!$result || ($result['faculty_point_total'] == 0 && $result['member_point_total'] == 0 && $result['value_total'] == 0)) {
+        if (!$result || $result['value_total'] == 0) {
             throw new Exception("ไม่พบรายการขยะตกค้างในช่วงเวลานี้ หรือรายการทั้งหมดถูกเคลียร์ไปแล้ว", 400);
         }
 

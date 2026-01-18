@@ -1,17 +1,37 @@
 meta {
   name: Create
   type: http
-  seq: 1
+  seq: 3
 }
 
 post {
   url: {{api_domain}}/waste_sales
-  body: formUrlEncoded
+  body: json
   auth: inherit
 }
 
+body:json {
+  {
+    "waste_sale_buyer": "",
+    "waste_sale_note":"(อาจมีหรือไม่มีก็ได้)",
+    "items": [
+      {
+        "waste_type_id": "001",
+        "waste_sale_detail_weight": 1.23,
+        "waste_sale_detail_price": 12.12
+      },
+      {
+        "waste_type_id": "002",
+        "waste_sale_detail_weight": 1.23,
+        "waste_sale_detail_price": 12.12
+      }
+    ]
+  }
+}
+
 body:form-urlencoded {
-  waste_sale_date: 2027-01-16
+  waste_sale_buyer: ตาปอน
+  waste_sale_note: 
 }
 
 settings {

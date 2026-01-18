@@ -17,6 +17,7 @@ use App\Controller\Api\BadgeController;
 use App\Controller\Api\MajorController;
 use App\Controller\Api\DonationController;
 use App\Controller\Api\MemberRewardController;
+use App\Controller\Api\CenterStockController;
 
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -96,6 +97,7 @@ class Routes
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+            ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
         ]);
 
         /* API */
@@ -197,14 +199,13 @@ class Routes
         ]);
         /* /api/waste_sales */
         $this->addPrefixedRoutes("/api/waste_sales", [
-            ['GET', "", [WasteSaleController::class, "GetAll"]],
-            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
-            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
+            ['GET', '', [WasteSaleController::class, 'GetAll']],
+            ['GET', '/[i:id]/details', [WasteSaleController::class, 'GetDetail']],
             ['POST', '', [WasteSaleController::class, 'Create']],
-            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
-            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
-            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
-            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
+        ]);
+        /* /api/center_stock */
+        $this->addPrefixedRoutes("/api/center_stock", [
+            ['GET', "", [CenterStockController::class, "getCenterStock"]],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [

@@ -467,7 +467,7 @@ class WasteTransactionModel
             ]);
             $transactionId = $this->Conn->lastInsertId();
 
-            // 2. Insert Details (waste_transaction_detail)
+            // 2. Insert Details (waste_transaction_detail) and Update Stock
             $detailSql = "INSERT INTO waste_transaction_detail SET
                 waste_transaction_id = :tid,
                 waste_category_id = :cid,
@@ -489,6 +489,9 @@ class WasteTransactionModel
                     ':p' => $d['point'],
                     ':f' => $d['fraction']
                 ]);
+
+                // Update faculty stock for each item
+                self::UpdateFacultyWasteStock($this->Conn, $user["faculty_id"], $d['waste_type_id'], $d['weight']);
             }
 
             $updatedUser = self::UpdateMemberPoint($this->Conn, $user["member_id"], $totalMemberPoints);
@@ -515,6 +518,28 @@ class WasteTransactionModel
             }
             error_log("ERROR : " . $e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    private static function UpdateFacultyWasteStock($conn, $facultyId, $wasteTypeId, $weight)
+    {
+        try {
+            $sql = "INSERT INTO faculty_waste_stock (faculty_id, waste_type_id, stock_weight, updated_at) 
+                    VALUES (:faculty_id, :waste_type_id, :weight, :now)
+                    ON DUPLICATE KEY UPDATE 
+                    stock_weight = stock_weight + VALUES(stock_weight), 
+                    updated_at = VALUES(updated_at)";
+            
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                ':faculty_id' => $facultyId,
+                ':waste_type_id' => $wasteTypeId,
+                ':weight' => $weight,
+                ':now' => date('Y-m-d H:i:s')
+            ]);
+        } catch (PDOException $e) {
+            // Re-throw to be caught by the main function's transaction handler
+            throw new Exception("Database error in UpdateFacultyWasteStock: " . $e->getMessage(), 500);
         }
     }
 
@@ -737,3 +762,4 @@ class WasteTransactionModel
         }
     }
 }
+// TODO: Modify delete transaction ตัดสต็อคคืน
