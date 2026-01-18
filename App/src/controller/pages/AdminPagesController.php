@@ -228,12 +228,12 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/donations', [
-                'pages' => 'manageDonations',
-                'title' => 'จัดการการบริจาค',
+                'pages' => "manageDonations",
+                'title' => 'บริจาคสิ่งของ/วัสดุ',
                 'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -247,12 +247,11 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/redeem_rewards', [
-                'pages' => 'redeemRewards',
-                'title' => 'จัดการการแลกของรางวัล',
+                'pages' => "redeemRewards",
+                'title' => 'แลกของรางวัล',
                 'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
-            $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);

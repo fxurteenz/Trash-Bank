@@ -1,147 +1,140 @@
 <?php
 namespace App\Controller\Api;
 
+use App\Router\RouterBase;
 use App\Model\MemberRewardModel;
+use App\Utils\Authentication;
+use App\Utils\AuthenticationException;
 use Exception;
 
-class MemberRewardController
+class MemberRewardController extends RouterBase
 {
-    private $Model;
+    private $data;
+    private $MemberRewardModel;
+    private $queryString;
 
     public function __construct()
     {
-        $this->Model = new MemberRewardModel();
+        $input = file_get_contents('php://input');
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $contentType = strtolower($_SERVER['CONTENT_TYPE'] ?? '');
+
+        if ($requestMethod === 'GET') {
+            $this->queryString = $_GET;
+        }
+
+        switch (true) {
+            case str_contains($contentType, 'application/json'):
+                $this->data = json_decode($input, true);
+                break;
+            case str_contains($contentType, 'application/x-www-form-urlencoded'):
+                parse_str($input, $this->data);
+                break;
+            case str_contains($contentType, 'multipart/form-data'):
+                if ($_FILES) {
+                    $this->data = array_merge($_POST, $_FILES);
+                } else {
+                    $this->data = $_POST;
+                }
+                break;
+            default:
+                $this->data = [];
+        }
+
+        $this->MemberRewardModel = new MemberRewardModel();
     }
 
     public function GetAll()
     {
         try {
-            $query = $_GET;
-            $result = $this->Model->GetAllMemberRewards($query);
+            Authentication::AdminAuth();
+            $result = $this->MemberRewardModel->GetAll($this->queryString ?? []);
 
-            echo json_encode([
+            $response = [
                 'success' => true,
                 'data' => $result['data'],
-                'total' => $result['total']
-            ]);
+                'total' => $result['total'],
+                'message' => 'successfully =)' 
+            ];
+
+            if (isset(($this->queryString ?? [])['page'])) {
+                $response['page'] = (int) $this->queryString['page'];
+            }
+            if (isset(($this->queryString ?? [])['limit'])) {
+                $response['limit'] = (int) $this->queryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
         }
     }
 
-    public function Get()
+    public function Get($id)
     {
         try {
-            $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+            Authentication::AdminAuth();
+            $row = $this->MemberRewardModel->GetById((int) $id);
 
-            if (!$id) {
-                throw new Exception('ID is required', 400);
-            }
-
-            $data = $this->Model->GetMemberRewardById($id);
-
-            echo json_encode([
-                'success' => true,
-                'data' => $data
-            ]);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'successfully =)']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
-            $code = $e->getCode() ?: 400;
-            http_response_code($code);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
         }
     }
 
     public function Create()
     {
         try {
-            $data = [];
-            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            Authentication::AdminAuth();
+            $row = $this->MemberRewardModel->Create(is_array($this->data) ? $this->data : []);
 
-            if (strpos($contentType, 'application/json') !== false) {
-                $data = json_decode(file_get_contents('php://input'), true);
-            } else {
-                $data = $_POST;
-            }
-
-            $result = $this->Model->CreateMemberReward($data);
-
-            echo json_encode([
-                'success' => true,
-                'data' => $result
-            ]);
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Redemption created =]']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
-            $code = $e->getCode() ?: 400;
-            http_response_code($code);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
         }
     }
 
-    public function Update()
+    public function Update($id)
     {
         try {
-            $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+            Authentication::AdminAuth();
+            $row = $this->MemberRewardModel->Update((int) $id, is_array($this->data) ? $this->data : []);
 
-            if (!$id) {
-                throw new Exception('ID is required', 400);
-            }
-
-            $data = [];
-            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
-            if (strpos($contentType, 'application/json') !== false) {
-                $data = json_decode(file_get_contents('php://input'), true);
-            } else {
-                $data = $_POST;
-            }
-
-            $result = $this->Model->UpdateMemberReward($id, $data);
-
-            echo json_encode([
-                'success' => true,
-                'data' => $result
-            ]);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Redemption updated successfully =)']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
-            $code = $e->getCode() ?: 400;
-            http_response_code($code);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    public function Delete()
-    {
-        try {
-            $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
-
-            if (!$id) {
-                throw new Exception('ID is required', 400);
-            }
-
-            $result = $this->Model->DeleteMemberReward($id);
-
-            echo json_encode([
-                'success' => true,
-                'data' => $result
-            ]);
-        } catch (Exception $e) {
-            $code = $e->getCode() ?: 400;
-            http_response_code($code);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
         }
     }
 }

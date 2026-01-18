@@ -30,6 +30,11 @@ class WasteTypeModel
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 
+            if (!empty($query['active_status'])) {
+                $whereClauses[] = "wt.waste_type_active_status = :active_status";
+                $params[':active_status'] = $query['active_status'];
+            }
+
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sql = "SELECT 
@@ -88,6 +93,22 @@ class WasteTypeModel
     public function GetWasteTypeByCategory($query, $cid): array
     {
         try {
+            $whereClauses = [];
+            $params = [];
+            $params[':waste_category_id'] = $cid;
+            $whereClauses[] = "wt.waste_category_id = :waste_category_id";
+
+            if (!empty($query['search'])) {
+                $whereClauses[] = "wt.waste_type_name LIKE :search";
+                $params[':search'] = "%" . $query['search'] . "%";
+            }
+
+            if (!empty($query['active_status'])) {
+                $whereClauses[] = "wt.waste_type_active_status = :active_status";
+                $params[':active_status'] = $query['active_status'];
+            }
+
+            $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             $sql = "SELECT 
@@ -97,8 +118,7 @@ class WasteTypeModel
                     waste_type wt
                 LEFT JOIN 
                     waste_category wc ON wt.waste_category_id = wc.waste_category_id
-                WHERE
-                    wt.waste_category_id = :waste_category_id";
+                {$whereSql}";
 
             if ($isPagination) {
                 $page = (int) $query['page'];
@@ -108,7 +128,10 @@ class WasteTypeModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':waste_category_id', $cid, PDO::PARAM_INT);
+            
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
 
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
@@ -119,8 +142,11 @@ class WasteTypeModel
             $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type';
+                $sqlCount = 'SELECT COUNT(*) AS allType FROM waste_type wt' . $whereSql;
                 $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
                 $stmtCount->execute();
                 $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['allType'];
             } else {

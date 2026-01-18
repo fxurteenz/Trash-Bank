@@ -149,7 +149,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)'
+                'message' => 'successfully =)' 
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -166,7 +166,6 @@ class ReportController
     public function GetFacultyReport($fid)
     {
         try {
-            Authentication::OperateAuth();
             $result = self::$ReportModel->FacultyReport((int) $fid, self::$queryString);
 
             header('Content-Type: application/json');
@@ -174,14 +173,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'successfully =)' 
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -205,7 +197,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)'
+                'message' => 'successfully =)' 
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -229,7 +221,7 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)'
+                'message' => 'successfully =)' 
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');
@@ -253,7 +245,55 @@ class ReportController
             echo json_encode([
                 'success' => TRUE,
                 'data' => $result,
-                'message' => 'successfully =)'
+                'message' => 'successfully =)' 
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetByType()
+    {
+        try {
+            $result = self::$ReportModel->ReportByType(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)' 
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetByCategory()
+    {
+        try {
+            $result = self::$ReportModel->ReportByFaculty(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)' 
             ]);
         } catch (Exception $e) {
             header('Content-Type: application/json');

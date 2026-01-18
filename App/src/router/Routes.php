@@ -48,7 +48,7 @@ class Routes
     {
         // Guest
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
 
         // PAGES 
@@ -96,7 +96,6 @@ class Routes
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
-            ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
         ]);
 
         /* API */
@@ -125,6 +124,23 @@ class Routes
             ['POST', '', [RewardController::class, 'Create']],
             ['POST', '/update/[i:id]', [RewardController::class, 'Update']],
             ['POST', '/delete', [RewardController::class, 'Delete']],
+        ]);
+
+        /* /api/donations */
+        $this->addPrefixedRoutes('/api/donations', [
+            ['GET', '', [DonationController::class, 'GetAll']],
+            ['GET', '/[i:id]', [DonationController::class, 'Get']],
+            ['POST', '', [DonationController::class, 'Create']],
+            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
+            ['POST', '/delete', [DonationController::class, 'Delete']],
+        ]);
+
+        /* /api/member_rewards */
+        $this->addPrefixedRoutes('/api/member_rewards', [
+            ['GET', '', [MemberRewardController::class, 'GetAll']],
+            ['GET', '/[i:id]', [MemberRewardController::class, 'Get']],
+            ['POST', '', [MemberRewardController::class, 'Create']],
+            ['POST', '/update/[i:id]', [MemberRewardController::class, 'Update']],
         ]);
         /* /api/badges */
         $this->addPrefixedRoutes('/api/badges', [
@@ -161,6 +177,8 @@ class Routes
             ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],
             ['GET', "/leaderboard/faculties", [ReportController::class, "GetFacultyLeaderboard"]],
             ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
+            ['GET', "/by-type", [ReportController::class, "GetByType"]],
+            ['GET', "/by-faculty", [ReportController::class, "GetByCategory"]],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
@@ -220,7 +238,6 @@ class Routes
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
             ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
-            ['DELETE', "/[i:wcid]", [WasteClearanceController::class, "Cancel"]],
         ]);
 
     }

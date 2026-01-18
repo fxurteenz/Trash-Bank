@@ -18,7 +18,7 @@ class MemberRewardModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function GetAllMemberRewards(array $query): array
+    public function GetAll(array $query): array
     {
         try {
             $whereClauses = [];
@@ -34,18 +34,24 @@ class MemberRewardModel
                 $params[':status'] = $query['status'];
             }
 
+            if (!empty($query['date'])) {
+                $whereClauses[] = "DATE(mr.member_reward_date) = :date";
+                $params[':date'] = $query['date'];
+            }
+
             $whereSql = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
 
             $sql = "SELECT
                         mr.*,
                         m.member_name,
                         r.reward_name,
-                        r.reward_required_point
+                        r.reward_point_required,
+                        r.reward_stock
                     FROM member_reward mr
                     LEFT JOIN member m ON mr.member_id = m.member_id
                     LEFT JOIN reward r ON mr.reward_id = r.reward_id" .
                     $whereSql .
-                    " ORDER BY mr.created_at DESC, mr.member_reward_id DESC";
+                    " ORDER BY mr.member_reward_date DESC, mr.member_reward_id DESC";
 
             $limit = isset($query['limit']) ? (int) $query['limit'] : null;
             $page = isset($query['page']) ? (int) $query['page'] : null;
@@ -82,14 +88,13 @@ class MemberRewardModel
         }
     }
 
-    public function GetMemberRewardById(int $id): array
+    public function GetById(int $id): array
     {
         try {
             $sql = "SELECT
                         mr.*,
                         m.member_name,
-                        r.reward_name,
-                        r.reward_required_point
+                        r.reward_name
                     FROM member_reward mr
                     LEFT JOIN member m ON mr.member_id = m.member_id
                     LEFT JOIN reward r ON mr.reward_id = r.reward_id
@@ -98,7 +103,6 @@ class MemberRewardModel
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
             if (!$row) {
                 throw new Exception('Member reward not found', 404);
             }
@@ -108,259 +112,145 @@ class MemberRewardModel
         }
     }
 
-    public function CreateMemberReward(array $data): array
+    public function Create(array $data): array
     {
         try {
-            $memberId = isset($data['member_id']) && $data['member_id'] !== '' ? (int) $data['member_id'] : null;
-            $rewardId = isset($data['reward_id']) && $data['reward_id'] !== '' ? (int) $data['reward_id'] : null;
-            $quantity = isset($data['member_reward_quantity']) ? (int) $data['member_reward_quantity'] : 1;
-            $status = $data['member_reward_status'] ?? 'pending';
+            $this->Conn->beginTransaction();
 
-            if (!$memberId) {
-                throw new Exception('Member ID is required', 400);
-            }
-            if (!$rewardId) {
-                throw new Exception('Reward ID is required', 400);
-            }
+            $memberId = (int) $data['member_id'];
+            $rewardId = (int) $data['reward_id'];
+            $qty = isset($data['member_reward_qty']) && $data['member_reward_qty'] !== '' ? (int) $data['member_reward_qty'] : 1;
 
-            // Get member's points and reward's required points
-            $memberSql = "SELECT member_goodness_point FROM member WHERE member_id = :mid FOR UPDATE";
+            // Lock and fetch member
+            $memberSql = "SELECT (member_waste_point + member_goodness_point) as total_points FROM member WHERE member_id = :member_id FOR UPDATE";
             $memberStmt = $this->Conn->prepare($memberSql);
-            $memberStmt->bindValue(':mid', $memberId, PDO::PARAM_INT);
+            $memberStmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
             $memberStmt->execute();
             $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$member) {
-                throw new Exception('Member not found', 404);
+                throw new Exception("Member not found", 404);
             }
 
-            $rewardSql = "SELECT reward_required_point, reward_stock FROM reward WHERE reward_id = :rid FOR UPDATE";
+            // Lock and fetch reward
+            $rewardSql = "SELECT * FROM reward WHERE reward_id = :reward_id FOR UPDATE";
             $rewardStmt = $this->Conn->prepare($rewardSql);
-            $rewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
+            $rewardStmt->bindValue(':reward_id', $rewardId, PDO::PARAM_INT);
             $rewardStmt->execute();
             $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$reward) {
-                throw new Exception('Reward not found', 404);
+                throw new Exception("Reward not found", 404);
             }
 
-            $totalPointsNeeded = $reward['reward_required_point'] * $quantity;
-            $memberPoints = (int) $member['member_goodness_point'];
-
-            if ($memberPoints < $totalPointsNeeded) {
-                throw new Exception('Member does not have enough points', 400);
+            if (!$reward['reward_active']) {
+                throw new Exception("Reward is not active", 400);
             }
 
-            if ($reward['reward_stock'] < $quantity) {
-                throw new Exception('Not enough reward stock', 400);
+            $totalPoints = $reward['reward_point_required'] * $qty;
+
+            // Check if member has enough points
+            if ($member['total_points'] < $totalPoints) {
+                throw new Exception("Insufficient points", 400);
             }
 
-            // Start transaction
-            $this->Conn->beginTransaction();
+            // Check if reward has enough stock
+            if ($reward['reward_stock'] < $qty) {
+                throw new Exception("Insufficient stock", 400);
+            }
 
-            try {
-                // Create member_reward record
-                $sql = "INSERT INTO member_reward (
-                            member_id,
-                            reward_id,
-                            member_reward_quantity,
-                            member_reward_status,
-                            created_at
+            // Create member_reward record
+            $insertSql = "INSERT INTO member_reward (
+                            member_id, 
+                            reward_id, 
+                            member_reward_date, 
+                            member_reward_qty, 
+                            member_reward_point_used, 
+                            member_reward_status
                         ) VALUES (
-                            :member_id,
-                            :reward_id,
-                            :quantity,
-                            :status,
-                            NOW()
+                            :member_id, 
+                            :reward_id, 
+                            CURDATE(), 
+                            :qty, 
+                            :points, 
+                            'pending'
                         )";
-                
-                $stmt = $this->Conn->prepare($sql);
-                $stmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
-                $stmt->bindValue(':reward_id', $rewardId, PDO::PARAM_INT);
-                $stmt->bindValue(':quantity', $quantity, PDO::PARAM_INT);
-                $stmt->bindValue(':status', $status);
-                $stmt->execute();
 
-                $id = (int) $this->Conn->lastInsertId();
+            $insertStmt = $this->Conn->prepare($insertSql);
+            $insertStmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
+            $insertStmt->bindValue(':reward_id', $rewardId, PDO::PARAM_INT);
+            $insertStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
+            $insertStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
+            $insertStmt->execute();
 
-                // Deduct member points if status is completed
-                if ($status === 'completed') {
-                    $updateMemberSql = "UPDATE member SET member_goodness_point = member_goodness_point - :points WHERE member_id = :mid";
-                    $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
-                    $updateMemberStmt->bindValue(':points', $totalPointsNeeded, PDO::PARAM_INT);
-                    $updateMemberStmt->bindValue(':mid', $memberId, PDO::PARAM_INT);
-                    $updateMemberStmt->execute();
+            $insertId = (int) $this->Conn->lastInsertId();
 
-                    // Deduct reward stock
-                    $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock - :qty WHERE reward_id = :rid";
-                    $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
-                    $updateRewardStmt->bindValue(':qty', $quantity, PDO::PARAM_INT);
-                    $updateRewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
-                    $updateRewardStmt->execute();
-                }
+            // Update member points
+            $updateMemberSql = "UPDATE member 
+                               SET member_waste_point = GREATEST(0, member_waste_point - :points),
+                                   member_goodness_point = GREATEST(0, member_goodness_point - GREATEST(0, :points - member_waste_point))
+                               WHERE member_id = :member_id";
+            $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
+            $updateMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
+            $updateMemberStmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
+            $updateMemberStmt->execute();
 
-                $this->Conn->commit();
+            // Update reward stock
+            $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock - :qty WHERE reward_id = :reward_id";
+            $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
+            $updateRewardStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
+            $updateRewardStmt->bindValue(':reward_id', $rewardId, PDO::PARAM_INT);
+            $updateRewardStmt->execute();
 
-                return [
-                    'member_reward_id' => $id,
-                    'success' => true
-                ];
-            } catch (Exception $e) {
-                $this->Conn->rollBack();
-                throw $e;
-            }
+            $this->Conn->commit();
+
+            return $this->GetById($insertId);
         } catch (PDOException $e) {
+            $this->Conn->rollBack();
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            $this->Conn->rollBack();
+            throw $e;
         }
     }
 
-    public function UpdateMemberReward(int $id, array $data): array
+    public function Update(int $id, array $data): array
     {
         try {
-            $status = $data['member_reward_status'] ?? null;
+            $fields = [];
+            $params = [':id' => $id];
 
-            if (!$status) {
-                throw new Exception('Status is required', 400);
+            if (array_key_exists('member_reward_status', $data)) {
+                $fields[] = 'member_reward_status = :status';
+                $params[':status'] = $data['member_reward_status'];
             }
 
-            // Get current redemption record
-            $currentSql = "SELECT * FROM member_reward WHERE member_reward_id = :id";
-            $currentStmt = $this->Conn->prepare($currentSql);
-            $currentStmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $currentStmt->execute();
-            $current = $currentStmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$current) {
-                throw new Exception('Member reward not found', 404);
+            if (array_key_exists('member_reward_redeem_date', $data) && $data['member_reward_redeem_date'] !== '') {
+                $fields[] = 'member_reward_redeem_date = :redeem_date';
+                $params[':redeem_date'] = $data['member_reward_redeem_date'];
             }
 
-            $this->Conn->beginTransaction();
+            if (empty($fields)) {
+                throw new Exception('No fields to update', 400);
+            }
 
-            try {
-                // Update status
-                $sql = "UPDATE member_reward SET member_reward_status = :status WHERE member_reward_id = :id";
-                $stmt = $this->Conn->prepare($sql);
-                $stmt->bindValue(':status', $status);
-                $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-                $stmt->execute();
+            $sql = 'UPDATE member_reward SET ' . implode(', ', $fields) . ' WHERE member_reward_id = :id';
+            $stmt = $this->Conn->prepare($sql);
 
-                // If changing to completed, deduct points and stock
-                if ($status === 'completed' && $current['member_reward_status'] !== 'completed') {
-                    $memberId = $current['member_id'];
-                    $rewardId = $current['reward_id'];
-                    $quantity = $current['member_reward_quantity'];
-
-                    // Get reward points needed
-                    $rewardSql = "SELECT reward_required_point FROM reward WHERE reward_id = :rid";
-                    $rewardStmt = $this->Conn->prepare($rewardSql);
-                    $rewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
-                    $rewardStmt->execute();
-                    $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
-
-                    $totalPoints = $reward['reward_required_point'] * $quantity;
-
-                    // Deduct member points
-                    $updateMemberSql = "UPDATE member SET member_goodness_point = member_goodness_point - :points WHERE member_id = :mid";
-                    $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
-                    $updateMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
-                    $updateMemberStmt->bindValue(':mid', $memberId, PDO::PARAM_INT);
-                    $updateMemberStmt->execute();
-
-                    // Deduct reward stock
-                    $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock - :qty WHERE reward_id = :rid";
-                    $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
-                    $updateRewardStmt->bindValue(':qty', $quantity, PDO::PARAM_INT);
-                    $updateRewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
-                    $updateRewardStmt->execute();
+            foreach ($params as $key => $value) {
+                if ($value === null) {
+                    $stmt->bindValue($key, null, PDO::PARAM_NULL);
+                    continue;
                 }
-                // If changing from completed to cancelled, restore points and stock
-                elseif ($status === 'cancelled' && $current['member_reward_status'] === 'completed') {
-                    $memberId = $current['member_id'];
-                    $rewardId = $current['reward_id'];
-                    $quantity = $current['member_reward_quantity'];
-
-                    // Get reward points needed
-                    $rewardSql = "SELECT reward_required_point FROM reward WHERE reward_id = :rid";
-                    $rewardStmt = $this->Conn->prepare($rewardSql);
-                    $rewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
-                    $rewardStmt->execute();
-                    $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
-
-                    $totalPoints = $reward['reward_required_point'] * $quantity;
-
-                    // Restore member points
-                    $updateMemberSql = "UPDATE member SET member_goodness_point = member_goodness_point + :points WHERE member_id = :mid";
-                    $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
-                    $updateMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
-                    $updateMemberStmt->bindValue(':mid', $memberId, PDO::PARAM_INT);
-                    $updateMemberStmt->execute();
-
-                    // Restore reward stock
-                    $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock + :qty WHERE reward_id = :rid";
-                    $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
-                    $updateRewardStmt->bindValue(':qty', $quantity, PDO::PARAM_INT);
-                    $updateRewardStmt->bindValue(':rid', $rewardId, PDO::PARAM_INT);
-                    $updateRewardStmt->execute();
-                }
-
-                $this->Conn->commit();
-
-                return ['success' => true];
-            } catch (Exception $e) {
-                $this->Conn->rollBack();
-                throw $e;
-            }
-        } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
-        }
-    }
-
-    public function DeleteMemberReward(int $id): array
-    {
-        try {
-            // Get the record first
-            $getSql = "SELECT * FROM member_reward WHERE member_reward_id = :id";
-            $getStmt = $this->Conn->prepare($getSql);
-            $getStmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $getStmt->execute();
-            $record = $getStmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$record) {
-                throw new Exception('Member reward not found', 404);
+                $stmt->bindValue($key, $value);
             }
 
-            // If completed, restore points and stock
-            if ($record['member_reward_status'] === 'completed') {
-                $rewardSql = "SELECT reward_required_point FROM reward WHERE reward_id = :rid";
-                $rewardStmt = $this->Conn->prepare($rewardSql);
-                $rewardStmt->bindValue(':rid', $record['reward_id'], PDO::PARAM_INT);
-                $rewardStmt->execute();
-                $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
-
-                $totalPoints = $reward['reward_required_point'] * $record['member_reward_quantity'];
-
-                // Restore member points
-                $restoreMemberSql = "UPDATE member SET member_goodness_point = member_goodness_point + :points WHERE member_id = :mid";
-                $restoreMemberStmt = $this->Conn->prepare($restoreMemberSql);
-                $restoreMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
-                $restoreMemberStmt->bindValue(':mid', $record['member_id'], PDO::PARAM_INT);
-                $restoreMemberStmt->execute();
-
-                // Restore reward stock
-                $restoreRewardSql = "UPDATE reward SET reward_stock = reward_stock + :qty WHERE reward_id = :rid";
-                $restoreRewardStmt = $this->Conn->prepare($restoreRewardSql);
-                $restoreRewardStmt->bindValue(':qty', $record['member_reward_quantity'], PDO::PARAM_INT);
-                $restoreRewardStmt->bindValue(':rid', $record['reward_id'], PDO::PARAM_INT);
-                $restoreRewardStmt->execute();
+            $stmt->execute();
+            if ($stmt->rowCount() === 0) {
+                throw new Exception('Member reward not found or no changes made', 404);
             }
 
-            // Delete the record
-            $deleteSql = "DELETE FROM member_reward WHERE member_reward_id = :id";
-            $deleteStmt = $this->Conn->prepare($deleteSql);
-            $deleteStmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $deleteStmt->execute();
-
-            return ['success' => true];
+            return $this->GetById($id);
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         }

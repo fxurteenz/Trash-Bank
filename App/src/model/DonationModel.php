@@ -25,24 +25,19 @@ class DonationModel
             $params = [];
 
             if (!empty($query['search'])) {
-                $whereClauses[] = "(m.member_name LIKE :search OR d.donation_description LIKE :search)";
+                $whereClauses[] = "(m.member_name LIKE :search OR d.donation_description LIKE :search OR d.donation_reason LIKE :search)";
                 $params[':search'] = '%' . $query['search'] . '%';
             }
 
-            if (!empty($query['start_date'])) {
-                $whereClauses[] = "d.donation_date >= :start_date";
-                $params[':start_date'] = $query['start_date'];
-            }
-
-            if (!empty($query['end_date'])) {
-                $whereClauses[] = "d.donation_date <= :end_date";
-                $params[':end_date'] = $query['end_date'];
+            if (!empty($query['date'])) {
+                $whereClauses[] = "d.donation_date = :date";
+                $params[':date'] = $query['date'];
             }
 
             $whereSql = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
 
             $sql = "SELECT
-                        d.*,
+                        d.*, 
                         m.member_name,
                         f.faculty_name
                     FROM donation d
@@ -90,7 +85,7 @@ class DonationModel
     {
         try {
             $sql = "SELECT
-                        d.*,
+                        d.*, 
                         m.member_name,
                         f.faculty_name
                     FROM donation d
@@ -101,7 +96,6 @@ class DonationModel
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
             if (!$row) {
                 throw new Exception('Donation not found', 404);
             }
@@ -117,13 +111,13 @@ class DonationModel
             $memberId = isset($data['member_id']) && $data['member_id'] !== '' ? (int) $data['member_id'] : null;
             $facultyId = isset($data['faculty_id']) && $data['faculty_id'] !== '' ? (int) $data['faculty_id'] : null;
             $description = $data['donation_description'] ?? null;
-            $estimatedValue = isset($data['donation_estimated_value']) ? (float) $data['donation_estimated_value'] : 0;
-            $goodnessPoint = isset($data['donation_goodness_point']) ? (int) $data['donation_goodness_point'] : 0;
+            $estimatedValue = isset($data['donation_estimated_value']) && $data['donation_estimated_value'] !== '' ? (float) $data['donation_estimated_value'] : null;
+            $goodnessPoint = isset($data['donation_goodness_point']) && $data['donation_goodness_point'] !== '' ? (int) $data['donation_goodness_point'] : null;
             $reason = $data['donation_reason'] ?? null;
-            $donationDate = $data['donation_date'] ?? date('Y-m-d');
+            $date = $data['donation_date'] ?? null;
 
-            if (!$memberId) {
-                throw new Exception('Member ID is required', 400);
+            if (!$date) {
+                $date = date('Y-m-d');
             }
 
             $sql = "INSERT INTO donation (
@@ -143,23 +137,18 @@ class DonationModel
                         :reason,
                         :donation_date
                     )";
-            
             $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
-            $stmt->bindValue(':faculty_id', $facultyId, PDO::PARAM_INT);
+            $stmt->bindValue(':member_id', $memberId, $memberId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue(':faculty_id', $facultyId, $facultyId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue(':description', $description);
             $stmt->bindValue(':estimated_value', $estimatedValue);
-            $stmt->bindValue(':goodness_point', $goodnessPoint, PDO::PARAM_INT);
+            $stmt->bindValue(':goodness_point', $goodnessPoint, $goodnessPoint === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue(':reason', $reason);
-            $stmt->bindValue(':donation_date', $donationDate);
+            $stmt->bindValue(':donation_date', $date);
             $stmt->execute();
 
-            $id = $this->Conn->lastInsertId();
-
-            return [
-                'donation_id' => $id,
-                'success' => true
-            ];
+            $id = (int) $this->Conn->lastInsertId();
+            return $this->GetDonationById($id);
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         }
@@ -168,79 +157,84 @@ class DonationModel
     public function UpdateDonation(int $id, array $data): array
     {
         try {
-            $updateFields = [];
+            $fields = [];
             $params = [':id' => $id];
 
-            if (isset($data['member_id']) && $data['member_id'] !== '') {
-                $updateFields[] = "member_id = :member_id";
-                $params[':member_id'] = (int) $data['member_id'];
-            }
+            $nullableIntFields = [
+                'member_id' => PDO::PARAM_INT,
+                'faculty_id' => PDO::PARAM_INT,
+                'donation_goodness_point' => PDO::PARAM_INT,
+            ];
 
-            if (isset($data['faculty_id']) && $data['faculty_id'] !== '') {
-                $updateFields[] = "faculty_id = :faculty_id";
-                $params[':faculty_id'] = (int) $data['faculty_id'];
+            if (array_key_exists('member_id', $data)) {
+                $fields[] = 'member_id = :member_id';
+                $params[':member_id'] = ($data['member_id'] === '' || $data['member_id'] === null) ? null : (int) $data['member_id'];
             }
-
-            if (isset($data['donation_description'])) {
-                $updateFields[] = "donation_description = :description";
+            if (array_key_exists('faculty_id', $data)) {
+                $fields[] = 'faculty_id = :faculty_id';
+                $params[':faculty_id'] = ($data['faculty_id'] === '' || $data['faculty_id'] === null) ? null : (int) $data['faculty_id'];
+            }
+            if (array_key_exists('donation_description', $data)) {
+                $fields[] = 'donation_description = :description';
                 $params[':description'] = $data['donation_description'];
             }
-
-            if (isset($data['donation_estimated_value'])) {
-                $updateFields[] = "donation_estimated_value = :estimated_value";
-                $params[':estimated_value'] = (float) $data['donation_estimated_value'];
+            if (array_key_exists('donation_estimated_value', $data)) {
+                $fields[] = 'donation_estimated_value = :estimated_value';
+                $params[':estimated_value'] = ($data['donation_estimated_value'] === '' || $data['donation_estimated_value'] === null) ? null : (float) $data['donation_estimated_value'];
             }
-
-            if (isset($data['donation_goodness_point'])) {
-                $updateFields[] = "donation_goodness_point = :goodness_point";
-                $params[':goodness_point'] = (int) $data['donation_goodness_point'];
+            if (array_key_exists('donation_goodness_point', $data)) {
+                $fields[] = 'donation_goodness_point = :goodness_point';
+                $params[':goodness_point'] = ($data['donation_goodness_point'] === '' || $data['donation_goodness_point'] === null) ? null : (int) $data['donation_goodness_point'];
             }
-
-            if (isset($data['donation_reason'])) {
-                $updateFields[] = "donation_reason = :reason";
+            if (array_key_exists('donation_reason', $data)) {
+                $fields[] = 'donation_reason = :reason';
                 $params[':reason'] = $data['donation_reason'];
             }
-
-            if (isset($data['donation_date'])) {
-                $updateFields[] = "donation_date = :donation_date";
+            if (array_key_exists('donation_date', $data) && $data['donation_date'] !== '') {
+                $fields[] = 'donation_date = :donation_date';
                 $params[':donation_date'] = $data['donation_date'];
             }
 
-            if (empty($updateFields)) {
+            if (empty($fields)) {
                 throw new Exception('No fields to update', 400);
             }
 
-            $sql = "UPDATE donation SET " . implode(', ', $updateFields) . " WHERE donation_id = :id";
+            $sql = 'UPDATE donation SET ' . implode(', ', $fields) . ' WHERE donation_id = :id';
             $stmt = $this->Conn->prepare($sql);
 
             foreach ($params as $key => $value) {
+                if ($value === null) {
+                    $stmt->bindValue($key, null, PDO::PARAM_NULL);
+                    continue;
+                }
                 $stmt->bindValue($key, $value);
             }
-            $stmt->execute();
 
+            $stmt->execute();
             if ($stmt->rowCount() === 0) {
                 throw new Exception('Donation not found or no changes made', 404);
             }
 
-            return ['success' => true];
+            return $this->GetDonationById($id);
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         }
     }
 
-    public function DeleteDonation(int $id): array
+    public function DeleteDonation(array $data): int
     {
         try {
-            $sql = "DELETE FROM donation WHERE donation_id = :id";
-            $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-
-            if ($stmt->rowCount() === 0) {
-                throw new Exception('Donation not found', 404);
+            $ids = is_array($data['donation_id'] ?? null) ? $data['donation_id'] : [$data['donation_id'] ?? null];
+            $ids = array_values(array_filter($ids, fn($v) => $v !== null && $v !== ''));
+            if (empty($ids)) {
+                throw new Exception('donation_id is required', 400);
             }
 
-            return ['success' => true];
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $sql = "DELETE FROM donation WHERE donation_id IN ($placeholders)";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute($ids);
+            return $stmt->rowCount();
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         }

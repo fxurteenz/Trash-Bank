@@ -410,7 +410,7 @@ class MemberModel
         }
     }
 
-    public function GetMemberDashboard($member_id): array
+    public function GetMemberDashboard($member_id, $query = []): array
     {
         try {
             // Get member basic info
@@ -424,7 +424,8 @@ class MemberModel
                             m.member_phone,
                             f.faculty_name,
                             maj.major_name,
-                            r.role_name
+                            r.role_name,
+                            r.role_id
                         FROM 
                             member m
                         LEFT JOIN 
@@ -436,8 +437,16 @@ class MemberModel
                         WHERE 
                             m.member_id = :member_id";
 
+            // Add role filter if provided
+            if (!empty($query['role'])) {
+                $memberSql .= " AND r.role_id = :role_id";
+            }
+
             $memberStmt = $this->Conn->prepare($memberSql);
             $memberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            if (!empty($query['role'])) {
+                $memberStmt->bindValue(':role_id', $query['role'], PDO::PARAM_INT);
+            }
             $memberStmt->execute();
             $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
 

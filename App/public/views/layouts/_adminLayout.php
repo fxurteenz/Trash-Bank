@@ -165,6 +165,10 @@
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageRewards" ? "app-link-active" : "hover:bg-white/10" ?>  ">
                             <span class="font-medium">จัดการของรางวัล</span>
                         </a>
+                        <a href="/admin/manage/redeem_rewards"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "redeemRewards" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">แลกของรางวัล</span>
+                        </a>
                         <a href="/admin/manage/badges"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageBadges" ? "app-link-active" : "hover:bg-white/10" ?>  ">
                             <span class="font-medium">จัดการเหรียญตรา</span>
@@ -172,6 +176,10 @@
                         <a href="/admin/manage/waste_transaction"
                             class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageWasteTransaction" ? "app-link-active" : "hover:bg-white/10" ?>  ">
                             <span class="font-medium">รายการฝาก</span>
+                        </a>
+                        <a href="/admin/manage/donations"
+                            class="flex text-nowrap items-center p-2 rounded-md transition duration-200 <?= $pages === "manageDonations" ? "app-link-active" : "hover:bg-white/10" ?>  ">
+                            <span class="font-medium">บริจาค</span>
                         </a>
                         <div class="text-xs uppercase tracking-wider text-white/70 my-3 pl-2">การดำเนินการ</div>
                         <a href="/admin/transactions/waste"
