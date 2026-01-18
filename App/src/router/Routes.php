@@ -177,6 +177,8 @@ class Routes
             ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],
             ['GET', "/leaderboard/faculties", [ReportController::class, "GetFacultyLeaderboard"]],
             ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
+            ['GET', "/by-type", [ReportController::class, "GetByType"]],
+            ['GET', "/by-faculty", [ReportController::class, "GetByCategory"]],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [

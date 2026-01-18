@@ -47,14 +47,23 @@ class WasteTypeController extends RouterBase
             // Authentication::OperateAuth();
             $result = self::$WasteTypeModel->GetAllWasteType(self::$QueryString);
 
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
+            $response = [
                 'success' => TRUE,
                 'data' => $result["data"],
                 'total' => $result["total"],
                 'message' => 'successfully =)'
-            ]);
+            ];
+            
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
         } catch (AuthenticationException $e) {
             // error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
@@ -82,14 +91,23 @@ class WasteTypeController extends RouterBase
             // Authentication::OperateAuth();
             $result = self::$WasteTypeModel->GetWasteTypeByCategory(self::$QueryString, $cid);
 
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
+            $response = [
                 'success' => TRUE,
                 'data' => $result["data"],
                 'total' => $result["total"],
                 'message' => 'successfully =)'
-            ]);
+            ];
+            
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
         } catch (AuthenticationException $e) {
             // error_log("ERROR AUTH : " . $e->getMessage());
             header('Content-Type: application/json');
