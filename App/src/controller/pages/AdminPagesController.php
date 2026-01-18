@@ -222,4 +222,23 @@ class AdminPagesController extends RouterBase
             exit;
         }
     }
+
+    public function ManageDonations()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/donations', [
+                'pages' => "manageDonations",
+                'title' => 'บริจาคสิ่งของ/วัสดุ',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
 }

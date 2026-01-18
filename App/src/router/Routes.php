@@ -46,7 +46,7 @@ class Routes
     {
         // Guest
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
 
         // PAGES 
@@ -89,10 +89,10 @@ class Routes
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/rewards", [AdminPagesController::class, "ManageRewards"]],
             ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
+            ["GET", "/manage/donations", [AdminPagesController::class, "ManageDonations"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
-            ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
         ]);
 
         /* API */
@@ -200,7 +200,6 @@ class Routes
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
             ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
-            ['DELETE', "/[i:wcid]", [WasteClearanceController::class, "Cancel"]],
         ]);
 
     }
