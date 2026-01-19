@@ -17,7 +17,10 @@ use App\Controller\Api\BadgeController;
 use App\Controller\Api\MajorController;
 use App\Controller\Api\DonationController;
 use App\Controller\Api\MemberRewardController;
+use App\Controller\Api\CenterStockController;
 use App\Controller\Api\FacultyDetailController;
+
+use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
@@ -95,8 +98,16 @@ class Routes
             ["GET", "/manage/donations", [AdminPagesController::class, "ManageDonations"]],
             ["GET", "/manage/redeem_rewards", [AdminPagesController::class, "RedeemRewards"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
+            ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
+            ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
+            ["GET", "/transactions/redeem_reward", [AdminPagesController::class, "TransactionRedeemReward"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+            ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],
+            ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
+            ["GET", "/history/donation", [AdminPagesController::class, "DonationHistory"]],
+            ["GET", "/history/redeem_reward", [AdminPagesController::class, "RedeemRewardHistory"]],
+            ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
         ]);
 
         /* API */

@@ -223,44 +223,6 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function TransactionDonation()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('transactions/donation_pos', [
-                'pages' => "donationTransaction",
-                'title' => 'ระบบรับสิ่งของบริจาค',
-                'user' => $user
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
-    public function TransactionReward()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('transactions/redeem_reward_pos', [
-                'pages' => "redeeemRewardTransaction",
-                'title' => 'ระบบแลกของรางวัล',
-                'user' => $user
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
     public function ManageDonations()
     {
         try {
@@ -298,22 +260,108 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function WasteSaleHistory()
+    public function TransactionDonation()
     {
         try {
-            $user = Authentication::AdminAuth();
-            $this->render('manages/waste_sale', [
-                'pages' => "wasteSaleHistory",
-                'title' => 'ประวัติการจำหน่ายขยะ',
-                'user' => $user
+            Authentication::AdminAuth();
+            $this->render('transactions/donation_pos', [
+                'pages' => "donationTransaction",
+                'title' => 'บันทึกการรับของบริจาค'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
+        }
+    }
+
+    public function DonationHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/donation_history', [
+                'pages' => "donationHistory",
+                'title' => 'ประวัติการรับของบริจาค'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function TransactionRedeemReward()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/redeem_reward_pos', [
+                'pages' => "redeemRewardTransaction",
+                'title' => 'บันทึกการแลกของรางวัล'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function RedeemRewardHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/redeem_reward_history', [
+                'pages' => "redeemRewardHistory",
+                'title' => 'ประวัติการแลกของรางวัล'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function WasteSaleHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/waste_sale_history', [
+                'pages' => "wasteSaleHistory",
+                'title' => 'ประวัติการขายขยะ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ClearWasteHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/clear_waste_history', [
+                'pages' => "clearWasteHistory",
+                'title' => 'ประวัติการเคลียร์ยอด'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function WasteTransactionHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('manages/waste_transaction', [
+                'pages' => "wasteTransactionHistory",
+                'title' => 'ประวัติการฝากขยะ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 }
