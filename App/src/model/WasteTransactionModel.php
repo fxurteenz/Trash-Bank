@@ -450,8 +450,6 @@ class WasteTransactionModel
                 waste_transaction_total_weight = :tw,
                 waste_transaction_total_point = :tp,
                 waste_transaction_total_fraction = :tf,
-                waste_transaction_date = :date,
-                waste_transaction_status = 'completed',
                 created_at = :created";
 
             $stmtHeader = $this->Conn->prepare($headerSql);
@@ -462,7 +460,6 @@ class WasteTransactionModel
                 ':tw' => $totalWeight,
                 ':tp' => $totalMemberPoints,
                 ':tf' => $totalFacultyFraction,
-                ':date' => date('Y-m-d'),
                 ':created' => date('Y-m-d H:i:s')
             ]);
             $transactionId = $this->Conn->lastInsertId();
@@ -475,8 +472,7 @@ class WasteTransactionModel
                 waste_transaction_detail_weight = :w,
                 waste_transaction_detail_rate = :r,
                 waste_transaction_detail_point = :p,
-                waste_transaction_detail_fraction = :f,
-                waste_transaction_detail_status = 'อยู่ที่คลังคณะ'";
+                waste_transaction_detail_fraction = :f";
 
             $stmtDetail = $this->Conn->prepare($detailSql);
             foreach ($details as $d) {
