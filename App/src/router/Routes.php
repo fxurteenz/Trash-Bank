@@ -18,6 +18,7 @@ use App\Controller\Api\MajorController;
 use App\Controller\Api\DonationController;
 use App\Controller\Api\MemberRewardController;
 use App\Controller\Api\CenterStockController;
+use App\Controller\Api\FacultyDetailController;
 
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -70,9 +71,11 @@ class Routes
             ['GET', '/transactions/clear_waste', [WasteCenterPagesController::class, 'ClearTransactionWaste']],
             ['GET', '/transactions/waste_sale', [WasteCenterPagesController::class, 'WasteSaleTransaction']],
             ['GET', '/transactions/waste_sale_history', [WasteCenterPagesController::class, 'WasteSaleHistory']],
+            ['GET', '/transactions/donation_exchange', [WasteCenterPagesController::class, 'DonationExchange']],
             ['GET', '/manage/waste_type', [WasteCenterPagesController::class, 'ManageWasteType']],
             ['GET', '/manage/waste_transaction', [WasteCenterPagesController::class, 'ManageWasteTransaction']],
             ['GET', '/manage/rewards', [WasteCenterPagesController::class, 'ManageRewards']],
+            ['GET', '/manage/faculty_detail', [WasteCenterPagesController::class, 'FacultyDetail']],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [WasteCenterPagesController::class, "ManageTransactionClearancePage"]]
         ]);
 
@@ -89,18 +92,22 @@ class Routes
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
+            ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/rewards", [AdminPagesController::class, "ManageRewards"]],
             ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
-            ["GET", "/history/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
-            ["GET", "/history/donation", [AdminPagesController::class, "ManageDonations"]],
-            ["GET", "/history/redeem_reward", [AdminPagesController::class, "RedeemRewards"]],
-            ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
+            ["GET", "/manage/donations", [AdminPagesController::class, "ManageDonations"]],
+            ["GET", "/manage/redeem_rewards", [AdminPagesController::class, "RedeemRewards"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
-            ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
-            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
             ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
-            ["GET", "/transactions/redeem_reward", [AdminPagesController::class, "TransactionReward"]],
+            ["GET", "/transactions/redeem_reward", [AdminPagesController::class, "TransactionRedeemReward"]],
+            ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
+            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+            ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],
+            ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
+            ["GET", "/history/donation", [AdminPagesController::class, "DonationHistory"]],
+            ["GET", "/history/redeem_reward", [AdminPagesController::class, "RedeemRewardHistory"]],
+            ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
         ]);
 
         /* API */
@@ -118,6 +125,7 @@ class Routes
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
             ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
+            ['GET', '/detail', [FacultyDetailController::class, 'GetFacultyDetail']],
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
@@ -202,13 +210,14 @@ class Routes
         ]);
         /* /api/waste_sales */
         $this->addPrefixedRoutes("/api/waste_sales", [
-            ['GET', '', [WasteSaleController::class, 'GetAll']],
-            ['GET', '/[i:id]/details', [WasteSaleController::class, 'GetDetail']],
+            ['GET', "", [WasteSaleController::class, "GetAll"]],
+            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
+            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
             ['POST', '', [WasteSaleController::class, 'Create']],
-        ]);
-        /* /api/center_stock */
-        $this->addPrefixedRoutes("/api/center_stock", [
-            ['GET', "", [CenterStockController::class, "getCenterStock"]],
+            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
+            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
@@ -242,6 +251,11 @@ class Routes
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
             ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
+            ['POST', "/direct", [WasteClearanceController::class, "CreateDirect"]],
+        ]);
+        /* /api/center_stock */
+        $this->addPrefixedRoutes("/api/center_stock", [
+            ['GET', "", [CenterStockController::class, "GetAll"]],
         ]);
 
     }

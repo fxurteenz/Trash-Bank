@@ -51,7 +51,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <template x-for="(faculty, index) in AllFacultyData" :key="faculty.faculty_id">
-                            <tr class="hover:bg-gray-50 transition duration-200 " @click="SelectFaculty(faculty)"
+                            <tr class="hover:bg-gray-50 transition duration-200 cursor-pointer" @click="window.location.href = `/waste_center/manage/faculty_detail?faculty_id=${faculty.faculty_id}`"
                                 :class="selectedFaculty?.faculty_id === faculty.faculty_id ? 'bg-sky-50' : ''">
                                 <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900"
                                     x-text="(facultyPage - 1) * facultyLimit + index + 1"></td>
@@ -60,7 +60,7 @@
                                 <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-500"
                                     x-text="faculty.major_count_total"></td>
                                 <td
-                                    class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2">
+                                    class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2" @click.stop>
                                     <button @click="openFacultyMajorModal(faculty)"
                                         class=" bg-sky-200 hover:bg-sky-300 border border-1 border-sky-400 text-sky-700 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"

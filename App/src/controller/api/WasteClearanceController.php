@@ -192,4 +192,37 @@ class WasteClearanceController extends RouterBase
             exit;
         }
     }
+
+    public function CreateDirect()
+    {
+        try {
+            $operaterData = Authentication::CenterAuth();
+
+            $result = self::$WasteClearanceModel->CreateDirectClearance(self::$Data, $operaterData);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'เคลียร์ยอดเรียบร้อยแล้ว'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
 }
