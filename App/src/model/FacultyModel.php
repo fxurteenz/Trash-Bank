@@ -32,8 +32,7 @@ class FacultyModel
             // --- แก้ไข SQL ตรงนี้ ---
             $sql = "SELECT 
                     f.*, 
-                    COALESCE(m_count.total_major, 0) AS major_count_total, 
-                    COALESCE(fp_sum.total_point, 0) AS faculty_point_total
+                    COALESCE(m_count.total_major, 0) AS major_count_total
                 FROM 
                     faculty f
                 -- Subquery 1: นับจำนวน Major
@@ -42,12 +41,6 @@ class FacultyModel
                     FROM major
                     GROUP BY faculty_id
                 ) AS m_count ON f.faculty_id = m_count.faculty_id
-                -- Subquery 2: รวมคะแนน Point
-                LEFT JOIN (
-                    SELECT faculty_id, SUM(faculty_point_amount) AS total_point
-                    FROM faculty_point
-                    GROUP BY faculty_id
-                ) AS fp_sum ON f.faculty_id = fp_sum.faculty_id
                 
                 {$whereSql}
                 

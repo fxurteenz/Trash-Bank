@@ -40,8 +40,8 @@
 
 <body class="bg-gradient-to-b from-green-100 to-slate-50 min-h-screen bg-fixed">
 
-    <div x-data="{ sidebarOpen: window.innerWidth >= 1024, profileMenuOpen: false }"
-        @resize.window="sidebarOpen = window.innerWidth >= 1024" class="min-h-screen flex flex-col">
+    <div x-data="{ sidebarOpen: window.innerWidth > 1024, profileMenuOpen: false }"
+        @resize.window="sidebarOpen = window.innerWidth > 1024" class="min-h-screen flex flex-col">
 
         <header
             class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b border-slate-200 transition-all duration-300">
@@ -295,7 +295,7 @@
             class="fixed inset-0 z-10 bg-black opacity-50  lg:hidden"></div>
 
         <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'"
-            class="flex-1 p-8 pt-24 transition-all duration-150 ease-in-out">
+            class="flex-1 p-8 pt-20 transition-all duration-150 ease-in-out">
             <?php include $viewPath; ?>
         </main>
 

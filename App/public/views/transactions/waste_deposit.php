@@ -1,113 +1,117 @@
 <div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-6 relative">
-    <div class="mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบฝากขยะ</h1>
-        <p class="text-slate-600 text-lg">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
+    <div class="mb-8 flex flex-col md:flex-row gap-6">
+        <div class="w-1/3">
+            <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบฝากขยะ</h1>
+            <p class="text-slate-600 text-lg">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
+        </div>
+
+
+        <!-- ส่วนกรอกผู้ฝาก -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover relative w-2/3">
+            <!-- ฟอร์ม -->
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-slate-900">
+                    <span x-show="!currentMember">ค้นหาสมาชิก</span>
+                    <span x-show="currentMember" class="text-emerald-600">ยืนยันสมาชิก</span>
+                </h2>
+                <button x-show="currentMember" @click="resetMember()"
+                    class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                    เปลี่ยน
+                </button>
+            </div>
+            <!-- dropdown เลือกสมาชิก -->
+            <div x-show="!currentMember" class="space-y-3 relative" @click.away="showDropdown = false">
+                <label class="block text-sm font-semibold text-slate-700">เบอร์โทร หรือ ชื่อสมาชิก</label>
+
+                <div class="relative">
+                    <div class="flex gap-2">
+                        <input x-ref="memberInput" x-model="memberSearch" @input.debounce.300ms="searchMember(false)"
+                            @focus="showDropdown = true" @keydown.enter.prevent="handleEnterKey()"
+                            @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
+                            @keydown.tab.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
+                            type="text" placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก"
+                            class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                            autocomplete="off">
+                    </div>
+
+                    <div x-show="showDropdown && (searchResults.length > 0 || isSearching)" x-ref="dropdownList"
+                        x-transition.opacity.duration.200ms
+                        class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+
+                        <div x-show="isSearching" class="p-4 text-center text-slate-500">
+                            <span class="inline-block animate-spin mr-2"></span> กำลังค้นหา...
+                        </div>
+
+                        <ul x-show="!isSearching && searchResults.length > 0">
+                            <template x-for="(member, index) in searchResults" :key="member.member_id">
+                                <li @click="selectMember(member)" :id="'member-item-' + index"
+                                    :class="{ 'bg-emerald-100 ring-1 ring-inset ring-emerald-300': index === selectedIndex, 'hover:bg-emerald-50': index !== selectedIndex }"
+                                    class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="font-bold text-slate-800 group-hover:text-emerald-700"
+                                                x-text="member.member_name || 'ไม่ระบุชื่อ'"></p>
+                                            <p class="text-xs text-slate-500">
+                                                <span x-text="member.role_name_th"></span> •
+                                                <span x-text="member.faculty_name"></span>
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <span
+                                                class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600"
+                                                x-text="member.member_phone"></span>
+                                            <div class="text-xs text-emerald-600 mt-1 font-semibold">แต้ม: <span
+                                                    x-text="member.member_waste_point"></span></div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+
+                        <div x-show="!isSearching && searchResults.length === 0 && memberSearch.length > 0"
+                            class="p-4 text-center text-slate-500">
+                            ไม่พบข้อมูลสมาชิก
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-slate-500">
+                    ใช้ปุ่ม <kbd class="bg-slate-100 px-2 py-1 rounded">Arrow Down</kbd><kbd
+                        class="bg-slate-100 px-2 py-1 rounded">Arrow Up</kbd> เพื่อเลือก และ<kbd
+                        class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> ยืนยัน
+                </p>
+            </div>
+            <!-- แสดงข้อมูลสมาชิก -->
+            <div x-show="currentMember"
+                class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
+                <div class="space-y-2">
+                    <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สมาชิก</p>
+                    <p class="text-2xl font-bold text-slate-900" x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'">
+                    </p>
+                    <div class="flex gap-4 text-sm text-slate-600">
+                        <span>
+                            เบอร์โทร : <span class="font-semibold" x-text="currentMember?.member_phone"></span>
+                        </span>
+                        <span>
+                            คณะ : <span class="font-semibold" x-text="currentMember?.faculty_name"></span>
+                        </span>
+                        <span>
+                            แต้มสะสม : <span class="font-bold text-emerald-600"
+                                x-text="currentMember?.member_waste_point"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6">
-            <!-- ส่วนกรอกผู้ฝาก -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover relative z-20">
-                <!-- ฟอร์ม -->
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-slate-900">
-                        <span x-show="!currentMember">🔍 ค้นหาสมาชิก</span>
-                        <span x-show="currentMember" class="text-emerald-600">✅ ยืนยันสมาชิก</span>
-                    </h2>
-                    <button x-show="currentMember" @click="resetMember()"
-                        class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        🔄 เปลี่ยน
-                    </button>
-                </div>
-                <!-- dropdown เลือกสมาชิก -->
-                <div x-show="!currentMember" class="space-y-3 relative" @click.away="showDropdown = false">
-                    <label class="block text-sm font-semibold text-slate-700">เบอร์โทร หรือ ชื่อสมาชิก</label>
 
-                    <div class="relative">
-                        <div class="flex gap-2">
-                            <input x-ref="memberInput" x-model="memberSearch"
-                                @input.debounce.300ms="searchMember(false)" @focus="showDropdown = true"
-                                @keydown.enter.prevent="handleEnterKey()" @keydown.escape="showDropdown = false"
-                                @keydown.arrow-down.prevent="moveSelection(1)" @keydown.tab.prevent="moveSelection(1)"
-                                @keydown.arrow-up.prevent="moveSelection(-1)" type="text"
-                                placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก"
-                                class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
-                                autocomplete="off">
-                        </div>
-
-                        <div x-show="showDropdown && (searchResults.length > 0 || isSearching)" x-ref="dropdownList"
-                            x-transition.opacity.duration.200ms
-                            class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
-
-                            <div x-show="isSearching" class="p-4 text-center text-slate-500">
-                                <span class="inline-block animate-spin mr-2">⏳</span> กำลังค้นหา...
-                            </div>
-
-                            <ul x-show="!isSearching && searchResults.length > 0">
-                                <template x-for="(member, index) in searchResults" :key="member.member_id">
-                                    <li @click="selectMember(member)" :id="'member-item-' + index"
-                                        :class="{ 'bg-emerald-100 ring-1 ring-inset ring-emerald-300': index === selectedIndex, 'hover:bg-emerald-50': index !== selectedIndex }"
-                                        class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
-                                        <div class="flex justify-between items-center">
-                                            <div>
-                                                <p class="font-bold text-slate-800 group-hover:text-emerald-700"
-                                                    x-text="member.member_name || 'ไม่ระบุชื่อ'"></p>
-                                                <p class="text-xs text-slate-500">
-                                                    <span x-text="member.role_name_th"></span> •
-                                                    <span x-text="member.faculty_name"></span>
-                                                </p>
-                                            </div>
-                                            <div class="text-right">
-                                                <span
-                                                    class="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600"
-                                                    x-text="member.member_phone"></span>
-                                                <div class="text-xs text-emerald-600 mt-1 font-semibold">แต้ม: <span
-                                                        x-text="member.member_waste_point"></span></div>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </template>
-                            </ul>
-
-                            <div x-show="!isSearching && searchResults.length === 0 && memberSearch.length > 0"
-                                class="p-4 text-center text-slate-500">
-                                ❌ ไม่พบข้อมูลสมาชิก
-                            </div>
-                        </div>
-                    </div>
-
-                    <p class="text-xs text-slate-500">
-                        💡 ใช้ปุ่ม <kbd class="bg-slate-100 px-2 py-1 rounded">⬇️</kbd><kbd
-                            class="bg-slate-100 px-2 py-1 rounded">⬆️</kbd> เพื่อเลือก และ<kbd
-                            class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> ยืนยัน
-                    </p>
-                </div>
-                <!-- แสดงข้อมูลสมาชิก -->
-                <div x-show="currentMember"
-                    class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
-                    <div class="space-y-2">
-                        <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สมาชิก</p>
-                        <p class="text-2xl font-bold text-slate-900"
-                            x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'"></p>
-                        <div class="flex gap-4 text-sm text-slate-600">
-                            <span>
-                                เบอร์โทร : <span class="font-semibold" x-text="currentMember?.member_phone"></span>
-                            </span>
-                            <span>
-                                คณะ : <span class="font-semibold" x-text="currentMember?.faculty_name"></span>
-                            </span>
-                            <span>
-                                แต้มสะสม : <span class="font-bold text-emerald-600"
-                                    x-text="currentMember?.member_waste_point"></span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- ฟอร์มกรอกข้อมูลรายการที่ฝาก -->
             <div x-show="currentMember" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
 
-                <h2 class="text-2xl font-bold text-slate-900 mb-5">📝 เพิ่มรายการขยะ</h2>
+                <h2 class="text-2xl font-bold text-slate-900 mb-5">เพิ่มรายการขยะ</h2>
                 <div class="grid grid-cols-12 gap-3">
 
                     <div class="col-span-5">
@@ -140,14 +144,14 @@
                     <div class="col-span-3 my-auto">
                         <button @click="addItem()"
                             class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
-                            ➕ เพิ่ม
+                            เพิ่ม
                         </button>
                     </div>
                 </div>
             </div>
             <!-- รายการที่ฝาก -->
             <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">🛒 รายการที่บันทึก <span class="text-blue-600"
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">รายการที่บันทึก <span class="text-blue-600"
                         x-text="items.length"></span></h2>
                 <div class="space-y-2 max-h-96 overflow-y-auto">
                     <template x-for="(item, index) in items" :key="index">
@@ -159,8 +163,8 @@
                                         x-text="index + 1"></span>
                                     <div>
                                         <p>
-                                            <span class="font-light text-slate-900"
-                                                x-text="item.waste_type_id"></span> : 
+                                            <span class="font-light text-slate-900" x-text="item.waste_type_id"></span>
+                                            :
                                             <span class="font-semibold text-slate-900"
                                                 x-text="item.waste_type_name"></span>
                                         </p>
@@ -169,11 +173,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <button @click="removeItem(index)"
-                                class="ml-4 px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                                ❌ ลบ
-                            </button>
-                        </div>
+                                                            <button @click="removeItem(index)"
+                                                            class="ml-4 px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                                                            ลบ
+                                                        </button>                        </div>
                     </template>
                 </div>
             </div>
@@ -183,7 +186,7 @@
             <div
                 class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
                 <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    <span class="text-2xl">📊</span> สรุป
+                    สรุป
                 </h3>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
@@ -205,19 +208,19 @@
                     <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
                         :class="items.length === 0 || isSubmitting ? 'bg-emerald-700 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-emerald-600'"
                         class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
-                        <span x-show="!isSubmitting">✅ บันทึกทั้งหมด</span>
-                        <span x-show="isSubmitting">⏳ กำลังบันทึก...</span>
+                        <span x-show="!isSubmitting">บันทึกทั้งหมด</span>
+                        <span x-show="isSubmitting">กำลังบันทึก...</span>
                     </button>
                     <button @click="cancelAll()" :disabled="items.length === 0"
                         class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        ❌ ยกเลิกทั้งหมด
+                        ยกเลิกทั้งหมด
                     </button>
                 </div>
                 <p class="text-center text-emerald-100 text-xs mt-4">กด <kbd
                         class="bg-emerald-600 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
             </div>
             <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">📈 สถิติวันนี้</h3>
+                <h3 class="text-lg font-bold text-slate-900 mb-4">สถิติวันนี้</h3>
                 <div class="space-y-3">
                     <div class="flex justify-between items-center text-sm">
                         <span class="text-slate-600">ทำรายการ</span>
@@ -269,10 +272,28 @@
                 }, 0);
             },
 
+            // --- Cookie Helpers ---
+            setCookie(name, value) {
+                const date = new Date();
+                date.setHours(23, 59, 59, 999); // Set to end of day
+                let expires = "; expires=" + date.toUTCString();
+                document.cookie = name + "=" + (value || "") + expires + "; path=/";
+            },
+            getCookie(name) {
+                const nameEQ = name + "=";
+                const ca = document.cookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            },
+
             // --- Init ---
             async init() {
                 await this.loadWasteTypes();
-                await this.loadTodayStats();
+                this.loadTodayStats();
                 this.focusMemberInput();
             },
 
@@ -307,7 +328,7 @@
                         if (force && this.searchResults.length > 0) {
                             this.selectedIndex = 0;
                         } else if (force && this.searchResults.length === 0) {
-                            this.showNotification('❌ ไม่พบสมาชิก', 'error');
+                            this.showNotification('ไม่พบสมาชิก', 'error');
                         }
                     } else {
                         this.searchResults = [];
@@ -360,7 +381,7 @@
                 this.showDropdown = false;
                 this.selectedIndex = -1;
 
-                this.showNotification('✅ เลือกสมาชิก: ' + (member.member_name || 'ไม่ระบุชื่อ'), 'success');
+                this.showNotification('เลือกสมาชิก: ' + (member.member_name || 'ไม่ระบุชื่อ'), 'success');
 
                 this.$nextTick(() => {
                     if (this.$refs.wasteCodeInput) {
@@ -416,7 +437,7 @@
 
             addItem() {
                 if (!this.itemForm.wasteCode || !this.selectedWasteType) {
-                    this.showNotification('❌ กรุณาเลือกชนิดขยะ', 'error');
+                    this.showNotification('กรุณาเลือกชนิดขยะ', 'error');
                     this.$refs.wasteCodeInput.focus();
                     return;
                 }
@@ -424,7 +445,7 @@
                 // (เรายอมให้กรอกค่าติดลบได้ แต่ห้ามเป็นค่าว่างหรือ 0 เฉยๆ ในตอนแรกถ้าไม่มีรายการ)
                 const weightToAdd = parseFloat(this.itemForm.weight);
                 if (!weightToAdd || isNaN(weightToAdd)) {
-                    this.showNotification('❌ กรุณากรอกน้ำหนัก', 'error');
+                    this.showNotification('กรุณากรอกน้ำหนัก', 'error');
                     this.$refs.weightInput.focus();
                     return;
                 }
@@ -440,19 +461,19 @@
                     if (newWeight <= 0) {
                         // ถ้าผลลัพธ์ <= 0 ให้ลบรายการออก
                         this.items.splice(existingIndex, 1);
-                        this.showNotification(`🗑️ ลบรายการ ${this.selectedWasteType.waste_type_name} ออกแล้ว (น้ำหนักเหลือ ${newWeight})`, 'warning');
+                        this.showNotification(`ลบรายการ ${this.selectedWasteType.waste_type_name} ออกแล้ว (น้ำหนักเหลือ ${newWeight})`, 'warning');
                     } else {
                         // ถ้ายังมีค่าบวก ให้อัปเดตค่าใหม่
                         this.items[existingIndex].weight = newWeight;
                         const action = weightToAdd > 0 ? 'เพิ่ม' : 'ลด';
-                        this.showNotification(`✅ ${action}น้ำหนักเป็น ${newWeight.toFixed(2)} กก.`, 'success');
+                        this.showNotification(`${action}น้ำหนักเป็น ${newWeight.toFixed(2)} กก.`, 'success');
                     }
 
                 } else {
                     // --- กรณี B: รายการใหม่ ---
                     if (weightToAdd <= 0) {
                         // ห้ามเพิ่มรายการใหม่ด้วยค่าติดลบหรือ 0
-                        this.showNotification('❌ รายการใหม่ต้องมีน้ำหนักมากกว่า 0', 'error');
+                        this.showNotification('รายการใหม่ต้องมีน้ำหนักมากกว่า 0', 'error');
                         this.$refs.weightInput.focus();
                         return;
                     }
@@ -464,7 +485,7 @@
                         waste_type_price: this.selectedWasteType.waste_type_price,
                         weight: weightToAdd
                     });
-                    this.showNotification('✅ เพิ่มรายการใหม่แล้ว', 'success');
+                    this.showNotification('เพิ่มรายการใหม่แล้ว', 'success');
                 }
                 this.clearItemForm();
                 this.$refs.wasteCodeInput.focus();
@@ -472,7 +493,7 @@
 
             removeItem(index) {
                 this.items.splice(index, 1);
-                this.showNotification('🗑️ ลบรายการแล้ว', 'info');
+                this.showNotification('ลบรายการแล้ว', 'info');
             },
 
             clearItemForm() {
@@ -485,11 +506,11 @@
             // --- Submission Logic ---
             async submitTransaction() {
                 if (this.items.length === 0) {
-                    this.showNotification('❌ ไม่มีรายการที่จะบันทึก', 'warning');
+                    this.showNotification('ไม่มีรายการที่จะบันทึก', 'warning');
                     return;
                 }
                 if (!this.currentMember) {
-                    this.showNotification('❌ กรุณาเลือกสมาชิก', 'warning');
+                    this.showNotification('กรุณาเลือกสมาชิก', 'warning');
                     return;
                 }
 
@@ -513,8 +534,21 @@
                     const result = await response.json();
 
                     if (response.ok && result.success) {
-                        this.showNotification(`✅ บันทึก ${result.result.items_count || this.items.length} รายการสำเร็จ!`, 'success');
-                        await this.loadTodayStats();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'บันทึกสำเร็จ!',
+                            text: `บันทึก ${result.result.items_count || this.items.length} รายการเรียบร้อย`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+
+                        // Update stats in cookie
+                        const today = new Date().toISOString().split('T')[0];
+                        const newWeight = this.totalWeight;
+                        this.todayStats.count += 1;
+                        this.todayStats.weight += newWeight;
+                        this.setCookie('todayStats', JSON.stringify({ date: today, count: this.todayStats.count, weight: this.todayStats.weight }));
+
                         this.items = [];
                         this.resetMember();
                     } else {
@@ -522,39 +556,76 @@
                     }
                 } catch (error) {
                     console.error('Error submitting:', error);
-                    this.showNotification(`❌ เกิดข้อผิดพลาดในการบันทึก: ${error.message}`, 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: error.message,
+                    });
                 } finally {
                     this.isSubmitting = false;
                 }
             },
 
             cancelAll() {
-                if (confirm('ต้องการยกเลิกรายการทั้งหมดใช่หรือไม่?')) {
-                    this.items = [];
-                    this.clearItemForm();
-                    this.showNotification('❌ ยกเลิกทั้งหมดแล้ว', 'info');
-                }
+                if (this.items.length === 0) return;
+                Swal.fire({
+                    title: 'ต้องการยกเลิกทั้งหมด?',
+                    text: "รายการทั้งหมดจะถูกลบและไม่สามารถกู้คืนได้",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ลบทั้งหมด!',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.items = [];
+                        this.clearItemForm();
+                        this.showNotification('ยกเลิกทั้งหมดแล้ว', 'success');
+                    }
+                })
             },
 
-            async loadTodayStats() {
-                try {
-                    const today = new Date().toISOString().split('T')[0];
-                    const response = await fetch(`/api/waste_transactions/me?date=${today}`);
-                    const result = await response.json();
+            loadTodayStats() {
+                const statsCookie = this.getCookie('todayStats');
+                const today = new Date().toISOString().split('T')[0];
 
-                    if (result.success) {
-                        const data = result.result?.data || [];
-                        this.todayStats.count = data.length;
-                        this.todayStats.weight = data.reduce((sum, t) => sum + parseFloat(t.waste_transaction_weight || 0), 0);
+                if (statsCookie) {
+                    try {
+                        const stats = JSON.parse(statsCookie);
+                        if (stats.date === today) {
+                            this.todayStats.count = stats.count;
+                            this.todayStats.weight = stats.weight;
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing todayStats cookie:', e);
                     }
-                } catch (error) {
-                    console.error('Error loading stats:', error);
                 }
+
+                // If no cookie or cookie is from another day, reset stats
+                this.todayStats.count = 0;
+                this.todayStats.weight = 0;
+                this.setCookie('todayStats', JSON.stringify({ date: today, count: 0, weight: 0 }));
             },
 
             showNotification(message, type = 'info') {
-                const emoji = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-                console.log(`${emoji[type]} ${message}`);
+                const toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                toast.fire({
+                    icon: type,
+                    title: message
+                });
             }
         };
     }
