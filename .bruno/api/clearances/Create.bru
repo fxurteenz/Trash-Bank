@@ -6,8 +6,26 @@ meta {
 
 post {
   url: {{api_domain}}/clearances
-  body: formUrlEncoded
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "faculty_id": 1, // faculty_id
+    "items": [
+      {
+        "waste_category_id": 3,
+        "waste_type_id": 4,
+        "clearance_weight": 10
+      },
+      {
+        "waste_category_id": 4,
+        "waste_type_id": 6,
+        "clearance_weight": 1
+      }
+    ]
+  }
 }
 
 body:form-urlencoded {
