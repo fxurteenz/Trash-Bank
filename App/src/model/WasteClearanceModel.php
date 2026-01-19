@@ -532,4 +532,74 @@ class WasteClearanceModel
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function CreateDirectClearance(array $data, $operaterData)
+    {
+        try {
+            if (empty($data['clearance_items']) || !is_array($data['clearance_items'])) {
+                throw new Exception('ข้อมูลรายการเคลียร์ยอดไม่ถูกต้อง', 400);
+            }
+
+            if (empty($operaterData["user_data"]->waste_center_id)) {
+                throw new Exception("ไม่พบข้อมูลศูนย์กลาง", 400);
+            }
+
+            // เริ่ม Transaction
+            $this->Conn->beginTransaction();
+
+            // 1. เพิ่มน้ำหนักเข้าศูนย์กลาง (center_waste_stock)
+            // 2. ลดน้ำหนักคณะตามประเภท (faculty_waste_stock)
+            foreach ($data['clearance_items'] as $item) {
+                $wasteTypeId = $item['waste_type_id'] ?? null;
+                $weight = $item['weight'] ?? 0;
+
+                if (!$wasteTypeId || $weight <= 0) {
+                    throw new Exception('ข้อมูลรายการไม่ถูกต้อง', 400);
+                }
+
+                // ดึงข้อมูล waste_type
+                $typeStmt = $this->Conn->prepare("
+                    SELECT waste_type_id, waste_type_price, waste_type_point_per_kg 
+                    FROM waste_type WHERE waste_type_id = :id
+                ");
+                $typeStmt->execute([':id' => $wasteTypeId]);
+                $wasteType = $typeStmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$wasteType) {
+                    throw new Exception("ไม่พบประเภทขยะ ID: {$wasteTypeId}", 400);
+                }
+
+                // บันทึกลงตาราง center_waste_stock
+                $addStockSql = "
+                    INSERT INTO center_waste_stock (waste_type_id, stock_weight, updated_at)
+                    VALUES (:waste_type_id, :weight, :now)
+                    ON DUPLICATE KEY UPDATE 
+                        stock_weight = stock_weight + :weight,
+                        updated_at = :now
+                ";
+                $addStockStmt = $this->Conn->prepare($addStockSql);
+                $addStockStmt->execute([
+                    ':waste_type_id' => $wasteTypeId,
+                    ':weight' => $weight,
+                    ':now' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // Commit transaction
+            $this->Conn->commit();
+
+            return [
+                'success' => true,
+                'items_processed' => count($data['clearance_items']),
+                'total_weight' => array_sum(array_column($data['clearance_items'], 'weight'))
+            ];
+
+        } catch (Exception $e) {
+            // Rollback on error
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
+            throw $e;
+        }
+    }
 }

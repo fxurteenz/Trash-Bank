@@ -207,51 +207,56 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="member in members" :key="member.member_id">
-                        <tr class="hover:bg-emerald-50 cursor-pointer"
-                            :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
+                        <tr class="hover:bg-emerald-50 cursor-pointer transition-colors"
+                            :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''"
+                            @click="selectingRow(member)">
                             <td class="px-2 py-2 text-center" @click.stop>
                                 <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
                                     x-model="checkedMembers.member_ids">
                             </td>
-                            <td @click="selectingRow(member)"
-                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
 
-                            <td @click="selectingRow(member)" class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
 
-                            <td @click="selectingRow(member)"
-                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
                                 x-text="member.faculty_name ?? 'ไม่ระบุ'"></td>
 
-                            <td @click="selectingRow(member)"
-                                class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden xl:table-cell"
                                 x-text="member.major_name ?? 'ไม่ระบุ'"></td>
 
-                            <td @click="selectingRow(member)" class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
 
-                            <td @click="selectingRow(member)" class="px-2 py-2 text-xs text-end"
+                            <td class="px-2 py-2 text-xs text-end"
                                 x-text="member.member_waste_point ?? '0'"></td>
-                            <td
-                                class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2">
-                                <button @click.stop="selectingRow(member)"
-                                    class=" bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg> <span>&nbsp;แก้ไข</span>
-                                </button>
-                                <button @click.stop="confirmDeleteUser(member)"
-                                    class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg> <span>&nbsp;ลบ</span>
-                                </button>
+                            <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
+                                <div class="flex justify-center items-center gap-1">
+                                    <!-- Quick Action Menu Button -->
+                                    <button @click="showQuickMenu(member)" class="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 hover:cursor-pointer transition duration-200 px-2 py-1 rounded" title="ทำรายการ">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 8c1.1 0 2-0.9 2-2s-0.9-2-2-2-2 0.9-2 2 0.9 2 2 2z m0 2c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z m0 6c-1.1 0-2 0.9-2 2s0.9 2 2 2 2-0.9 2-2-0.9-2-2-2z"/>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Edit Button -->
+                                    <button @click.stop="selectingRow(member)"
+                                        class="bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 px-2 py-1 rounded flex" title="แก้ไข">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Delete Button -->
+                                    <button @click.stop="confirmDeleteUser(member)"
+                                        class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 px-2 py-1 rounded flex" title="ลบ">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -499,6 +504,71 @@
                         class="px-4 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 cursor-pointer font-medium transition-colors">ยืนยัน</button>
                     <button @click="editUserDialogShow = false"
                         class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 cursor-pointer transition-colors">ยกเลิก</button>
+                </div>
+            </div>
+        </dialog>
+
+        <!-- Quick Menu Dialog -->
+        <dialog x-ref="quickMenuDialog" x-show="quickMenuShow" @click.self="quickMenuShow = false"
+            @close="quickMenuShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
+            x-init="$watch('quickMenuShow', value => {if (value) $refs.quickMenuDialog.showModal();else $refs.quickMenuDialog.close();})">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg">🎯 เมนูด่วน</h3>
+                    <button @click="quickMenuShow = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <template x-if="selectedMemberForMenu">
+                    <div class="bg-blue-50 rounded-lg p-3 mb-4 text-sm">
+                        <p><b>สมาชิก:</b> <span x-text="selectedMemberForMenu.member_name || 'ไม่ระบุชื่อ'"></span></p>
+                        <p><b>เบอร์:</b> <span x-text="selectedMemberForMenu.member_phone || 'ไม่ระบุ'"></span></p>
+                        <p><b>แต้ม:</b> <span x-text="selectedMemberForMenu.member_waste_point || '0'"></span></p>
+                    </div>
+                </template>
+
+                <div class="space-y-2">
+                    <button @click="openWasteDeposit(selectedMemberForMenu)"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 2H3v20h4V2zm8 0h-4v20h4V2zm8 0h-4v20h4V2z"/>
+                        </svg>
+                        📦 ทำรายการฝากของ
+                    </button>
+
+                    <button @click="openDonationExchange(selectedMemberForMenu)"
+                        class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 16h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8-4h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zM7 8h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/>
+                        </svg>
+                        💰 แลกของบริจาค
+                    </button>
+
+                    <button @click="openRedeemReward(selectedMemberForMenu)"
+                        class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L15.09 8.26H22L17.45 12.74L19.54 19L12 15.27L4.46 19L6.55 12.74L2 8.26H8.91L12 2Z"/>
+                        </svg>
+                        🎁 แลกของรางวัล
+                    </button>
+
+                    <button @click="openDonation(selectedMemberForMenu)"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                        </svg>
+                        🎀 บริจาคสิ่งของ
+                    </button>
+                </div>
+
+                <div class="mt-4">
+                    <button @click="quickMenuShow = false"
+                        class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                        ปิด
+                    </button>
                 </div>
             </div>
         </dialog>

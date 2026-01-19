@@ -61,6 +61,17 @@
                                     x-text="faculty.major_count_total"></td>
                                 <td
                                     class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2">
+                                    <button @click="window.location.href = `/waste_center/manage/faculty_detail?faculty_id=${faculty.faculty_id}`"
+                                        class=" bg-violet-200 hover:bg-violet-300 border border-1 border-violet-400 text-violet-700 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                            viewBox="0 0 24 24">
+                                            <g fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="3" />
+                                                <path
+                                                    d="M20.188 10.934c.388.472.582.707.582 1.066s-.194.594-.582 1.066C18.768 14.79 15.636 18 12 18s-6.768-3.21-8.188-4.934c-.388-.472-.582-.707-.582-1.066s.194-.594.582-1.066C5.232 9.21 8.364 6 12 6s6.768 3.21 8.188 4.934Z" />
+                                            </g>
+                                        </svg> <span>&nbsp;รายละเอียด</span>
+                                    </button>
                                     <button @click="openFacultyMajorModal(faculty)"
                                         class=" bg-sky-200 hover:bg-sky-300 border border-1 border-sky-400 text-sky-700 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"

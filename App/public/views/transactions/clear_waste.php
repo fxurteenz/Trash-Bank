@@ -1,109 +1,139 @@
-<div class="grid grid-cols-1 gap-4">
-
+<div class="grid grid-cols-1 gap-4 mb-6">
     <div class="mb-4">
-        <h2 class="text-4xl font-bold">เคลียร์ยอดฝากขยะ</h2>
-        <h2 class="text-lg font-light text-gray-500">เปิดรายการ</h2>
+        <h2 class="text-4xl font-bold">🗑️ เคลียร์ยอดฝากขยะ</h2>
+        <h2 class="text-lg font-light text-gray-500">บันทึกการเคลียร์ยอด - ป้อนข้อมูลเหมือนการขายออก</h2>
     </div>
-    <!-- ส่วนฟอร์ม -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-2xl font-bold text-slate-900 mb-4">
-            <span>🔍 ระบุคณะและช่วงเวลา</span>
-        </h2>
 
-        <div x-data="centerConfirmForm()" x-init="init()" class="space-y-4">
+    <!-- Clear Waste POS Form -->
+    <div x-data="ClearWastePOSHandler()" x-init="init()" class="space-y-6">
+        <!-- Main Form -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">📝 บันทึกการเคลียร์ยอด</h2>
 
-            <form @submit.prevent="confirmSubmit" class="grid grid-cols-3 md:grid-cols-12 gap-4 items-end">
-                <!-- ช่องกรอกคณะ -->
-                <div class="relative md:col-span-4" @click.away="showDropdown = false">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">คณะ</label>
-
-                    <div x-show="!currentFaculty">
-                        <!-- input -->
-                        <input x-ref="facultyInput" x-model="facultySearch" @input.debounce.300ms="searchFaculty()"
-                            @focus="showDropdown = true" @keydown.enter.prevent="handleEnterKey()"
-                            @keydown.tab.prevent="handleTabKey()" @keydown.escape="showDropdown = false"
-                            @keydown.arrow-down.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
-                            type="text" placeholder="กรอกรหัส ชื่อคณะ หรือชื่อย่อคณะ"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-                            autocomplete="off" />
-                        <!-- dropdown -->
-                        <div x-show="showDropdown && (facultyResults.length > 0 || isSearching)"
-                            class="absolute top-full left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            <div x-show="isSearching" class="p-2 text-center text-sm text-gray-500">
-                                🔎 กำลังค้นหา...
-                            </div>
-                            <ul>
-                                <template x-for="(faculty, index) in facultyResults" :key="faculty.faculty_id">
-                                    <li @click="selectFaculty(faculty)"
-                                        :class="{ 'bg-emerald-100': index === selectedIndex, 'hover:bg-emerald-50': index !== selectedIndex }"
-                                        class="px-3 py-2 cursor-pointer border-b border-gray-100 last:border-0">
-                                        <p class="font-semibold" x-text="faculty.faculty_name"></p>
-                                        <p class="text-xs text-gray-600"
-                                            x-text="`ID: ${faculty.faculty_id} | Code: ${faculty.faculty_code || 'N/A'}`">
-                                        </p>
-                                    </li>
-                                </template>
-                            </ul>
-                            <div x-show="!isSearching && facultyResults.length === 0 && facultySearch.length > 0"
-                                class="p-2 text-center text-sm text-gray-500">ไม่พบข้อมูลคณะ</div>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-4">
+                <!-- Waste Type Input -->
+                <div class="md:col-span-3 relative" @click.away="showTypeDropdown = false">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสประเภทขยะ</label>
+                    <input x-ref="typeInput" x-model="typeSearch" @input.debounce.200ms="searchWasteType()"
+                        @focus="showTypeDropdown = true" @keydown.enter.prevent="selectTypeEnter()"
+                        @keydown.escape="showTypeDropdown = false" @keydown.arrow-down.prevent="moveTypeSelection(1)"
+                        @keydown.arrow-up.prevent="moveTypeSelection(-1)"
+                        type="text" placeholder="ป้อนรหัสหรือชื่อ"
+                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                        autocomplete="off" />
+                    
+                    <!-- Type dropdown -->
+                    <div x-show="showTypeDropdown && (typeResults.length > 0 || isSearchingType)"
+                        class="absolute top-full left-0 z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        <div x-show="isSearchingType" class="p-2 text-center text-sm text-gray-500">🔎 กำลังค้นหา...</div>
+                        <ul>
+                            <template x-for="(type, index) in typeResults" :key="type.waste_type_id">
+                                <li @click="selectWasteType(type)"
+                                    :class="{ 'bg-emerald-100': index === selectedTypeIndex }"
+                                    class="px-3 py-2 cursor-pointer hover:bg-emerald-50">
+                                    <p class="font-semibold text-sm" x-text="`${type.waste_type_id} - ${type.waste_type_name}`"></p>
+                                    <p class="text-xs text-gray-600" x-text="`${type.waste_category_name} | คลังนี้: ${type.stock_weight.toFixed(2)}kg`"></p>
+                                </li>
+                            </template>
+                        </ul>
+                        <div x-show="!isSearchingType && typeResults.length === 0 && typeSearch.length > 0"
+                            class="p-2 text-center text-sm text-gray-500">ไม่พบข้อมูล</div>
                     </div>
-
-                    <!-- selected faculty -->
-                    <div x-show="currentFaculty"
-                        class="bg-emerald-50 border border-emerald-200 rounded-lg p-2 flex justify-between items-center">
-                        <div>
-                            <p class="font-semibold text-emerald-800" x-text="currentFaculty?.faculty_name"></p>
-                            <p class="text-xs text-emerald-600"
-                                x-text="`ID: ${currentFaculty?.faculty_id} | Code: ${currentFaculty?.faculty_code || 'N/A'}`">
-                            </p>
-                        </div>
-                        <button type="button" @click="resetFaculty()" class="text-red-500 hover:text-red-700 text-sm">
-                            เปลี่ยน
-                        </button>
-                    </div>
-
                 </div>
 
+                <!-- Weight Input -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">น้ำหนัก (kg)</label>
+                    <input x-model.number="weight" @keydown.enter="addToCart()" type="number" step="0.01"
+                        placeholder="0.00" 
+                        class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition" />
+                </div>
+
+                <!-- Add Button -->
+                <div class="md:col-span-2">
+                    <button @click="addToCart()" 
+                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        ➕ เพิ่มรายการ
+                    </button>
+                </div>
+
+                <!-- Clear Cart Button -->
                 <div class="md:col-span-3">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">จากวันที่</label>
-                    <div class="relative w-full text-gray-700">
-                        <input x-ref="startDateInput" type="date" x-model="form.waste_clearance_period_start" required
-                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
-
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="currentColor"
-                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
-                            </svg>
-                        </div>
-                    </div>
+                    <button @click="clearCart()" x-show="cart.length > 0"
+                        class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        🗑️ ล้างรายการ
+                    </button>
                 </div>
+            </div>
 
-                <div class="md:col-span-3">
-                    <label class="block text-xs font-medium text-gray-700 mb-1">ถึงวันที่</label>
-                    <div class="relative w-full text-gray-700">
-                        <input type="date" x-model="form.waste_clearance_period_end" required
-                            class="w-full px-2 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition appearance-none">
+            <!-- Status Message -->
+            <div x-show="selectedType" class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <p class="text-sm text-emerald-800">
+                    <strong>ชนิด:</strong> <span x-text="selectedType?.waste_type_name"></span>
+                    | <strong>คลังนี้:</strong> <span x-text="selectedType?.stock_weight?.toFixed(2)"></span>kg
+                </p>
+            </div>
+        </div>
 
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="currentColor"
-                                    d="M7 11h2v2H7zm14-6v14c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h1V1h2v2h8V1h2v2h1a2 2 0 0 1 2 2M5 7h14V5H5zm14 12V9H5v10zm-4-6v-2h2v2zm-4 0v-2h2v2zm-4 2h2v2H7zm8 2v-2h2v2zm-4 0v-2h2v2z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
+        <!-- Cart Items -->
+        <div class="bg-white rounded-lg shadow-sm p-6" x-show="cart.length > 0">
+            <h3 class="text-xl font-bold text-slate-900 mb-4">📦 รายการเคลียร์ยอด</h3>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100 border-b border-gray-300">
+                        <tr>
+                            <th class="px-4 py-2 text-left">ประเภท</th>
+                            <th class="px-4 py-2 text-left">หมวดหมู่</th>
+                            <th class="px-4 py-2 text-right">น้ำหนัก (kg)</th>
+                            <th class="px-4 py-2 text-right">แต้ม/kg</th>
+                            <th class="px-4 py-2 text-right">รวมแต้ม</th>
+                            <th class="px-4 py-2 text-center">ลบ</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <template x-for="(item, idx) in cart" :key="idx">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3" x-text="item.waste_type_name"></td>
+                                <td class="px-4 py-3 text-sm text-gray-600" x-text="item.waste_category_name"></td>
+                                <td class="px-4 py-3 text-right font-mono" x-text="item.weight.toFixed(2)"></td>
+                                <td class="px-4 py-3 text-right" x-text="item.waste_type_point_per_kg"></td>
+                                <td class="px-4 py-3 text-right font-bold text-emerald-600" x-text="(item.weight * item.waste_type_point_per_kg).toFixed(2)"></td>
+                                <td class="px-4 py-3 text-center">
+                                    <button @click="removeFromCart(idx)" class="text-red-500 hover:text-red-700">
+                                        ✕
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                    <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                        <tr>
+                            <td colspan="2" class="px-4 py-3 font-bold text-right">รวมทั้งสิ้น</td>
+                            <td class="px-4 py-3 text-right font-bold" x-text="totalWeight.toFixed(2)"></td>
+                            <td class="px-4 py-3"></td>
+                            <td class="px-4 py-3 text-right font-bold text-emerald-600 text-lg" x-text="totalPoints.toFixed(2)"></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
 
-                <div class="col-span-3 md:col-span-2">
-                    <button type="submit"
-                        class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-full shadow transition">ยืนยัน</button>
-                </div>
-            </form>
+            <!-- Confirm Button -->
+            <div class="mt-6 flex gap-4">
+                <button @click="submitClearance()"
+                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition">
+                    ✅ ยืนยันการเคลียร์ยอด
+                </button>
+            </div>
+        </div>
 
-            <div x-show="submitting" class="text-sm text-emerald-600">กำลังส่งคำขอยืนยัน...</div>
+        <!-- Empty State -->
+        <div x-show="cart.length === 0" class="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+            <p class="text-gray-600 text-lg">ยังไม่มีรายการ กรุณาป้อนข้อมูลด้านบน</p>
         </div>
     </div>
+</div>
 
     <div x-data="clearanceHistory()" x-init="init()" @clearance-updated.window="fetchClearances()"
         class="bg-white rounded-lg shadow-sm p-6 space-y-4">
@@ -323,146 +353,208 @@
 </div>
 
 <script>
-    function centerConfirmForm() {
+    function ClearWastePOSHandler() {
         return {
-            submitting: false,
-            form: {
-                faculty_id: '',
-                waste_clearance_period_start: '',
-                waste_clearance_period_end: ''
-            },
-            // Faculty Search
-            facultySearch: '',
-            facultyResults: [],
-            currentFaculty: null,
-            showDropdown: false,
-            isSearching: false,
-            selectedIndex: -1,
+            // Waste Type Search
+            typeSearch: '',
+            typeResults: [],
+            selectedType: null,
+            showTypeDropdown: false,
+            isSearchingType: false,
+            selectedTypeIndex: -1,
+            weight: '',
+            
+            // Cart
+            cart: [],
 
             init() {
-                // No initial data loading needed for faculty
                 this.$nextTick(() => {
-                    if (this.$refs.facultyInput) {
-                        this.$refs.facultyInput.focus();
+                    if (this.$refs.typeInput) {
+                        this.$refs.typeInput.focus();
                     }
                 });
             },
 
-            async searchFaculty() {
-                if (!this.facultySearch.trim()) {
-                    this.facultyResults = [];
-                    this.showDropdown = false;
+            async searchWasteType() {
+                if (!this.typeSearch.trim()) {
+                    this.typeResults = [];
+                    this.showTypeDropdown = false;
                     return;
                 }
 
-                this.isSearching = true;
-                this.showDropdown = true;
+                this.isSearchingType = true;
+                this.showTypeDropdown = true;
 
                 try {
-                    const res = await fetch(`/api/faculties?search=${encodeURIComponent(this.facultySearch)}&limit=10`);
+                    const res = await fetch(`/api/center_stock?search=${encodeURIComponent(this.typeSearch)}&limit=20`);
                     const data = await res.json();
                     if (data.success) {
-                        this.facultyResults = data.data || [];
+                        this.typeResults = data.data || [];
+                        this.selectedTypeIndex = -1;
                     } else {
-                        this.facultyResults = [];
+                        this.typeResults = [];
                     }
                 } catch (err) {
-                    console.error('Failed to search faculties', err);
-                    this.facultyResults = [];
+                    console.error('Failed to search waste types', err);
+                    this.typeResults = [];
                 } finally {
-                    this.isSearching = false;
+                    this.isSearchingType = false;
                 }
             },
 
-            handleEnterKey() {
-                if (this.selectedIndex >= 0 && this.facultyResults[this.selectedIndex]) {
-                    this.selectFaculty(this.facultyResults[this.selectedIndex]);
+            moveTypeSelection(step) {
+                if (!this.showTypeDropdown || this.typeResults.length === 0) return;
+                this.selectedTypeIndex += step;
+                if (this.selectedTypeIndex < 0) {
+                    this.selectedTypeIndex = this.typeResults.length - 1;
+                } else if (this.selectedTypeIndex >= this.typeResults.length) {
+                    this.selectedTypeIndex = 0;
                 }
             },
 
-            handleTabKey() {
-                if (this.showDropdown && this.facultyResults.length > 0) {
-                    this.selectFaculty(this.facultyResults[0]);
-                    this.$nextTick(() => this.$refs.startDateInput.focus());
+            selectTypeEnter() {
+                if (this.selectedTypeIndex >= 0 && this.typeResults[this.selectedTypeIndex]) {
+                    this.selectWasteType(this.typeResults[this.selectedTypeIndex]);
                 }
             },
 
-            moveSelection(step) {
-                if (!this.showDropdown || this.facultyResults.length === 0) return;
-                this.selectedIndex += step;
-                if (this.selectedIndex < 0) {
-                    this.selectedIndex = this.facultyResults.length - 1;
-                } else if (this.selectedIndex >= this.facultyResults.length) {
-                    this.selectedIndex = 0;
-                }
+            selectWasteType(type) {
+                this.selectedType = type;
+                this.typeSearch = '';
+                this.typeResults = [];
+                this.showTypeDropdown = false;
+                this.selectedTypeIndex = -1;
+                this.$nextTick(() => {
+                    document.querySelector('[placeholder="0.00"]')?.focus();
+                });
             },
 
-            selectFaculty(faculty) {
-                this.currentFaculty = faculty;
-                this.form.faculty_id = faculty.faculty_id;
-                this.showDropdown = false;
-                this.facultySearch = '';
-                this.facultyResults = [];
-                this.selectedIndex = -1;
-            },
-
-            resetFaculty() {
-                this.currentFaculty = null;
-                this.form.faculty_id = '';
-                this.facultySearch = '';
-                this.facultyResults = [];
-                this.selectedIndex = -1;
-                this.$nextTick(() => this.$refs.facultyInput.focus());
-            },
-
-            confirmSubmit() {
-                if (!this.form.faculty_id || !this.form.waste_clearance_period_start || !this.form.waste_clearance_period_end) {
-                    Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+            addToCart() {
+                if (!this.selectedType || !this.weight || parseFloat(this.weight) <= 0) {
+                    Swal.fire('แจ้งเตือน', 'กรุณาเลือกประเภทขยะและป้อนน้ำหนัก', 'warning');
                     return;
                 }
 
+                if (parseFloat(this.weight) > parseFloat(this.selectedType.stock_weight)) {
+                    Swal.fire('แจ้งเตือน', `น้ำหนักเกินคลังนี้ (คลังมี: ${this.selectedType.stock_weight.toFixed(2)}kg)`, 'warning');
+                    return;
+                }
+
+                this.cart.push({
+                    waste_type_id: this.selectedType.waste_type_id,
+                    waste_type_name: this.selectedType.waste_type_name,
+                    waste_category_name: this.selectedType.waste_category_name,
+                    weight: parseFloat(this.weight),
+                    waste_type_point_per_kg: this.selectedType.waste_type_point_per_kg || 0,
+                    stock_weight: this.selectedType.stock_weight
+                });
+
+                this.selectedType = null;
+                this.weight = '';
+                this.typeSearch = '';
+                this.$nextTick(() => {
+                    if (this.$refs.typeInput) {
+                        this.$refs.typeInput.focus();
+                    }
+                });
+            },
+
+            removeFromCart(index) {
+                this.cart.splice(index, 1);
+            },
+
+            clearCart() {
                 Swal.fire({
-                    title: 'ยืนยันการทำรายการนี้ ?',
-                    html: `<div class="text-left text-sm">
-                        <p><b>คณะ:</b> ${this.currentFaculty?.faculty_name || '-'} </p>
-                        <p><b>ช่วงเวลา:</b> ${this.form.waste_clearance_period_start} — ${this.form.waste_clearance_period_end}</p>
-                    </div>`,
+                    title: 'ยืนยันการล้างรายการ?',
+                    text: "คุณแน่ใจหรือไม่ว่าต้องการลบรายการทั้งหมด?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ลบเลย',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.cart = [];
+                        this.$nextTick(() => {
+                            if (this.$refs.typeInput) {
+                                this.$refs.typeInput.focus();
+                            }
+                        });
+                    }
+                });
+            },
+
+            get totalWeight() {
+                return this.cart.reduce((sum, item) => sum + item.weight, 0);
+            },
+
+            get totalPoints() {
+                return this.cart.reduce((sum, item) => sum + (item.weight * item.waste_type_point_per_kg), 0);
+            },
+
+            async submitClearance() {
+                if (this.cart.length === 0) {
+                    Swal.fire('แจ้งเตือน', 'ยังไม่มีรายการในตะกร้า', 'warning');
+                    return;
+                }
+
+                const confirmation = await Swal.fire({
+                    title: 'ยืนยันการเคลียร์ยอด?',
+                    html: `
+                        <div class="text-left text-sm">
+                            <p><b>จำนวนรายการ:</b> ${this.cart.length}</p>
+                            <p><b>น้ำหนักรวม:</b> ${this.totalWeight.toFixed(2)}kg</p>
+                            <p><b>แต้มรวม:</b> ${this.totalPoints.toFixed(2)}</p>
+                        </div>
+                    `,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'ใช่, ยืนยัน',
                     cancelButtonText: 'ยกเลิก'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        await this.submit();
-                    }
                 });
+
+                if (confirmation.isConfirmed) {
+                    await this.sendClearance();
+                }
             },
 
-            async submit() {
-                this.submitting = true;
+            async sendClearance() {
                 try {
-                    const res = await fetch('/api/clearances', {
+                    const payload = {
+                        clearance_items: this.cart.map(item => ({
+                            waste_type_id: item.waste_type_id,
+                            weight: item.weight
+                        }))
+                    };
+
+                    const res = await fetch('/api/clearances/direct', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(this.form)
+                        body: JSON.stringify(payload)
                     });
+
                     const data = await res.json();
+
                     if (res.ok) {
                         Swal.fire('สำเร็จ', data.message || 'ดำเนินการเรียบร้อย', 'success');
-                        this.resetFaculty();
-                        this.form.waste_clearance_period_start = '';
-                        this.form.waste_clearance_period_end = '';
-                        window.dispatchEvent(new CustomEvent('clearance-updated'));
+                        this.cart = [];
+                        this.selectedType = null;
+                        this.weight = '';
+                        this.typeSearch = '';
+                        this.$nextTick(() => {
+                            if (this.$refs.typeInput) {
+                                this.$refs.typeInput.focus();
+                            }
+                        });
                     } else {
                         throw new Error(data.message || 'เกิดข้อผิดพลาด');
                     }
                 } catch (err) {
                     console.error(err);
                     Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถส่งคำขอได้', 'error');
-                } finally {
-                    this.submitting = false;
                 }
             }
         }

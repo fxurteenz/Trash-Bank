@@ -46,6 +46,9 @@ function UserTable() {
             search: "",
         },
 
+        quickMenuShow: false,
+        selectedMemberForMenu: null,
+
         async initData() {
             await this.fetchMembers();
             await this.fetchFaculties();
@@ -435,6 +438,99 @@ function UserTable() {
                     });
                 }
             }
+        },
+
+        showQuickMenu(member) {
+            this.selectedMemberForMenu = member;
+            this.quickMenuShow = true;
+        },
+
+        openWasteDeposit(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '📦 ทำรายการฝากของ',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">ไปยังหน้าฝากของสำหรับสมาชิกนี้</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปที่หน้าฝาก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/waste_deposit_pos?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openDonationExchange(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '💰 แลกของบริจาค',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">อัตรา: 1 บาท = 10 แต้ม</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปแลก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/donation_exchange?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openRedeemReward(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '🎁 แลกของรางวัล',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">เลือกของรางวัลตามแต้มที่มี</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปแลก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/redeem_reward_pos?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openDonation(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '🎀 บริจาคสิ่งของ',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>ผู้บริจาค:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">บันทึกการบริจาคของสิ่งประเมินค่า</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'บริจาค',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/donation_pos?member_id=${member.member_id}`;
+                }
+            });
         },
     };
 }
