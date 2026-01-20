@@ -130,6 +130,8 @@ class MemberModel
 
             $data['member_password'] = $encodedPassword;
             $data['created_at'] = date('Y-m-d H:i:s');
+            // Add initial points of 10 for new members
+            $data['member_point'] = 10;
 
             $setClauses = [];
             $updateData = [];
