@@ -211,13 +211,8 @@ class Routes
         /* /api/waste_sales */
         $this->addPrefixedRoutes("/api/waste_sales", [
             ['GET', "", [WasteSaleController::class, "GetAll"]],
-            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
-            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
+            ['GET', '/[i:id]/details', [WasteSaleController::class, 'GetDetail']],
             ['POST', '', [WasteSaleController::class, 'Create']],
-            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
-            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
-            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
-            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [

@@ -324,7 +324,9 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('transactions/waste_sale_history', [
+            // $this->render('transactions/waste_sale_history', [
+            $this->render('manages/waste_sale', [
+
                 'pages' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ'
             ], self::$AdminTemplate);

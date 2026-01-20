@@ -25,25 +25,25 @@ class WasteTransactionModel
 
             // กรองตามช่วงวันที่ (ถ้ามี)
             if (!empty($query['start_date'])) {
-                $whereClauses[] = "DATE(w.waste_transaction_date) >= :start_date";
+                $whereClauses[] = "DATE(w.created_at) >= :start_date";
                 $params[':start_date'] = $query['start_date'];
             }
             if (!empty($query['end_date'])) {
-                $whereClauses[] = "DATE(w.waste_transaction_date) <= :end_date";
+                $whereClauses[] = "DATE(w.created_at) <= :end_date";
                 $params[':end_date'] = $query['end_date'];
             }
             if (!empty($query['date'])) {
-                $whereClauses[] = "DATE(w.waste_transaction_date) = :date";
+                $whereClauses[] = "DATE(w.created_at) = :date";
                 $params[':date'] = $query['date'];
             }
             // กรองตามปีที่ระบุ (เช่น 2025)
             if (!empty($query['year'])) {
-                $whereClauses[] = "YEAR(w.waste_transaction_date) = :year";
+                $whereClauses[] = "YEAR(w.created_at) = :year";
                 $params[':year'] = $query['year'];
             }
             // กรองตามเดือนที่ระบุ (1-12)
             if (!empty($query['month'])) {
-                $whereClauses[] = "MONTH(w.waste_transaction_date) = :month";
+                $whereClauses[] = "MONTH(w.created_at) = :month";
                 $params[':month'] = $query['month'];
             }
             // กรองตามหมวดหมู่หรือชนิดขยะ
@@ -92,12 +92,10 @@ class WasteTransactionModel
             $sql = "SELECT 
                     d.waste_transaction_detail_id AS waste_transaction_id, -- Alias for backward compatibility
                     w.waste_transaction_id AS transaction_header_id,
-                    w.waste_transaction_date,
                     w.created_at,
                     d.waste_transaction_detail_weight AS waste_transaction_weight,
                     d.waste_transaction_detail_point AS waste_transaction_member_point,
                     d.waste_transaction_detail_rate AS waste_transaction_rate,
-                    d.waste_transaction_detail_status AS waste_transaction_status,
                     a.member_id, a.member_name, a.member_personal_id, a.member_phone,a.member_email,
                     f.faculty_id, f.faculty_name,
                     t.waste_type_name, c.waste_category_name,

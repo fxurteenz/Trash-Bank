@@ -105,7 +105,7 @@
 
     <!-- Detail Modal -->
     <div x-show="isModalOpen" @keydown.escape.window="closeModal()"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        class="fixed inset-0 flex items-center justify-center">
         <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-2xl" @click.away="closeModal()">
             <h2 class="text-2xl font-bold mb-4">รายละเอียดการจำหน่าย #<span x-text="selectedSaleId"></span></h2>
 
