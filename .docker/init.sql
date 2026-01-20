@@ -53,7 +53,7 @@ CREATE TABLE `center_waste_stock` (
 --
 
 INSERT INTO `center_waste_stock` (`waste_type_id`, `stock_weight`, `updated_at`) VALUES
-(004, 0, '2026-01-20 04:31:05'),
+(004, 10, '2026-01-20 15:09:50'),
 (005, 1, '2026-01-20 03:38:33'),
 (006, 2, '2026-01-20 03:39:57'),
 (007, 2, '2026-01-20 03:39:57'),
@@ -67,15 +67,43 @@ INSERT INTO `center_waste_stock` (`waste_type_id`, `stock_weight`, `updated_at`)
 
 CREATE TABLE `donation` (
   `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL,
-  `member_id` int(6) DEFAULT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
-  `faculty_id` int(3) DEFAULT NULL COMMENT 'ถ้าบริจาคให้คณะ',
+  `member_id` int(6) NOT NULL COMMENT 'หรือ external ถ้าไม่ใช่ member',
+  `staff_id` int(3) NOT NULL,
+  `donation_item_name` varchar(45) NOT NULL COMMENT 'ชื่อสิ่งของเช่น มาม่าหมูสับ(ห่อเล็ก)',
+  `donation_item_qty` int(5) NOT NULL COMMENT 'จำนวนที่บริจาค',
+  `donation_total_value` decimal(10,2) NOT NULL COMMENT 'มูลค่ารวม',
+  `donation_goodness_point` int(11) NOT NULL COMMENT 'แต้มความดีที่มอบให้ผู้บริจาค',
   `donation_description` text DEFAULT NULL,
-  `donation_estimated_value` decimal(10,2) DEFAULT NULL COMMENT 'มูลค่าประมาณ (1 point ≈ 1 บาท)',
-  `donation_goodness_point` int(11) DEFAULT NULL COMMENT 'แต้มความดีให้ donor',
-  `donation_reason` text DEFAULT NULL COMMENT 'เหตุผลถ้าพิเศษ',
-  `donation_date` date DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `donation`
+--
+
+INSERT INTO `donation` (`donation_id`, `member_id`, `staff_id`, `donation_item_name`, `donation_item_qty`, `donation_total_value`, `donation_goodness_point`, `donation_description`, `created_at`) VALUES
+(000001, 5, 1, 'มาม่า(ห่อเล็ก)', 4, 20.00, 20, '', '2026-01-20 17:06:01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `donation_item`
+--
+
+CREATE TABLE `donation_item` (
+  `donation_store_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `donation_item_name` varchar(45) NOT NULL,
+  `donation_item_price` decimal(7,2) NOT NULL,
+  `donation_item_amount` int(5) NOT NULL DEFAULT 0,
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `donation_item`
+--
+
+INSERT INTO `donation_item` (`donation_store_id`, `donation_item_name`, `donation_item_price`, `donation_item_amount`, `updated_at`) VALUES
+(000001, 'มาม่า(ห่อเล็ก)', 5.00, 4, '2026-01-20 17:06:01');
 
 -- --------------------------------------------------------
 
@@ -123,8 +151,9 @@ CREATE TABLE `faculty_waste_stock` (
 --
 
 INSERT INTO `faculty_waste_stock` (`faculty_id`, `waste_type_id`, `stock_weight`, `updated_at`) VALUES
-(1, 4, 0.00, '2026-01-20 03:35:18'),
-(1, 5, 0.00, '2026-01-20 03:38:33'),
+(1, 1, 2.00, '2026-01-20 15:07:44'),
+(1, 4, 0.00, '2026-01-20 15:09:50'),
+(1, 5, 2.00, '2026-01-20 15:07:44'),
 (1, 6, 0.00, '2026-01-20 03:39:57'),
 (1, 7, 0.00, '2026-01-20 03:39:57'),
 (1, 8, 0.00, '2026-01-20 03:39:57');
@@ -186,7 +215,7 @@ CREATE TABLE `member` (
 
 INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
 (000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, NULL, NULL, 01, 0.00, 0.00, NULL, NULL),
-(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 527.00, 0.00, '2025-12-28 01:07:57', NULL),
+(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 557.00, 0.00, '2025-12-28 01:07:57', NULL),
 (000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, 32.00, 0.00, '2025-12-28 13:37:56', NULL),
 (000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 02, 311.00, 0.00, '2025-12-30 13:11:06', NULL),
 (000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, NULL, NULL, 04, 0.00, 0.00, '2026-01-02 23:02:14', NULL),
@@ -324,7 +353,8 @@ CREATE TABLE `waste_clearance` (
 INSERT INTO `waste_clearance` (`waste_clearance_id`, `faculty_id`, `center_staff_id`, `waste_clearance_total_weight`, `waste_clearance_total_point`, `waste_clearance_note`, `created_at`) VALUES
 (000001, 001, 1, 5.00, 50, NULL, '2026-01-20 03:35:18'),
 (000002, 001, 1, 1.00, 5, NULL, '2026-01-20 03:38:33'),
-(000003, 001, 1, 5.00, 23, NULL, '2026-01-20 03:39:57');
+(000003, 001, 1, 5.00, 23, NULL, '2026-01-20 03:39:57'),
+(000004, 001, 1, 10.00, 100, NULL, '2026-01-20 15:09:50');
 
 -- --------------------------------------------------------
 
@@ -351,7 +381,8 @@ INSERT INTO `waste_clearance_detail` (`waste_clearance_detail_id`, `waste_cleara
 (000002, 000002, 000004, 005, 1.00, 1.00, 5),
 (000003, 000003, 000004, 006, 2.00, 0.40, 4),
 (000004, 000003, 000004, 007, 2.00, 0.90, 9),
-(000005, 000003, 000011, 008, 1.00, 2.00, 10);
+(000005, 000003, 000011, 008, 1.00, 2.00, 10),
+(000006, 000004, 000003, 004, 10.00, 2.00, 100);
 
 -- --------------------------------------------------------
 
@@ -421,7 +452,8 @@ CREATE TABLE `waste_transaction` (
 INSERT INTO `waste_transaction` (`waste_transaction_id`, `member_id`, `faculty_id`, `staff_id`, `waste_transaction_total_weight`, `waste_transaction_total_point`, `waste_transaction_note`, `created_at`) VALUES
 (000001, 000047, 001, 000001, 2.00, 15, NULL, '2026-01-20 02:28:30'),
 (000002, 000005, 001, 000001, 3.00, 19, NULL, '2026-01-20 02:44:20'),
-(000003, 000047, 001, 000001, 6.00, 44, NULL, '2026-01-20 02:47:08');
+(000003, 000047, 001, 000001, 6.00, 44, NULL, '2026-01-20 02:47:08'),
+(000004, 000005, 001, 000001, 4.00, 30, NULL, '2026-01-20 15:07:44');
 
 -- --------------------------------------------------------
 
@@ -449,7 +481,9 @@ INSERT INTO `waste_transaction_detail` (`waste_transaction_detail_id`, `waste_tr
 (000003, 000002, 011, 008, 1.00, 2.00, 10),
 (000004, 000002, 004, 007, 2.00, 0.90, 9),
 (000005, 000003, 004, 006, 2.00, 0.40, 4),
-(000006, 000003, 003, 004, 4.00, 2.00, 40);
+(000006, 000003, 003, 004, 4.00, 2.00, 40),
+(000007, 000004, 003, 001, 2.00, 2.00, 20),
+(000008, 000004, 004, 005, 2.00, 1.00, 10);
 
 -- --------------------------------------------------------
 
@@ -504,8 +538,14 @@ ALTER TABLE `center_waste_stock`
 --
 ALTER TABLE `donation`
   ADD PRIMARY KEY (`donation_id`),
-  ADD KEY `fk_donation_member_id` (`member_id`),
-  ADD KEY `fk_donation_faculty_id` (`faculty_id`);
+  ADD KEY `fk_donation_member_id` (`member_id`);
+
+--
+-- Indexes for table `donation_item`
+--
+ALTER TABLE `donation_item`
+  ADD PRIMARY KEY (`donation_store_id`),
+  ADD UNIQUE KEY `donation_detail_name_UNIQUE` (`donation_item_name`);
 
 --
 -- Indexes for table `faculty`
@@ -650,7 +690,13 @@ ALTER TABLE `badge`
 -- AUTO_INCREMENT for table `donation`
 --
 ALTER TABLE `donation`
-  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `donation_item`
+--
+ALTER TABLE `donation_item`
+  MODIFY `donation_store_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `faculty`
@@ -710,13 +756,13 @@ ALTER TABLE `waste_category`
 -- AUTO_INCREMENT for table `waste_clearance`
 --
 ALTER TABLE `waste_clearance`
-  MODIFY `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `waste_clearance_detail`
 --
 ALTER TABLE `waste_clearance_detail`
-  MODIFY `waste_clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `waste_clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `waste_sale`
@@ -734,13 +780,13 @@ ALTER TABLE `waste_sale_detail`
 -- AUTO_INCREMENT for table `waste_transaction`
 --
 ALTER TABLE `waste_transaction`
-  MODIFY `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `waste_transaction_detail`
 --
 ALTER TABLE `waste_transaction_detail`
-  MODIFY `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `waste_type`

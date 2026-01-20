@@ -1,65 +1,58 @@
-<div x-data="WasteSalePOSHandler()" x-init="init()" class="space-y-6 relative">
-    <div class="mb-8 flex flex-col md:flex-row gap-6">
-        <div class="w-1/3">
-            <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบจำหน่ายขยะ</h1>
-            <p class="text-slate-600 text-lg">บันทึกการขายขยะ - ระบุผู้ซื้อและลงรายการ</p>
+<div x-data="WasteSalePOSHandler()" x-init="init()" class="space-y-4 h-full">
+    <div class="flex flex-col md:flex-row gap-4 h-[20%]">
+        <div class="md:w-1/3">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                <svg class="w-8 h-8" class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path
+                                d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+                        </svg>
+                <span>ระบบจำหน่ายขยะ</span>
+            </h1>
+            <p class="text-slate-600 text-md">จำหน่ายขยะ - ลงรายการและจ่ายแต้ม</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover relative w-2/3">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-slate-900">
-                    <span x-show="!buyerConfirmed">ระบุผู้ซื้อ</span>
-                    <span x-show="buyerConfirmed" class="text-blue-600">ยืนยันผู้ซื้อ</span>
-                </h2>
-                <button x-show="buyerConfirmed" @click="resetBuyer()"
-                    class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    เปลี่ยน
-                </button>
-            </div>
+        <div class="bg-white rounded-xl shadow-md card-hover relative md:w-2/3"
+            x-bind:class="{ 'p-6': !buyerConfirmed, 'p-0': buyerConfirmed}">
 
-            <div x-show="!buyerConfirmed" class="space-y-3 relative">
-                <label class="block text-sm font-semibold text-slate-700">ชื่อผู้รับซื้อ / บริษัท</label>
+            <h2 class="text-xl font-bold text-slate-900" x-show="!buyerConfirmed">
+                <span>ระบุผู้ซื้อ</span>
+            </h2>
+
+            <div x-show="!buyerConfirmed" class="relative mt-2">
                 <div class="flex gap-2">
                     <input x-ref="buyerInput" x-model="buyerName" @keydown.enter.prevent="confirmBuyer()" type="text"
-                        placeholder="กรอกชื่อผู้รับซื้อ..."
-                        class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                        placeholder="กรอกชื่อผู้รับซื้อ / บริษัท"
+                        class="flex-1 px-3 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
                         autocomplete="off">
                     <button @click="confirmBuyer()"
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-sm transition-all">
                         ยืนยัน
                     </button>
                 </div>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-slate-500 mt-2">
                     กด <kbd class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> เพื่อยืนยัน
                 </p>
             </div>
 
             <div x-show="buyerConfirmed"
-                class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-5">
-                <div class="space-y-2">
-                    <p class="text-xs font-semibold text-blue-700 uppercase tracking-wider">ผู้รับซื้อ</p>
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white p-2 rounded-full shadow-sm text-blue-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
+                class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-3 h-full flex flex-col justify-center">
+                <div class="flex gap-4 text-sm text-slate-600 items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-blue-700 uppercase tracking-wider">ผู้รับซื้อ</p>
                         <p class="text-2xl font-bold text-slate-900" x-text="buyerName"></p>
                     </div>
+                    <button @click="resetBuyer()" class="text-xs text-red-600 hover:underline">เปลี่ยน</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-
-            <div x-show="buyerConfirmed" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
-                <h2 class="text-2xl font-bold text-slate-900 mb-5">เพิ่มรายการขาย</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sticky h-[80%]">
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">เพิ่มรายการขาย</h2>
                 <div class="grid grid-cols-12 gap-3">
-
                     <div class="col-span-5">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
@@ -92,105 +85,81 @@
                                 @keydown.tab.prevent="addItem()" type="number" step="0.01" placeholder="0.00"
                                 class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
                             <button @click="addItem()"
-                                class="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                                class="px-3 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
                                 เพิ่ม
                             </button>
                         </div>
-
                     </div>
                 </div>
             </div>
 
-            <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">รายการที่จะขาย <span class="text-blue-600"
-                        x-text="items.length"></span></h2>
-                <div class="space-y-2 max-h-96 overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 h-90 flex flex-col" x-init="$watch('items', value => {
+                $nextTick(() => { const container = $refs.listContainer; container.scrollTop = container.scrollHeight; });
+            })">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 shrink-0">
+                    รายการที่จะขาย <span class="text-blue-600" x-text="items.length"></span>
+                </h2>
+                <div x-ref="listContainer" class="space-y-1 flex-1 min-h-0 overflow-y-auto pr-2">
                     <template x-for="(item, index) in items" :key="index">
                         <div
-                            class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-lg font-bold text-slate-400 w-8 text-center"
-                                        x-text="index + 1"></span>
-                                    <div>
-                                        <p>
-                                            <span class="font-light text-slate-900" x-text="item.waste_type_id"></span>
-                                            :
-                                            <span class="font-semibold text-slate-900"
-                                                x-text="item.waste_type_name"></span>
-                                        </p>
-                                        <p class="text-sm text-slate-600">
-                                            <span
-                                                x-text="'น้ำหนัก: ' + parseFloat(item.weight).toFixed(2) + ' กก.'"></span>
-                                        </p>
-                                    </div>
+                            class="flex items-center justify-between p-2 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg text-slate-400 w-8 text-center" x-text="index + 1 +'.'"></span>
+                                <div>
+                                    <span class="font-light text-slate-900" x-text="item.waste_type_id"></span> :
+                                    <span class="font-semibold text-slate-900" x-text="item.waste_type_name"></span>
                                 </div>
                             </div>
-                            <div class="text-right mr-4">
-                                <p class="text-lg font-bold text-blue-600"
-                                    x-text="parseFloat(item.price).toFixed(2) + ' ฿'"></p>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-blue-600"
+                                        x-text="parseFloat(item.price).toFixed(2) + ' ฿'"></p>
+                                    <p class="text-xs text-slate-500"
+                                        x-text="parseFloat(item.weight).toFixed(2) + ' กก.'"></p>
+                                </div>
+                                <button @click="removeItem(index)"
+                                    class="px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all">
+                                    ลบ
+                                </button>
                             </div>
-                            <button @click="removeItem(index)"
-                                class="ml-2 px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                                ลบ
-                            </button>
                         </div>
                     </template>
                 </div>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
-                <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    สรุปการขาย
-                </h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-100">จำนวนรายการ</span>
-                        <span class="text-3xl font-bold" x-text="items.length"></span>
-                    </div>
-                    <div class="h-px bg-blue-400 opacity-50"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-blue-100">น้ำหนักรวม</span>
-                        <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
-                    </div>
-                    <div class="h-px bg-blue-400 opacity-50"></div>
-                    <div class="bg-blue-700 rounded-lg p-4 mt-4">
-                        <p class="text-blue-100 text-sm mb-1">ยอดเงินรวมสุทธิ</p>
-                        <p class="text-4xl font-bold" x-text="totalPrice.toFixed(2) + ' ฿'"></p>
-                    </div>
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
+            <h3 class="text-lg font-bold mb-5 flex items-center gap-2">สรุปการขาย</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-blue-100">จำนวนรายการ</span>
+                    <span class="text-3xl font-bold" x-text="items.length"></span>
                 </div>
-                <div class="mt-6 space-y-3">
-                    <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
-                        :class="items.length === 0 || isSubmitting ? 'bg-blue-800 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-blue-600'"
-                        class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
-                        <span x-show="!isSubmitting">บันทึกการขาย</span>
-                        <span x-show="isSubmitting">กำลังบันทึก...</span>
-                    </button>
-                    <button @click="cancelAll()" :disabled="items.length === 0"
-                        class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        ยกเลิกทั้งหมด
-                    </button>
+                <div class="h-px bg-blue-400 opacity-50"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-blue-100">น้ำหนักรวม</span>
+                    <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
                 </div>
-                <p class="text-center text-blue-100 text-xs mt-4">กด <kbd
-                        class="bg-blue-700 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">สถิติวันนี้</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">ทำรายการขาย</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.count + ' ครั้ง'"></span>
-                    </div>
-                    <div class="h-px bg-slate-200"></div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">ยอดเงินรวม</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.money.toFixed(2) + ' ฿'"></span>
-                    </div>
+                <div class="h-px bg-blue-400 opacity-50"></div>
+                <div class="bg-blue-700 rounded-lg p-4 mt-4">
+                    <p class="text-blue-100 text-sm mb-1">ยอดเงินรวมสุทธิ</p>
+                    <p class="text-4xl font-bold" x-text="totalPrice.toFixed(2) + ' ฿'"></p>
                 </div>
             </div>
+            <div class="mt-6 space-y-3">
+                <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
+                    :class="items.length === 0 || isSubmitting ? 'bg-blue-800 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-blue-600'"
+                    class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
+                    <span x-show="!isSubmitting">บันทึกการขาย</span>
+                    <span x-show="isSubmitting">กำลังบันทึก...</span>
+                </button>
+                <button @click="cancelAll()" :disabled="items.length === 0"
+                    class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    ยกเลิกทั้งหมด
+                </button>
+            </div>
+            <p class="text-center text-blue-100 text-xs mt-4">กด <kbd
+                    class="bg-blue-700 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
         </div>
     </div>
 

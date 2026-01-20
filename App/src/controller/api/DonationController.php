@@ -44,65 +44,11 @@ class DonationController extends RouterBase
         $this->DonationModel = new DonationModel();
     }
 
-    public function GetAll()
-    {
-        try {
-            Authentication::AdminAuth();
-            $result = $this->DonationModel->GetAllDonations($this->queryString ?? []);
-
-            $response = [
-                'success' => true,
-                'data' => $result['data'],
-                'total' => $result['total'],
-                'message' => 'successfully =)' 
-            ];
-
-            if (isset(($this->queryString ?? [])['page'])) {
-                $response['page'] = (int) $this->queryString['page'];
-            }
-            if (isset(($this->queryString ?? [])['limit'])) {
-                $response['limit'] = (int) $this->queryString['limit'];
-            }
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode($response);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function Get($id)
-    {
-        try {
-            Authentication::AdminAuth();
-            $row = $this->DonationModel->GetDonationById((int) $id);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode(['success' => true, 'data' => $row, 'message' => 'successfully =)']);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
-        }
-    }
-
     public function Create()
     {
         try {
-            Authentication::AdminAuth();
-            $row = $this->DonationModel->CreateDonation(is_array($this->data) ? $this->data : []);
+            $user = Authentication::OperateAuth();
+            $row = $this->DonationModel->CreateDonation(is_array($this->data) ? $this->data : [],$user);
 
             header('Content-Type: application/json');
             http_response_code(201);
@@ -118,47 +64,4 @@ class DonationController extends RouterBase
         }
     }
 
-    public function Update($id)
-    {
-        try {
-            Authentication::AdminAuth();
-            $row = $this->DonationModel->UpdateDonation((int) $id, is_array($this->data) ? $this->data : []);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Donation updated successfully =)']);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function Delete()
-    {
-        try {
-            Authentication::AdminAuth();
-            $affected = $this->DonationModel->DeleteDonation(is_array($this->data) ? $this->data : []);
-
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => true,
-                'total' => $affected,
-                'message' => $affected > 0 ? 'Donations deleted' : 'Not found'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
-        }
-    }
 }

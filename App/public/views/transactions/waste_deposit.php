@@ -1,36 +1,40 @@
-<div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-6 relative">
-    <div class="mb-8 flex flex-col md:flex-row gap-6">
-        <div class="w-1/3">
-            <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบฝากขยะ</h1>
-            <p class="text-slate-600 text-lg">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
+<div x-data="WasteDepositPOSHandler()" x-init="init()" class="space-y-4 h-full">
+    <div class=" flex flex-col md:flex-row gap-4  h-[20%]">
+        <div class="md:w-1/3">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="currentColor"
+                        d="m12 18l4-4l-1.4-1.4l-1.6 1.6V10h-2v4.2l-1.6-1.6L8 14zM5 8v11h14V8zm0 13q-.825 0-1.412-.587T3 19V6.525q0-.35.113-.675t.337-.6L4.7 3.725q.275-.35.687-.538T6.25 3h11.5q.45 0 .863.188t.687.537l1.25 1.525q.225.275.338.6t.112.675V19q0 .825-.587 1.413T19 21zm.4-15h13.2l-.85-1H6.25zm6.6 7.5"
+                        stroke-width="0.5" stroke="currentColor" />
+                </svg>
+                <span>ระบบฝากขยะ</span>
+            </h1>
+            <p class="text-slate-600 text-md">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
         </div>
 
-
         <!-- ส่วนกรอกผู้ฝาก -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover relative w-2/3">
+        <div class="bg-white rounded-xl shadow-md card-hover relative md:w-2/3"
+            x-bind:class="{ 'p-6': !currentMember, 'p-0': currentMember}">
             <!-- ฟอร์ม -->
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-slate-900">
-                    <span x-show="!currentMember">ค้นหาสมาชิก</span>
-                    <span x-show="currentMember" class="text-emerald-600">ยืนยันสมาชิก</span>
-                </h2>
-                <button x-show="currentMember" @click="resetMember()"
-                    class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+            <h2 class="text-xl font-bold text-slate-900">
+                <span x-show="!currentMember">ค้นหาสมาชิก</span>
+            </h2>
+            <!-- <button x-show="currentMember" @click="resetMember()"
+                    class="text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                     เปลี่ยน
-                </button>
-            </div>
+                </button> -->
             <!-- dropdown เลือกสมาชิก -->
-            <div x-show="!currentMember" class="space-y-3 relative" @click.away="showDropdown = false">
-                <label class="block text-sm font-semibold text-slate-700">เบอร์โทร หรือ ชื่อสมาชิก</label>
+            <div x-show="!currentMember" class="relative" @click.away="showDropdown = false">
+                <label class="block text-xs font-semibold text-slate-700">เบอร์โทร หรือ ชื่อสมาชิก</label>
 
-                <div class="relative">
+                <div class="relative mt-2">
                     <div class="flex gap-2">
                         <input x-ref="memberInput" x-model="memberSearch" @input.debounce.300ms="searchMember(false)"
                             @focus="showDropdown = true" @keydown.enter.prevent="handleEnterKey()"
                             @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
                             @keydown.tab.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
                             type="text" placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก"
-                            class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
+                            class="flex-1 px-3 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
                             autocomplete="off">
                     </div>
 
@@ -38,8 +42,12 @@
                         x-transition.opacity.duration.200ms
                         class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
 
-                        <div x-show="isSearching" class="p-4 text-center text-slate-500">
-                            <span class="inline-block animate-spin mr-2"></span> กำลังค้นหา...
+                        <div x-show="isSearching"
+                            class="flex items-center justify-center p-4 text-center text-slate-500">
+                            <div
+                                class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin">
+                            </div>
+                            <span>กำลังค้นหา...</span>
                         </div>
 
                         <ul x-show="!isSearching && searchResults.length > 0">
@@ -83,35 +91,36 @@
             </div>
             <!-- แสดงข้อมูลสมาชิก -->
             <div x-show="currentMember"
-                class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-5">
-                <div class="space-y-2">
-                    <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สมาชิก</p>
-                    <p class="text-2xl font-bold text-slate-900" x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'">
-                    </p>
-                    <div class="flex gap-4 text-sm text-slate-600">
-                        <span>
-                            เบอร์โทร : <span class="font-semibold" x-text="currentMember?.member_phone"></span>
-                        </span>
-                        <span>
-                            คณะ : <span class="font-semibold" x-text="currentMember?.faculty_name"></span>
-                        </span>
-                        <span>
-                            แต้มสะสม : <span class="font-bold text-emerald-600"
-                                x-text="currentMember?.member_waste_point"></span>
-                        </span>
+                class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-300 rounded-lg p-3">
+                <div class="flex gap-4 text-sm text-slate-600 items-end justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">สมาชิก</p>
+                        <p class="text-2xl font-bold text-slate-900"
+                            x-text="currentMember?.member_name || 'ไม่ระบุชื่อ'"></p>
+                        <div class="flex gap-4 text-sm text-slate-600">
+                            <span>
+                                เบอร์โทร : <span class="font-semibold" x-text="currentMember?.member_phone"></span>
+                            </span>
+                            <span>
+                                คณะ : <span class="font-semibold" x-text="currentMember?.faculty_name"></span>
+                            </span>
+                        </div>
                     </div>
+                    <span class="flex items-center justify-center">
+                        <span class="font-bold text-emerald-600 text-3xl" x-text="formatPoints"></span>
+                    </span>
                 </div>
+
+
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sticky h-[80%]">
+        <div class="lg:col-span-2 space-y-4">
             <!-- ฟอร์มกรอกข้อมูลรายการที่ฝาก -->
-            <div x-show="currentMember" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
-
-                <h2 class="text-2xl font-bold text-slate-900 mb-5">เพิ่มรายการขยะ</h2>
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
+                <h2 class="text-2xl font-bold text-slate-900">เพิ่มรายการขยะ</h2>
                 <div class="grid grid-cols-12 gap-3">
 
                     <div class="col-span-5">
@@ -149,91 +158,85 @@
                     </div>
                 </div>
             </div>
+
             <!-- รายการที่ฝาก -->
-            <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">รายการที่บันทึก <span class="text-blue-600"
-                        x-text="items.length"></span></h2>
-                <div class="space-y-2 max-h-96 overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 h-90 flex flex-col" x-init="$watch('items', value => {
+                $nextTick(() => {
+                    const container = $refs.listContainer;
+                    container.scrollTop = container.scrollHeight;
+                });
+            })">
+
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 shrink-0">
+                    รายการที่บันทึก
+                    <span class="text-blue-600" x-text="items.length"></span>
+                </h2>
+
+                <div x-ref="listContainer" class="space-y-1 flex-1 min-h-0 overflow-y-auto pr-2">
                     <template x-for="(item, index) in items" :key="index">
                         <div
-                            class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-lg font-bold text-slate-400 w-8 text-center"
-                                        x-text="index + 1"></span>
-                                    <div>
-                                        <p>
-                                            <span class="font-light text-slate-900" x-text="item.waste_type_id"></span>
-                                            :
-                                            <span class="font-semibold text-slate-900"
-                                                x-text="item.waste_type_name"></span>
-                                        </p>
-                                        <p class="text-sm text-slate-600"
-                                            x-text="'น้ำหนัก: ' + item.weight.toFixed(2) + ' กก.'"></p>
-                                    </div>
+                            class="flex items-center justify-between p-2 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
+
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg text-slate-400 w-8 text-center" x-text="index + 1 +'.'"></span>
+                                <div>
+                                    <span class="font-light text-slate-900" x-text="item.waste_type_id"></span> :
+                                    <span class="font-semibold text-slate-900" x-text="item.waste_type_name"></span>
                                 </div>
                             </div>
-                                                            <button @click="removeItem(index)"
-                                                            class="ml-4 px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
-                                                            ลบ
-                                                        </button>                        </div>
+
+                            <div class="flex items-center gap-4">
+                                <p class="text-2xl font-medium text-slate-600" x-text="item.weight.toFixed(2) + ' กก.'">
+                                </p>
+
+                                <button @click="removeItem(index)"
+                                    class="px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all">
+                                    ลบ
+                                </button>
+                            </div>
+
+                        </div>
                     </template>
                 </div>
             </div>
         </div>
 
-        <div class="space-y-6">
-            <div
-                class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
-                <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    สรุป
-                </h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-emerald-100">จำนวนรายการ</span>
-                        <span class="text-3xl font-bold" x-text="items.length"></span>
-                    </div>
-                    <div class="h-px bg-emerald-400 opacity-50"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-emerald-100">น้ำหนักรวม</span>
-                        <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
-                    </div>
-                    <div class="h-px bg-emerald-400 opacity-50"></div>
-                    <div class="bg-emerald-600 rounded-lg p-4 mt-4">
-                        <p class="text-emerald-100 text-sm mb-1">คะแนนที่จะได้รับ</p>
-                        <p class="text-4xl font-bold" x-text="totalPoints.toFixed(0)"></p>
-                    </div>
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
+            <h3 class="text-lg font-bold mb-5 flex items-center gap-2">
+                สรุป
+            </h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-emerald-100">จำนวนรายการ</span>
+                    <span class="text-3xl font-bold" x-text="items.length"></span>
                 </div>
-                <div class="mt-6 space-y-3">
-                    <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
-                        :class="items.length === 0 || isSubmitting ? 'bg-emerald-700 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-emerald-600'"
-                        class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
-                        <span x-show="!isSubmitting">บันทึกทั้งหมด</span>
-                        <span x-show="isSubmitting">กำลังบันทึก...</span>
-                    </button>
-                    <button @click="cancelAll()" :disabled="items.length === 0"
-                        class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        ยกเลิกทั้งหมด
-                    </button>
+                <div class="h-px bg-emerald-400 opacity-50"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-emerald-100">น้ำหนักรวม</span>
+                    <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
                 </div>
-                <p class="text-center text-emerald-100 text-xs mt-4">กด <kbd
-                        class="bg-emerald-600 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
-            </div>
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">สถิติวันนี้</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">ทำรายการ</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.count + ' ครั้ง'"></span>
-                    </div>
-                    <div class="h-px bg-slate-200"></div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">น้ำหนักรวม</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.weight.toFixed(2) + ' กก.'"></span>
-                    </div>
+                <div class="h-px bg-emerald-400 opacity-50"></div>
+                <div class="bg-emerald-600 rounded-lg p-4 mt-4">
+                    <p class="text-emerald-100 text-sm mb-1">คะแนนที่จะได้รับ</p>
+                    <p class="text-4xl font-bold" x-text="totalPoints.toFixed(0)"></p>
                 </div>
             </div>
+            <div class="mt-6 space-y-3">
+                <button @click="submitTransaction()" :disabled="items.length === 0 || isSubmitting"
+                    :class="items.length === 0 || isSubmitting ? 'bg-emerald-700 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-emerald-600'"
+                    class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
+                    <span x-show="!isSubmitting">บันทึกทั้งหมด</span>
+                    <span x-show="isSubmitting">กำลังบันทึก...</span>
+                </button>
+                <button @click="cancelAll()" :disabled="items.length === 0"
+                    class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    ยกเลิกทั้งหมด
+                </button>
+            </div>
+            <p class="text-center text-emerald-100 text-xs mt-4">กด <kbd
+                    class="bg-emerald-600 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
         </div>
+
     </div>
 
     <div @keydown.ctrl.enter.window="submitTransaction()"></div>
@@ -257,7 +260,6 @@
             selectedWasteType: null,
             items: [],
             isSubmitting: false,
-            todayStats: { count: 0, weight: 0 },
 
             // --- Computed ---
             get totalWeight() {
@@ -272,29 +274,17 @@
                 }, 0);
             },
 
-            // --- Cookie Helpers ---
-            setCookie(name, value) {
-                const date = new Date();
-                date.setHours(23, 59, 59, 999); // Set to end of day
-                let expires = "; expires=" + date.toUTCString();
-                document.cookie = name + "=" + (value || "") + expires + "; path=/";
-            },
-            getCookie(name) {
-                const nameEQ = name + "=";
-                const ca = document.cookie.split(';');
-                for (let i = 0; i < ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-                }
-                return null;
-            },
-
             // --- Init ---
             async init() {
                 await this.loadWasteTypes();
-                this.loadTodayStats();
                 this.focusMemberInput();
+            },
+
+            get formatPoints() {
+                if (this.currentMember && this.currentMember.member_waste_point) {
+                    return this.currentMember.member_waste_point + ' แต้ม';
+                }
+                return 0;
             },
 
             focusMemberInput() {
@@ -337,7 +327,9 @@
                     console.error('Error searching member:', error);
                     this.searchResults = [];
                 } finally {
-                    this.isSearching = false;
+                    setTimeout(() => {
+                        this.isSearching = false;
+                    }, 150);
                 }
             },
 
@@ -545,9 +537,6 @@
                         // Update stats in cookie
                         const today = new Date().toISOString().split('T')[0];
                         const newWeight = this.totalWeight;
-                        this.todayStats.count += 1;
-                        this.todayStats.weight += newWeight;
-                        this.setCookie('todayStats', JSON.stringify({ date: today, count: this.todayStats.count, weight: this.todayStats.weight }));
 
                         this.items = [];
                         this.resetMember();
@@ -586,35 +575,12 @@
                 })
             },
 
-            loadTodayStats() {
-                const statsCookie = this.getCookie('todayStats');
-                const today = new Date().toISOString().split('T')[0];
-
-                if (statsCookie) {
-                    try {
-                        const stats = JSON.parse(statsCookie);
-                        if (stats.date === today) {
-                            this.todayStats.count = stats.count;
-                            this.todayStats.weight = stats.weight;
-                            return;
-                        }
-                    } catch (e) {
-                        console.error('Error parsing todayStats cookie:', e);
-                    }
-                }
-
-                // If no cookie or cookie is from another day, reset stats
-                this.todayStats.count = 0;
-                this.todayStats.weight = 0;
-                this.setCookie('todayStats', JSON.stringify({ date: today, count: 0, weight: 0 }));
-            },
-
             showNotification(message, type = 'info') {
                 const toast = Swal.mixin({
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
-                    timer: 3000,
+                    timer: 1500,
                     timerProgressBar: true,
                     didOpen: (toast) => {
                         toast.addEventListener('mouseenter', Swal.stopTimer)
