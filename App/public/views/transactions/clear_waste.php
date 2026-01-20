@@ -1,96 +1,83 @@
-<div x-data="ClearWastePOSHandler()" x-init="init()" class="space-y-6 relative">
-    <div class="mb-8 flex flex-col md:flex-row gap-6">
-        <div class="w-1/3">
-            <h1 class="text-4xl font-bold text-slate-900 mb-2">ระบบเคลียร์ขยะ</h1>
-            <p class="text-slate-600 text-lg">บันทึกการเคลียร์ยอด - ระบุคณะและรายการขยะ</p>
+<div x-data="ClearWastePOSHandler()" x-init="init()" class="space-y-4 h-full">
+    <div class="flex flex-col md:flex-row gap-4 h-[20%]">
+        <div class="md:w-1/3">
+            <h1 class="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                <svg class="w-8 h-8"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M5 19V5zv-.112zm0 2q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h14q.825 0 1.413.588T21 5v7q0 .425-.288.713T20 13t-.712-.288T19 12V5H5v14h6q.425 0 .713.288T12 20t-.288.713T11 21zm12.35-1.825l3.525-3.55q.3-.3.713-.3t.712.3t.3.713t-.3.712l-4.25 4.25q-.3.3-.712.3t-.713-.3L14.5 19.175q-.275-.3-.275-.712t.3-.713t.7-.3t.7.3zM8 13q.425 0 .713-.288T9 12t-.288-.712T8 11t-.712.288T7 12t.288.713T8 13m0-4q.425 0 .713-.288T9 8t-.288-.712T8 7t-.712.288T7 8t.288.713T8 9m8 4q.425 0 .713-.288T17 12t-.288-.712T16 11h-4q-.425 0-.712.288T11 12t.288.713T12 13zm0-4q.425 0 .713-.288T17 8t-.288-.712T16 7h-4q-.425 0-.712.288T11 8t.288.713T12 9z"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                <span>ระบบเคลียร์ขยะ</span>
+            </h1>
+            <p class="text-slate-600 text-md">รับขยะของคณะ - ลงรายการและจ่ายแต้ม</p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover relative w-2/3">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold text-slate-900">
-                    <span x-show="!currentFaculty">ระบุคณะ</span>
-                    <span x-show="currentFaculty" class="text-amber-600">ยืนยันคณะ</span>
-                </h2>
-                <button x-show="currentFaculty" @click="resetFaculty()"
-                    class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                    เปลี่ยน
-                </button>
-            </div>
+        <div class="bg-white rounded-xl shadow-md card-hover relative md:w-2/3"
+            x-bind:class="{ 'p-6': !currentFaculty, 'p-0': currentFaculty}">
 
-            <div x-show="!currentFaculty" class="space-y-3 relative" @click.away="showDropdown = false">
-                <label class="block text-sm font-semibold text-slate-700">ชื่อคณะ หรือ รหัสคณะ</label>
+            <h2 class="text-xl font-bold text-slate-900" x-show="!currentFaculty">
+                <span>ระบุคณะ</span>
+            </h2>
 
-                <div class="relative">
-                    <div class="flex gap-2">
-                        <input x-ref="facultyInput" x-model="facultySearch" @input.debounce.300ms="searchFaculty()"
-                            @focus="showDropdown = true" @keydown.enter.prevent="handleFacultyEnter()"
-                            @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
-                            @keydown.tab.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
-                            type="text" placeholder="พิมพ์ชื่อคณะ..."
-                            class="flex-1 px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
-                            autocomplete="off">
-                    </div>
+            <div x-show="!currentFaculty" class="relative mt-2" @click.away="showDropdown = false">
+                <div class="flex gap-2">
+                    <input x-ref="facultyInput" x-model="facultySearch" @input.debounce.300ms="searchFaculty()"
+                        @focus="showDropdown = true" @keydown.enter.prevent="handleFacultyEnter()"
+                        @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
+                        @keydown.tab.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
+                        type="text" placeholder="พิมพ์ชื่อคณะ หรือ รหัสคณะ..."
+                        class="flex-1 px-3 py-3 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                        autocomplete="off">
+                </div>
 
-                    <div x-show="showDropdown && (searchResults.length > 0 || isSearching)"
-                        x-transition.opacity.duration.200ms
-                        class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
-
-                        <div x-show="isSearching" class="p-4 text-center text-slate-500">
-                            <span class="inline-block animate-spin mr-2"></span> กำลังค้นหา...
-                        </div>
-
-                        <ul x-show="!isSearching && searchResults.length > 0">
-                            <template x-for="(faculty, index) in searchResults" :key="faculty.faculty_id">
-                                <li @click="selectFaculty(faculty)" :id="'faculty-item-' + index"
-                                    :class="{ 'bg-amber-100 ring-1 ring-inset ring-amber-300': index === selectedIndex, 'hover:bg-amber-50': index !== selectedIndex }"
-                                    class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <p class="font-bold text-slate-800 group-hover:text-amber-700"
-                                                x-text="faculty.faculty_name"></p>
-                                            <p class="text-xs text-slate-500">รหัส: <span
-                                                    x-text="faculty.faculty_id"></span></p>
-                                        </div>
+                <div x-show="showDropdown && (searchResults.length > 0 || isSearching)"
+                    x-transition.opacity.duration.200ms
+                    class="absolute top-full left-0 z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto">
+                    <ul x-show="!isSearching && searchResults.length > 0">
+                        <template x-for="(faculty, index) in searchResults" :key="faculty.faculty_id">
+                            <li @click="selectFaculty(faculty)" :id="'faculty-item-' + index"
+                                :class="{ 'bg-amber-100 ring-1 ring-inset ring-amber-300': index === selectedIndex, 'hover:bg-amber-50': index !== selectedIndex }"
+                                class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-bold text-slate-800 group-hover:text-amber-700"
+                                            x-text="faculty.faculty_name"></p>
+                                        <p class="text-xs text-slate-500">รหัส: <span
+                                                x-text="faculty.faculty_id"></span></p>
                                     </div>
-                                </li>
-                            </template>
-                        </ul>
-
-                        <div x-show="!isSearching && searchResults.length === 0 && facultySearch.length > 0"
-                            class="p-4 text-center text-slate-500">
-                            ไม่พบข้อมูลคณะ
-                        </div>
-                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
                 </div>
             </div>
 
             <div x-show="currentFaculty"
-                class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-lg p-5">
-                <div class="space-y-2">
-                    <p class="text-xs font-semibold text-amber-700 uppercase tracking-wider">คณะที่เลือก</p>
-                    <p class="text-2xl font-bold text-slate-900" x-text="currentFaculty?.faculty_name"></p>
-                    <div class="flex gap-4 text-sm text-slate-600">
-                        <span>
-                            รหัสคณะ : <span class="font-semibold" x-text="currentFaculty?.faculty_id"></span>
-                        </span>
+                class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-lg p-3 h-full flex flex-col justify-center">
+                <div class="flex gap-4 text-sm text-slate-600 items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-amber-700 uppercase tracking-wider">คณะที่เลือก</p>
+                        <p class="text-2xl font-bold text-slate-900" x-text="currentFaculty?.faculty_name"></p>
+                        <p class="text-xs text-slate-500">รหัส: <span x-text="currentFaculty?.faculty_id"></span></p>
                     </div>
+                    <button @click="resetFaculty()" class="text-xs text-red-600 hover:underline">เปลี่ยน</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-
-            <div x-show="currentFaculty" class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
-                <h2 class="text-2xl font-bold text-slate-900 mb-5">เพิ่มรายการเคลียร์ขยะ</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sticky h-[80%]">
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover z-10">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4">เพิ่มรายการเคลียร์ขยะ</h2>
                 <div class="grid grid-cols-12 gap-3">
                     <div class="col-span-5">
                         <label class="block text-sm font-semibold text-slate-700 mb-2">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
                             @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="handleWasteCodeEnter()"
                             @input="searchWasteType()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
                             list="wasteTypeList" autocomplete="off">
                         <datalist id="wasteTypeList">
                             <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
@@ -102,52 +89,44 @@
                             x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name}`:  'ระบุรหัสชนิดขยะ'">
                         </p>
                     </div>
-
                     <div class="col-span-4">
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">น้ำหนักที่เคลียร์ (กก.)</label>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">น้ำหนัก (กก.)</label>
                         <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="addItem()"
                             @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()" type="number" step="0.01"
                             placeholder="0.00"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
                     </div>
-
                     <div class="col-span-3 my-auto">
                         <button @click="addItem()"
-                            class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors">
+                            class="w-full px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors">
                             เพิ่ม
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div x-show="items.length > 0" class="bg-white rounded-xl shadow-md p-6 z-0">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4">รายการที่บันทึก <span class="text-blue-600"
-                        x-text="items.length"></span></h2>
-                <div class="space-y-2 max-h-96 overflow-y-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 h-90 flex flex-col" x-init="$watch('items', value => {
+                $nextTick(() => { const container = $refs.listContainer; container.scrollTop = container.scrollHeight; });
+            })">
+                <h2 class="text-2xl font-bold text-slate-900 mb-4 shrink-0">
+                    รายการที่บันทึก <span class="text-amber-600" x-text="items.length"></span>
+                </h2>
+                <div x-ref="listContainer" class="space-y-1 flex-1 min-h-0 overflow-y-auto pr-2">
                     <template x-for="(item, index) in items" :key="index">
                         <div
-                            class="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-lg font-bold text-slate-400 w-8 text-center"
-                                        x-text="index + 1"></span>
-                                    <div>
-                                        <p>
-                                            <span class="font-light text-slate-900" x-text="item.waste_type_id"></span>
-                                            :
-                                            <span class="font-semibold text-slate-900"
-                                                x-text="item.waste_type_name"></span>
-                                        </p>
-                                        <p class="text-sm text-slate-600"
-                                            x-text="'หมวดหมู่: ' + item.waste_category_name"></p>
-                                    </div>
+                            class="flex items-center justify-between p-2 bg-slate-50 hover:bg-slate-100 rounded-lg transition group">
+                            <div class="flex items-center gap-2">
+                                <span class="text-lg text-slate-400 w-8 text-center" x-text="index + 1 +'.'"></span>
+                                <div>
+                                    <span class="font-light text-slate-900" x-text="item.waste_type_id"></span> :
+                                    <span class="font-semibold text-slate-900" x-text="item.waste_type_name"></span>
                                 </div>
                             </div>
                             <div class="flex items-center gap-4">
-                                <span class="text-lg font-bold text-amber-600"
+                                <span class="text-xl font-medium text-amber-600"
                                     x-text="item.weight.toFixed(2) + ' กก.'"></span>
                                 <button @click="removeItem(index)"
-                                    class="px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                                    class="px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-all">
                                     ลบ
                                 </button>
                             </div>
@@ -155,56 +134,36 @@
                     </template>
                 </div>
             </div>
-
         </div>
 
-        <div class="space-y-6">
-            <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
-                <h3 class="text-lg font-bold mb-5 flex items-center gap-2">สรุปรายการเคลียร์</h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-amber-100">จำนวนรายการ</span>
-                        <span class="text-3xl font-bold" x-text="items.length"></span>
-                    </div>
-                    <div class="h-px bg-amber-400 opacity-50"></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-amber-100">น้ำหนักรวม</span>
-                        <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
-                    </div>
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg p-6 text-white sticky top-8">
+            <h3 class="text-lg font-bold mb-5 flex items-center gap-2">สรุปรายการเคลียร์</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-amber-100">จำนวนรายการ</span>
+                    <span class="text-3xl font-bold" x-text="items.length"></span>
                 </div>
-                <div class="mt-6 space-y-3">
-                    <button @click="submitClearance()" :disabled="items.length === 0 || isSubmitting"
-                        :class="items.length === 0 || isSubmitting ? 'bg-amber-700 opacity-50 cursor-not-allowed' : 'bg-white hover:bg-slate-50 text-amber-600'"
-                        class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors">
-                        <span x-show="!isSubmitting">ยืนยันการเคลียร์</span>
-                        <span x-show="isSubmitting">กำลังบันทึก...</span>
-                    </button>
-                    <button @click="cancelAll()" :disabled="items.length === 0"
-                        class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        ยกเลิกทั้งหมด
-                    </button>
-                </div>
-                <p class="text-center text-amber-100 text-xs mt-4">กด <kbd
-                        class="bg-amber-700 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">สถิติวันนี้</h3>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">ทำรายการ</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.count + ' ครั้ง'"></span>
-                    </div>
-                    <div class="h-px bg-slate-200"></div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-600">น้ำหนักรวม</span>
-                        <span class="font-bold text-slate-900" x-text="todayStats.weight.toFixed(2) + ' กก.'"></span>
-                    </div>
+                <div class="h-px bg-amber-400 opacity-50"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-amber-100">น้ำหนักรวม</span>
+                    <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
                 </div>
             </div>
+            <div class="mt-6 space-y-3">
+                <button @click="submitClearance()" :disabled="items.length === 0 || isSubmitting"
+                    class="w-full px-6 py-4 rounded-lg font-bold text-lg transition-colors bg-white hover:bg-slate-50 text-amber-600 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span x-show="!isSubmitting">ยืนยันการเคลียร์</span>
+                    <span x-show="isSubmitting">กำลังบันทึก...</span>
+                </button>
+                <button @click="cancelAll()" :disabled="items.length === 0"
+                    class="w-full px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    ยกเลิกทั้งหมด
+                </button>
+            </div>
+            <p class="text-center text-amber-100 text-xs mt-4">กด <kbd
+                    class="bg-amber-700 px-2 py-1 rounded">Ctrl+Enter</kbd> เพื่อบันทึก</p>
         </div>
     </div>
-
     <div @keydown.ctrl.enter.window="submitClearance()"></div>
 </div>
 
