@@ -101,6 +101,7 @@ class Routes
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
             ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
             ["GET", "/transactions/redeem_reward", [AdminPagesController::class, "TransactionRedeemReward"]],
+            ["GET", "/transactions/redeem_item", [AdminPagesController::class, "TransactionRedeemDonationItem"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
             ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],

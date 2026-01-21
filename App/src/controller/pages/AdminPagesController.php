@@ -29,7 +29,7 @@ class AdminPagesController extends RouterBase
             exit;
         }
     }
-
+    //  Manage Page
     public function ManageUsers()
     {
         try {
@@ -146,6 +146,44 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function ManageDonations()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/donations', [
+                'pages' => "manageDonations",
+                'title' => 'บริจาคสิ่งของ/วัสดุ',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    public function RedeemRewards()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/redeem_rewards', [
+                'pages' => "redeemRewards",
+                'title' => 'แลกของรางวัล',
+                'user' => $user
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
+        }
+    }
+
+    // Transaction & Redeem
     public function TransactionWaste()
     {
         try {
@@ -184,26 +222,6 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function ManageTransactionClearance($wcid)
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('transactions/manage/clear_waste', [
-                'pages' => "clearWasteTransaction",
-                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-                'wcid' => $wcid,
-                'user' => $user
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
     public function TransactionWasteSale()
     {
         try {
@@ -215,43 +233,6 @@ class AdminPagesController extends RouterBase
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
-    public function ManageDonations()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('manages/donations', [
-                'pages' => "manageDonations",
-                'title' => 'บริจาคสิ่งของ/วัสดุ',
-                'user' => $user
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
-    public function RedeemRewards()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('manages/redeem_rewards', [
-                'pages' => "redeemRewards",
-                'title' => 'แลกของรางวัล',
-                'user' => $user
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -275,21 +256,6 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function DonationHistory()
-    {
-        try {
-            Authentication::AdminAuth();
-            $this->render('history/donation', [
-                'pages' => "donationHistory",
-                'title' => 'ประวัติการรับของบริจาค'
-            ], self::$AdminTemplate);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
     public function TransactionRedeemReward()
     {
         try {
@@ -297,6 +263,35 @@ class AdminPagesController extends RouterBase
             $this->render('transactions/redeem_reward_pos', [
                 'pages' => "redeemRewardTransaction",
                 'title' => 'บันทึกการแลกของรางวัล'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    public function TransactionRedeemDonationItem()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('transactions/redeem_item', [
+                'pages' => "redeemItemTransaction",
+                'title' => 'บันทึกการแลกสิ่งของ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    // History
+    public function DonationHistory()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('history/donation', [
+                'pages' => "donationHistory",
+                'title' => 'ประวัติการรับของบริจาค'
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
             header('location: /');
