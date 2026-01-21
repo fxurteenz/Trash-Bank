@@ -44,6 +44,45 @@ class DonationController extends RouterBase
         $this->DonationModel = new DonationModel();
     }
 
+    public function GetAll()
+    {
+        try {
+            Authentication::AdminAuth();
+            $rows = $this->DonationModel->GetAll($this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $rows, 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Get($id)
+    {
+        try {
+            Authentication::AdminAuth();
+            $row = $this->DonationModel->GetById((int)$id);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
+        }
+    }
+
     public function Create()
     {
         try {
@@ -64,4 +103,22 @@ class DonationController extends RouterBase
         }
     }
 
+    public function Delete()
+    {
+        try {
+            Authentication::AdminAuth();
+            // Placeholder: deletion API not implemented per requirement
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Delete route not implemented']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
+        }
+    }
 }

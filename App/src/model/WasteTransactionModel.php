@@ -164,6 +164,112 @@ class WasteTransactionModel
         }
     }
 
+    // Header list for transaction history (main table)
+    public function GetTransactionHeaders(array $query): array
+    {
+        try {
+            $where = [];
+            $params = [];
+
+            if (!empty($query['start_date'])) {
+                $where[] = 'DATE(w.created_at) >= :start_date';
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $where[] = 'DATE(w.created_at) <= :end_date';
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['member_search'])) {
+                $where[] = '(mem.member_name LIKE :m OR mem.member_phone LIKE :m OR mem.member_email LIKE :m OR mem.member_personal_id LIKE :m)';
+                $params[':m'] = '%' . $query['member_search'] . '%';
+            }
+            if (!empty($query['staff_search'])) {
+                $where[] = '(st.member_name LIKE :s OR st.member_phone LIKE :s OR st.member_email LIKE :s OR st.member_personal_id LIKE :s)';
+                $params[':s'] = '%' . $query['staff_search'] . '%';
+            }
+            if (!empty($query['faculty'])) {
+                $where[] = 'f.faculty_id = :fid';
+                $params[':fid'] = $query['faculty'];
+            }
+
+            $whereSql = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+
+            $sqlCount = "SELECT COUNT(*) AS total
+                         FROM waste_transaction w
+                         LEFT JOIN member mem ON w.member_id = mem.member_id
+                         LEFT JOIN member st ON w.staff_id = st.member_id
+                         LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
+                         $whereSql";
+            $stmtCount = $this->Conn->prepare($sqlCount);
+            foreach ($params as $k => $v) $stmtCount->bindValue($k, $v);
+            $stmtCount->execute();
+            $total = (int)$stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+
+            $sql = "SELECT 
+                        w.*, 
+                        mem.member_name AS member_name,
+                        st.member_name AS staff_name,
+                        f.faculty_name
+                    FROM waste_transaction w
+                    LEFT JOIN member mem ON w.member_id = mem.member_id
+                    LEFT JOIN member st ON w.staff_id = st.member_id
+                    LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
+                    $whereSql
+                    ORDER BY w.created_at DESC";
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $sql .= ' LIMIT :limit OFFSET :offset';
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+            foreach ($params as $k => $v) $stmt->bindValue($k, $v);
+            if ($isPagination) {
+                $limit = (int)$query['limit'];
+                $offset = ((int)$query['page'] - 1) * $limit;
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return ['data' => $rows, 'total' => $total];
+        } catch (PDOException $e) {
+            throw new Exception('Database error: ' . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetTransactionByIdWithDetails(int $id): array
+    {
+        try {
+            // header
+            $sql = "SELECT w.*, mem.member_name, st.member_name AS staff_name, f.faculty_name
+                    FROM waste_transaction w
+                    LEFT JOIN member mem ON w.member_id = mem.member_id
+                    LEFT JOIN member st ON w.staff_id = st.member_id
+                    LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
+                    WHERE w.waste_transaction_id = :id";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $header = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$header) return [];
+
+            $sqld = "SELECT d.*, t.waste_type_name, c.waste_category_name
+                     FROM waste_transaction_detail d
+                     LEFT JOIN waste_type t ON d.waste_type_id = t.waste_type_id
+                     LEFT JOIN waste_category c ON d.waste_category_id = c.waste_category_id
+                     WHERE d.waste_transaction_id = :id";
+            $stmtd = $this->Conn->prepare($sqld);
+            $stmtd->execute([':id' => $id]);
+            $details = $stmtd->fetchAll(PDO::FETCH_ASSOC);
+            return ['transaction' => $header, 'detail' => $details];
+        } catch (PDOException $e) {
+            throw new Exception('Database error: ' . $e->getMessage(), 500);
+        }
+    }
+
     public function GetAllTransactionByStaffId($query, $staffData): array
     {
         try {
