@@ -162,21 +162,41 @@ class WasteSaleModel
             $whereClauses = [];
             $params = [];
 
+            // Date range
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "DATE(ws.created_at) >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "DATE(ws.created_at) <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            // Buyer text search
+            if (!empty($query['buyer'])) {
+                $whereClauses[] = "(ws.waste_sale_buyer LIKE :buyer OR m.member_name LIKE :buyer)";
+                $params[':buyer'] = "%" . $query['buyer'] . "%";
+            }
+            // Optional status
             if (!empty($query['status'])) {
                 $whereClauses[] = "ws.waste_sale_status = :status";
                 $params[':status'] = $query['status'];
             }
-
-            if (!empty($query['search'])) {
-                $whereClauses[] = "(ws.waste_sale_buyer LIKE :search OR m.member_name LIKE :search)";
-                $params[':search'] = "%" . $query['search'] . "%";
+            // Filter by waste type id through details when provided
+            $joinDetail = false;
+            if (!empty($query['type_id'])) {
+                $joinDetail = true;
+                $whereClauses[] = "wsd.waste_type_id = :type_id";
+                $params[':type_id'] = $query['type_id'];
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
-            $sqlCount = "SELECT COUNT(*) AS total 
+            $joinSql = $joinDetail ? " LEFT JOIN waste_sale_detail wsd ON ws.waste_sale_id = wsd.waste_sale_id " : "";
+
+            $sqlCount = "SELECT COUNT(DISTINCT ws.waste_sale_id) AS total 
                          FROM waste_sale ws
                          LEFT JOIN member m ON ws.created_by = m.member_id
+                         {$joinSql}
                          {$whereSql}";
             $stmtCount = $this->Conn->prepare($sqlCount);
             foreach ($params as $key => $value) {
@@ -185,13 +205,15 @@ class WasteSaleModel
             $stmtCount->execute();
             $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
 
-
             $sql = "SELECT 
-                        ws.*,
+                        ws.*, 
+                        ws.created_at AS waste_sale_date,
                         m.member_name AS creator_name
                     FROM waste_sale ws
                     LEFT JOIN member m ON ws.created_by = m.member_id
+                    {$joinSql}
                     {$whereSql}
+                    GROUP BY ws.waste_sale_id
                     ORDER BY ws.created_at DESC";
 
             // Pagination Logic
