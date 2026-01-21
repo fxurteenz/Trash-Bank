@@ -202,6 +202,7 @@ class Routes
         /* /api/waste_transaction */
         $this->addPrefixedRoutes("/api/waste_transactions", [
             ['GET', "", [WasteTransactionController::class, "GetAll"]],
+            ['GET', "/[i:id]", [WasteTransactionController::class, "GetById"]],
             ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
             ['GET', "/member/[i:id]", [WasteTransactionController::class, "GetAllByMember"]],
             ['POST', '', [WasteTransactionController::class, 'Create']],

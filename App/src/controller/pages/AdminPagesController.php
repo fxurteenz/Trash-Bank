@@ -324,7 +324,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('history/waste_sale', [
+            $this->render('history/waste_sale_headers', [
                 'pages' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ'
             ], self::$AdminTemplate);
@@ -354,7 +354,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('manages/waste_transaction', [
+            $this->render('history/waste_transaction', [
                 'pages' => "wasteTransactionHistory",
                 'title' => 'ประวัติการฝากขยะ'
             ], self::$AdminTemplate);
