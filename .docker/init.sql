@@ -82,7 +82,8 @@ CREATE TABLE `donation` (
 --
 
 INSERT INTO `donation` (`donation_id`, `member_id`, `staff_id`, `donation_item_name`, `donation_item_qty`, `donation_total_value`, `donation_goodness_point`, `donation_description`, `created_at`) VALUES
-(000001, 5, 1, 'มาม่า(ห่อเล็ก)', 4, 20.00, 20, '', '2026-01-20 17:06:01');
+(000001, 5, 1, 'มาม่า(ห่อเล็ก)', 4, 20.00, 20, '', '2026-01-20 17:06:01'),
+(000002, 5, 1, 'มาม่า(ห่อเล็ก)', 1, 5.00, 5, '', '2026-01-21 12:16:38');
 
 -- --------------------------------------------------------
 
@@ -91,7 +92,7 @@ INSERT INTO `donation` (`donation_id`, `member_id`, `staff_id`, `donation_item_n
 --
 
 CREATE TABLE `donation_item` (
-  `donation_store_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `donation_item_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `donation_item_name` varchar(45) NOT NULL,
   `donation_item_price` decimal(7,2) NOT NULL,
   `donation_item_amount` int(5) NOT NULL DEFAULT 0,
@@ -102,8 +103,8 @@ CREATE TABLE `donation_item` (
 -- Dumping data for table `donation_item`
 --
 
-INSERT INTO `donation_item` (`donation_store_id`, `donation_item_name`, `donation_item_price`, `donation_item_amount`, `updated_at`) VALUES
-(000001, 'มาม่า(ห่อเล็ก)', 5.00, 4, '2026-01-20 17:06:01');
+INSERT INTO `donation_item` (`donation_item_id`, `donation_item_name`, `donation_item_price`, `donation_item_amount`, `updated_at`) VALUES
+(000001, 'มาม่า(ห่อเล็ก)', 5.00, 4, '2026-01-21 12:16:38');
 
 -- --------------------------------------------------------
 
@@ -215,7 +216,7 @@ CREATE TABLE `member` (
 
 INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
 (000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, NULL, NULL, 01, 0.00, 0.00, NULL, NULL),
-(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 557.00, 0.00, '2025-12-28 01:07:57', NULL),
+(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 001, 02, 507.00, 0.00, '2025-12-28 01:07:57', NULL),
 (000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, 32.00, 0.00, '2025-12-28 13:37:56', NULL),
 (000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 02, 311.00, 0.00, '2025-12-30 13:11:06', NULL),
 (000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, NULL, NULL, 04, 0.00, 0.00, '2026-01-02 23:02:14', NULL),
@@ -239,6 +240,29 @@ CREATE TABLE `member_badge` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `member_item`
+--
+
+CREATE TABLE `member_item` (
+  `member_item_id` int(6) UNSIGNED ZEROFILL NOT NULL,
+  `staff_id` int(6) DEFAULT NULL,
+  `member_id` int(6) NOT NULL,
+  `donation_item_id` int(6) NOT NULL,
+  `member_item_qty` int(4) NOT NULL,
+  `member_item_point_used` int(8) NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `member_item`
+--
+
+INSERT INTO `member_item` (`member_item_id`, `staff_id`, `member_id`, `donation_item_id`, `member_item_qty`, `member_item_point_used`, `created_at`) VALUES
+(000001, 1, 5, 1, 1, 50, '2026-01-22 01:30:36');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `member_reward`
 --
 
@@ -249,7 +273,8 @@ CREATE TABLE `member_reward` (
   `member_reward_date` date DEFAULT NULL,
   `member_reward_qty` int(11) DEFAULT 1,
   `member_reward_point_used` int(11) DEFAULT NULL,
-  `member_reward_status` varchar(20) DEFAULT 'pending' COMMENT 'pending, received, cancelled'
+  `member_reward_status` varchar(20) DEFAULT 'pending' COMMENT 'pending, received, cancelled',
+  `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -544,7 +569,7 @@ ALTER TABLE `donation`
 -- Indexes for table `donation_item`
 --
 ALTER TABLE `donation_item`
-  ADD PRIMARY KEY (`donation_store_id`),
+  ADD PRIMARY KEY (`donation_item_id`),
   ADD UNIQUE KEY `donation_detail_name_UNIQUE` (`donation_item_name`);
 
 --
@@ -590,6 +615,12 @@ ALTER TABLE `member_badge`
   ADD PRIMARY KEY (`member_badge_id`),
   ADD UNIQUE KEY `unique_idx_member_badge` (`member_id`,`badge_id`),
   ADD KEY `fk_member_badge_badge_id` (`badge_id`);
+
+--
+-- Indexes for table `member_item`
+--
+ALTER TABLE `member_item`
+  ADD PRIMARY KEY (`member_item_id`);
 
 --
 -- Indexes for table `member_reward`
@@ -690,13 +721,13 @@ ALTER TABLE `badge`
 -- AUTO_INCREMENT for table `donation`
 --
 ALTER TABLE `donation`
-  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `donation_item`
 --
 ALTER TABLE `donation_item`
-  MODIFY `donation_store_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `donation_item_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `faculty`
@@ -721,6 +752,12 @@ ALTER TABLE `member`
 --
 ALTER TABLE `member_badge`
   MODIFY `member_badge_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `member_item`
+--
+ALTER TABLE `member_item`
+  MODIFY `member_item_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `member_reward`
