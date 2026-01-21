@@ -39,9 +39,9 @@
                             ยืนยัน
                         </button>
                     </div>
-                     <p class="text-xs text-slate-500 mt-2">
+                     <!-- <p class="text-xs text-slate-500 mt-2">
                         กด <kbd class="bg-slate-100 px-2 py-1 rounded">Enter</kbd> เพื่อยืนยัน
-                    </p>
+                    </p> -->
                 </div>
             </div>
 
@@ -154,8 +154,15 @@
 
             <div x-show="!buyerConfirmed"
                 class="flex-1 min-h-0 flex flex-col items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 text-slate-400">
-                <span class="text-5xl mb-3">🔍</span>
-                <p class="text-lg">กรุณายืนยันผู้ซื้อก่อนทำรายการ</p>
+                <span class="text-5xl mb-3"><svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <path d="M21 12a9 9 0 1 0-9 9M9 10h.01M15 10h.01" />
+                            <path d="M9.5 15c.658.672 1.56 1 2.5 1m3 2a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22" />
+                        </g>
+                    </svg>
+                </span>
+                <p class="text-lg">กรุณาระบุผู้ซื้อก่อนทำรายการ</p>
             </div>
         </div>
 
@@ -163,8 +170,13 @@
              <div class="h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white flex flex-col justify-between overflow-y-auto custom-scrollbar">
                 
                 <div>
-                    <h3 class="text-xl font-bold mb-2 flex items-center gap-2 border-b border-blue-400 pb-2">
-                        📋 สรุปการขาย
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-blue-400 pb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M19 3h-4.18C14.25 1.44 12.53.64 11 1.2c-.86.3-1.5.96-1.82 1.8H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m-7 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1M7 7h10V5h2v14H5V5h2zm10 4H7V9h10zm-2 4H7v-2h8z"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        สรุปรายการ
                     </h3>
                     <div class="space-y-1">
                         <div class="flex justify-between items-center">

@@ -66,8 +66,8 @@
                             class="p-4 text-center text-slate-500">ไม่พบข้อมูล</div>
                     </div>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">กด <kbd class="bg-slate-100 px-1 rounded border">Enter</kbd>
-                    เพื่อเลือก</p>
+                <!-- <p class="text-xs text-slate-500 mt-2">กด <kbd class="bg-slate-100 px-1 rounded border">Enter</kbd>
+                    เพื่อเลือก</p> -->
             </div>
 
             <div x-show="currentMember" class="w-full h-full">
@@ -195,7 +195,14 @@
 
             <div x-show="!currentMember"
                 class="flex-1 min-h-0 flex flex-col items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 text-slate-400">
-                <span class="text-5xl mb-3">🔍</span>
+                <span class="text-5xl mb-3"><svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <path d="M21 12a9 9 0 1 0-9 9M9 10h.01M15 10h.01" />
+                            <path d="M9.5 15c.658.672 1.56 1 2.5 1m3 2a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22" />
+                        </g>
+                    </svg>
+                </span>
                 <p class="text-lg">กรุณาเลือกสมาชิกก่อนทำรายการ</p>
             </div>
         </div>
@@ -207,7 +214,8 @@
                     <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-emerald-400 pb-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path fill="currentColor"
-                                d="M13 9V3.5L18.5 9M6 2c-1.11 0-2 .89-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6z" />
+                                d="M19 3h-4.18C14.25 1.44 12.53.64 11 1.2c-.86.3-1.5.96-1.82 1.8H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m-7 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1M7 7h10V5h2v14H5V5h2zm10 4H7V9h10zm-2 4H7v-2h8z"
+                                stroke-width="0.5" stroke="currentColor" />
                         </svg>
                         สรุปรายการ
                     </h3>

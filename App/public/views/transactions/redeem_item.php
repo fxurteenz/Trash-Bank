@@ -4,8 +4,12 @@
         <div class="md:w-1/3 flex flex-col justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
-                    <span class="text-4xl">🎁</span>
-                    <span>ระบบแลกของบริจาค</span>
+                    <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                    <span>ระบบแลกของ</span>
                 </h1>
                 <p class="text-slate-600 text-sm">บันทึกการแลกของบริจาคจากสมาชิก</p>
             </div>
@@ -85,8 +89,9 @@
                             </div>
                         </div>
                         <div class="text-right">
-                             <p class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1">แต้มขยะ</p>
-                            <p class="text-3xl font-bold text-slate-800" x-text="currentMember?.member_waste_point || 0"></p>
+                            <p class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1">แต้มขยะ</p>
+                            <p class="text-3xl font-bold text-slate-800"
+                                x-text="currentMember?.member_waste_point || 0"></p>
                         </div>
                     </div>
                 </div>
@@ -97,13 +102,18 @@
     <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-1">
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full">
-            <div class="flex-1 min-h-0 bg-white rounded-xl shadow-md p-6 card-hover flex flex-col">
+            <div x-show="currentMember" class="flex-1 min-h-0 bg-white rounded-xl shadow-md p-6 card-hover flex flex-col">
                 <div class="flex items-center justify-between mb-4 shrink-0">
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <span>📦 เลือกของบริจาค</span>
+                        <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24">
+                            <path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"
+                                d="m12 12l8.073-4.625M12 12v9.25M12 12L7.963 9.688m12.11-2.313a3.17 3.17 0 0 0-1.165-1.156L16.25 4.696m3.823 2.679c.275.472.427 1.015.427 1.58v6.09a3.15 3.15 0 0 1-1.592 2.736l-5.316 3.046A3.2 3.2 0 0 1 12 21.25M3.926 7.375a3.14 3.14 0 0 0-.426 1.58v6.09c0 1.13.607 2.172 1.592 2.736l5.316 3.046A3.2 3.2 0 0 0 12 21.25M3.926 7.375a3.17 3.17 0 0 1 1.166-1.156l5.316-3.046a3.2 3.2 0 0 1 3.184 0l2.658 1.523M3.926 7.375l4.037 2.313m0 0l8.287-4.992" />
+                        </svg>
+                        <span>เลือกของบริจาค</span>
                     </h2>
                     <input type="text" x-model="itemSearch" @input.debounce.300ms="filterItems()"
-                        placeholder="🔍 ค้นหาของบริจาค..."
+                        placeholder=" ค้นหาของบริจาค..."
                         class="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm w-64">
                 </div>
 
@@ -115,8 +125,8 @@
                                 class="border-2 rounded-xl p-3 cursor-pointer transition-all flex items-start gap-3 h-24">
                                 <div
                                     class="flex-shrink-0 w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-100">
-                                    <img src="/assets/images/rewards/default.png"
-                                        :alt="item.donation_item_name" class="w-full h-full object-cover">
+                                    <img src="/assets/images/rewards/default.png" :alt="item.donation_item_name"
+                                        class="w-full h-full object-cover">
                                 </div>
                                 <div class="flex-1 min-w-0 flex flex-col justify-between h-full">
                                     <div>
@@ -138,26 +148,48 @@
 
                     <div x-show="filteredItems.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
-                        <span class="text-4xl mb-2">📦</span>
+                        <span class="text-4xl mb-2"><svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24">
+                                <path fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"
+                                    d="m12 12l8.073-4.625M12 12v9.25M12 12L7.963 9.688m12.11-2.313a3.17 3.17 0 0 0-1.165-1.156L16.25 4.696m3.823 2.679c.275.472.427 1.015.427 1.58v6.09a3.15 3.15 0 0 1-1.592 2.736l-5.316 3.046A3.2 3.2 0 0 1 12 21.25M3.926 7.375a3.14 3.14 0 0 0-.426 1.58v6.09c0 1.13.607 2.172 1.592 2.736l5.316 3.046A3.2 3.2 0 0 0 12 21.25M3.926 7.375a3.17 3.17 0 0 1 1.166-1.156l5.316-3.046a3.2 3.2 0 0 1 3.184 0l2.658 1.523M3.926 7.375l4.037 2.313m0 0l8.287-4.992" />
+                            </svg></span>
                         <p class="text-sm">ไม่พบรายการ</p>
                     </div>
                 </div>
             </div>
+
+             <div x-show="!currentMember"
+                class="flex-1 min-h-0 flex flex-col items-center justify-center bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 text-slate-400">
+                <span class="text-5xl mb-3"><svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <path d="M21 12a9 9 0 1 0-9 9M9 10h.01M15 10h.01" />
+                            <path d="M9.5 15c.658.672 1.56 1 2.5 1m3 2a3 3 0 1 0 6 0a3 3 0 1 0-6 0m5.2 2.2L22 22" />
+                        </g>
+                    </svg>
+                </span>
+                <p class="text-lg">กรุณาเลือกสมาชิกก่อนทำรายการ</p>
+            </div>
         </div>
 
         <div class="h-full rounded-xl shadow-md relative">
-            <div x-show="!selectedItem"
+            <!-- <div x-show="!selectedItem"
                 class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-10 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 m-6">
                 <span class="text-4xl mb-3">👈</span>
                 <p class="text-sm">เลือกของจากรายการด้านซ้าย</p>
-            </div>
+            </div> -->
 
             <div
                 class="h-full bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white flex flex-col justify-between overflow-y-auto custom-scrollbar">
 
                 <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-purple-400 pb-2">
-                        📋 สรุปรายการ
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-amber-400 pb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M19 3h-4.18C14.25 1.44 12.53.64 11 1.2c-.86.3-1.5.96-1.82 1.8H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m-7 0a1 1 0 0 1 1 1a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1M7 7h10V5h2v14H5V5h2zm10 4H7V9h10zm-2 4H7v-2h8z"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        สรุปรายการ
                     </h3>
 
                     <div class="space-y-4" x-show="selectedItem">
@@ -193,7 +225,8 @@
                                 <span x-text="remainingPoints()"></span>
                             </div>
                         </div>
-                         <div x-show="!hasEnoughPoints()" class="text-yellow-300 bg-black/30 text-center text-xs p-2 mt-2 rounded-lg">
+                        <div x-show="!hasEnoughPoints()"
+                            class="text-yellow-300 bg-black/30 text-center text-xs p-2 mt-2 rounded-lg">
                             ⚠️ แต้มไม่เพียงพอ
                         </div>
                     </div>
