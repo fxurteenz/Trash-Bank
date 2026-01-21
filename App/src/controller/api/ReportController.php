@@ -306,4 +306,33 @@ class ReportController
             exit;
         }
     }
+
+    /**
+     * Get waste summary for a member
+     * Endpoint: /api/reports/waste/member/{member_id}
+     * Query parameters: waste_type, waste_category, start_date, end_date, date, year, month, sort_by
+     */
+    public function GetMemberWasteSummary($memberId)
+    {
+        try {
+            $result = self::$ReportModel->MemberWasteSummary((int) $memberId, self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'Member waste summary retrieved successfully'
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
 }

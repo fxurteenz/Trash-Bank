@@ -279,7 +279,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('transactions/donation_history', [
+            $this->render('history/donation', [
                 'pages' => "donationHistory",
                 'title' => 'ประวัติการรับของบริจาค'
             ], self::$AdminTemplate);
@@ -309,7 +309,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('transactions/redeem_reward_history', [
+            $this->render('history/redeem_reward', [
                 'pages' => "redeemRewardHistory",
                 'title' => 'ประวัติการแลกของรางวัล'
             ], self::$AdminTemplate);
@@ -324,9 +324,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            // $this->render('transactions/waste_sale_history', [
-            $this->render('manages/waste_sale', [
-
+            $this->render('history/waste_sale', [
                 'pages' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ'
             ], self::$AdminTemplate);
@@ -341,7 +339,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            $this->render('transactions/clear_waste_history', [
+            $this->render('history/clear_waste', [
                 'pages' => "clearWasteHistory",
                 'title' => 'ประวัติการเคลียร์ยอด'
             ], self::$AdminTemplate);

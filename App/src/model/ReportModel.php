@@ -222,14 +222,12 @@ class ReportModel
 
     public function FacultyReport(int $facultyId, array $query): array
     {
-        try {
-            [$whereSql, $params] = $this->buildDateFilters($query);
-            $params[':faculty_id'] = $facultyId;
-            $whereSql = empty($whereSql) ? "WHERE w.faculty_id = :faculty_id" : $whereSql . " AND w.faculty_id = :faculty_id";
+        [$whereSql, $params] = $this->buildDateFilters($query);
+        $params[':faculty_id'] = $facultyId;
+        $whereSql = empty($whereSql) ? "WHERE w.faculty_id = :faculty_id" : $whereSql . " AND w.faculty_id = :faculty_id";
 
-            $summarySql = "SELECT 
+        $summarySql = "SELECT 
                             COALESCE(SUM(w.waste_transaction_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_member_point), 0) AS total_member_point,
                             COALESCE(SUM(w.waste_transaction_faculty_fraction), 0) AS faculty_fraction,
                             COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight), 0) AS total_value,
                             COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight), 0) AS total_co2,
@@ -238,24 +236,19 @@ class ReportModel
                        LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
                        {$whereSql}";
 
-            $stmt = $this->Conn->prepare($summarySql);
-            $stmt->execute($params);
-            $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $stmt = $this->Conn->prepare($summarySql);
+        $stmt->execute($params);
+        $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-            $facultySql = "SELECT faculty_id, faculty_name FROM faculty WHERE faculty_id = :faculty_id";
-            $fStmt = $this->Conn->prepare($facultySql);
-            $fStmt->execute([':faculty_id' => $facultyId]);
-            $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $facultySql = "SELECT faculty_id, faculty_name FROM faculty WHERE faculty_id = :faculty_id";
+        $fStmt = $this->Conn->prepare($facultySql);
+        $fStmt->execute([':faculty_id' => $facultyId]);
+        $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-            return [
-                'faculty' => $faculty,
-                'summary' => $summary,
-            ];
-        } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
+        return [
+            'faculty' => $faculty,
+            'summary' => $summary,
+        ];
     }
 
     public function MemberLeaderboard(array $query): array
@@ -504,5 +497,104 @@ class ReportModel
         ];
     }
 
+    /**
+     * Get waste summary for a specific member
+     * Calculates total weight and carbon reduction by waste type/category
+     */
+    public function MemberWasteSummary(int $memberId, array $query): array
+    {
+        try {
+            $whereClauses = [];
+            $params = [];
 
+            // Member filter
+            $whereClauses[] = "wtd.member_id = :member_id";
+            $params[':member_id'] = $memberId;
+
+            // Filter by waste type
+            if (!empty($query['waste_type'])) {
+                $whereClauses[] = "wtd.waste_type_id = :waste_type";
+                $params[':waste_type'] = $query['waste_type'];
+            }
+
+            // Filter by waste category
+            if (!empty($query['waste_category'])) {
+                $whereClauses[] = "wt.waste_category_id = :waste_category";
+                $params[':waste_category'] = $query['waste_category'];
+            }
+
+            // Date filters
+            if (!empty($query['start_date'])) {
+                $whereClauses[] = "DATE(wtd.created_at) >= :start_date";
+                $params[':start_date'] = $query['start_date'];
+            }
+            if (!empty($query['end_date'])) {
+                $whereClauses[] = "DATE(wtd.created_at) <= :end_date";
+                $params[':end_date'] = $query['end_date'];
+            }
+            if (!empty($query['date'])) {
+                $whereClauses[] = "DATE(wtd.created_at) = :date";
+                $params[':date'] = $query['date'];
+            }
+            if (!empty($query['year'])) {
+                $whereClauses[] = "YEAR(wtd.created_at) = :year";
+                $params[':year'] = $query['year'];
+            }
+            if (!empty($query['month'])) {
+                $whereClauses[] = "MONTH(wtd.created_at) = :month";
+                $params[':month'] = $query['month'];
+            }
+
+            $whereSql = "WHERE " . implode(" AND ", $whereClauses);
+
+            // Get summary data
+            $summarySql = "SELECT 
+                            COALESCE(SUM(wtd.waste_transaction_detail_weight), 0) AS total_weight,
+                            COALESCE(SUM(wtd.waste_transaction_detail_weight * wt.waste_type_co2), 0) AS total_carbon_reduction,
+                            COUNT(DISTINCT wtd.waste_transaction_detail_id) AS transaction_count
+                        FROM waste_transaction_detail wtd
+                        LEFT JOIN waste_type wt ON wtd.waste_type_id = wt.waste_type_id
+                        {$whereSql}";
+
+            $summaryStmt = $this->Conn->prepare($summarySql);
+            $summaryStmt->execute($params);
+            $summary = $summaryStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+            // Get detailed breakdown by waste type
+            $detailSql = "SELECT 
+                            wt.waste_type_id,
+                            wt.waste_type_name,
+                            wc.waste_category_id,
+                            wc.waste_category_name,
+                            COALESCE(SUM(wtd.waste_transaction_detail_weight), 0) AS weight,
+                            COALESCE(SUM(wtd.waste_transaction_detail_weight * wt.waste_type_co2), 0) AS carbon_reduction,
+                            COUNT(DISTINCT wtd.waste_transaction_detail_id) AS transaction_count
+                        FROM waste_transaction_detail wtd
+                        LEFT JOIN waste_type wt ON wtd.waste_type_id = wt.waste_type_id
+                        LEFT JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                        {$whereSql}
+                        GROUP BY wt.waste_type_id, wc.waste_category_id";
+
+            // Determine sort order
+            $sortBy = $query['sort_by'] ?? 'weight'; // weight or carbon_reduction
+            if ($sortBy === 'carbon_reduction') {
+                $detailSql .= " ORDER BY carbon_reduction DESC";
+            } else {
+                $detailSql .= " ORDER BY weight DESC";
+            }
+
+            $detailStmt = $this->Conn->prepare($detailSql);
+            $detailStmt->execute($params);
+            $details = $detailStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            return [
+                'summary' => $summary,
+                'details' => $details
+            ];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

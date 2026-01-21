@@ -192,6 +192,7 @@ class Routes
             ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
             ['GET', "/by-type", [ReportController::class, "GetByType"]],
             ['GET', "/by-faculty", [ReportController::class, "GetByCategory"]],
+            ['GET', "/waste/member/[i:memberId]", [ReportController::class, "GetMemberWasteSummary"]],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
@@ -211,8 +212,13 @@ class Routes
         /* /api/waste_sales */
         $this->addPrefixedRoutes("/api/waste_sales", [
             ['GET', "", [WasteSaleController::class, "GetAll"]],
-            ['GET', '/[i:id]/details', [WasteSaleController::class, 'GetDetail']],
+            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
+            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
             ['POST', '', [WasteSaleController::class, 'Create']],
+            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
+            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
