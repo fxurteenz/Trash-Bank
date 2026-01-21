@@ -19,6 +19,7 @@ use App\Controller\Api\DonationController;
 use App\Controller\Api\MemberRewardController;
 use App\Controller\Api\CenterStockController;
 use App\Controller\Api\FacultyDetailController;
+use App\Controller\Api\MemberItemController;
 
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -235,6 +236,7 @@ class Routes
         /* /api/donations */
         $this->addPrefixedRoutes("/api/donations", [
             ['GET', '', [DonationController::class, 'GetAll']],
+            ['GET', '/items', [DonationController::class, 'GetItems']],
             ['GET', '/[i:id]', [DonationController::class, 'Get']],
             ['POST', '', [DonationController::class, 'Create']],
             ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
@@ -259,6 +261,11 @@ class Routes
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [
             ['GET', "", [CenterStockController::class, "GetAll"]],
+        ]);
+
+        /* /api/member_items */
+        $this->addPrefixedRoutes("/api/member_items", [
+            ['POST', "/redeem", [MemberItemController::class, "Redeem"]],
         ]);
 
     }

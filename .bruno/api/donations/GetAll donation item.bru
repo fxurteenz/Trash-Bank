@@ -1,0 +1,16 @@
+meta {
+  name: GetAll donation item
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_domain}}/donations/items
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

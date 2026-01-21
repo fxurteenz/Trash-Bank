@@ -80,7 +80,7 @@ class DonationModel
                 ':name' => $data['donation_item_name'],
                 ':price' => $pricePerUnit,
                 ':qty' => $qty,
-                ':qty_update' => $qty,          
+                ':qty_update' => $qty,
                 ':price_update' => $pricePerUnit
             ]);
 
@@ -130,9 +130,10 @@ class DonationModel
                          LEFT JOIN member staff ON d.staff_id = staff.member_id
                          $whereSql";
             $stmtCount = $this->Conn->prepare($sqlCount);
-            foreach ($params as $k => $v) $stmtCount->bindValue($k, $v);
+            foreach ($params as $k => $v)
+                $stmtCount->bindValue($k, $v);
             $stmtCount->execute();
-            $total = (int)$stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+            $total = (int) $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
 
             $sql = "SELECT 
                         d.*, 
@@ -150,10 +151,11 @@ class DonationModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-            foreach ($params as $k => $v) $stmt->bindValue($k, $v);
+            foreach ($params as $k => $v)
+                $stmt->bindValue($k, $v);
             if ($isPagination) {
-                $limit = (int)$query['limit'];
-                $offset = ((int)$query['page'] - 1) * $limit;
+                $limit = (int) $query['limit'];
+                $offset = ((int) $query['page'] - 1) * $limit;
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
@@ -162,9 +164,9 @@ class DonationModel
 
             return ['data' => $rows, 'total' => $total];
         } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), (int)$e->getCode());
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         } catch (Exception $e) {
-            throw new Exception($e->getMessage(), (int)$e->getCode());
+            throw new Exception($e->getMessage(), (int) $e->getCode());
         }
     }
 
@@ -184,9 +186,61 @@ class DonationModel
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             return $row ?: null;
         } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), (int)$e->getCode());
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         } catch (Exception $e) {
-            throw new Exception($e->getMessage(), (int)$e->getCode());
+            throw new Exception($e->getMessage(), (int) $e->getCode());
         }
     }
+
+    public function GetDonationItem(array $query): array
+    {
+        try {
+
+            $where = [];
+            $params = [];
+
+            if (!empty($query['search'])) {
+                $where[] = 'donation_item_name LIKE :q';
+                $params[':q'] = '%' . $query['search'] . '%';
+            }
+
+            $whereSql = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+
+            $sqlCount = "SELECT COUNT(*) AS total FROM donation_item $whereSql";
+            $stmtCount = $this->Conn->prepare($sqlCount);
+            foreach ($params as $k => $v)
+                $stmtCount->bindValue($k, $v);
+            $stmtCount->execute();
+            $total = (int) $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+
+
+            $sql = "SELECT * FROM donation_item $whereSql ORDER BY updated_at DESC";
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $sql .= ' LIMIT :limit OFFSET :offset';
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+            foreach ($params as $k => $v)
+                $stmt->bindValue($k, $v);
+
+            if ($isPagination) {
+                $limit = (int) $query['limit'];
+                $offset = ((int) $query['page'] - 1) * $limit;
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ['data' => $rows, 'total' => $total];
+        } catch (PDOException $e) {
+            throw new Exception("Error Processing Request", 503);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    
 }
