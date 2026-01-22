@@ -192,7 +192,7 @@
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         ประวัติการทำรายการ</p>
 
-                    <a href="/staff/history/waste_transaction"
+                    <a href="/staff/history/waste_deposit"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" fill="none"

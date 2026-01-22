@@ -61,9 +61,7 @@ class Routes
         $this->addPrefixedRoutes("/staff", [
             ["GET", "", [StaffPagesController::class, 'HomePage']],
             ["GET", "/transactions/waste", [StaffPagesController::class, 'WasteTransactionPage']],
-            ["GET", "/transactions/clear_waste", [StaffPagesController::class, 'ClearWasteTransactionPage']],
-            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [StaffPagesController::class, "ManageTransactionClearancePage"]],
-
+            ["GET", "/history/waste_deposit", [StaffPagesController::class, 'WasteTransactionHistoryPage']],
         ]);
 
         $this->addPrefixedRoutes('/waste_center', [

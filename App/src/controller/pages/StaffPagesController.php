@@ -44,32 +44,13 @@ class StaffPagesController extends RouterBase
         }
     }
 
-    public function ClearWasteTransactionPage()
+    public function WasteTransactionHistoryPage()
     {
         try {
-            $user = Authentication::OperateAuth();
-            $this->render('staff/transactions/clear_waste', [
-                'user' => $user['user_data'],
-                'pages' => 'clearWasteTransaction',
-                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-            ], self::$Layouts);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
-    public function ManageTransactionClearancePage($wcid)
-    {
-        try {
-            $user = Authentication::OperateAuth();
-            $this->render('staff/transactions/manage/clear_waste', [
-                'user' => $user['user_data'],
-                'pages' => 'clearWasteTransaction',
-                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-                'wcid' => $wcid,
+            Authentication::OperateAuth();
+            $this->render('history/waste_transaction', [
+                'pages' => 'wasteTransactionHistory',
+                'title' => 'ประวัติการฝากขยะ',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
