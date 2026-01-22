@@ -2,8 +2,7 @@
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-3xl font-bold text-slate-900">
-                 <span
-                    x-text="loading ? 'คณะ' : 'คณะ ' + (data.faculty.faculty_name || 'Admin')">คณะ </span>
+                <span x-text="loading ? 'คณะ' : 'คณะ ' + (data.faculty.faculty_name || 'Admin')">คณะ </span>
             </h1>
             <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
         </div>
@@ -19,61 +18,65 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                        class="text-white">
-                        <g fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round"
-                                d="M3 5h5.43a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 12.57 2h4.488a2 2 0 0 1 1.898 1.368L19.5 5M21 5H8" />
-                            <path stroke-linecap="round"
-                                d="m19.5 5l-.62 9.906q-.031.49-.061.917M4.5 5l.605 9.897c.154 2.414.232 3.62.874 4.489c.317.429.726.791 1.2 1.063c.96.551 2.244.551 4.814.551H14.5" />
-                            <path d="M20 19a3 3 0 1 0-6 0a3 3 0 0 0 6 0Z" />
-                        </g>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 7h16m-10 4v6m4-6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
                     </svg>
                 </div>
+                <div class="text-right">
+                    <p class="text-emerald-100 text-sm mb-1">ปริมาณขยะ <span
+                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
+                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_weight)">0</p>
+                    <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
+                </div>
             </div>
-            <p class="text-emerald-100 text-sm mb-1">ปริมาณขยะ <span
-                    x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-            <p class="text-4xl font-bold" x-text="formatNumber(currentStats.total_weight)">0</p>
-            <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
         </div>
 
-        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-gradient-to-br from-emerald-700 to-emerald-800  rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
                     <span class="text-2xl font-bold">CO₂</span>
                 </div>
-            </div>
-            <p class="text-blue-100 text-sm mb-1">การลดคาร์บอน <span
-                    x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-            <p class="text-4xl font-bold" x-text="formatNumber(currentStats.total_co2e)">0</p>
-            <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between mb-4">
-                <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <span class="text-2xl">📝</span>
+                <div class="text-right">
+                    <p class="text-blue-100 text-sm mb-1">การลดคาร์บอน <span
+                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
+                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_co2e)">0</p>
+                    <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂</p>
                 </div>
             </div>
-            <p class="text-purple-100 text-sm mb-1">รายการขยะ <span
-                    x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-            <p class="text-4xl font-bold" x-text="formatNumber(currentStats.transaction_count)">0</p>
-            <p class="text-sm text-purple-100 mt-1">รายการ</p>
         </div>
 
-        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between mb-4">
+        <div class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
                     <span class="text-2xl">⭐</span>
                 </div>
+                <div class="text-right">
+                    <p class="text-orange-100 text-sm mb-1">แต้มที่มอบ <span
+                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
+                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_spend_point)">0</p>
+                    <p class="text-sm text-orange-100 mt-1">คะแนน</p>
+                </div>
             </div>
-            <p class="text-orange-100 text-sm mb-1">แต้มที่มอบ <span
-                    x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-            <p class="text-4xl font-bold" x-text="formatNumber(currentStats.total_spend_point)">0</p>
-            <p class="text-sm text-orange-100 mt-1">คะแนน</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-purple-700 to-purple-800 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between">
+                <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                    <span class="text-2xl">📝</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-purple-100 text-sm mb-1">
+                        แต้มที่เหลืออยู่
+                    </p>
+                    <p class="text-5xl font-bold" x-text="formatNumber(data.faculty.faculty_point)">0</p>
+                    <p class="text-sm text-purple-100 mt-1">คะแนน</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -81,7 +84,7 @@
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-5 gap-4">
             <h2 class="text-2xl font-bold text-slate-900">👥 สมาชิกในคณะ</h2>
             <div class="flex items-center gap-4">
-                <label for="role-filter" class="text-sm font-medium text-slate-700">กรองตามบทบาท:</label>
+                <label for="role-filter" class="text-sm font-medium text-slate-700">บทบาท:</label>
                 <select id="role-filter" x-model="memberTable.role" @change="memberTable.fetchMembers()"
                     class="rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm transition cursor-pointer">
                     <option value="">ทั้งหมด</option>
