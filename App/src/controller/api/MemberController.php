@@ -42,7 +42,7 @@ class MemberController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::OperateAuth();
             $result = $this->MemberModel->GetAllMembers($this->queryString);
             $response = [
                 'success' => TRUE,
@@ -168,7 +168,7 @@ class MemberController extends RouterBase
         try {
             Authentication::MemberAuth();
             $dashboard = $this->MemberModel->GetMemberDashboard($member_id, $this->queryString);
-            
+
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
@@ -197,7 +197,7 @@ class MemberController extends RouterBase
         try {
             Authentication::MemberAuth();
             $profile = $this->MemberModel->GetMemberProfile($member_id);
-            
+
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([
@@ -227,7 +227,7 @@ class MemberController extends RouterBase
         try {
             Authentication::MemberAuth();
             $result = $this->MemberModel->RedeemReward($member_id, $this->data);
-            
+
             header('Content-Type: application/json');
             http_response_code(201);
             echo json_encode([
