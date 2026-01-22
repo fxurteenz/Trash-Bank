@@ -25,9 +25,9 @@ class MemberModel
             $whereClauses = [];
             $params = [];
 
-            if (!empty($query['faculty_id'])) {
+            if (!empty($query['faculty'])) {
                 $whereClauses[] = "m.faculty_id = :faculty_id";
-                $params[':faculty_id'] = $query['faculty_id'];
+                $params[':faculty_id'] = $query['faculty'];
             }
 
             if (!empty($query['role'])) {
@@ -46,22 +46,43 @@ class MemberModel
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+            $sortDirection = 'DESC';
+            if (isset($query['order']) && strtolower($query['order']) === 'asc') {
+                $sortDirection = 'ASC';
+            }
 
+            $orderBySql = " ORDER BY m.member_id " . $sortDirection;
+
+            if (!empty($query['sort_by'])) {
+                switch ($query['sort_by']) {
+                    case 'waste_point':
+                        $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
+                        break;
+                    case 'goodness_point':
+                        $orderBySql = " ORDER BY m.member_goodness_point " . $sortDirection;
+                        break;
+                    case 'name':
+                       $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                       break;
+                }
+            }
+                
             $sql = "SELECT 
-                        m.*, 
-                        f.faculty_name,
-                        maj.major_name,
-                        r.role_name,
-                        r.role_name_th
-                    FROM 
-                        member m
-                    LEFT JOIN 
-                        faculty f ON m.faculty_id = f.faculty_id
-                    LEFT JOIN 
-                        major maj ON m.major_id = maj.major_id
-                    LEFT JOIN 
-                        role r ON m.role_id = r.role_id
-                    {$whereSql}";
+                    m.*, 
+                    f.faculty_name,
+                    maj.major_name,
+                    r.role_name,
+                    r.role_name_th
+                FROM 
+                    member m
+                LEFT JOIN 
+                    faculty f ON m.faculty_id = f.faculty_id
+                LEFT JOIN 
+                    major maj ON m.major_id = maj.major_id
+                LEFT JOIN 
+                    role r ON m.role_id = r.role_id
+                {$whereSql}
+                {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 

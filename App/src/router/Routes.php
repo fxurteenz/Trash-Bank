@@ -20,6 +20,7 @@ use App\Controller\Api\MemberRewardController;
 use App\Controller\Api\CenterStockController;
 use App\Controller\Api\FacultyDetailController;
 use App\Controller\Api\MemberItemController;
+use App\Controller\Api\DashboardDataController;
 
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -51,7 +52,7 @@ class Routes
     {
         // Guest
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
-        $this->Router->map('POST', '/logout', [UsersController::class, 'Logout']);
+        $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
 
         // PAGES 
@@ -268,5 +269,9 @@ class Routes
             ['POST', "/redeem", [MemberItemController::class, "Redeem"]],
         ]);
 
+        $this->addPrefixedRoutes("/api/dashboards", [
+            ['GET', "/faculty/[i:fid]", [DashboardDataController::class, "GetFacultyDashboard"]],
+            // ['GET', "/member/[i:mid]", [DashboardDataController::class, "MemberDashboard"]],
+        ]);
     }
 }

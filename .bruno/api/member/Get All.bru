@@ -5,19 +5,21 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/members?faculty_id=1
+  url: {{api_domain}}/members?faculty=1&limit=5&page=1&sort_by=waste_point
   body: none
   auth: inherit
 }
 
 params:query {
-  faculty_id: 1
+  faculty: 1
+  limit: 5
+  page: 1
+  sort_by: waste_point
   ~search: 56
-  ~limit: 5
-  ~page: 1
   ~major_id: 7
-  ~role: BUG
+  ~role: 2
   ~search: 
+  ~order: 
 }
 
 settings {

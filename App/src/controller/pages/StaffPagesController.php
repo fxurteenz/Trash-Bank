@@ -9,12 +9,14 @@ use App\Utils\AuthenticationException;
 class StaffPagesController extends RouterBase
 {
     private static $Layouts = "staffLayout";
+    
     public function HomePage()
     {
         try {
             $user = Authentication::OperateAuth();
-            $this->render('staff/home', [
+            $this->render('staff/dashboard', [
                 'user' => $user,
+                'facultyId' => $user['user_data']->faculty_id,
                 'pages' => 'home',
                 'title' => 'หน้าหลัก'
             ], self::$Layouts);
@@ -25,11 +27,12 @@ class StaffPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
     public function WasteTransactionPage()
     {
         try {
             Authentication::OperateAuth();
-            $this->render('staff/transactions/waste', [
+            $this->render('transactions/waste_deposit', [
                 'pages' => 'wasteTransaction',
                 'title' => 'ระบบฝากขยะ',
             ], self::$Layouts);
@@ -40,6 +43,7 @@ class StaffPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
     public function ClearWasteTransactionPage()
     {
         try {
