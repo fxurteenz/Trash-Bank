@@ -520,6 +520,7 @@ class WasteTransactionModel
 
             $totalPoints = 0;
             $totalWeight = 0;
+            $totalCo2e = 0;
             $details = [];
 
             foreach ($items as $item) {
@@ -532,15 +533,19 @@ class WasteTransactionModel
                 $value = ($rateResult["waste_type_price"] * $item["deposit_weight"]) / 2 * 10;
                 $integer_point = (int) floor($value);
 
+                $co2e = $rateResult["waste_type_co2"] * $item["deposit_weight"];
+
                 $totalWeight += $item["deposit_weight"];
                 $totalPoints += $integer_point;
-
+                $totalCo2e += $co2e;
+                
                 $details[] = [
                     'waste_category_id' => $item["waste_category_id"],
                     'waste_type_id' => $item["waste_type_id"],
                     'weight' => $item["deposit_weight"],
                     'rate' => $rateResult["waste_type_price"],
-                    'point' => $integer_point
+                    'point' => $integer_point,
+                    'co2e' => $co2e
                 ];
             }
 
@@ -553,6 +558,7 @@ class WasteTransactionModel
                 staff_id = :staffid,
                 waste_transaction_total_weight = :tw,
                 waste_transaction_total_point = :tp,
+                waste_transaction_total_co2e = :co2e,
                 created_at = :created";
 
             $stmtHeader = $this->Conn->prepare($headerSql);
@@ -562,6 +568,7 @@ class WasteTransactionModel
                 ':staffid' => $staffData["user_data"]->member_id,
                 ':tw' => $totalWeight,
                 ':tp' => $totalPoints,
+                ':co2e' => $totalCo2e,
                 ':created' => date('Y-m-d H:i:s')
             ]);
             $transactionId = $this->Conn->lastInsertId();
@@ -573,7 +580,8 @@ class WasteTransactionModel
                 waste_type_id = :typeid,
                 waste_transaction_detail_weight = :w,
                 waste_transaction_detail_rate = :r,
-                waste_transaction_detail_point = :p";
+                waste_transaction_detail_point = :p,
+                waste_transaction_detail_co2e = :co2e";
 
             $stmtDetail = $this->Conn->prepare($detailSql);
             foreach ($details as $d) {
@@ -583,7 +591,8 @@ class WasteTransactionModel
                     ':typeid' => $d['waste_type_id'],
                     ':w' => $d['weight'],
                     ':r' => $d['rate'],
-                    ':p' => $d['point']
+                    ':p' => $d['point'],
+                    ':co2e' => $d['co2e']
                 ]);
 
                 // Update faculty stock for each item
