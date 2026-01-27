@@ -74,8 +74,8 @@
                     <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff"
                         class="w-8 h-8 rounded-full">
                     <div class="hidden sm:block text-left">
-                        <p class="text-sm font-medium text-slate-900">ผู้ดูแล</p>
-                        <p class="text-xs text-slate-500">ศูนย์กลาง</p>
+                        <p class="text-sm font-medium text-slate-900">เจ้าหน้าที่คณะ</p>
+                        <p class="text-xs text-slate-500"></p>
                     </div>
                     <svg class="w-4 h-4 text-slate-400 transition-transform duration-200"
                         :class="{'rotate-180': profileMenuOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,7 +194,8 @@
 
                     <a href="/staff/history/waste_deposit"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                             <path class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" fill="none"
                                 stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M11 22c-.818 0-1.6-.33-3.163-.99C3.946 19.366 2 18.543 2 17.16V7m9 15V11.355M11 22c.34 0 .646-.057 1-.172M20 7v4.5M18 18l.906-.905M22 18a4 4 0 1 0-8 0a4 4 0 0 0 8 0M7.326 9.691L4.405 8.278C2.802 7.502 2 7.114 2 6.5s.802-1.002 2.405-1.778l2.92-1.413C9.13 2.436 10.03 2 11 2s1.871.436 3.674 1.309l2.921 1.413C19.198 5.498 20 5.886 20 6.5s-.802 1.002-2.405 1.778l-2.92 1.413C12.87 10.564 11.97 11 11 11s-1.871-.436-3.674-1.309M5 12l2 1m9-9L6 9" />
@@ -249,7 +250,7 @@
                 <div class="mt-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">จัดการ</p>
 
-                    <a href="/admin/manage/users"
+                    <a href="/staff/manage/members"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16">
@@ -260,7 +261,7 @@
                         <span class="text-sm font-medium">ผู้ใช้งาน</span>
                     </a>
 
-                    <a href="/admin/manage/faculty"
+                    <!-- <a href="/admin/manage/faculty"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="30" height="24" viewBox="0 0 640 512">
@@ -291,7 +292,7 @@
                                 clip-rule="evenodd" stroke-width="0.5" stroke="currentColor" />
                         </svg>
                         <span class="text-sm font-medium">ของรางวัล</span>
-                    </a>
+                    </a> -->
 
                 </div>
             </nav>

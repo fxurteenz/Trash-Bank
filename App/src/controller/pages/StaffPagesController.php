@@ -9,7 +9,7 @@ use App\Utils\AuthenticationException;
 class StaffPagesController extends RouterBase
 {
     private static $Layouts = "staffLayout";
-    
+
     public function HomePage()
     {
         try {
@@ -17,6 +17,7 @@ class StaffPagesController extends RouterBase
             $this->render('staff/dashboard', [
                 'user' => $user,
                 'facultyId' => $user['user_data']->faculty_id,
+                'facultyName' => $user['user_data']->faculty_name,
                 'pages' => 'home',
                 'title' => 'หน้าหลัก'
             ], self::$Layouts);
@@ -60,4 +61,21 @@ class StaffPagesController extends RouterBase
         }
     }
 
+    public function ManageMemberPage()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('manages/users', [
+                'user' => $user["user_data"],
+                'pages' => 'memberManagement',
+                'title' => 'ประวัติการฝากขยะ',
+                // 'script' => '../../js/ManageUsers.js',
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

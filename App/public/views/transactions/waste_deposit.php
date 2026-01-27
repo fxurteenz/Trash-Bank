@@ -14,7 +14,7 @@
                 </h1>
                 <p class="text-slate-600 text-sm">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
             </div>
-            <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-4 text-white">
+            <!-- <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-4 text-white">
                 <div class="flex items-center justify-between">
                     <p class="text-emerald-100 text-xs font-medium uppercase tracking-wider mb-1">แต้มสะสมของคณะ</p>
                     <h2 class="text-3xl font-bold flex items-center gap-2">
@@ -22,7 +22,7 @@
                         <span class="text-sm font-normal text-emerald-100 mt-2">แต้ม</span>
                     </h2>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
@@ -66,8 +66,10 @@
                             class="p-4 text-center text-slate-500">ไม่พบข้อมูล</div>
                     </div>
                 </div>
-                <!-- <p class="text-xs text-slate-500 mt-2">กด <kbd class="bg-slate-100 px-1 rounded border">Enter</kbd>
-                    เพื่อเลือก</p> -->
+                <!-- <p class="text-xs text-slate-500 mt-2">
+                    กด <kbd class="bg-slate-100 px-1 rounded border">Enter</kbd>
+                    เพื่อเลือก
+                </p> -->
             </div>
 
             <div x-show="currentMember" class="w-full h-full">
