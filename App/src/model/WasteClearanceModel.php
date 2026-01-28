@@ -110,13 +110,13 @@ class WasteClearanceModel
                 ]);
                 $inStock = self::CheckFacultyStock($this->Conn, $data["faculty_id"], $d["waste_type_id"], $d["weight"]);
                 self::UpdateCenterWasteStock($this->Conn, $d["waste_type_id"], $d['weight']);
-                if ($inStock['found']){
+                if ($inStock['found']) {
                     if ($inStock['less']) {
                         self::DecreaseFacultyWasteStock($this->Conn, $data["faculty_id"], $d['waste_type_id'], $inStock['stock_weight']);
                     } else {
                         self::DecreaseFacultyWasteStock($this->Conn, $data["faculty_id"], $d['waste_type_id'], $d['weight']);
                     }
-                }  
+                }
             }
 
             $updatedFaculty = self::UpdateFacultyPoint($this->Conn, $data["faculty_id"], $totalPoints);
@@ -175,7 +175,7 @@ class WasteClearanceModel
                         m.member_name AS creator_name
                     FROM waste_clearance wc
                     LEFT JOIN faculty f ON wc.faculty_id = f.faculty_id
-                    LEFT JOIN member m ON wc.waste_clearance_created_by = m.member_id
+                    LEFT JOIN member m ON wc.center_staff_id = m.member_id
                     {$whereSql}
                     ORDER BY wc.created_at DESC";
 

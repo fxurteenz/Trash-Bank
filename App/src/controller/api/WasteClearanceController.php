@@ -139,28 +139,6 @@ class WasteClearanceController extends RouterBase
         }
     }
 
-    public function Confirm($cdid)
-    {
-        header('Content-Type: application/json');
-        try {
-            $user = Authentication::AdminAuth();
-            $result = self::$WasteClearanceModel->ConfirmClearance($cdid, self::$Data, $user);
-            http_response_code(200);
-
-            echo json_encode([
-                'success' => true,
-                'message' => 'ยืนยันรายการเรียบร้อยแล้ว',
-                'data' => $result
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 500);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
     public function Cancel($wcid)
     {
         try {
@@ -193,36 +171,4 @@ class WasteClearanceController extends RouterBase
         }
     }
 
-    public function CreateDirect()
-    {
-        try {
-            $operaterData = Authentication::CenterAuth();
-
-            $result = self::$WasteClearanceModel->CreateDirectClearance(self::$Data, $operaterData);
-
-            header('Content-Type: application/json');
-            http_response_code(201);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $result,
-                'message' => 'เคลียร์ยอดเรียบร้อยแล้ว'
-            ]);
-        } catch (AuthenticationException $e) {
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            header('Content-Type: application/json');
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
 }

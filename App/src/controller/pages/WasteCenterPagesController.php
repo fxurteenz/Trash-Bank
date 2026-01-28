@@ -13,25 +13,11 @@ class WasteCenterPagesController extends RouterBase
     public function HomePage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('waste_center/index', [
+            $user = Authentication::CenterAuth();
+            $this->render('waste_center/dashboard', [
+                'user' => $user,
                 'pages' => 'home',
-                'title' => 'ศูนย์กลาง'
-            ], self::$Layouts);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
-    public function TransactionWaste()
-    {
-        try {
-            Authentication::CenterAuth();
-            $this->render('transactions/waste', [
-                'pages' => "wasteTransaction",
-                'title' => 'ระบบฝากขยะ'
+                'title' => 'หน้าหลัก'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -41,62 +27,51 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
-    public function WasteDepositPOS()
+    // transaction pages
+    public function WasteTransactionPage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('transactions/waste_deposit_pos', [
-                'pages' => "wasteDepositPOS",
-                'title' => 'ระบบฝากขยะ POS'
+            $user = Authentication::CenterAuth();
+            $this->render('transactions/waste_deposit', [
+                'user' => $user,
+                'pages' => 'wasteTransaction',
+                'title' => 'ระบบฝากขยะ',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
-    public function ClearTransactionWaste()
+    public function TransactionClearancePage()
     {
         try {
-            $user = Authentication::CenterAuth();
+            $user = Authentication::OperateAuth();
             $this->render('transactions/clear_waste', [
-                'pages' => 'clearWasteTransaction',
-                'title' => 'เคลียร์ยอดฝากขยะ',
-                'user' => $user['user_data']
+                'pages' => "clearWasteTransaction",
+                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
+                'user' => $user
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } finally {
+            exit;
         }
     }
 
-    public function ManageTransactionClearancePage($wcid)
+    public function TransactionWasteSalePage()
     {
         try {
             $user = Authentication::CenterAuth();
-            $this->render('transactions/manage/clear_waste', [
-                'user' => $user['user_data'],
-                'pages' => 'clearWasteTransaction',
-                'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-                'wcid' => $wcid,
-            ], self::$Layouts);
-        } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
-    public function ManageWasteType()
-    {
-        try {
-            Authentication::CenterAuth();
-            $this->render('manages/waste_type', [
-                'pages' => "manageWasteType",
-                'title' => 'จัดการหมวดหมู่ขยะ'
+            $this->render('transactions/waste_sale', [
+                'pages' => "saleWasteTransaction",
+                'title' => 'ระบบบันทึกการจำหน่ายออก',
+                'user' => $user
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -108,13 +83,47 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
-    public function ManageWasteTransaction()
+    public function TransactionDonationPage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('manages/waste_transaction', [
-                'pages' => "manageWasteTransaction",
-                'title' => 'ประวัติการดำเนินการ'
+            $user = Authentication::CenterAuth();
+            $this->render('transactions/donation_pos', [
+                'user' => $user,
+                'pages' => "donationTransaction",
+                'title' => 'บันทึกการรับของบริจาค'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function TransactionRedeemDonationItemPage()
+    {
+        try {
+            $user = Authentication::CenterAuth();
+            $this->render('transactions/redeem_item', [
+                'user' => $user,
+                'pages' => "redeemItemTransaction",
+                'title' => 'บันทึกการแลกสิ่งของ'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    // history pages
+    public function WasteTransactionHistoryPage()
+    {
+        try {
+            $user = Authentication::CenterAuth();
+            $this->render('history/waste_transaction', [
+                'user' => $user,
+                'pages' => 'wasteTransactionHistory',
+                'title' => 'ประวัติการฝากขยะ',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -124,31 +133,14 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
-    public function ManageRewards()
+    public function ClearWasteHistoryPage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('manages/rewards', [
-                'pages' => "manageRewards",
-                'title' => 'จัดการของรางวัล',
-                'script' => '../../js/ManageRewards.js'
-            ], self::$Layouts);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        } finally {
-            exit;
-        }
-    }
-
-    public function WasteSaleTransaction()
-    {
-        try {
-            Authentication::CenterAuth();
-            $this->render('transactions/waste_sale_pos', [
-                'pages' => 'wasteSalePOS',
-                'title' => 'ระบบขายขยะ POS'
+            $user = Authentication::CenterAuth();
+            $this->render('history/clear_waste', [
+                'user' => $user,
+                'pages' => "clearWasteHistory",
+                'title' => 'ประวัติการเคลียร์ยอด'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             header('location: /');
@@ -157,12 +149,13 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
-    public function WasteSaleHistory()
+    public function WasteSaleHistoryPage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('transactions/waste_sale_history', [
-                'pages' => 'wasteSaleHistory',
+            $user = Authentication::CenterAuth();
+            $this->render('history/waste_sale_headers', [
+                'user' => $user,
+                'pages' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
@@ -172,96 +165,41 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
-    public function DonationExchange()
+    // manage pages
+    public function ManageMemberPage()
     {
         try {
-            Authentication::CenterAuth();
-            $this->render('transactions/donation_exchange', [
-                'pages' => 'donationExchange',
-                'title' => 'แลกของบริจาค'
+            $user = Authentication::CenterAuth();
+            $this->render('waste_center/manages/users', [
+                'user' => $user,
+                'pages' => 'memberManagement',
+                'title' => 'จัดการสมาชิก',
+                // 'script' => '../../js/ManageUsers.js',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
-    public function FacultyDetail()
+    public function ManageMemberDetailPage($member_id)
     {
         try {
-            Authentication::CenterAuth();
-            
-            $facultyId = $_GET['faculty_id'] ?? null;
-            
-            if (!$facultyId) {
-                throw new Exception("Faculty ID not provided", 400);
-            }
-
-            // Import models
-            $Database = new \App\Utils\Database();
-            $conn = $Database->connect();
-
-            // Get faculty info
-            $sqlFaculty = "SELECT * FROM faculty WHERE faculty_id = :faculty_id";
-            $stmtFaculty = $conn->prepare($sqlFaculty);
-            $stmtFaculty->execute([':faculty_id' => $facultyId]);
-            $faculty = $stmtFaculty->fetch(\PDO::FETCH_ASSOC);
-
-            if (!$faculty) {
-                throw new Exception("Faculty not found", 404);
-            }
-
-            // Get waste items in faculty storage
-            $sqlWaste = "
-                SELECT 
-                    fws.faculty_id,
-                    fws.waste_type_id,
-                    fws.stock_weight,
-                    wt.waste_type_name,
-                    wt.waste_type_point_per_kg
-                FROM faculty_waste_stock fws
-                JOIN waste_type wt ON fws.waste_type_id = wt.waste_type_id
-                WHERE fws.faculty_id = :faculty_id
-                ORDER BY wt.waste_type_name ASC
-            ";
-            $stmtWaste = $conn->prepare($sqlWaste);
-            $stmtWaste->execute([':faculty_id' => $facultyId]);
-            $wasteItems = $stmtWaste->fetchAll(\PDO::FETCH_ASSOC);
-
-            // Calculate current points from waste items
-            $currentPoints = 0;
-            foreach ($wasteItems as $item) {
-                $currentPoints += ($item['stock_weight'] * $item['waste_type_point_per_kg']);
-            }
-
-            // Get given points from faculty_point table
-            $sqlGivenPoints = "
-                SELECT COALESCE(SUM(faculty_point_amount), 0) as total_given
-                FROM faculty_point
-                WHERE faculty_id = :faculty_id
-            ";
-            $stmtGiven = $conn->prepare($sqlGivenPoints);
-            $stmtGiven->execute([':faculty_id' => $facultyId]);
-            $givenResult = $stmtGiven->fetch(\PDO::FETCH_ASSOC);
-            $givenPoints = $givenResult['total_given'] ?? 0;
-
-            $facultyStats = [
-                'current_points' => $currentPoints,
-                'given_points' => $givenPoints
-            ];
-
-            $this->render('waste_center/faculty_detail', [
-                'pages' => 'facultyDetail',
-                'title' => 'รายละเอียดคณะ',
-                'faculty' => $faculty,
-                'wasteItems' => $wasteItems,
-                'facultyStats' => $facultyStats
+            $user = Authentication::CenterAuth();
+            $this->render('waste_center/manages/details/user_detail', [
+                'member_id' => !empty($member_id) ? (int) $member_id : null,
+                'user' => $user,
+                'pages' => 'memberManagement',
+                'title' => 'จัดการสมาชิก'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
 }

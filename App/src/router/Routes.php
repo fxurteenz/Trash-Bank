@@ -67,18 +67,17 @@ class Routes
         ]);
 
         $this->addPrefixedRoutes('/waste_center', [
-            ['GET', '', [WasteCenterPagesController::class, 'HomePage']],
-            ['GET', '/transactions/waste', [WasteCenterPagesController::class, 'TransactionWaste']],
-            ['GET', '/transactions/waste_deposit_pos', [WasteCenterPagesController::class, 'WasteDepositPOS']],
-            ['GET', '/transactions/clear_waste', [WasteCenterPagesController::class, 'ClearTransactionWaste']],
-            ['GET', '/transactions/waste_sale', [WasteCenterPagesController::class, 'WasteSaleTransaction']],
-            ['GET', '/transactions/waste_sale_history', [WasteCenterPagesController::class, 'WasteSaleHistory']],
-            ['GET', '/transactions/donation_exchange', [WasteCenterPagesController::class, 'DonationExchange']],
-            ['GET', '/manage/waste_type', [WasteCenterPagesController::class, 'ManageWasteType']],
-            ['GET', '/manage/waste_transaction', [WasteCenterPagesController::class, 'ManageWasteTransaction']],
-            ['GET', '/manage/rewards', [WasteCenterPagesController::class, 'ManageRewards']],
-            ['GET', '/manage/faculty_detail', [WasteCenterPagesController::class, 'FacultyDetail']],
-            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [WasteCenterPagesController::class, "ManageTransactionClearancePage"]]
+            ["GET", "", [WasteCenterPagesController::class, 'HomePage']],
+            ["GET", "/transactions/waste", [WasteCenterPagesController::class, 'WasteTransactionPage']],
+            ["GET", "/transactions/clear_waste", [WasteCenterPagesController::class, 'TransactionClearancePage']],
+            ["GET", "/transactions/waste_sale", [WasteCenterPagesController::class, 'TransactionWasteSalePage']],
+            ["GET", "/transactions/donation", [WasteCenterPagesController::class, 'TransactionDonationPage']],
+            ["GET", "/transactions/redeem_item", [WasteCenterPagesController::class, 'TransactionRedeemDonationItemPage']],
+            ["GET", "/history/waste_deposit", [WasteCenterPagesController::class, 'WasteTransactionHistoryPage']],
+            ["GET", "/history/clear_waste", [WasteCenterPagesController::class, 'ClearWasteHistoryPage']],
+            ["GET", "/history/waste_sale", [WasteCenterPagesController::class, 'WasteSaleHistoryPage']],
+            ["GET", "/manage/members", [WasteCenterPagesController::class, 'ManageMemberPage']],
+            ["GET", "/manage/members/detail/[i:mid]", [WasteCenterPagesController::class, 'ManageMemberDetailPage']],
         ]);
 
         $this->addPrefixedRoutes('/user', [
