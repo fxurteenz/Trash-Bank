@@ -195,7 +195,7 @@ class MemberController extends RouterBase
     public function GetProfile($member_id)
     {
         try {
-            Authentication::MemberAuth();
+            // Authentication::MemberAuth();
             $profile = $this->MemberModel->GetMemberProfile($member_id);
 
             header('Content-Type: application/json');
@@ -234,6 +234,36 @@ class MemberController extends RouterBase
                 'success' => TRUE,
                 'data' => $result,
                 'message' => 'Reward redeemed successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetRoleCount()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->MemberModel->GetMemberRoleCount($this->queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);

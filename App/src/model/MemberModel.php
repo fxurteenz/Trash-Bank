@@ -62,11 +62,11 @@ class MemberModel
                         $orderBySql = " ORDER BY m.member_goodness_point " . $sortDirection;
                         break;
                     case 'name':
-                       $orderBySql = " ORDER BY m.member_name " . $sortDirection;
-                       break;
+                        $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                        break;
                 }
             }
-                
+
             $sql = "SELECT 
                     m.*, 
                     f.faculty_name,
@@ -301,7 +301,7 @@ class MemberModel
             $member = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$member) {
-                throw new Exception("Member not found", 404);
+                throw new Exception("ไม่พบข้อมูลสมาชิก", 404);
             }
 
             // Get member badges
@@ -324,9 +324,45 @@ class MemberModel
 
             $member['badges'] = $badges;
 
+            // Get member easte transaction history
+            $wasteSql = "SELECT 
+                            wt.*
+                        FROM 
+                            waste_transaction wt
+                        WHERE 
+                            wt.member_id = :member_id
+                        ORDER BY 
+                            wt.created_at DESC";
+
+            $wasteStmt = $this->Conn->prepare($wasteSql);
+            $wasteStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $wasteStmt->execute();
+            $wasteTransactions = $wasteStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['waste_transactions'] = $wasteTransactions;
+
+            // member donation history
+            $donationSql = "SELECT 
+                            d.*
+                            FROM 
+                            donation d
+                            WHERE 
+                            d.member_id = :member_id
+                        ORDER BY 
+                            d.created_at DESC";
+
+            $donationStmt = $this->Conn->prepare($donationSql);
+            $donationStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $donationStmt->execute();
+            $donations = $donationStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['donations'] = $donations;
+
             return $member;
         } catch (PDOException $e) {
-            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+            throw new Exception($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 
@@ -608,6 +644,66 @@ class MemberModel
             ];
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+        }
+    }
+
+    public function GetMemberRoleCount($query = [])
+    {
+        try {
+            $filterClauses = [];
+            $params = [];
+
+            if (!empty($query['faculty'])) {
+                $filterClauses[] = "m.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $query['faculty'];
+            }
+
+            if (!empty($query['major'])) {
+                $filterClauses[] = "m.major_id = :major_id";
+                $params[':major_id'] = $query['major'];
+            }
+
+            $whereSql = !empty($filterClauses) ? " WHERE " . implode(" AND ", $filterClauses) : "";
+
+            // Get total members count
+            $totalSql = "SELECT COUNT(*) as total_members FROM member m" . $whereSql;
+            $totalStmt = $this->Conn->prepare($totalSql);
+            $totalStmt->execute($params);
+            $totalMembers = $totalStmt->fetch(PDO::FETCH_ASSOC)['total_members'];
+
+            // Get count per role
+            $joinSql = "";
+            if (!empty($filterClauses)) {
+                $joinSql = " AND " . implode(" AND ", $filterClauses);
+            }
+            
+            $roleSql = "SELECT 
+                            r.role_id, 
+                            r.role_name, 
+                            r.role_name_th,
+                            COUNT(m.member_id) as member_count
+                        FROM 
+                            role r
+                        LEFT JOIN 
+                            member m ON r.role_id = m.role_id {$joinSql}
+                        GROUP BY 
+                            r.role_id, r.role_name, r.role_name_th
+                        ORDER BY 
+                            r.role_id";
+
+            $roleStmt = $this->Conn->prepare($roleSql);
+            $roleStmt->execute($params);
+            $roleCounts = $roleStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'total_members' => (int)$totalMembers,
+                'roles' => $roleCounts
+            ];
+
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 }

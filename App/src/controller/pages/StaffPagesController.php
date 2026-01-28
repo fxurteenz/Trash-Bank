@@ -68,8 +68,26 @@ class StaffPagesController extends RouterBase
             $this->render('manages/users', [
                 'user' => $user["user_data"],
                 'pages' => 'memberManagement',
-                'title' => 'ประวัติการฝากขยะ',
+                'title' => 'จัดการสมาชิก',
                 // 'script' => '../../js/ManageUsers.js',
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageMemberDetailPage($member_id)
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('manages/details/user_detail', [
+                'member_id' => !empty($member_id) ? (int) $member_id : null,
+                'user' => $user["user_data"],
+                'pages' => 'memberManagement',
+                'title' => 'จัดการสมาชิก'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

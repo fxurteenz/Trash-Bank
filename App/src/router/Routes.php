@@ -62,7 +62,8 @@ class Routes
             ["GET", "", [StaffPagesController::class, 'HomePage']],
             ["GET", "/transactions/waste", [StaffPagesController::class, 'WasteTransactionPage']],
             ["GET", "/history/waste_deposit", [StaffPagesController::class, 'WasteTransactionHistoryPage']],
-            ["GET", "/manage/members", [StaffPagesController::class, 'ManageMemberPage']]
+            ["GET", "/manage/members", [StaffPagesController::class, 'ManageMemberPage']],
+            ["GET", "/manage/members/detail/[i:mid]", [StaffPagesController::class, 'ManageMemberDetailPage']]
         ]);
 
         $this->addPrefixedRoutes('/waste_center', [
@@ -118,6 +119,7 @@ class Routes
             ['GET', '', [MemberController::class, 'GetAll']],
             ['GET', '/dashboard/[i:id]', [MemberController::class, 'GetDashboard']],
             ['GET', '/profile/[i:id]', [MemberController::class, 'GetProfile']],
+            ['GET', '/count', [MemberController::class, 'GetRoleCount']],
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
             ['POST', '/delete', [MemberController::class, 'Delete']],
