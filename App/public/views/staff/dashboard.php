@@ -82,10 +82,18 @@
 
     <div class="bg-white rounded-xl shadow-md p-6">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-5 gap-4">
-            <h2 class="text-2xl font-bold text-slate-900">👥 สมาชิกในคณะ</h2>
+            <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2 ">
+                <svg class="w-7 h-7 text-slate-400 group-hover:text-emerald-600" xmlns="http://www.w3.org/2000/svg"
+                    width="24" height="24" viewBox="0 0 16 16">
+                    <path fill="currentColor"
+                        d="M7.5 9a2 2 0 0 1 2 2c0 .965-.592 1.73-1.411 2.23C7.27 13.728 6.175 14 5 14s-2.27-.272-3.089-.77C1.091 12.73.5 11.965.5 11a2 2 0 0 1 2-2zm-5 1a1 1 0 0 0-1 1c0 .508.304.992.932 1.375S3.966 13 5 13s1.94-.242 2.568-.625S8.5 11.508 8.5 11a1 1 0 0 0-1-1zm11.652-.992A1.5 1.5 0 0 1 15.5 10.5c0 .771-.47 1.409-1.101 1.83c-.636.424-1.486.67-2.399.67c-.699 0-1.36-.146-1.917-.403c.16-.287.28-.601.35-.943c.423.21.964.346 1.567.346c.743 0 1.394-.202 1.844-.502c.453-.302.656-.665.656-.998a.5.5 0 0 0-.4-.49L14 10h-3.674a3 3 0 0 0-.575-.979A1.5 1.5 0 0 1 9.999 9h4zm-1.92-5.5a2.253 2.253 0 0 1 2.022 2.241l-.012.23A2.253 2.253 0 0 1 12.002 8l-.23-.012a2.25 2.25 0 0 1-2.01-2.01l-.012-.23a2.25 2.25 0 0 1 2.252-2.252zM5 2.5A2.75 2.75 0 1 1 5 8a2.75 2.75 0 0 1 0-5.5m7.002 1.997a1.252 1.252 0 1 0 0 2.504a1.252 1.252 0 0 0 0-2.504M5 3.5A1.75 1.75 0 1 0 5 7a1.75 1.75 0 0 0 0-3.5"
+                        stroke-width="0.5" stroke="currentColor" />
+                </svg>
+                <span>สมาชิก</span>
+            </h2>
             <div class="flex items-center gap-4">
                 <label for="role-filter" class="text-sm font-medium text-slate-700">บทบาท:</label>
-                <select id="role-filter" x-model="memberTable.role" @change="memberTable.fetchMembers()"
+                <select id="role-filter" x-model="memberTable.role" @change="memberTable.handleRoleChange()"
                     class="rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm transition cursor-pointer">
                     <option value="">ทั้งหมด</option>
                     <option value="2">นักศึกษา</option>
@@ -94,7 +102,7 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto relative min-h-[300px]">
+        <div class="overflow-x-auto relative">
             <div x-show="memberTable.loading"
                 class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center backdrop-blur-sm transition-opacity">
                 <div class="flex flex-col items-center">
@@ -103,15 +111,20 @@
                 </div>
             </div>
 
-            <table class="w-full">
-                <thead class="bg-slate-100 border-b-2 border-slate-300">
+            <table class="min-w-full w-full bg-white border-gray-200 rounded-lg">
+                <thead class="bg-gray-50">
                     <tr class="text-left text-sm font-bold text-slate-700">
-                        <th class="px-6 py-3 w-16">อันดับ</th>
-                        <th class="px-6 py-3">ชื่อ-สกุล</th>
-                        <th class="px-6 py-3">บทบาท</th>
-
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            อันดับ</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            ชื่อ-สกุล</th>
+                        <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            บทบาท</th>
                         <th @click="memberTable.changeSort('waste_point')"
-                            class="px-6 py-3 text-right cursor-pointer hover:bg-slate-200 transition group select-none">
+                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-slate-200 transition group select-none">
                             แต้มขยะ
                             <span class="inline-block ml-1 w-4 text-center">
                                 <span x-show="memberTable.sort.column === 'waste_point'">
@@ -121,9 +134,8 @@
                                     class="text-slate-400 opacity-0 group-hover:opacity-100">▼</span>
                             </span>
                         </th>
-
                         <th @click="memberTable.changeSort('goodness_point')"
-                            class="px-6 py-3 text-right cursor-pointer hover:bg-slate-200 transition group select-none">
+                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-slate-200 transition group select-none">
                             แต้มความดี
                             <span class="inline-block ml-1 w-4 text-center">
                                 <span x-show="memberTable.sort.column === 'goodness_point'">
@@ -136,10 +148,12 @@
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-slate-200">
+                <tbody class="divide-y divide-gray-200">
                     <template x-for="(member, index) in memberTable.members" :key="member.member_id || index">
-                        <tr class="hover:bg-slate-50 transition text-sm">
-                            <td class="px-6 py-4 text-slate-700" x-text="index + 1"></td>
+                        <tr class="hover:bg-slate-50 transition text-sm hover:cursor-pointer"
+                            @click="window.open(`/staff/manage/members/detail/${member.member_id}`, '_blank')">
+                            <td class="px-6 py-4 text-slate-700"
+                                x-text="(memberTable.currentPage - 1) * memberTable.limit + index + 1"></td>
                             <td class="px-6 py-4 font-medium text-slate-900"
                                 x-text="(member.member_name || member.member_fname + ' ' + member.member_lname)"></td>
                             <td class="px-6 py-4">
@@ -156,13 +170,41 @@
                     <template x-if="!memberTable.loading && memberTable.members.length === 0">
                         <tr>
                             <td colspan="5" class="text-center py-12">
-                                <p class="text-slate-400 text-lg">🚫 ไม่พบข้อมูลสมาชิก</p>
+                                <div class="flex flex-col items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
+                                        <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                            stroke-linejoin="round" stroke-width="2"
+                                            d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7m-4 4l-4-4l-4 4m-4-8h16" />
+                                    </svg>
+                                    <p class="text-slate-500 text-lg mt-4">ไม่พบข้อมูลสมาชิก</p>
+                                    <p class="text-slate-400 text-sm">ลองเปลี่ยนตัวกรองหรือค้นหาใหม่</p>
+                                </div>
                             </td>
                         </tr>
                     </template>
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4 text-xs">
+            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                @click="memberTable.changePage(memberTable.currentPage - 1)" :disabled="memberTable.currentPage === 1">
+                ก่อนหน้า
+            </button>
+            <div class="flex items-center space-x-2">
+                <template x-for="p in memberTable.getPageNumbers()" :key="p">
+                    <button class="px-2 py-1 rounded"
+                        :class="p === memberTable.currentPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+                        @click="p !== '...' && memberTable.changePage(p)" x-text="p"></button>
+                </template>
+            </div>
+            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                :disabled="memberTable.currentPage >= memberTable.totalPages" @click="memberTable.changePage(memberTable.currentPage + 1)">
+                ถัดไป
+            </button>
+        </div>
+
     </div>
 
     <script>
@@ -176,18 +218,15 @@
                     summary_today: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 }
                 },
 
-                // Computed Property สำหรับสลับข้อมูล Stats
                 get currentStats() {
                     return this.filter === 'today' ? this.data.summary_today : this.data.summary;
                 },
 
-                // Helper Format Number
                 formatNumber(num) {
                     return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num || 0);
                 },
 
                 async init() {
-                    // Load Dashboard Stats
                     try {
                         const response = await fetch(`/api/dashboards/faculty/${facultyId}`);
                         const result = await response.json();
@@ -199,41 +238,44 @@
                     } finally {
                         this.loading = false;
                     }
-
-                    // Load Initial Table Data
                     this.memberTable.fetchMembers();
                 },
 
-                // Logic ตารางสมาชิก (Clean Alpine Style)
                 memberTable: {
                     loading: false,
-                    sort: {
-                        column: 'waste_point', // Default sort column
-                        direction: 'desc'
-                    },
-                    role: '', // Bound to Select via x-model
+                    sort: { column: 'waste_point', direction: 'desc' },
+                    role: '',
                     members: [],
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalMembers: 0,
+                    limit: 10,
 
                     async fetchMembers() {
                         if (!facultyId) return;
                         this.loading = true;
 
                         try {
-                            // ใช้ URLSearchParams สร้าง Query String ง่ายๆ
                             const params = new URLSearchParams({
                                 faculty: facultyId,
                                 role: this.role,
-                                sort_by: this.sort.column, // แก้ให้ตรงกับ PHP (sort_by)
-                                order: this.sort.direction // แก้ให้ตรงกับ PHP (asc/desc)
+                                sort_by: this.sort.column,
+                                order: this.sort.direction,
+                                page: this.currentPage,
+                                limit: this.limit
                             });
 
                             const response = await fetch(`/api/members?${params}`);
                             const result = await response.json();
 
-                            if (result.data) { // เช็ค result.data ตาม Format ที่คืนค่า
+                            if (result.success && result.data) {
                                 this.members = result.data;
+                                this.totalMembers = result.total;
+                                this.totalPages = Math.ceil(result.total / this.limit);
                             } else {
                                 this.members = [];
+                                this.totalMembers = 0;
+                                this.totalPages = 1;
                             }
                         } catch (error) {
                             console.error('Error fetching members:', error);
@@ -243,17 +285,51 @@
                         }
                     },
 
-                    // ฟังก์ชั่นเปลี่ยนการเรียงลำดับเมื่อกดหัวตาราง
+                    handleRoleChange() {
+                        this.currentPage = 1;
+                        this.fetchMembers();
+                    },
+
+                    changePage(page) {
+                        if (page >= 1 && page <= this.totalPages) {
+                            this.currentPage = page;
+                            this.fetchMembers();
+                        }
+                    },
+
                     changeSort(column) {
                         if (this.sort.column === column) {
-                            // ถ้าคอลัมน์เดิม ให้สลับทิศทาง
                             this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc';
                         } else {
-                            // ถ้าคอลัมน์ใหม่ ให้เริ่มที่ desc
                             this.sort.column = column;
                             this.sort.direction = 'desc';
                         }
-                        this.fetchMembers(); // โหลดข้อมูลใหม่ทันที
+                        this.currentPage = 1;
+                        this.fetchMembers();
+                    },
+
+                    // Helper for creating pagination numbers with ellipses
+                    getPageNumbers() {
+                        const total = this.totalPages;
+                        const current = this.currentPage;
+                        const maxPagesToShow = 5;
+                        const pages = [];
+
+                        if (total <= maxPagesToShow) {
+                            for (let i = 1; i <= total; i++) pages.push(i);
+                        } else {
+                            pages.push(1);
+                            if (current > 3) pages.push('...');
+
+                            const start = Math.max(2, current - 1);
+                            const end = Math.min(total - 1, current + 1);
+
+                            for (let i = start; i <= end; i++) pages.push(i);
+
+                            if (current < total - 2) pages.push('...');
+                            pages.push(total);
+                        }
+                        return pages;
                     }
                 }
             }
