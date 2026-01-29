@@ -47,12 +47,17 @@ class DonationController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::CenterAuth();
             $rows = $this->DonationModel->GetAll($this->queryString ?? []);
 
             header('Content-Type: application/json');
             http_response_code(200);
-            echo json_encode(['success' => true, 'data' => $rows, 'message' => 'ok']);
+            echo json_encode([
+                'success' => true,
+                'data' => $rows['data'],
+                'total' => $rows['total'],
+                'message' => 'ok'
+            ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
@@ -67,7 +72,7 @@ class DonationController extends RouterBase
     public function Get($id)
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::CenterAuth();
             $row = $this->DonationModel->GetById((int) $id);
             header('Content-Type: application/json');
             http_response_code(200);
@@ -86,7 +91,7 @@ class DonationController extends RouterBase
     public function Create()
     {
         try {
-            $user = Authentication::OperateAuth();
+            $user = Authentication::CenterAuth();
             $row = $this->DonationModel->CreateDonation(is_array($this->data) ? $this->data : [], $user);
 
             header('Content-Type: application/json');

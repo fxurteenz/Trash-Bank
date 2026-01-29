@@ -165,6 +165,22 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
+    public function DonationHistoryPage()
+    {
+        try {
+            $user = Authentication::CenterAuth();
+            $this->render('history/donation', [
+                'user' => $user,
+                'pages' => "donationHistory",
+                'title' => 'ประวัติการรับของบริจาค'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     // manage pages
     public function ManageMemberPage()
     {

@@ -76,6 +76,7 @@ class Routes
             ["GET", "/history/waste_deposit", [WasteCenterPagesController::class, 'WasteTransactionHistoryPage']],
             ["GET", "/history/clear_waste", [WasteCenterPagesController::class, 'ClearWasteHistoryPage']],
             ["GET", "/history/waste_sale", [WasteCenterPagesController::class, 'WasteSaleHistoryPage']],
+            ["GET", "/history/donation", [WasteCenterPagesController::class, 'DonationHistoryPage']],
             ["GET", "/manage/members", [WasteCenterPagesController::class, 'ManageMemberPage']],
             ["GET", "/manage/members/detail/[i:mid]", [WasteCenterPagesController::class, 'ManageMemberDetailPage']],
         ]);
