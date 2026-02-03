@@ -88,7 +88,8 @@ CREATE TABLE `donation` (
 
 INSERT INTO `donation` (`donation_id`, `member_id`, `staff_id`, `donation_item_name`, `donation_item_qty`, `donation_total_value`, `donation_goodness_point`, `donation_description`, `created_at`) VALUES
 (000001, 5, 1, 'มาม่า(ห่อเล็ก)', 4, 20.00, 20, '', '2026-01-20 17:06:01'),
-(000002, 5, 1, 'มาม่า(ห่อเล็ก)', 1, 5.00, 5, '', '2026-01-21 12:16:38');
+(000002, 5, 1, 'มาม่า(ห่อเล็ก)', 1, 5.00, 5, '', '2026-01-21 12:16:38'),
+(000003, 5, 1, 'มาม่า', 5, 27.50, 28, '', '2026-01-29 04:52:47');
 
 -- --------------------------------------------------------
 
@@ -99,7 +100,7 @@ INSERT INTO `donation` (`donation_id`, `member_id`, `staff_id`, `donation_item_n
 CREATE TABLE `donation_item` (
   `donation_item_id` int(6) UNSIGNED ZEROFILL NOT NULL,
   `donation_item_name` varchar(45) NOT NULL,
-  `donation_item_price` decimal(7,2) NOT NULL,
+  `donation_item_redeem_point` int(3) UNSIGNED ZEROFILL NOT NULL,
   `donation_item_amount` int(5) NOT NULL DEFAULT 0,
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
@@ -108,8 +109,28 @@ CREATE TABLE `donation_item` (
 -- Dumping data for table `donation_item`
 --
 
-INSERT INTO `donation_item` (`donation_item_id`, `donation_item_name`, `donation_item_price`, `donation_item_amount`, `updated_at`) VALUES
-(000001, 'มาม่า(ห่อเล็ก)', 5.00, 4, '2026-01-21 12:16:38');
+INSERT INTO `donation_item` (`donation_item_id`, `donation_item_name`, `donation_item_redeem_point`, `donation_item_amount`, `updated_at`) VALUES
+(000001, 'มาม่า(ห่อเล็ก)', 001, 4, '2026-01-21 12:16:38'),
+(000003, 'มาม่า', 001, 5, '2026-01-29 04:52:47');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `donation_item_point`
+--
+
+CREATE TABLE `donation_item_point` (
+  `donation_item_point_id` int(3) UNSIGNED ZEROFILL NOT NULL,
+  `redeem_point` int(5) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+--
+-- Dumping data for table `donation_item_point`
+--
+
+INSERT INTO `donation_item_point` (`donation_item_point_id`, `redeem_point`) VALUES
+(001, 50),
+(002, 100);
 
 -- --------------------------------------------------------
 
@@ -268,40 +289,6 @@ INSERT INTO `member_item` (`member_item_id`, `staff_id`, `member_id`, `donation_
 -- --------------------------------------------------------
 
 --
--- Table structure for table `member_reward`
---
-
-CREATE TABLE `member_reward` (
-  `member_reward_id` int(6) UNSIGNED ZEROFILL NOT NULL,
-  `member_id` int(6) UNSIGNED ZEROFILL DEFAULT NULL,
-  `reward_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
-  `member_reward_date` date DEFAULT NULL,
-  `member_reward_qty` int(11) DEFAULT 1,
-  `member_reward_point_used` int(11) DEFAULT NULL,
-  `member_reward_status` varchar(20) DEFAULT 'pending' COMMENT 'pending, received, cancelled',
-  `created_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `reward`
---
-
-CREATE TABLE `reward` (
-  `reward_id` int(3) UNSIGNED ZEROFILL NOT NULL,
-  `reward_name` varchar(100) NOT NULL,
-  `reward_description` text DEFAULT NULL,
-  `reward_point_required` int(11) DEFAULT NULL,
-  `reward_stock` int(11) DEFAULT 0,
-  `reward_image` varchar(255) DEFAULT NULL,
-  `reward_active` tinyint(1) DEFAULT 1,
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `role`
 --
 
@@ -319,7 +306,7 @@ INSERT INTO `role` (`role_id`, `role_name`, `role_name_th`) VALUES
 (01, 'admin', 'ผู้ดูแลระบบ'),
 (02, 'member', 'สมาชิก'),
 (03, 'staff', 'เจ้าหน้าที่คณะ'),
-(04, 'center', 'ผู้ดูแลระบบกลาง');
+(04, 'center', 'เจ้าหน้าที่ศูนย์');
 
 -- --------------------------------------------------------
 
@@ -575,6 +562,12 @@ ALTER TABLE `donation_item`
   ADD UNIQUE KEY `donation_detail_name_UNIQUE` (`donation_item_name`);
 
 --
+-- Indexes for table `donation_item_point`
+--
+ALTER TABLE `donation_item_point`
+  ADD PRIMARY KEY (`donation_item_point_id`);
+
+--
 -- Indexes for table `faculty`
 --
 ALTER TABLE `faculty`
@@ -623,20 +616,6 @@ ALTER TABLE `member_badge`
 --
 ALTER TABLE `member_item`
   ADD PRIMARY KEY (`member_item_id`);
-
---
--- Indexes for table `member_reward`
---
-ALTER TABLE `member_reward`
-  ADD PRIMARY KEY (`member_reward_id`),
-  ADD KEY `fk_member_reward_member_id` (`member_id`),
-  ADD KEY `fk_member_reward_reward_id` (`reward_id`);
-
---
--- Indexes for table `reward`
---
-ALTER TABLE `reward`
-  ADD PRIMARY KEY (`reward_id`);
 
 --
 -- Indexes for table `role`
@@ -723,13 +702,19 @@ ALTER TABLE `badge`
 -- AUTO_INCREMENT for table `donation`
 --
 ALTER TABLE `donation`
-  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `donation_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `donation_item`
 --
 ALTER TABLE `donation_item`
-  MODIFY `donation_item_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `donation_item_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `donation_item_point`
+--
+ALTER TABLE `donation_item_point`
+  MODIFY `donation_item_point_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `faculty`
@@ -760,18 +745,6 @@ ALTER TABLE `member_badge`
 --
 ALTER TABLE `member_item`
   MODIFY `member_item_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `member_reward`
---
-ALTER TABLE `member_reward`
-  MODIFY `member_reward_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `reward`
---
-ALTER TABLE `reward`
-  MODIFY `reward_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `role`

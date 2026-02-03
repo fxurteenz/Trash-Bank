@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\DonationItemPointController;
 use App\Router\RouterDispatcher;
 
 use App\Controller\Api\UsersController;
@@ -12,11 +13,9 @@ use App\Controller\Api\FacultyController;
 use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
-use App\Controller\Api\RewardController;
 use App\Controller\Api\BadgeController;
 use App\Controller\Api\MajorController;
 use App\Controller\Api\DonationController;
-use App\Controller\Api\MemberRewardController;
 use App\Controller\Api\CenterStockController;
 use App\Controller\Api\FacultyDetailController;
 use App\Controller\Api\MemberItemController;
@@ -126,39 +125,15 @@ class Routes
             ['POST', '/delete', [MemberController::class, 'Delete']],
             ['POST', '/redeem/[i:id]', [MemberController::class, 'RedeemReward']],
         ]);
-        /* /api/faculties */
-        $this->addPrefixedRoutes('/api/faculties', [
-            ['GET', '', [FacultyController::class, 'GetAll']],
-            ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
-            ['GET', '/detail', [FacultyDetailController::class, 'GetFacultyDetail']],
-            ['POST', '', [FacultyController::class, 'Create']],
-            ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
-            ['POST', '/delete', [FacultyController::class, 'Delete']],
-        ]);
-        /* /api/rewards */
-        $this->addPrefixedRoutes('/api/rewards', [
-            ['GET', '', [RewardController::class, 'GetAll']],
-            ['GET', '/[i:id]', [RewardController::class, 'Get']],
-            ['POST', '', [RewardController::class, 'Create']],
-            ['POST', '/update/[i:id]', [RewardController::class, 'Update']],
-            ['POST', '/delete', [RewardController::class, 'Delete']],
-        ]);
-
-        /* /api/donations */
-        $this->addPrefixedRoutes('/api/donations', [
-            ['GET', '', [DonationController::class, 'GetAll']],
-            ['GET', '/[i:id]', [DonationController::class, 'Get']],
-            ['POST', '', [DonationController::class, 'Create']],
-            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
-            ['POST', '/delete', [DonationController::class, 'Delete']],
-        ]);
-
-        /* /api/member_rewards */
-        $this->addPrefixedRoutes('/api/member_rewards', [
-            ['GET', '', [MemberRewardController::class, 'GetAll']],
-            ['GET', '/[i:id]', [MemberRewardController::class, 'Get']],
-            ['POST', '', [MemberRewardController::class, 'Create']],
-            ['POST', '/update/[i:id]', [MemberRewardController::class, 'Update']],
+        /* /api/majors */
+        $this->addPrefixedRoutes('/api/majors', [
+            ['GET', '', [MajorController::class, 'GetAll']],
+            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
+            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
+            ['POST', '', [MajorController::class, 'Create']],
+            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [MajorController::class, 'DeleteById']],
+            ['POST', '/delete', [MajorController::class, 'Delete']],
         ]);
         /* /api/badges */
         $this->addPrefixedRoutes('/api/badges', [
@@ -186,6 +161,68 @@ class Routes
             ['POST', '/delete/[i:wtid]', [WasteTypeController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTypeController::class, 'Delete']],
         ]);
+        /* /api/waste_transaction */
+        $this->addPrefixedRoutes("/api/waste_transactions", [
+            ['GET', "", [WasteTransactionController::class, "GetAll"]],
+            ['GET', "/[i:id]", [WasteTransactionController::class, "GetById"]],
+            ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
+            ['GET', "/member/[i:id]", [WasteTransactionController::class, "GetAllByMember"]],
+            ['POST', '', [WasteTransactionController::class, 'Create']],
+            // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
+            ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
+        ]);
+        /* /api/clearances */
+        $this->addPrefixedRoutes("/api/clearances", [
+            ['GET', "", [WasteClearanceController::class, "GetAll"]],
+            ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
+            ['POST', "", [WasteClearanceController::class, "Create"]],
+            ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
+            ['POST', "/direct", [WasteClearanceController::class, "CreateDirect"]],
+        ]);
+        /* /api/waste_sales */
+        $this->addPrefixedRoutes("/api/waste_sales", [
+            ['GET', "", [WasteSaleController::class, "GetAll"]],
+            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
+            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
+            ['POST', '', [WasteSaleController::class, 'Create']],
+            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
+            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
+            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
+            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
+        ]);
+        /* /api/donations */
+        $this->addPrefixedRoutes("/api/donations", [
+            ['GET', '', [DonationController::class, 'GetAll']],
+            ['GET', '/items', [DonationController::class, 'GetItems']],
+            ['GET', '/[i:id]', [DonationController::class, 'Get']],
+            ['POST', '', [DonationController::class, 'Create']],
+            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
+            ['POST', '/delete', [DonationController::class, 'Delete']],
+        ]);
+        /* /api/donations */
+        $this->addPrefixedRoutes("/api/donation_points", [
+            ['GET', '', [DonationItemPointController::class, 'GetAll']],
+            ['GET', '/[i:id]', [DonationItemPointController::class, 'Get']],
+            ['POST', '', [DonationItemPointController::class, 'Create']],
+            ['POST', '/update/[i:id]', [DonationItemPointController::class, 'Update']],
+            ['POST', '/delete', [DonationItemPointController::class, 'Delete']],
+        ]);
+        /* /api/faculties */
+        $this->addPrefixedRoutes('/api/faculties', [
+            ['GET', '', [FacultyController::class, 'GetAll']],
+            ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
+            ['GET', '/detail', [FacultyDetailController::class, 'GetFacultyDetail']],
+            ['POST', '', [FacultyController::class, 'Create']],
+            ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
+            ['POST', '/delete', [FacultyController::class, 'Delete']],
+        ]);
+        /* /api/dashboard */
+        $this->addPrefixedRoutes("/api/dashboards", [
+            ['GET', "/faculty/[i:fid]", [DashboardDataController::class, "GetFacultyDashboard"]],
+            ['GET', "/waste_center", [DashboardDataController::class, "GetCenterDashboard"]],
+            // ['GET', "/member/[i:mid]", [DashboardDataController::class, "MemberDashboard"]],
+        ]);
         /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
             ['GET', "", [ReportController::class, "GetScopedReport"]],
@@ -204,77 +241,13 @@ class Routes
             ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
             ['GET', "/member", [LeaderController::class, "GetMemberLeader"]]
         ]);
-        /* /api/waste_transaction */
-        $this->addPrefixedRoutes("/api/waste_transactions", [
-            ['GET', "", [WasteTransactionController::class, "GetAll"]],
-            ['GET', "/[i:id]", [WasteTransactionController::class, "GetById"]],
-            ['GET', "/me", [WasteTransactionController::class, "GetAllByOperater"]],
-            ['GET', "/member/[i:id]", [WasteTransactionController::class, "GetAllByMember"]],
-            ['POST', '', [WasteTransactionController::class, 'Create']],
-            // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
-            ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
-        ]);
-        /* /api/waste_sales */
-        $this->addPrefixedRoutes("/api/waste_sales", [
-            ['GET', "", [WasteSaleController::class, "GetAll"]],
-            ['GET', "/summary", [WasteSaleController::class, "GetSummary"]],
-            ['GET', "/[i:id]", [WasteSaleController::class, "GetById"]],
-            ['POST', '', [WasteSaleController::class, 'Create']],
-            ['POST', '/batch', [WasteSaleController::class, 'CreateBatch']],
-            ['POST', '/update/[i:id]', [WasteSaleController::class, 'Update']],
-            ['POST', '/delete/[i:id]', [WasteSaleController::class, 'DeleteById']],
-            ['POST', '/delete', [WasteSaleController::class, 'Delete']],
-        ]);
-        /* /api/majors */
-        $this->addPrefixedRoutes('/api/majors', [
-            ['GET', '', [MajorController::class, 'GetAll']],
-            ['GET', '/[i:mid]', [MajorController::class, 'Get']],
-            ['GET', '/faculty/[i:fid]', [MajorController::class, 'GetByFaculty']],
-            ['POST', '', [MajorController::class, 'Create']],
-            ['POST', '/update/[i:mid]', [MajorController::class, 'Update']],
-            ['POST', '/delete/[i:id]', [MajorController::class, 'DeleteById']],
-            ['POST', '/delete', [MajorController::class, 'Delete']],
-        ]);
-        /* /api/donations */
-        $this->addPrefixedRoutes("/api/donations", [
-            ['GET', '', [DonationController::class, 'GetAll']],
-            ['GET', '/items', [DonationController::class, 'GetItems']],
-            ['GET', '/[i:id]', [DonationController::class, 'Get']],
-            ['POST', '', [DonationController::class, 'Create']],
-            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
-            ['POST', '/delete', [DonationController::class, 'Delete']],
-        ]);
-        /* /api/member_rewards */
-        $this->addPrefixedRoutes("/api/member_rewards", [
-            ['GET', '', [MemberRewardController::class, 'GetAll']],
-            ['GET', '/[i:id]', [MemberRewardController::class, 'Get']],
-            ['POST', '', [MemberRewardController::class, 'Create']],
-            ['POST', '/update/[i:id]', [MemberRewardController::class, 'Update']],
-            ['POST', '/delete', [MemberRewardController::class, 'Delete']],
-        ]);
-        /* /api/users */
-        $this->addPrefixedRoutes("/api/clearances", [
-            ['GET', "", [WasteClearanceController::class, "GetAll"]],
-            ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
-            ['POST', "", [WasteClearanceController::class, "Create"]],
-            ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
-            ['POST', "/direct", [WasteClearanceController::class, "CreateDirect"]],
-        ]);
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [
             ['GET', "", [CenterStockController::class, "GetAll"]],
         ]);
-
         /* /api/member_items */
         $this->addPrefixedRoutes("/api/member_items", [
             ['POST', "/redeem", [MemberItemController::class, "Redeem"]],
-        ]);
-
-        $this->addPrefixedRoutes("/api/dashboards", [
-            ['GET', "/faculty/[i:fid]", [DashboardDataController::class, "GetFacultyDashboard"]],
-            ['GET', "/waste_center", [DashboardDataController::class, "GetCenterDashboard"]],
-            // ['GET', "/member/[i:mid]", [DashboardDataController::class, "MemberDashboard"]],
         ]);
     }
 }

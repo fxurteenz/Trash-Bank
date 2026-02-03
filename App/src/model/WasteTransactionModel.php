@@ -2,6 +2,7 @@
 namespace App\Model;
 
 use App\Utils\Database;
+use App\Utils\DatabaseException;
 use Exception;
 use PDO;
 use PDOException;
@@ -201,9 +202,10 @@ class WasteTransactionModel
                          LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
                          $whereSql";
             $stmtCount = $this->Conn->prepare($sqlCount);
-            foreach ($params as $k => $v) $stmtCount->bindValue($k, $v);
+            foreach ($params as $k => $v)
+                $stmtCount->bindValue($k, $v);
             $stmtCount->execute();
-            $total = (int)$stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+            $total = (int) $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
 
             $sql = "SELECT 
                         w.*, 
@@ -223,10 +225,11 @@ class WasteTransactionModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-            foreach ($params as $k => $v) $stmt->bindValue($k, $v);
+            foreach ($params as $k => $v)
+                $stmt->bindValue($k, $v);
             if ($isPagination) {
-                $limit = (int)$query['limit'];
-                $offset = ((int)$query['page'] - 1) * $limit;
+                $limit = (int) $query['limit'];
+                $offset = ((int) $query['page'] - 1) * $limit;
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
@@ -254,7 +257,8 @@ class WasteTransactionModel
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute([':id' => $id]);
             $header = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$header) return [];
+            if (!$header)
+                return [];
 
             $sqld = "SELECT d.*, t.waste_type_name, c.waste_category_name
                      FROM waste_transaction_detail d
@@ -484,6 +488,17 @@ class WasteTransactionModel
         }
     }
 
+    public function GetWasteDepositSummary()
+    {
+        try {
+            
+        } catch (PDOException $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function CreateWasteTransaction(array $data, $staffData): array
     {
         try {
@@ -538,7 +553,7 @@ class WasteTransactionModel
                 $totalWeight += $item["deposit_weight"];
                 $totalPoints += $integer_point;
                 $totalCo2e += $co2e;
-                
+
                 $details[] = [
                     'waste_category_id' => $item["waste_category_id"],
                     'waste_type_id' => $item["waste_type_id"],
@@ -769,13 +784,13 @@ class WasteTransactionModel
             }
 
             if ($faculty['faculty_point'] < $point) {
-                throw new Exception("แต้มไม่เพียงพอทำรายการนี้ ต้องใช้ " . htmlspecialchars($point) . " แต้ม" , 400);
+                throw new Exception("แต้มไม่เพียงพอทำรายการนี้ ต้องใช้ " . htmlspecialchars($point) . " แต้ม", 400);
             }
 
             return $faculty['faculty_point'];
         } catch (PDOException $e) {
             throw new Exception("Error while checking faculty point : " . $e->getMessage(), 500);
-            
+
         }
     }
 
