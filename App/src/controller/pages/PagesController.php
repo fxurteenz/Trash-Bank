@@ -38,4 +38,10 @@ class PagesController extends RouterBase
 
     }
 
+    public function HomePage()
+    {
+        $this->render('home', [
+            'title' => 'ธนาคารขยะ'
+        ], "landing");
+    }
 }
