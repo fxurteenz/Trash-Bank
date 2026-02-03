@@ -56,7 +56,8 @@ class Routes
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
 
         // PAGES 
-        $this->Router->map('GET', '/', [PagesController::class, 'LoginPage']);
+        $this->Router->map('GET', '/', [PagesController::class, 'HomePage']);
+        $this->Router->map('GET', '/login', [PagesController::class, 'LoginPage']);
 
         $this->addPrefixedRoutes("/staff", [
             ["GET", "", [StaffPagesController::class, 'HomePage']],
@@ -272,6 +273,7 @@ class Routes
 
         $this->addPrefixedRoutes("/api/dashboards", [
             ['GET', "/faculty/[i:fid]", [DashboardDataController::class, "GetFacultyDashboard"]],
+            ['GET', "/waste_center", [DashboardDataController::class, "GetCenterDashboard"]],
             // ['GET', "/member/[i:mid]", [DashboardDataController::class, "MemberDashboard"]],
         ]);
     }
