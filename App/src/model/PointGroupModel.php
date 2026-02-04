@@ -2,12 +2,12 @@
 namespace App\Model;
 
 use App\Utils\Database;
-use App\Utils\DatabaseException;
+
 use Exception;
 use PDO;
 use PDOException;
 
-class DonationItemPointModel
+class PointGroupModel
 {
     private static $Database;
     private $Conn;

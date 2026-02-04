@@ -2,15 +2,15 @@
 namespace App\Controller\Api;
 
 use App\Router\RouterBase;
-use App\Model\DonationItemPointModel;
+use App\Model\PointGroupModel;
 use App\Utils\Authentication;
 use App\Utils\AuthenticationException;
 use Exception;
 
-class DonationItemPointController extends RouterBase
+class PointGroupController extends RouterBase
 {
     private $data;
-    private $DonationItemPointModel;
+    private $PointGroupModel;
     private $queryString;
 
     public function __construct()
@@ -41,14 +41,14 @@ class DonationItemPointController extends RouterBase
                 $this->data = [];
         }
 
-        $this->DonationItemPointModel = new DonationItemPointModel();
+        $this->PointGroupModel = new PointGroupModel();
     }
 
     public function GetAll()
     {
         try {
             Authentication::CenterAuth();
-            $rows = $this->DonationItemPointModel->GetAllPoint($this->queryString ?? []);
+            $rows = $this->PointGroupModel->GetAllPoint($this->queryString ?? []);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -73,7 +73,7 @@ class DonationItemPointController extends RouterBase
     {
         try {
             Authentication::CenterAuth();
-            $row = $this->DonationItemPointModel->GetPointById((int) $id);
+            $row = $this->PointGroupModel->GetPointById((int) $id);
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode(['success' => true, 'data' => $row, 'message' => 'ok']);
@@ -92,7 +92,7 @@ class DonationItemPointController extends RouterBase
     {
         try {
             $user = Authentication::CenterAuth();
-            $row = $this->DonationItemPointModel->CreateDonationItemPoint(is_array($this->data) ? $this->data : []);
+            $row = $this->PointGroupModel->CreateDonationItemPoint(is_array($this->data) ? $this->data : []);
 
             header('Content-Type: application/json');
             http_response_code(201);
@@ -112,7 +112,7 @@ class DonationItemPointController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $this->DonationItemPointModel->UpdatePoint($id, is_array($this->data) ? $this->data : []);
+            $this->PointGroupModel->UpdatePoint($id, is_array($this->data) ? $this->data : []);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -132,7 +132,7 @@ class DonationItemPointController extends RouterBase
     {
         try {
             Authentication::CenterAuth();
-            $result = $this->DonationItemPointModel->DeleteDonationItemPoint(is_array($this->data) ? $this->data : []);
+            $result = $this->PointGroupModel->DeleteDonationItemPoint(is_array($this->data) ? $this->data : []);
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode(['success' => true, 'message' => 'Deleted successfully =]']);

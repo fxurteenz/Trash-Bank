@@ -1,6 +1,5 @@
 <?php
 namespace App\Router;
-use App\Controller\Api\DonationItemPointController;
 use App\Router\RouterDispatcher;
 
 use App\Controller\Api\UsersController;
@@ -20,6 +19,7 @@ use App\Controller\Api\CenterStockController;
 use App\Controller\Api\FacultyDetailController;
 use App\Controller\Api\MemberItemController;
 use App\Controller\Api\DashboardDataController;
+use App\Controller\Api\PointGroupController;
 
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
@@ -95,21 +95,18 @@ class Routes
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
-            ["GET", "/manage/rewards", [AdminPagesController::class, "ManageRewards"]],
             ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
-            ["GET", "/manage/donations", [AdminPagesController::class, "ManageDonations"]],
-            ["GET", "/manage/redeem_rewards", [AdminPagesController::class, "RedeemRewards"]],
+            ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
+            ["GET", "/history/donations", [AdminPagesController::class, "HistoryDonations"]],
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
             ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
-            ["GET", "/transactions/redeem_reward", [AdminPagesController::class, "TransactionRedeemReward"]],
             ["GET", "/transactions/redeem_item", [AdminPagesController::class, "TransactionRedeemDonationItem"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
             ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],
             ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
             ["GET", "/history/donation", [AdminPagesController::class, "DonationHistory"]],
-            ["GET", "/history/redeem_reward", [AdminPagesController::class, "RedeemRewardHistory"]],
             ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
         ]);
 
@@ -201,12 +198,12 @@ class Routes
             ['POST', '/delete', [DonationController::class, 'Delete']],
         ]);
         /* /api/donations */
-        $this->addPrefixedRoutes("/api/donation_points", [
-            ['GET', '', [DonationItemPointController::class, 'GetAll']],
-            ['GET', '/[i:id]', [DonationItemPointController::class, 'Get']],
-            ['POST', '', [DonationItemPointController::class, 'Create']],
-            ['POST', '/update/[i:id]', [DonationItemPointController::class, 'Update']],
-            ['POST', '/delete', [DonationItemPointController::class, 'Delete']],
+        $this->addPrefixedRoutes("/api/point_groups", [
+            ['GET', '', [PointGroupController::class, 'GetAll']],
+            ['GET', '/[i:id]', [PointGroupController::class, 'Get']],
+            ['POST', '', [PointGroupController::class, 'Create']],
+            ['POST', '/update/[i:id]', [PointGroupController::class, 'Update']],
+            ['POST', '/delete', [PointGroupController::class, 'Delete']],
         ]);
         /* /api/faculties */
         $this->addPrefixedRoutes('/api/faculties', [
