@@ -42,6 +42,7 @@ class DonationModel
             $totalValue = $qty * $pricePerUnit;
             $description = isset($data['donation_description']) ? $data['donation_description'] : null;
             $memberId = isset($data['member_id']) ? $data['member_id'] : null; // กรณี member บริจาค ถ้าไม่มีให้เป็น null
+            $redeemPoint = isset($data['donation_item_redeem_point']) && is_numeric($data['donation_item_redeem_point']) ? (int) $data['donation_item_redeem_point'] : 0;
 
             // เริ่ม Transaction (สำคัญมากเมื่อต้องลง 2 ตารางพร้อมกัน)
             $this->Conn->beginTransaction();
@@ -67,12 +68,13 @@ class DonationModel
 
             // Step 4: Upsert into 'donation_item' table (Inventory)
             $sqlInventory = "INSERT INTO donation_item 
-                         (donation_item_name, donation_item_price, donation_item_amount, updated_at) 
+                         (donation_item_name, donation_item_price, donation_item_amount, donation_item_redeem_point, updated_at) 
                          VALUES 
-                         (:name, :price, :qty, NOW()) 
+                         (:name, :price, :qty, :redeem_point, NOW()) 
                          ON DUPLICATE KEY UPDATE 
                          donation_item_amount = donation_item_amount + :qty_update, 
-                         donation_item_price = :price_update, 
+                         donation_item_price = :price_update,
+                         donation_item_redeem_point = :redeem_point_update,
                          updated_at = NOW()";
 
             $stmtInventory = $this->Conn->prepare($sqlInventory);
@@ -81,7 +83,9 @@ class DonationModel
                 ':price' => $pricePerUnit,
                 ':qty' => $qty,
                 ':qty_update' => $qty,
-                ':price_update' => $pricePerUnit
+                ':price_update' => $pricePerUnit,
+                ':redeem_point' => $redeemPoint,
+                ':redeem_point_update' => $redeemPoint
             ]);
 
             $this->Conn->commit();
@@ -214,7 +218,11 @@ class DonationModel
             $total = (int) $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
 
 
-            $sql = "SELECT * FROM donation_item $whereSql ORDER BY updated_at DESC";
+            $sql = "SELECT donation_item.*, donation_item_point.redeem_point 
+                    FROM donation_item
+                    LEFT JOIN donation_item_point ON donation_item.donation_item_redeem_point = donation_item_point.donation_item_point_id
+                    $whereSql 
+                    ORDER BY updated_at DESC";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -242,5 +250,5 @@ class DonationModel
         }
     }
 
-    
+
 }

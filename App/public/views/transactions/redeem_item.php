@@ -138,7 +138,7 @@
                                     </div>
                                     <div class="flex items-end justify-between">
                                         <div class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">
-                                            <span x-text="item.donation_item_price * 10"></span> แต้ม/ชิ้น
+                                            <span x-text="item.redeem_point"></span> แต้ม/ชิ้น
                                         </div>
                                     </div>
                                 </div>
@@ -272,7 +272,7 @@
             // --- Computed Helpers ---
             totalPoints() {
                 if (!this.selectedItem) return 0;
-                return this.selectedItem.donation_item_price * 10 * this.redeemQty;
+                return this.selectedItem.redeem_point * this.redeemQty;
             },
             remainingPoints() {
                 if (!this.currentMember) return 0;

@@ -39,7 +39,10 @@ class MemberItemModel
             }
 
             // Lock and fetch donation_item
-            $itemSql = "SELECT * FROM donation_item WHERE donation_item_id = :donation_item_id FOR UPDATE";
+            $itemSql = "SELECT donation_item.*, donation_item_point.redeem_point 
+                        FROM donation_item
+                        LEFT JOIN donation_item_point ON donation_item.donation_item_redeem_point = donation_item_point.donation_item_point_id
+                        WHERE donation_item_id = :donation_item_id FOR UPDATE";
             $itemStmt = $this->Conn->prepare($itemSql);
             $itemStmt->bindValue(':donation_item_id', $donationItemId, PDO::PARAM_INT);
             $itemStmt->execute();
@@ -49,7 +52,7 @@ class MemberItemModel
                 throw new Exception("Donation item not found", 404);
             }
 
-            $totalPoints = $item['donation_item_price'] * 10 * $qty;
+            $totalPoints = $item['redeem_point'] * $qty;
 
             // Check if member has enough points
             if ($member['total_points'] < $totalPoints) {

@@ -140,6 +140,17 @@
                         </div>
                     </div>
 
+                     <div>
+                        <label for="redeem_point" class="block text-sm font-semibold text-slate-700 mb-2">แต้มที่ใช้แลก</label>
+                        <select id="redeem_point" x-model="donation.donation_item_redeem_point" class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                            <option value="">-- ไม่กำหนด --</option>
+                            <template x-for="group in pointGroups" :key="group.donation_item_point_id">
+                                <option :value="group.donation_item_point_id" x-text="`${group.redeem_point} แต้ม`"></option>
+                            </template>
+                        </select>
+                         <p class="text-xs text-slate-500 mt-1">เลือกกลุ่มแต้มหากของชิ้นนี้สามารถใช้แลกได้</p>
+                    </div>
+
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 mb-2">รายละเอียดเพิ่มเติม /
                             หมายเหตุ</label>
@@ -240,15 +251,30 @@
                 item_name: '',
                 item_qty: '',
                 item_value: '',
-                description: ''
+                description: '',
+                donation_item_redeem_point: ''
             },
-
+            
+            pointGroups: [],
             isSaving: false,
 
             async init() {
                 this.$nextTick(() => {
                     if (this.$refs.searchInput) this.$refs.searchInput.focus();
                 });
+                this.fetchPointGroups();
+            },
+            
+            async fetchPointGroups() {
+                try {
+                    const res = await fetch('/api/point_groups');
+                    const data = await res.json();
+                    if (data.success) {
+                        this.pointGroups = data.data;
+                    }
+                } catch (err) {
+                    console.error('Error fetching point groups:', err);
+                }
             },
 
             // --- Search Logic ---
@@ -338,7 +364,8 @@
                     donation_item_name: this.donation.item_name,
                     donation_item_qty: parseInt(this.donation.item_qty),
                     donation_item_value: parseFloat(this.donation.item_value), // ราคาต่อหน่วย
-                    donation_description: this.donation.description
+                    donation_description: this.donation.description,
+                    donation_item_redeem_point: this.donation.donation_item_redeem_point ? parseInt(this.donation.donation_item_redeem_point) : null
                 };
 
                 try {
@@ -373,7 +400,7 @@
             resetForm() {
                 this.currentDonor = null;
                 this.searchQuery = '';
-                this.donation = { item_name: '', item_qty: '', item_value: '', description: '' };
+                this.donation = { item_name: '', item_qty: '', item_value: '', description: '', donation_item_redeem_point: '' };
                 this.resetDonor(); // Focus กลับไปช่องค้นหา
             }
         };
