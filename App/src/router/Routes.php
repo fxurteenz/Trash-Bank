@@ -79,6 +79,7 @@ class Routes
             ["GET", "/history/donation", [WasteCenterPagesController::class, 'DonationHistoryPage']],
             ["GET", "/manage/members", [WasteCenterPagesController::class, 'ManageMemberPage']],
             ["GET", "/manage/members/detail/[i:mid]", [WasteCenterPagesController::class, 'ManageMemberDetailPage']],
+            ["GET", "/stock/waste", [WasteCenterPagesController::class, 'WasteStockPage']],
         ]);
 
         $this->addPrefixedRoutes('/user', [
@@ -91,23 +92,28 @@ class Routes
 
         $this->addPrefixedRoutes('/admin', [
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
+            // manage
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
-            ["GET", "/history/donations", [AdminPagesController::class, "HistoryDonations"]],
+            // transaction
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
             ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
             ["GET", "/transactions/redeem_item", [AdminPagesController::class, "TransactionRedeemDonationItem"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
             ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+            // history
             ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],
             ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
             ["GET", "/history/donation", [AdminPagesController::class, "DonationHistory"]],
             ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
+            // stock
+            ["GET", "/stock/waste", [AdminPagesController::class, "WasteStock"]],
+
         ]);
 
         /* API */
@@ -174,8 +180,6 @@ class Routes
             ['GET', "", [WasteClearanceController::class, "GetAll"]],
             ['GET', "/[i:wcid]", [WasteClearanceController::class, "Get"]],
             ['POST', "", [WasteClearanceController::class, "Create"]],
-            ['POST', "/confirm/[i:cdid]", [WasteClearanceController::class, "Confirm"]],
-            ['POST', "/direct", [WasteClearanceController::class, "CreateDirect"]],
         ]);
         /* /api/waste_sales */
         $this->addPrefixedRoutes("/api/waste_sales", [

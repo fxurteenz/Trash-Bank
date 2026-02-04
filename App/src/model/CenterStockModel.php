@@ -18,36 +18,64 @@ class CenterStockModel
     public function getCenterStock($query = [])
     {
         try {
-            $sql = "SELECT 
-                        cws.waste_type_id,
-                        cws.stock_weight,
-                        wt.waste_type_name,
-                        wc.waste_category_id,
-                        wc.waste_category_name
-                    FROM center_waste_stock cws
-                    JOIN waste_type wt ON cws.waste_type_id = wt.waste_type_id
-                    JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
-                    WHERE cws.stock_weight > 0";
-            
-            // Allow searching
+            $where = " WHERE cws.stock_weight > 0";
+            $params = [];
+
             if (!empty($query['search'])) {
-                $sql .= " AND (wt.waste_type_name LIKE :search OR cws.waste_type_id LIKE :search)";
+                $where .= " AND (wt.waste_type_name LIKE :search OR cws.waste_type_id LIKE :search)";
+                $params[':search'] = '%' . $query['search'] . '%';
             }
 
-            $sql .= " ORDER BY wt.waste_type_name ASC";
-            
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            $total = 0; 
+
+            if ($isPagination) {
+                $sqlCount = "SELECT COUNT(*) FROM center_waste_stock cws 
+                         JOIN waste_type wt ON cws.waste_type_id = wt.waste_type_id 
+                         $where";
+                $stmtCount = $this->Conn->prepare($sqlCount);
+                foreach ($params as $key => $val) {
+                    $stmtCount->bindValue($key, $val);
+                }
+                $stmtCount->execute();
+                $total = (int) $stmtCount->fetchColumn();
+            }
+
+            $sql = "SELECT cws.waste_type_id, cws.stock_weight, wt.waste_type_name, 
+                       wc.waste_category_id, wc.waste_category_name
+                FROM center_waste_stock cws
+                JOIN waste_type wt ON cws.waste_type_id = wt.waste_type_id
+                JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                $where
+                ORDER BY wt.waste_type_name ASC";
+
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
             $stmt = $this->Conn->prepare($sql);
 
-            if (!empty($query['search'])) {
-                $stmt->bindValue(':search', '%' . $query['search'] . '%');
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
 
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            if(!$result) {
-                return [];
+
+            if (!$isPagination) {
+                $total = count($result);
             }
-            return $result;
+
+            return ['data' => $result, 'total' => $total];
+
         } catch (PDOException $e) {
             throw new Exception("Database error in getCenterStock: " . $e->getMessage(), 500);
         }

@@ -218,4 +218,20 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
+    public function WasteStockPage()
+    {
+        try {
+            $user = Authentication::CenterAuth();
+            $this->render('waste_center/manages/waste_stock', [
+                'user' => $user,
+                'pages' => 'wasteStock',
+                'title' => 'ขยะในคลัง'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
 }

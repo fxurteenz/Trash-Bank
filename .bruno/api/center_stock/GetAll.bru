@@ -1,0 +1,21 @@
+meta {
+  name: GetAll
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/center_stock?page=1&limit=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 1
+  limit: 2
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

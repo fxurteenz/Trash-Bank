@@ -145,6 +145,22 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    // Stock Page
+    public function WasteStock()
+    {
+        try {
+            Authentication::AdminAuth();
+            $this->render('waste_center/manages/waste_stock', [
+                'pages' => "manageWasteStock",
+                'title' => 'คลังขยะ'
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     // Transaction & Redeem
     public function TransactionWaste()
     {
@@ -239,8 +255,8 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('history/donation', [
-                'pages' => "manageDonations",
-                'title' => 'บริจาคสิ่งของ/วัสดุ',
+                'pages' => "DonationHistory",
+                'title' => 'ประวัติการบริจาคสิ่งของ',
                 'user' => $user
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
@@ -297,4 +313,5 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
 }
