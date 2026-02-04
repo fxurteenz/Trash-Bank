@@ -261,6 +261,17 @@
                         <span class="text-sm font-medium">ผู้ใช้งาน</span>
                     </a>
 
+                    <a href="/staff/stock/waste"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M21.03 3L18 20.31c-.17.96-1 1.69-2 1.69H8c-1 0-1.83-.73-2-1.69L2.97 3zM5.36 5L8 20h8l2.64-15zM9 18v-4h4v4zm4-4.82L9.82 10L13 6.82L16.18 10z"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">คลังขยะ</span>
+                    </a>
+
                     <!-- <a href="/admin/manage/faculty"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"

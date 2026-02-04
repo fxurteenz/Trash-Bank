@@ -96,4 +96,21 @@ class StaffPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function WasteStockPage()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('manages/waste_stock', [
+                'user' => $user["user_data"],
+                'pages' => 'wasteStock',
+                'title' => 'คลังขยะ'
+            ], self::$Layouts);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

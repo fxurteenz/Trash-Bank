@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\FacultyStockController;
 use App\Router\RouterDispatcher;
 
 use App\Controller\Api\UsersController;
@@ -63,7 +64,8 @@ class Routes
             ["GET", "/transactions/waste", [StaffPagesController::class, 'WasteTransactionPage']],
             ["GET", "/history/waste_deposit", [StaffPagesController::class, 'WasteTransactionHistoryPage']],
             ["GET", "/manage/members", [StaffPagesController::class, 'ManageMemberPage']],
-            ["GET", "/manage/members/detail/[i:mid]", [StaffPagesController::class, 'ManageMemberDetailPage']]
+            ["GET", "/manage/members/detail/[i:mid]", [StaffPagesController::class, 'ManageMemberDetailPage']],
+            ["GET", "/stock/waste", [StaffPagesController::class, 'WasteStockPage']]
         ]);
 
         $this->addPrefixedRoutes('/waste_center', [
@@ -245,6 +247,10 @@ class Routes
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [
             ['GET', "", [CenterStockController::class, "GetAll"]],
+        ]);
+        /* /api/faculty_stock */
+        $this->addPrefixedRoutes("/api/faculty_stock", [
+            ['GET', "/[i:fid]", [FacultyStockController::class, "GetAll"]],
         ]);
         /* /api/member_items */
         $this->addPrefixedRoutes("/api/member_items", [
