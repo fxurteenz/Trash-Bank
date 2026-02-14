@@ -1,338 +1,198 @@
-<div class="space-y-6" x-data="facultyDashboard('<?= $facultyId ?? '' ?>')">
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-bold text-slate-900">
-                <span x-text="loading ? 'คณะ' : 'คณะ ' + (data.faculty.faculty_name || 'Admin')">คณะ </span>
-            </h1>
-            <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
-        </div>
+<div class="space-y-6">
+    <!-- Page Header -->
+    <!-- <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">Waste Center Dashboard</h1>
+        <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
+    </div> -->
 
-        <div class="bg-slate-100 p-1 rounded-lg inline-flex self-start sm:self-center">
-            <button @click="filter = 'today'"
-                :class="filter === 'today' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                class="px-4 py-2 rounded-md text-sm font-bold transition-all">วันนี้</button>
-            <button @click="filter = 'all'"
-                :class="filter === 'all' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                class="px-4 py-2 rounded-md text-sm font-bold transition-all">ทั้งหมด</button>
-        </div>
-    </div>
-
+    <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between">
+        <!-- Waste Volume -->
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 7h16m-10 4v6m4-6v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                        class="text-white">
+                        <g fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round"
+                                d="M3 5h5.43a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 12.57 2h4.488a2 2 0 0 1 1.898 1.368L19.5 5M21 5H8" />
+                            <path stroke-linecap="round"
+                                d="m19.5 5l-.62 9.906q-.031.49-.061.917M4.5 5l.605 9.897c.154 2.414.232 3.62.874 4.489c.317.429.726.791 1.2 1.063c.96.551 2.244.551 4.814.551H14.5" />
+                            <path d="M20 19a3 3 0 1 0-6 0a3 3 0 0 0 6 0Z" />
+                        </g>
                     </svg>
                 </div>
-                <div class="text-right">
-                    <p class="text-emerald-100 text-sm mb-1">ปริมาณขยะ <span
-                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_weight)">0</p>
-                    <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
-                </div>
             </div>
+            <p class="text-emerald-100 text-sm mb-1">ปริมาณขยะ (เดือนนี้)</p>
+            <p class="text-4xl font-bold">1.2K</p>
+            <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
         </div>
 
-        <div class="bg-gradient-to-br from-emerald-700 to-emerald-800  rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between">
+        <!-- Carbon Reduction -->
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <span class="text-2xl font-bold">CO₂</span>
-                </div>
-                <div class="text-right">
-                    <p class="text-blue-100 text-sm mb-1">การลดคาร์บอน <span
-                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_co2e)">0</p>
-                    <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"
+                        class="text-white">
+                        <path fill="currentColor"
+                            d="M16 2a14 14 0 0 0-1.474 27.922c.07-.612.221-1.278.452-1.972l-.04-.003A11.92 11.92 0 0 1 7.91 24.84c-.16-1.13-.41-3.17.39-4.24a2 2 0 0 1 1.7-.92a2.62 2.62 0 0 0 2-1.13a3.64 3.64 0 0 0 .16-3.11c-.26-1-.4-1.67.1-2.34a4.5 4.5 0 0 1 1.23-.53l.035-.012c1.266-.428 2.969-1.005 3.405-2.828c.547-2.277-.357-3.923-1.191-5.443l-.059-.107l-.05-.18H16c2.263 0 4.48.646 6.39 1.86a21.7 21.7 0 0 1-3.76 4.4c-1.38 1.25-.37 2.69.3 3.64a4 4 0 0 1 1.073 2.588a11.4 11.4 0 0 1 1.968-.64a6.2 6.2 0 0 0-1.401-3.078a3.8 3.8 0 0 1-.6-1a23.3 23.3 0 0 0 4-4.67a11.95 11.95 0 0 1 4.003 8.592c.71.1 1.39.229 2.027.374V16A14 14 0 0 0 16 2m-2.51 2.27c.16.31.32.6.49.9l.027.05c.75 1.338 1.398 2.499.973 4.05c-.17.68-1 1-2.14 1.4a4.3 4.3 0 0 0-2.14 1.23a4.31 4.31 0 0 0-.43 4c.19.74.3 1.2.1 1.5c-.142.214-.158.214-.347.222c-.076.003-.18.008-.333.028a3.94 3.94 0 0 0-3 1.7a5.3 5.3 0 0 0-.93 2.84A11.85 11.85 0 0 1 4 16a12 12 0 0 1 9.49-11.73m4.887 23.035C19.15 28.114 20.557 29 23 29c4.294 0 5.638-5.53 6.249-8.042c.1-.414.18-.746.251-.958c.152-.454.543-.79.982-1.044c.69-.396.706-1.04-.064-1.242c-3.629-.951-9.03-1.482-12.418 1.905c-1.404 1.404-1.382 3.244-1.093 4.587q.087-.122.178-.245c1.574-2.13 3.879-4.11 6.92-5.168a.75.75 0 0 1 .493 1.416c-2.71.943-4.78 2.713-6.207 4.644c-1.424 1.928-2.17 3.967-2.291 5.422a.75.75 0 0 0 1.497.033c.07-.907.36-1.95.88-3.002"
+                            stroke-width="0.2" stroke="currentColor" />
+                    </svg>
                 </div>
             </div>
+            <p class="text-blue-100 text-sm mb-1">การลดคาร์บอน (เดือนนี้)</p>
+            <p class="text-4xl font-bold">1.2</p>
+            <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂e</p>
         </div>
 
-        <div class="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between">
+        <!-- User Transactions -->
+        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <span class="text-2xl">⭐</span>
-                </div>
-                <div class="text-right">
-                    <p class="text-orange-100 text-sm mb-1">แต้มที่มอบ <span
-                            x-text="filter === 'today' ? '(วันนี้)' : '(ทั้งหมด)'"></span></p>
-                    <p class="text-5xl font-bold" x-text="formatNumber(currentStats.total_spend_point)">0</p>
-                    <p class="text-sm text-orange-100 mt-1">คะแนน</p>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 14 14"
+                        class="text-white">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="1.1">
+                            <path d="M9.284 3.503a1.621 1.621 0 1 0 3.242 0a1.621 1.621 0 1 0-3.242 0" />
+                            <path
+                                d="M8.473 8.367v-.81a2.432 2.432 0 0 1 4.865 0v.81M6.6 8.369h6.738M3.604 5.612a1.712 1.712 0 1 0 0-3.425a1.712 1.712 0 0 0 0 3.425" />
+                            <path
+                                d="M6.6 8.609a2.996 2.996 0 1 0-5.993 0v1.284h1.285l.428 3.424h2.568l.428-3.424H6.6z" />
+                        </g>
+                    </svg>
                 </div>
             </div>
+            <p class="text-purple-100 text-sm mb-1">ผู้ใช้บริการ (เดือนนี้)</p>
+            <p class="text-4xl font-bold">46</p>
+            <p class="text-sm text-purple-100 mt-1">ครั้ง</p>
         </div>
 
-        <div class="bg-gradient-to-br from-purple-700 to-purple-800 rounded-xl shadow-lg p-6 text-white card-hover">
-            <div class="flex items-center justify-between">
+        <!-- Growth -->
+        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white card-hover">
+            <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                    <span class="text-2xl">📝</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+                        class="text-white">
+                        <g fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m7 14l2.293-2.293a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 0 1.414 0L17 10m0 0v2.5m0-2.5h-2.5" />
+                        </g>
+                    </svg>
                 </div>
-                <div class="text-right">
-                    <p class="text-purple-100 text-sm mb-1">
-                        แต้มที่เหลืออยู่
-                    </p>
-                    <p class="text-5xl font-bold" x-text="formatNumber(data.faculty.faculty_point)">0</p>
-                    <p class="text-sm text-purple-100 mt-1">คะแนน</p>
+            </div>
+            <p class="text-orange-100 text-sm mb-1">ความพัฒนา (เดือนนี้)</p>
+            <p class="text-4xl font-bold">+25%</p>
+            <p class="text-sm text-orange-100 mt-1">เพิ่มขึ้น</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-5">📈 สถิติและกราฟ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Waste Total Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะรวม</h3>
+                <div class="h-80">
+                    <canvas id="waste-total"></canvas>
+                </div>
+            </div>
+
+            <!-- Carbon Total Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">การลดคาร์บอนรวม</h3>
+                <div class="h-80">
+                    <canvas id="carbon-total"></canvas>
+                </div>
+            </div>
+
+            <!-- Waste by Faculty -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะแยกตามคณะ</h3>
+                <div class="h-80">
+                    <canvas id="waste-by-faculty"></canvas>
+                </div>
+            </div>
+
+            <!-- Carbon by Faculty -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">คาร์บอนแยกตามคณะ</h3>
+                <div class="h-80">
+                    <canvas id="carbon-by-faculty"></canvas>
+                </div>
+            </div>
+
+            <!-- Waste by Year -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะรายปี</h3>
+                <div class="h-80">
+                    <canvas id="waste-by-year"></canvas>
+                </div>
+            </div>
+
+            <!-- Carbon by Year -->
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <h3 class="text-lg font-bold text-slate-900 mb-4">คาร์บอนรายปี</h3>
+                <div class="h-80">
+                    <canvas id="carbon-by-year"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Recent Activities -->
     <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-5 gap-4">
-            <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-2 ">
-                <svg class="w-7 h-7 text-slate-400 group-hover:text-emerald-600" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" viewBox="0 0 16 16">
-                    <path fill="currentColor"
-                        d="M7.5 9a2 2 0 0 1 2 2c0 .965-.592 1.73-1.411 2.23C7.27 13.728 6.175 14 5 14s-2.27-.272-3.089-.77C1.091 12.73.5 11.965.5 11a2 2 0 0 1 2-2zm-5 1a1 1 0 0 0-1 1c0 .508.304.992.932 1.375S3.966 13 5 13s1.94-.242 2.568-.625S8.5 11.508 8.5 11a1 1 0 0 0-1-1zm11.652-.992A1.5 1.5 0 0 1 15.5 10.5c0 .771-.47 1.409-1.101 1.83c-.636.424-1.486.67-2.399.67c-.699 0-1.36-.146-1.917-.403c.16-.287.28-.601.35-.943c.423.21.964.346 1.567.346c.743 0 1.394-.202 1.844-.502c.453-.302.656-.665.656-.998a.5.5 0 0 0-.4-.49L14 10h-3.674a3 3 0 0 0-.575-.979A1.5 1.5 0 0 1 9.999 9h4zm-1.92-5.5a2.253 2.253 0 0 1 2.022 2.241l-.012.23A2.253 2.253 0 0 1 12.002 8l-.23-.012a2.25 2.25 0 0 1-2.01-2.01l-.012-.23a2.25 2.25 0 0 1 2.252-2.252zM5 2.5A2.75 2.75 0 1 1 5 8a2.75 2.75 0 0 1 0-5.5m7.002 1.997a1.252 1.252 0 1 0 0 2.504a1.252 1.252 0 0 0 0-2.504M5 3.5A1.75 1.75 0 1 0 5 7a1.75 1.75 0 0 0 0-3.5"
-                        stroke-width="0.5" stroke="currentColor" />
-                </svg>
-                <span>สมาชิก</span>
-            </h2>
-            <div class="flex items-center gap-4">
-                <label for="role-filter" class="text-sm font-medium text-slate-700">บทบาท:</label>
-                <select id="role-filter" x-model="memberTable.role" @change="memberTable.handleRoleChange()"
-                    class="rounded-md border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm transition cursor-pointer">
-                    <option value="">ทั้งหมด</option>
-                    <option value="2">นักศึกษา</option>
-                    <option value="3">เจ้าหน้าที่</option>
-                </select>
-            </div>
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-2xl font-bold text-slate-900">📋 รายการล่าสุด</h2>
+            <a href="/admin/manage/waste_transaction"
+                class="text-emerald-600 hover:text-emerald-700 font-medium text-sm">ดูทั้งหมด →</a>
         </div>
-
-        <div class="overflow-x-auto relative">
-            <div x-show="memberTable.loading"
-                class="absolute inset-0 bg-white/80 z-10 flex items-center justify-center backdrop-blur-sm transition-opacity">
-                <div class="flex flex-col items-center">
-                    <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
-                    <span class="mt-2 text-sm text-slate-600 font-medium">กำลังโหลดข้อมูล...</span>
-                </div>
-            </div>
-
-            <table class="min-w-full w-full bg-white border-gray-200 rounded-lg">
-                <thead class="bg-gray-50">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-100 border-b-2 border-slate-300">
                     <tr class="text-left text-sm font-bold text-slate-700">
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            อันดับ</th>
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            ชื่อ-สกุล</th>
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            บทบาท</th>
-                        <th @click="memberTable.changeSort('waste_point')"
-                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-slate-200 transition group select-none">
-                            แต้มขยะ
-                            <span class="inline-block ml-1 w-4 text-center">
-                                <span x-show="memberTable.sort.column === 'waste_point'">
-                                    <span x-text="memberTable.sort.direction === 'desc' ? '▼' : '▲'"></span>
-                                </span>
-                                <span x-show="memberTable.sort.column !== 'waste_point'"
-                                    class="text-slate-400 opacity-0 group-hover:opacity-100">▼</span>
-                            </span>
-                        </th>
-                        <th @click="memberTable.changeSort('goodness_point')"
-                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-slate-200 transition group select-none">
-                            แต้มความดี
-                            <span class="inline-block ml-1 w-4 text-center">
-                                <span x-show="memberTable.sort.column === 'goodness_point'">
-                                    <span x-text="memberTable.sort.direction === 'desc' ? '▼' : '▲'"></span>
-                                </span>
-                                <span x-show="memberTable.sort.column !== 'goodness_point'"
-                                    class="text-slate-400 opacity-0 group-hover:opacity-100">▼</span>
-                            </span>
-                        </th>
+                        <th class="px-6 py-3">วันที่</th>
+                        <th class="px-6 py-3">ผู้ฝาก</th>
+                        <th class="px-6 py-3">ประเภท</th>
+                        <th class="px-6 py-3 text-right">น้ำหนัก (กก.)</th>
+                        <th class="px-6 py-3 text-right">คะแนน</th>
                     </tr>
                 </thead>
-
-                <tbody class="divide-y divide-gray-200">
-                    <template x-for="(member, index) in memberTable.members" :key="member.member_id || index">
-                        <tr class="hover:bg-slate-50 transition text-sm hover:cursor-pointer"
-                            @click="window.open(`/staff/manage/members/detail/${member.member_id}`, '_blank')">
-                            <td class="px-6 py-4 text-slate-700"
-                                x-text="(memberTable.currentPage - 1) * memberTable.limit + index + 1"></td>
-                            <td class="px-6 py-4 font-medium text-slate-900"
-                                x-text="(member.member_name || member.member_fname + ' ' + member.member_lname)"></td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold"
-                                    x-text="member.role_name_th || member.member_role"></span>
-                            </td>
-                            <td class="px-6 py-4 text-right font-bold text-emerald-600"
-                                x-text="formatNumber(member.member_waste_point)"></td>
-                            <td class="px-6 py-4 text-right font-bold text-blue-600"
-                                x-text="formatNumber(member.member_goodness_point)"></td>
-                        </tr>
-                    </template>
-
-                    <template x-if="!memberTable.loading && memberTable.members.length === 0">
-                        <tr>
-                            <td colspan="5" class="text-center py-12">
-                                <div class="flex flex-col items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24">
-                                        <path fill="none" stroke="currentColor" stroke-linecap="round"
-                                            stroke-linejoin="round" stroke-width="2"
-                                            d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7m-4 4l-4-4l-4 4m-4-8h16" />
-                                    </svg>
-                                    <p class="text-slate-500 text-lg mt-4">ไม่พบข้อมูลสมาชิก</p>
-                                    <p class="text-slate-400 text-sm">ลองเปลี่ยนตัวกรองหรือค้นหาใหม่</p>
-                                </div>
-                            </td>
-                        </tr>
-                    </template>
+                <tbody class="divide-y divide-slate-200">
+                    <tr class="hover:bg-slate-50 transition text-sm">
+                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
+                        <td class="px-6 py-4 font-medium text-slate-900">นายสมชาย ใจดี</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">พลาสติก</span>
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium">5.50</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-600">55</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition text-sm">
+                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
+                        <td class="px-6 py-4 font-medium text-slate-900">นางสาวสมหญิง รักษา</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">กระดาษ</span>
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium">3.20</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-600">32</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition text-sm">
+                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
+                        <td class="px-6 py-4 font-medium text-slate-900">นายวิทย์ มานะ</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">ขวด</span>
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium">8.00</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-600">80</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination -->
-        <div class="flex items-center justify-between mt-4 text-xs">
-            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                @click="memberTable.changePage(memberTable.currentPage - 1)" :disabled="memberTable.currentPage === 1">
-                ก่อนหน้า
-            </button>
-            <div class="flex items-center space-x-2">
-                <template x-for="p in memberTable.getPageNumbers()" :key="p">
-                    <button class="px-2 py-1 rounded"
-                        :class="p === memberTable.currentPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                        @click="p !== '...' && memberTable.changePage(p)" x-text="p"></button>
-                </template>
-            </div>
-            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                :disabled="memberTable.currentPage >= memberTable.totalPages" @click="memberTable.changePage(memberTable.currentPage + 1)">
-                ถัดไป
-            </button>
-        </div>
-
     </div>
-
-    <script>
-        function facultyDashboard(facultyId) {
-            return {
-                filter: 'today',
-                loading: true,
-                data: {
-                    faculty: { faculty_name: '' },
-                    summary: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 },
-                    summary_today: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 }
-                },
-
-                get currentStats() {
-                    return this.filter === 'today' ? this.data.summary_today : this.data.summary;
-                },
-
-                formatNumber(num) {
-                    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num || 0);
-                },
-
-                async init() {
-                    try {
-                        const response = await fetch(`/api/dashboards/faculty/${facultyId}`);
-                        const result = await response.json();
-                        if (result.success) {
-                            this.data = result.data;
-                        }
-                    } catch (error) {
-                        console.error('Error loading dashboard:', error);
-                    } finally {
-                        this.loading = false;
-                    }
-                    this.memberTable.fetchMembers();
-                },
-
-                memberTable: {
-                    loading: false,
-                    sort: { column: 'waste_point', direction: 'desc' },
-                    role: '',
-                    members: [],
-                    currentPage: 1,
-                    totalPages: 1,
-                    totalMembers: 0,
-                    limit: 10,
-
-                    async fetchMembers() {
-                        if (!facultyId) return;
-                        this.loading = true;
-
-                        try {
-                            const params = new URLSearchParams({
-                                faculty: facultyId,
-                                role: this.role,
-                                sort_by: this.sort.column,
-                                order: this.sort.direction,
-                                page: this.currentPage,
-                                limit: this.limit
-                            });
-
-                            const response = await fetch(`/api/members?${params}`);
-                            const result = await response.json();
-
-                            if (result.success && result.data) {
-                                this.members = result.data;
-                                this.totalMembers = result.total;
-                                this.totalPages = Math.ceil(result.total / this.limit);
-                            } else {
-                                this.members = [];
-                                this.totalMembers = 0;
-                                this.totalPages = 1;
-                            }
-                        } catch (error) {
-                            console.error('Error fetching members:', error);
-                            this.members = [];
-                        } finally {
-                            this.loading = false;
-                        }
-                    },
-
-                    handleRoleChange() {
-                        this.currentPage = 1;
-                        this.fetchMembers();
-                    },
-
-                    changePage(page) {
-                        if (page >= 1 && page <= this.totalPages) {
-                            this.currentPage = page;
-                            this.fetchMembers();
-                        }
-                    },
-
-                    changeSort(column) {
-                        if (this.sort.column === column) {
-                            this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc';
-                        } else {
-                            this.sort.column = column;
-                            this.sort.direction = 'desc';
-                        }
-                        this.currentPage = 1;
-                        this.fetchMembers();
-                    },
-
-                    // Helper for creating pagination numbers with ellipses
-                    getPageNumbers() {
-                        const total = this.totalPages;
-                        const current = this.currentPage;
-                        const maxPagesToShow = 5;
-                        const pages = [];
-
-                        if (total <= maxPagesToShow) {
-                            for (let i = 1; i <= total; i++) pages.push(i);
-                        } else {
-                            pages.push(1);
-                            if (current > 3) pages.push('...');
-
-                            const start = Math.max(2, current - 1);
-                            const end = Math.min(total - 1, current + 1);
-
-                            for (let i = start; i <= end; i++) pages.push(i);
-
-                            if (current < total - 2) pages.push('...');
-                            pages.push(total);
-                        }
-                        return pages;
-                    }
-                }
-            }
-        }
-    </script>
 </div>

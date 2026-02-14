@@ -17,7 +17,8 @@ class WasteCenterPagesController extends RouterBase
             $this->render('waste_center/dashboard', [
                 'user' => $user,
                 'pages' => 'home',
-                'title' => 'หน้าหลัก'
+                'title' => 'แดชบอร์ด',
+                'module' => '../../js/Dashboard.mjs'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');

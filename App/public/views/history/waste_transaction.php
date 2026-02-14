@@ -1,3 +1,118 @@
+<style>
+    [x-cloak] {
+        display: none !important;
+    }
+</style>
+<script>
+    function DepositHistory() {
+        return {
+            rows: [],
+            start: '',
+            end: '',
+            memberSearch: '',
+            showModal: false,
+            detail: null,
+
+            // Pagination State
+            page: 1,
+            limit: 10,
+            total: 0,
+            last_page: 1,
+            from: 0,
+            to: 0,
+
+            async init() {
+                const t = new Date();
+                const m = new Date(t.getTime() - 30 * 24 * 60 * 60 * 1000);
+                this.start = m.toISOString().split('T')[0];
+                this.end = t.toISOString().split('T')[0];
+                await this.apply(1);
+            },
+
+            async apply(newPage = null) {
+                if (newPage) this.page = newPage;
+
+                const p = [];
+                p.push('scope=header');
+                p.push(`page=${this.page}`);
+                p.push(`limit=${this.limit}`);
+
+                if (this.start) p.push(`start_date=${this.start}`);
+                if (this.end) p.push(`end_date=${this.end}`);
+                if (this.memberSearch) p.push(`member_search=${encodeURIComponent(this.memberSearch)}`);
+
+                try {
+                    const r = await fetch('/api/waste_transactions?' + p.join('&'));
+                    const j = await r.json();
+
+                    if (j.success && j.result) {
+                        // รองรับ Pagination แบบ Laravel/Standard Structure
+                        // ถ้าระบบส่งมาเป็น array ตรงๆ (ยังไม่ได้ทำ pagination ฝั่ง server) โค้ดนี้จะรองรับแบบพื้นฐาน
+                        if (Array.isArray(j.result)) {
+                            this.rows = j.result;
+                            this.total = j.result.length;
+                            this.last_page = 1;
+                            this.from = 1;
+                            this.to = j.result.length;
+                        } else {
+                            // กรณี Server ส่ง Pagination Object มา (data, total, last_page, etc.)
+                            this.rows = j.result.data || [];
+                            this.total = j.result.total || 0;
+                            this.last_page = j.result.last_page || 1;
+                            this.from = j.result.from || 0;
+                            this.to = j.result.to || 0;
+                        }
+                    } else {
+                        this.rows = [];
+                        this.total = 0;
+                    }
+                } catch (e) {
+                    console.error("Error fetching transactions:", e);
+                    this.rows = [];
+                }
+            },
+
+            changePage(newPage) {
+                if (newPage >= 1 && newPage <= this.last_page) {
+                    this.apply(newPage);
+                }
+            },
+
+            clear() {
+                this.start = '';
+                this.end = '';
+                this.memberSearch = '';
+                this.apply(1);
+            },
+
+            async openDetail(id) {
+                this.detail = null;
+                this.showModal = true;
+
+                try {
+                    const r = await fetch('/api/waste_transactions/' + id);
+                    const j = await r.json();
+                    if (j.success) {
+                        this.detail = j.result;
+                    } else {
+                        alert('ไม่พบข้อมูล');
+                        this.showModal = false;
+                    }
+                } catch (e) {
+                    console.error("Error fetching detail:", e);
+                    alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+                    this.showModal = false;
+                }
+            },
+
+            confirmDelete() {
+                if (confirm('ยืนยันลบรายการนี้หรือไม่?')) {
+                    // Call delete API here
+                }
+            }
+        }
+    }
+</script>
 <div x-data="DepositHistory()" x-init="init()" class="space-y-6">
     <div class="md:w-1/3 flex flex-col justify-between gap-4">
         <div>
@@ -201,120 +316,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    function DepositHistory() {
-        return {
-            rows: [],
-            start: '',
-            end: '',
-            memberSearch: '',
-            showModal: false,
-            detail: null,
-
-            // Pagination State
-            page: 1,
-            limit: 10,
-            total: 0,
-            last_page: 1,
-            from: 0,
-            to: 0,
-
-            async init() {
-                const t = new Date();
-                const m = new Date(t.getTime() - 30 * 24 * 60 * 60 * 1000);
-                this.start = m.toISOString().split('T')[0];
-                this.end = t.toISOString().split('T')[0];
-                await this.apply(1);
-            },
-
-            async apply(newPage = null) {
-                if (newPage) this.page = newPage;
-
-                const p = [];
-                p.push('scope=header');
-                p.push(`page=${this.page}`);
-                p.push(`limit=${this.limit}`);
-
-                if (this.start) p.push(`start_date=${this.start}`);
-                if (this.end) p.push(`end_date=${this.end}`);
-                if (this.memberSearch) p.push(`member_search=${encodeURIComponent(this.memberSearch)}`);
-
-                try {
-                    const r = await fetch('/api/waste_transactions?' + p.join('&'));
-                    const j = await r.json();
-
-                    if (j.success && j.result) {
-                        // รองรับ Pagination แบบ Laravel/Standard Structure
-                        // ถ้าระบบส่งมาเป็น array ตรงๆ (ยังไม่ได้ทำ pagination ฝั่ง server) โค้ดนี้จะรองรับแบบพื้นฐาน
-                        if (Array.isArray(j.result)) {
-                            this.rows = j.result;
-                            this.total = j.result.length;
-                            this.last_page = 1;
-                            this.from = 1;
-                            this.to = j.result.length;
-                        } else {
-                            // กรณี Server ส่ง Pagination Object มา (data, total, last_page, etc.)
-                            this.rows = j.result.data || [];
-                            this.total = j.result.total || 0;
-                            this.last_page = j.result.last_page || 1;
-                            this.from = j.result.from || 0;
-                            this.to = j.result.to || 0;
-                        }
-                    } else {
-                        this.rows = [];
-                        this.total = 0;
-                    }
-                } catch (e) {
-                    console.error("Error fetching transactions:", e);
-                    this.rows = [];
-                }
-            },
-
-            changePage(newPage) {
-                if (newPage >= 1 && newPage <= this.last_page) {
-                    this.apply(newPage);
-                }
-            },
-
-            clear() {
-                this.start = '';
-                this.end = '';
-                this.memberSearch = '';
-                this.apply(1);
-            },
-
-            async openDetail(id) {
-                this.detail = null;
-                this.showModal = true;
-
-                try {
-                    const r = await fetch('/api/waste_transactions/' + id);
-                    const j = await r.json();
-                    if (j.success) {
-                        this.detail = j.result;
-                    } else {
-                        alert('ไม่พบข้อมูล');
-                        this.showModal = false;
-                    }
-                } catch (e) {
-                    console.error("Error fetching detail:", e);
-                    alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
-                    this.showModal = false;
-                }
-            },
-
-            confirmDelete() {
-                if (confirm('ยืนยันลบรายการนี้หรือไม่?')) {
-                    // Call delete API here
-                }
-            }
-        }
-    }
-</script>
-
-<style>
-    [x-cloak] {
-        display: none !important;
-    }
-</style>
