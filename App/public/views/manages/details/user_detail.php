@@ -1,6 +1,43 @@
 <?php
 $member_id = $member_id ?? "null";
 ?>
+<script>
+    function userDetail() {
+        return {
+            member_id: <?php echo $member_id; ?>,
+            profile: {},
+            waste_transactions: [],
+            donations: [],
+            init() {
+                this.fetchProfile();
+            },
+            async fetchProfile() {
+                try {
+                    const response = await fetch(`/api/members/profile/${this.member_id}`);
+                    // if (!response.ok) {
+                    //     console.error(response);
+                    //     throw new Error('Network response was not ok');
+                    // }
+                    const result = await response.json();
+                    if (result.success) {
+                        this.profile = result.data;
+                        this.waste_transactions = result.data.waste_transactions;
+                        this.donations = result.data.donations;
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    console.error('There has been a problem with your fetch operation:', error);
+                    swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: error.message,
+                    });
+                }
+            }
+        }
+    }
+</script>
 
 <div x-data="userDetail()">
     <div class="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
@@ -106,41 +143,3 @@ $member_id = $member_id ?? "null";
         </div>
     </div>
 </div>
-
-<script>
-    function userDetail() {
-        return {
-            member_id: <?php echo $member_id; ?>,
-            profile: {},
-            waste_transactions: [],
-            donations: [],
-            init() {
-                this.fetchProfile();
-            },
-            async fetchProfile() {
-                try {
-                    const response = await fetch(`/api/members/profile/${this.member_id}`);
-                    // if (!response.ok) {
-                    //     console.error(response);
-                    //     throw new Error('Network response was not ok');
-                    // }
-                    const result = await response.json();
-                    if (result.success) {
-                        this.profile = result.data;
-                        this.waste_transactions = result.data.waste_transactions;
-                        this.donations = result.data.donations;
-                    } else {
-                        throw new Error(result.message);
-                    }
-                } catch (error) {
-                    console.error('There has been a problem with your fetch operation:', error);
-                    swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: error.message,
-                    });
-                }
-            }
-        }
-    }
-</script>
