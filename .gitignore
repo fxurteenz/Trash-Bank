@@ -7,3 +7,5 @@ App/vendor
 # --- Environment Variables (SECRETS) ---
 App/.env
 .env
+
+App/node_modules

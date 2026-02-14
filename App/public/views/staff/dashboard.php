@@ -1,3 +1,131 @@
+<script>
+    function facultyDashboard(facultyId) {
+        return {
+            filter: 'today',
+            loading: true,
+            data: {
+                faculty: { faculty_name: '' },
+                summary: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 },
+                summary_today: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 }
+            },
+
+            get currentStats() {
+                return this.filter === 'today' ? this.data.summary_today : this.data.summary;
+            },
+
+            formatNumber(num) {
+                return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num || 0);
+            },
+
+            async init() {
+                try {
+                    const response = await fetch(`/api/dashboards/faculty/${facultyId}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.data = result.data;
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard:', error);
+                } finally {
+                    this.loading = false;
+                }
+                this.memberTable.fetchMembers();
+            },
+
+            memberTable: {
+                loading: false,
+                sort: { column: 'waste_point', direction: 'desc' },
+                role: '',
+                members: [],
+                currentPage: 1,
+                totalPages: 1,
+                totalMembers: 0,
+                limit: 10,
+
+                async fetchMembers() {
+                    if (!facultyId) return;
+                    this.loading = true;
+
+                    try {
+                        const params = new URLSearchParams({
+                            faculty: facultyId,
+                            role: this.role,
+                            sort_by: this.sort.column,
+                            order: this.sort.direction,
+                            page: this.currentPage,
+                            limit: this.limit
+                        });
+
+                        const response = await fetch(`/api/members?${params}`);
+                        const result = await response.json();
+
+                        if (result.success && result.data) {
+                            this.members = result.data;
+                            this.totalMembers = result.total;
+                            this.totalPages = Math.ceil(result.total / this.limit);
+                        } else {
+                            this.members = [];
+                            this.totalMembers = 0;
+                            this.totalPages = 1;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching members:', error);
+                        this.members = [];
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                handleRoleChange() {
+                    this.currentPage = 1;
+                    this.fetchMembers();
+                },
+
+                changePage(page) {
+                    if (page >= 1 && page <= this.totalPages) {
+                        this.currentPage = page;
+                        this.fetchMembers();
+                    }
+                },
+
+                changeSort(column) {
+                    if (this.sort.column === column) {
+                        this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        this.sort.column = column;
+                        this.sort.direction = 'desc';
+                    }
+                    this.currentPage = 1;
+                    this.fetchMembers();
+                },
+
+                // Helper for creating pagination numbers with ellipses
+                getPageNumbers() {
+                    const total = this.totalPages;
+                    const current = this.currentPage;
+                    const maxPagesToShow = 5;
+                    const pages = [];
+
+                    if (total <= maxPagesToShow) {
+                        for (let i = 1; i <= total; i++) pages.push(i);
+                    } else {
+                        pages.push(1);
+                        if (current > 3) pages.push('...');
+
+                        const start = Math.max(2, current - 1);
+                        const end = Math.min(total - 1, current + 1);
+
+                        for (let i = start; i <= end; i++) pages.push(i);
+
+                        if (current < total - 2) pages.push('...');
+                        pages.push(total);
+                    }
+                    return pages;
+                }
+            }
+        }
+    }
+</script>
 <div class="space-y-6" x-data="facultyDashboard('<?= $facultyId ?? '' ?>')">
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -200,139 +328,11 @@
                 </template>
             </div>
             <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                :disabled="memberTable.currentPage >= memberTable.totalPages" @click="memberTable.changePage(memberTable.currentPage + 1)">
+                :disabled="memberTable.currentPage >= memberTable.totalPages"
+                @click="memberTable.changePage(memberTable.currentPage + 1)">
                 ถัดไป
             </button>
         </div>
 
     </div>
-
-    <script>
-        function facultyDashboard(facultyId) {
-            return {
-                filter: 'today',
-                loading: true,
-                data: {
-                    faculty: { faculty_name: '' },
-                    summary: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 },
-                    summary_today: { transaction_count: 0, total_weight: 0, total_spend_point: 0, total_co2e: 0 }
-                },
-
-                get currentStats() {
-                    return this.filter === 'today' ? this.data.summary_today : this.data.summary;
-                },
-
-                formatNumber(num) {
-                    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(num || 0);
-                },
-
-                async init() {
-                    try {
-                        const response = await fetch(`/api/dashboards/faculty/${facultyId}`);
-                        const result = await response.json();
-                        if (result.success) {
-                            this.data = result.data;
-                        }
-                    } catch (error) {
-                        console.error('Error loading dashboard:', error);
-                    } finally {
-                        this.loading = false;
-                    }
-                    this.memberTable.fetchMembers();
-                },
-
-                memberTable: {
-                    loading: false,
-                    sort: { column: 'waste_point', direction: 'desc' },
-                    role: '',
-                    members: [],
-                    currentPage: 1,
-                    totalPages: 1,
-                    totalMembers: 0,
-                    limit: 10,
-
-                    async fetchMembers() {
-                        if (!facultyId) return;
-                        this.loading = true;
-
-                        try {
-                            const params = new URLSearchParams({
-                                faculty: facultyId,
-                                role: this.role,
-                                sort_by: this.sort.column,
-                                order: this.sort.direction,
-                                page: this.currentPage,
-                                limit: this.limit
-                            });
-
-                            const response = await fetch(`/api/members?${params}`);
-                            const result = await response.json();
-
-                            if (result.success && result.data) {
-                                this.members = result.data;
-                                this.totalMembers = result.total;
-                                this.totalPages = Math.ceil(result.total / this.limit);
-                            } else {
-                                this.members = [];
-                                this.totalMembers = 0;
-                                this.totalPages = 1;
-                            }
-                        } catch (error) {
-                            console.error('Error fetching members:', error);
-                            this.members = [];
-                        } finally {
-                            this.loading = false;
-                        }
-                    },
-
-                    handleRoleChange() {
-                        this.currentPage = 1;
-                        this.fetchMembers();
-                    },
-
-                    changePage(page) {
-                        if (page >= 1 && page <= this.totalPages) {
-                            this.currentPage = page;
-                            this.fetchMembers();
-                        }
-                    },
-
-                    changeSort(column) {
-                        if (this.sort.column === column) {
-                            this.sort.direction = this.sort.direction === 'asc' ? 'desc' : 'asc';
-                        } else {
-                            this.sort.column = column;
-                            this.sort.direction = 'desc';
-                        }
-                        this.currentPage = 1;
-                        this.fetchMembers();
-                    },
-
-                    // Helper for creating pagination numbers with ellipses
-                    getPageNumbers() {
-                        const total = this.totalPages;
-                        const current = this.currentPage;
-                        const maxPagesToShow = 5;
-                        const pages = [];
-
-                        if (total <= maxPagesToShow) {
-                            for (let i = 1; i <= total; i++) pages.push(i);
-                        } else {
-                            pages.push(1);
-                            if (current > 3) pages.push('...');
-
-                            const start = Math.max(2, current - 1);
-                            const end = Math.min(total - 1, current + 1);
-
-                            for (let i = start; i <= end; i++) pages.push(i);
-
-                            if (current < total - 2) pages.push('...');
-                            pages.push(total);
-                        }
-                        return pages;
-                    }
-                }
-            }
-        }
-    </script>
 </div>

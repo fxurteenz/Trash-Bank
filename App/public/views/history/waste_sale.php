@@ -1,3 +1,185 @@
+<script>
+    function WasteSaleHistoryHandler() {
+        return {
+            sales: [],
+            wasteTypes: [],
+            filterStartDate: '',
+            filterEndDate: '',
+            filterType: '',
+            filterBuyer: '',
+
+            async init() {
+                const today = new Date();
+                const monthAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+
+                this.filterStartDate = monthAgo.toISOString().split('T')[0];
+                this.filterEndDate = today.toISOString().split('T')[0];
+
+                await this.loadWasteTypes();
+                await this.applyFilters();
+            },
+
+            async loadWasteTypes() {
+                try {
+                    const response = await fetch('/api/waste_types');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.wasteTypes = result.result || [];
+                    }
+                } catch (error) {
+                    console.error('Error loading waste types:', error);
+                }
+            },
+
+            async applyFilters() {
+                try {
+                    let url = '/api/waste_sales?';
+                    const params = [];
+
+                    if (this.filterStartDate) params.push(`start_date=${this.filterStartDate}`);
+                    if (this.filterEndDate) params.push(`end_date=${this.filterEndDate}`);
+                    if (this.filterType) params.push(`type_id=${this.filterType}`);
+                    if (this.filterBuyer) params.push(`buyer=${encodeURIComponent(this.filterBuyer)}`);
+
+                    url += params.join('&');
+
+                    const response = await fetch(url);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.sales = result.result?.data || [];
+                    }
+                } catch (error) {
+                    console.error('Error applying filters:', error);
+                    this.sales = [];
+                }
+            },
+
+            clearFilters() {
+                this.filterStartDate = '';
+                this.filterEndDate = '';
+                this.filterType = '';
+                this.filterBuyer = '';
+                this.applyFilters();
+            },
+
+            getTotalWeight() {
+                return this.sales.reduce((sum, sale) => sum + parseFloat(sale.waste_sale_weight || 0), 0);
+            },
+
+            getTotalRevenue() {
+                return this.sales.reduce((sum, sale) => sum + parseFloat(sale.waste_sale_actual_price || 0), 0);
+            },
+
+            showDetail(sale) {
+                alert(`รายละเอียด: ${sale.waste_type_name}\nน้ำหนัก: ${sale.waste_sale_weight} กก.\nมูลค่า: ${sale.waste_sale_actual_price} ฿`);
+            },
+
+            async deleteRecord(saleId) {
+                if (confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้?')) {
+                    try {
+                        const response = await fetch(`/api/waste_sales/delete/${saleId}`, { method: 'POST' });
+                        if (response.ok) {
+                            alert('ลบรายการสำเร็จ');
+                            this.applyFilters();
+                        }
+                    } catch (error) {
+                        alert('เกิดข้อผิดพลาดในการลบ: ' + error.message);
+                    }
+                }
+            },
+
+            printReport() {
+                const html = this.generateReportHTML();
+                const printWindow = window.open('', '', 'height=600,width=800');
+                printWindow.document.write(html);
+                printWindow.document.close();
+                printWindow.print();
+            },
+
+            generateReportHTML() {
+                const startDate = new Date(this.filterStartDate).toLocaleDateString('th-TH');
+                const endDate = new Date(this.filterEndDate).toLocaleDateString('th-TH');
+
+                const rows = this.sales.map((sale, i) => `
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${i + 1}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${new Date(sale.waste_sale_date).toLocaleDateString('th-TH')}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${sale.waste_sale_buyer || 'ไม่ระบุ'}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${sale.waste_type_name}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${sale.waste_sale_weight.toFixed(2)}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${sale.waste_type_price.toFixed(2)}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">${sale.waste_sale_actual_price.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
+                return `
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <title>รายงานประวัติการขายขยะ</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+                        h2 { text-align: center; color: #10b981; }
+                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        th { background-color: #d1fae5; font-weight: bold; padding: 10px; text-align: left; }
+                        .summary { margin-top: 20px; font-size: 14px; }
+                        .summary-item { margin: 5px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h2>รายงานประวัติการขายขยะ</h2>
+                    <p><strong>ช่วงวันที่:</strong> ${startDate} ถึง ${endDate}</p>
+                    <p><strong>ผู้ค้นหา:</strong> ${this.filterBuyer ? this.filterBuyer : 'ทั้งหมด'}</p>
+                    
+                    <table>
+                        <thead>
+                            <tr style="background-color: #d1fae5;">
+                                <th style="width: 5%;">ลำดับ</th>
+                                <th>วันที่</th>
+                                <th>ผู้ซื้อ</th>
+                                <th>ประเภท</th>
+                                <th style="text-align: right;">น้ำหนัก (กก.)</th>
+                                <th style="text-align: right;">ราคา/กก. (฿)</th>
+                                <th style="text-align: right;">รวม (฿)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+
+                    <div class="summary">
+                        <div class="summary-item"><strong>จำนวนรายการ:</strong> ${this.sales.length}</div>
+                        <div class="summary-item"><strong>รวมน้ำหนัก:</strong> ${this.getTotalWeight().toFixed(2)} กก.</div>
+                        <div class="summary-item"><strong>รวมเงิน:</strong> ${this.getTotalRevenue().toFixed(2)} ฿</div>
+                        <div class="summary-item"><strong>เฉลี่ยต่อครั้ง:</strong> ${(this.sales.length > 0 ? (this.getTotalRevenue() / this.sales.length).toFixed(2) : 0)} ฿</div>
+                    </div>
+                </body>
+                </html>
+            `;
+            },
+
+            exportCSV() {
+                const header = 'ลำดับ,วันที่,ผู้ซื้อ,ประเภท,น้ำหนัก,ราคา/กก.,รวม\n';
+                const rows = this.sales.map((sale, i) =>
+                    `${i + 1},"${new Date(sale.waste_sale_date).toLocaleDateString('th-TH')}","${sale.waste_sale_buyer || 'ไม่ระบุ'}","${sale.waste_type_name}",${sale.waste_sale_weight.toFixed(2)},${sale.waste_type_price.toFixed(2)},${sale.waste_sale_actual_price.toFixed(2)}`
+                ).join('\n');
+                const summary = `\n\nสรุป\nจำนวนรายการ,${this.sales.length}\nรวมน้ำหนัก,${this.getTotalWeight().toFixed(2)} กก.\nรวมเงิน,${this.getTotalRevenue().toFixed(2)} ฿`;
+
+                const csv = header + rows + summary;
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const startDate = new Date(this.filterStartDate).toLocaleDateString('th-TH');
+                const endDate = new Date(this.filterEndDate).toLocaleDateString('th-TH');
+                link.setAttribute('href', URL.createObjectURL(blob));
+                link.setAttribute('download', `waste_sale_history_${startDate}_${endDate}.csv`);
+                link.click();
+            }
+        };
+    }
+</script>
+
 <div x-data="WasteSaleHistoryHandler()" x-init="init()" class="space-y-6">
     <!-- Page Intro -->
     <div class="mb-8">
@@ -152,184 +334,4 @@
     </div>
 </div>
 
-<script>
-function WasteSaleHistoryHandler() {
-    return {
-        sales: [],
-        wasteTypes: [],
-        filterStartDate: '',
-        filterEndDate: '',
-        filterType: '',
-        filterBuyer: '',
 
-        async init() {
-            const today = new Date();
-            const monthAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-            
-            this.filterStartDate = monthAgo.toISOString().split('T')[0];
-            this.filterEndDate = today.toISOString().split('T')[0];
-
-            await this.loadWasteTypes();
-            await this.applyFilters();
-        },
-
-        async loadWasteTypes() {
-            try {
-                const response = await fetch('/api/waste_types');
-                const result = await response.json();
-                if (result.success) {
-                    this.wasteTypes = result.result || [];
-                }
-            } catch (error) {
-                console.error('Error loading waste types:', error);
-            }
-        },
-
-        async applyFilters() {
-            try {
-                let url = '/api/waste_sales?';
-                const params = [];
-
-                if (this.filterStartDate) params.push(`start_date=${this.filterStartDate}`);
-                if (this.filterEndDate) params.push(`end_date=${this.filterEndDate}`);
-                if (this.filterType) params.push(`type_id=${this.filterType}`);
-                if (this.filterBuyer) params.push(`buyer=${encodeURIComponent(this.filterBuyer)}`);
-
-                url += params.join('&');
-
-                const response = await fetch(url);
-                const result = await response.json();
-
-                if (result.success) {
-                    this.sales = result.result?.data || [];
-                }
-            } catch (error) {
-                console.error('Error applying filters:', error);
-                this.sales = [];
-            }
-        },
-
-        clearFilters() {
-            this.filterStartDate = '';
-            this.filterEndDate = '';
-            this.filterType = '';
-            this.filterBuyer = '';
-            this.applyFilters();
-        },
-
-        getTotalWeight() {
-            return this.sales.reduce((sum, sale) => sum + parseFloat(sale.waste_sale_weight || 0), 0);
-        },
-
-        getTotalRevenue() {
-            return this.sales.reduce((sum, sale) => sum + parseFloat(sale.waste_sale_actual_price || 0), 0);
-        },
-
-        showDetail(sale) {
-            alert(`รายละเอียด: ${sale.waste_type_name}\nน้ำหนัก: ${sale.waste_sale_weight} กก.\nมูลค่า: ${sale.waste_sale_actual_price} ฿`);
-        },
-
-        async deleteRecord(saleId) {
-            if (confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้?')) {
-                try {
-                    const response = await fetch(`/api/waste_sales/delete/${saleId}`, { method: 'POST' });
-                    if (response.ok) {
-                        alert('ลบรายการสำเร็จ');
-                        this.applyFilters();
-                    }
-                } catch (error) {
-                    alert('เกิดข้อผิดพลาดในการลบ: ' + error.message);
-                }
-            }
-        },
-
-        printReport() {
-            const html = this.generateReportHTML();
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write(html);
-            printWindow.document.close();
-            printWindow.print();
-        },
-
-        generateReportHTML() {
-            const startDate = new Date(this.filterStartDate).toLocaleDateString('th-TH');
-            const endDate = new Date(this.filterEndDate).toLocaleDateString('th-TH');
-            
-            const rows = this.sales.map((sale, i) => `
-                <tr>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${i + 1}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${new Date(sale.waste_sale_date).toLocaleDateString('th-TH')}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${sale.waste_sale_buyer || 'ไม่ระบุ'}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px;">${sale.waste_type_name}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${sale.waste_sale_weight.toFixed(2)}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${sale.waste_type_price.toFixed(2)}</td>
-                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">${sale.waste_sale_actual_price.toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-            return `
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                    <title>รายงานประวัติการขายขยะ</title>
-                    <style>
-                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
-                        h2 { text-align: center; color: #10b981; }
-                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        th { background-color: #d1fae5; font-weight: bold; padding: 10px; text-align: left; }
-                        .summary { margin-top: 20px; font-size: 14px; }
-                        .summary-item { margin: 5px 0; }
-                    </style>
-                </head>
-                <body>
-                    <h2>รายงานประวัติการขายขยะ</h2>
-                    <p><strong>ช่วงวันที่:</strong> ${startDate} ถึง ${endDate}</p>
-                    <p><strong>ผู้ค้นหา:</strong> ${this.filterBuyer ? this.filterBuyer : 'ทั้งหมด'}</p>
-                    
-                    <table>
-                        <thead>
-                            <tr style="background-color: #d1fae5;">
-                                <th style="width: 5%;">ลำดับ</th>
-                                <th>วันที่</th>
-                                <th>ผู้ซื้อ</th>
-                                <th>ประเภท</th>
-                                <th style="text-align: right;">น้ำหนัก (กก.)</th>
-                                <th style="text-align: right;">ราคา/กก. (฿)</th>
-                                <th style="text-align: right;">รวม (฿)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                        </tbody>
-                    </table>
-
-                    <div class="summary">
-                        <div class="summary-item"><strong>จำนวนรายการ:</strong> ${this.sales.length}</div>
-                        <div class="summary-item"><strong>รวมน้ำหนัก:</strong> ${this.getTotalWeight().toFixed(2)} กก.</div>
-                        <div class="summary-item"><strong>รวมเงิน:</strong> ${this.getTotalRevenue().toFixed(2)} ฿</div>
-                        <div class="summary-item"><strong>เฉลี่ยต่อครั้ง:</strong> ${(this.sales.length > 0 ? (this.getTotalRevenue() / this.sales.length).toFixed(2) : 0)} ฿</div>
-                    </div>
-                </body>
-                </html>
-            `;
-        },
-
-        exportCSV() {
-            const header = 'ลำดับ,วันที่,ผู้ซื้อ,ประเภท,น้ำหนัก,ราคา/กก.,รวม\n';
-            const rows = this.sales.map((sale, i) => 
-                `${i + 1},"${new Date(sale.waste_sale_date).toLocaleDateString('th-TH')}","${sale.waste_sale_buyer || 'ไม่ระบุ'}","${sale.waste_type_name}",${sale.waste_sale_weight.toFixed(2)},${sale.waste_type_price.toFixed(2)},${sale.waste_sale_actual_price.toFixed(2)}`
-            ).join('\n');
-            const summary = `\n\nสรุป\nจำนวนรายการ,${this.sales.length}\nรวมน้ำหนัก,${this.getTotalWeight().toFixed(2)} กก.\nรวมเงิน,${this.getTotalRevenue().toFixed(2)} ฿`;
-
-            const csv = header + rows + summary;
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const startDate = new Date(this.filterStartDate).toLocaleDateString('th-TH');
-            const endDate = new Date(this.filterEndDate).toLocaleDateString('th-TH');
-            link.setAttribute('href', URL.createObjectURL(blob));
-            link.setAttribute('download', `waste_sale_history_${startDate}_${endDate}.csv`);
-            link.click();
-        }
-    };
-}
-</script>
