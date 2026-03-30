@@ -58,6 +58,8 @@ class Routes
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'HomePage']);
         $this->Router->map('GET', '/login', [PagesController::class, 'LoginPage']);
+        $this->Router->map('GET', '/register', [PagesController::class, 'RegisterPage']);
+
 
         $this->addPrefixedRoutes("/staff", [
             ["GET", "", [StaffPagesController::class, 'HomePage']],

@@ -44,4 +44,10 @@ class PagesController extends RouterBase
             'title' => 'ธนาคารขยะ'
         ], "landing");
     }
+    public function RegisterPage()
+    {
+        $this->render('register', [
+            'title' => 'ธนาคารขยะ'
+        ]);
+    }
 }

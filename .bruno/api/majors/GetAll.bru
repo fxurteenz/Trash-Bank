@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/majors?name=ว
+  url: {{api_domain}}/majors
   body: none
   auth: inherit
 }
 
 params:query {
-  name: ว
+  ~name: ว
   ~page: 1
   ~limit: 2
   ~faculty: 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="snap-y snap-proximity scroll-smooth">
 
 <head>
     <title><?= $title ?? '' ?></title>
@@ -20,11 +20,6 @@
             font-family: "Open Sans", sans-serif;
         }
 
-        /* * {
-            outline: 1px solid red !important;
-        } */
-
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -37,6 +32,15 @@
 
         .animate-fade-in {
             animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
         @keyframes slideInFromTop {
@@ -59,12 +63,13 @@
     <script type="text/javascript" src="<?= $script ?? '' ?>"></script>
 </head>
 
-<body class="min-h-screen noto-sans-thai" x-data="{ open: false, scrollY: 0 }"
+<body class="min-h-screen noto-sans-thai m-0 p-0" x-data="{ open: false, scrollY: 0 }"
     @scroll.window="scrollY = window.scrollY">
     <header class="fixed top-0 w-full z-50 transition-all duration-500"
-        :class="scrollY >= (document.documentElement.scrollHeight * 0.28) ? 'opacity-100 pointer-events-auto backdrop-blur' : 'opacity-0 pointer-events-none'">
+        :class="scrollY >= (document.documentElement.scrollHeight * 0.28) ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="/" class="text-xl font-bold text-gray-800 drop-shadow-sm">ธนาคารขยะ BRU</a>
+            <a href="/" class="text-xl font-bold text-gray-800 drop-shadow-sm">
+                <img src="assets/images/bru_gogreen_logo.png" alt="BRU Go Green Logo" class="h-12 w-auto"></a>
         </nav>
     </header>
 
