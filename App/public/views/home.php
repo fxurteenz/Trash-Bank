@@ -11,8 +11,7 @@
     <section id="section-1" class="relative w-full min-h-screen flex flex-col z-20">
         <div class="reveal-element parallax-item w-full lg:mt-4 text-center px-4 flex flex-col justify-center relative"
             data-speed-y="-0.7" data-speed-opacity="0.5">
-            <img src="/assets/images/bru_gogreen_logo.png" alt=""
-                class="w-[80%] mx-auto lg:w-[50%] mt-8 lg:mt-0">
+            <img src="/assets/images/bru_gogreen_logo.png" alt="" class="w-[80%] mx-auto lg:w-[50%] mt-8 lg:mt-0">
         </div>
 
         <div class="flex-1 w-full flex flex-col gap-4 md:gap-6 items-center justify-center px-6 md:px-16 pb-8">
@@ -67,11 +66,12 @@
             </div>
 
             <div class="flex flex-col sm:flex-row gap-3 w-full max-w-lg justify-center mt-2">
-                <div class="flex-1 p-3 md:p-4 shadow-xl rounded-2xl hover:cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md bg-emerald-700 text-gray-50 transition-transform reveal-element parallax-item duration-300"
+                <button x-data @click="$dispatch('open-register'); scrollToSection(1);"
+                    class="flex-1 p-3 md:p-4 shadow-xl rounded-2xl hover:cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md bg-emerald-700 text-gray-50 transition-transform reveal-element parallax-item duration-300"
                     data-speed-y="0.1" data-speed-opacity="0.7">
                     <h3 class="text-base md:text-lg font-bold text-gray-50 text-center">เข้าร่วมกับเรา</h3>
-                </div>
-                <button onclick="window.location.href='/login'"
+                </button>
+                <button x-data @click="$dispatch('open-login'); scrollToSection(1);"
                     class="flex-1 p-3 md:p-4 shadow-xl rounded-2xl hover:cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md bg-gray-50 text-emerald-700 transition-transform reveal-element parallax-item duration-300"
                     data-speed-y="0.1" data-speed-opacity="0.7">
                     <h3 class="text-base md:text-lg font-bold text-center">เข้าสู่ระบบ</h3>
@@ -89,94 +89,133 @@
             class="parallax-item absolute bottom-0 left-0 w-full min-w-[800px] object-cover z-2 pointer-events-none">
         <div class="absolute w-full h-[30vh] bg-emerald-700 bottom-0 -z-10 rounded-t-[60%] scale-100"></div>
 
-        <div x-data="registrationForm()" x-init="init()" class="flex justify-center items-center min-h-screen z-20">
+        <div x-data="authForm()" x-init="init()" @open-login.window="isLoginMode = true"
+            @open-register.window="isLoginMode = false" class="flex justify-center items-center min-h-screen z-20">
             <div class="bg-white/60 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-96 max-w-full">
-                <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
 
-                <form @submit.prevent="submitRegistration" class="space-y-4 text-sm">
+                <div x-show="!isLoginMode">
+                    <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
+                    <form @submit.prevent="submitRegistration" class="space-y-4 text-sm">
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="phone" class="text-gray-700 font-medium">
-                            เบอร์โทรศัพท์ <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                            :class="{'border-red-500': errors.member_phone}" type="text" id="phone"
-                            x-model="formData.member_phone" placeholder="หมายเลขโทรศัพท์ 10 หลัก">
-                        <span x-show="errors.member_phone" class="text-red-500 text-xs"
-                            x-text="errors.member_phone"></span>
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="phone" class="text-gray-700 font-medium">
+                                เบอร์โทรศัพท์ <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
+                                :class="{'border-red-500': errors.member_phone}" type="text" id="phone"
+                                x-model="formData.member_phone" placeholder="หมายเลขโทรศัพท์ 10 หลัก">
+                            <span x-show="errors.member_phone" class="text-red-500 text-xs"
+                                x-text="errors.member_phone"></span>
+                        </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="password" class="text-gray-700 font-medium">
-                            รหัสผ่าน <span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                            :class="{'border-red-500': errors.member_password}" type="password" id="password"
-                            x-model="formData.member_password" placeholder="อย่างน้อย 8 ตัวอักษร">
-                        <span x-show="errors.member_password" class="text-red-500 text-xs"
-                            x-text="errors.member_password"></span>
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="password" class="text-gray-700 font-medium">
+                                รหัสผ่าน <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
+                                :class="{'border-red-500': errors.member_password}" type="password" id="password"
+                                x-model="formData.member_password" placeholder="อย่างน้อย 8 ตัวอักษร">
+                            <span x-show="errors.member_password" class="text-red-500 text-xs"
+                                x-text="errors.member_password"></span>
+                        </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                        <input
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                            type="text" id="personal_id" x-model="formData.member_personal_id"
-                            placeholder="รหัสนักศึกษา/รหัสประจำตัวประชาชน">
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
+                                type="text" id="personal_id" x-model="formData.member_personal_id"
+                                placeholder="รหัสนักศึกษา/รหัสประจำตัวประชาชน">
+                        </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="email" class="text-gray-700 font-medium">อีเมล</label>
-                        <input
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                            type="email" id="email" x-model="formData.member_email" placeholder="example@email.com">
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="email" class="text-gray-700 font-medium">อีเมล</label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
+                                type="email" id="email" x-model="formData.member_email" placeholder="example@email.com">
+                        </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="name" class="text-gray-700 font-medium">ชื่อ-สกุล</label>
-                        <input
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                            type="text" id="name" x-model="formData.member_name" placeholder="ชื่อที่ใช้แสดงในระบบ">
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="name" class="text-gray-700 font-medium">ชื่อ-สกุล</label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
+                                type="text" id="name" x-model="formData.member_name" placeholder="ชื่อที่ใช้แสดงในระบบ">
+                        </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="faculty" class="text-gray-700 font-medium">คณะ</label>
-                        <select id="faculty" x-model="formData.faculty_id" @change="fetchMajors()"
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white">
-                            <option value="">เลือกคณะ</option>
-                            <template x-for="faculty in faculties" :key="faculty.faculty_id">
-                                <option :value="faculty.faculty_id" x-text="faculty.faculty_name"></option>
-                            </template>
-                        </select>
-                    </div>
+                        <div class="flex flex-col space-y-1">
+                            <label for="faculty" class="text-gray-700 font-medium">คณะ</label>
+                            <select id="faculty" x-model="formData.faculty_id" @change="fetchMajors()"
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white">
+                                <option value="">เลือกคณะ</option>
+                                <template x-for="faculty in faculties" :key="faculty.faculty_id">
+                                    <option :value="faculty.faculty_id" x-text="faculty.faculty_name"></option>
+                                </template>
+                            </select>
+                        </div>
 
-                    <div x-show="formData.faculty_id" class="flex flex-col space-y-1">
-                        <label for="major" class="text-gray-700 font-medium">สาขา</label>
-                        <select id="major" x-model="formData.major_id"
-                            class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white disabled:bg-gray-100"
-                            :disabled="!formData.faculty_id || majors.length === 0">
-                            <option value="" x-text="majors.length === 0 ? `ไม่มีสาขาที่เข้าร่วม` : `เลือกสาขา`">
-                                เลือกสาขา
-                            </option>
-                            <template x-for="major in majors" :key="major.major_id">
-                                <option :value="major.major_id" x-text="major.major_name"></option>
-                            </template>
-                        </select>
-                    </div>
+                        <div x-show="formData.faculty_id" class="flex flex-col space-y-1">
+                            <label for="major" class="text-gray-700 font-medium">สาขา</label>
+                            <select id="major" x-model="formData.major_id"
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white disabled:bg-gray-100"
+                                :disabled="!formData.faculty_id || majors.length === 0">
+                                <option value="" x-text="majors.length === 0 ? `ไม่มีสาขาที่เข้าร่วม` : `เลือกสาขา`">
+                                    เลือกสาขา
+                                </option>
+                                <template x-for="major in majors" :key="major.major_id">
+                                    <option :value="major.major_id" x-text="major.major_name"></option>
+                                </template>
+                            </select>
+                        </div>
 
-                    <div class="pt-4">
-                        <button type="submit"
-                            class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
-                            ยืนยันการสมัคร
-                        </button>
-                    </div>
-                    <div class="text-center mt-4">
-                        <a href="/login" class="text-sm text-emerald-600 hover:underline">มีบัญชีอยู่แล้ว?
-                            เข้าสู่ระบบ</a>
-                    </div>
-                </form>
+                        <div class="pt-4">
+                            <button type="submit"
+                                class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
+                                ยืนยันการสมัคร
+                            </button>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="button" @click="isLoginMode = true"
+                                class="text-sm text-emerald-600 hover:underline">มีบัญชีอยู่แล้ว?
+                                เข้าสู่ระบบ</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div x-show="isLoginMode" style="display: none;">
+                    <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">เข้าสู่ระบบ</h3>
+                    <form @submit.prevent="submitLogin" class="space-y-4 text-sm">
+                        <div class="flex flex-col space-y-1">
+                            <label for="login_phone" class="text-gray-700 font-medium">เบอร์โทรศัพท์</label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
+                                type="text" id="login_phone" x-model="loginData.identifier"
+                                placeholder="หมายเลขโทรศัพท์ 10 หลัก">
+                        </div>
+
+                        <div class="flex flex-col space-y-1">
+                            <label for="login_password" class="text-gray-700 font-medium">รหัสผ่าน</label>
+                            <input
+                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
+                                type="password" id="login_password" x-model="loginData.password"
+                                placeholder="รหัสผ่านของคุณ">
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit"
+                                class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
+                                เข้าสู่ระบบ
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="button" @click="isLoginMode = false"
+                                class="text-sm text-emerald-600 hover:underline">
+                                ยังไม่มีบัญชี? สมัครสมาชิก
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -236,7 +275,8 @@
                     <p class="text-xs md:text-sm text-emerald-300">มหาวิทยาลัยราชภัฏบุรีรัมย์</p>
                 </div>
                 <div class="text-center md:text-right">
-                    <p class="text-xs md:text-sm opacity-70">&copy; <?= date('Y') ?> BRU Go Green. All rights reserved.
+                    <p class="text-xs md:text-sm opacity-70">&copy;
+                        <?= date('Y') ?> BRU Go Green. All rights reserved.
                     </p>
                 </div>
             </div>
@@ -422,8 +462,9 @@
 </script>
 
 <script>
-    function registrationForm() {
+    function authForm() {
         return {
+            isLoginMode: false,
             formData: {
                 member_phone: '',
                 member_password: '',
@@ -436,7 +477,10 @@
             faculties: [],
             majors: [],
             errors: {},
-
+            loginData: {
+                identifier: '',
+                password: ''
+            },
             init() {
                 this.fetchFaculties();
             },
@@ -484,17 +528,12 @@
             },
 
             async submitRegistration() {
-                if (!this.validateForm()) {
-                    return;
-                }
+                if (!this.validateForm()) return;
 
                 try {
                     const response = await fetch('/register', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify(this.formData)
                     });
 
@@ -504,26 +543,74 @@
                         await Swal.fire({
                             icon: 'success',
                             title: 'สมัครสมาชิกสำเร็จ!',
-                            text: 'กำลังนำท่านไปยังหน้าเข้าสู่ระบบ',
+                            text: 'กำลังสลับไปยังหน้าเข้าสู่ระบบ',
                             timer: 2000,
                             showConfirmButton: false,
                         });
-                        window.location.href = '/login';
+
+                        // สมัครสำเร็จ ให้สลับหน้าต่างเป็น Login ทันที (แทนที่จะเปลี่ยนหน้าเพจ)
+                        this.isLoginMode = true;
+                        this.loginData.identifier = this.formData.member_phone; // เติมเบอร์ให้เลยเพื่อความสะดวก
+
                     } else {
                         throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
                     }
                 } catch (error) {
-                    console.error('Registration failed:', error);
+                    Swal.fire({ icon: 'error', title: 'สมัครสมาชิกไม่สำเร็จ', text: error.message });
+                }
+            },
+            async submitLogin() {
+                if (!this.loginData.identifier || !this.loginData.password) {
+                    Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/login', { // ปรับ URL endpoint ให้ตรงกับ Backend ของคุณ
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify(this.loginData)
+                    });
+                    const result = await response.json();
+                    console.log("Login success:", result);
+                    if (result.success) {
+                        await Swal.fire({
+                            icon: "success",
+                            title: "เข้าสู่ระบบสำเร็จ",
+                            text: "กำลังพาท่านเข้าสู่ระบบ...",
+                            timer: 1500,
+                            showConfirmButton: false,
+                        });
+
+                        const userRole = parseInt(result.data.user_data.role_id);
+                        console.log(result);
+
+                        if (userRole === 1 || userRole === "1") {
+                            window.location.href = "/admin";
+                        } else if (userRole === 3 || userRole === "3") {
+                            window.location.href = "/staff";
+                        } else if (userRole === 4 || userRole === "4") {
+                            window.location.href = "/waste_center";
+                        } else if (userRole === 2 || userRole === "2") {
+                            window.location.href = "/user";
+                        } else {
+                            // console.log(result);
+                            throw new Error("Hacker ? ", 500);
+                        }
+                    } else {
+                        throw new Error(result.message || result, 500);
+                    }
+                } catch (error) {
                     Swal.fire({
-                        icon: 'error',
-                        title: 'สมัครสมาชิกไม่สำเร็จ',
-                        text: error.message,
+                        icon: "error",
+                        title: "เข้าสู่ระบบไม่สำเร็จ",
+                        text: error.message || "ข้อมูลหรือรหัสผ่านไม่ถูกต้อง",
                     });
                 }
             }
         }
     }
     document.addEventListener('alpine:init', () => {
-        Alpine.data('registrationForm', registrationForm);
+        Alpine.data('authForm', authForm); // แก้ไขชื่อเป็น authForm
     });
 </script>

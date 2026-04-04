@@ -10,8 +10,7 @@ class PagesController extends RouterBase
     {
         if (empty($_COOKIE["user_token"])) {
             $this->render('login', [
-                'title' => 'เข้าสู่ระบบ',
-                'script' => '../js/Login.js'
+                'title' => 'เข้าสู่ระบบ'
             ]);
         } else {
             $decodedToken = Authentication::CookieAuth();
