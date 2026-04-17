@@ -10,8 +10,8 @@ class PagesController extends RouterBase
     {
         if (empty($_COOKIE["user_token"])) {
             $this->render('login', [
-                'title' => 'เข้าสู่ระบบ'
-            ]);
+                'title' => 'BRU Go Green : ธนาคารขยะ เข้าสู่ระบบ'
+            ], 'landing');
         } else {
             $decodedToken = Authentication::CookieAuth();
             $roleId = (int) $decodedToken->role_id;
@@ -40,13 +40,13 @@ class PagesController extends RouterBase
     public function HomePage()
     {
         $this->render('home', [
-            'title' => 'ธนาคารขยะ'
+            'title' => 'BRU Go Green : ธนาคารขยะ'
         ], "landing");
     }
     public function RegisterPage()
     {
         $this->render('register', [
-            'title' => 'ธนาคารขยะ'
-        ]);
+            'title' => 'BRU Go Green : ธนาคารขยะ สมัครสมาชิก'
+        ], "landing");
     }
 }
