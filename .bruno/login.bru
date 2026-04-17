@@ -17,8 +17,13 @@ body:json {
 }
 
 body:form-urlencoded {
-  identifier: 0816047264
+  identifier: {{staff}}
   password: 12345678
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+  center: 0634122301
 }
 
 settings {

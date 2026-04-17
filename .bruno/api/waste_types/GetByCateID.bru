@@ -1,0 +1,23 @@
+meta {
+  name: GetByCateID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_domain}}/waste_types/3
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~page: 1
+  ~limit: 10
+  ~search: NOT ADD
+  ~active: NOT ADD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

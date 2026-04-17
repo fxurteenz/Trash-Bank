@@ -1,0 +1,30 @@
+meta {
+  name: Create Badge
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{domain}}/api/badges
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "badge_name": "นักรีไซเคิลมือใหม่",
+    "badge_description": "ทิ้งขยะรีไซเคิล 10 กก.",
+    "badge_condition": "{\"waste_weight\": 10}",
+    "badge_image": "🌱",
+    "badge_type": "waste"
+  }
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

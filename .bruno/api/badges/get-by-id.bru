@@ -1,0 +1,20 @@
+meta {
+  name: Get Badge By ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{domain}}/api/badges/1
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

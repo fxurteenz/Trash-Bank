@@ -44,15 +44,15 @@ async function OnSubmit(e) {
                 showConfirmButton: false,
             });
 
-            const userRole = result.data.user_data.role_id;
+            const userRole =  parseInt(result.data.user_data.role_id);
             console.log(result);
-
-            if (userRole === 1 || userRole === "1") {
+            
+            if ( userRole === 1 || userRole === "1") {
                 window.location.href = "/admin";
             } else if (userRole === 3 || userRole === "3") {
-                window.location.href = "/operater";
+                window.location.href = "/staff";
             } else if (userRole === 4 || userRole === "4") {
-                window.location.href = "/faculty_staff";
+                window.location.href = "/waste_center";
             } else if (userRole === 2 || userRole === "2") {
                 window.location.href = "/user";
             } else {

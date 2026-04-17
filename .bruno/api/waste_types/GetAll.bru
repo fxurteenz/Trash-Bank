@@ -1,0 +1,23 @@
+meta {
+  name: GetAll
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/waste_types
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~page: 1
+  ~limit: 10
+  ~search: 
+  ~active: NOT ADD
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

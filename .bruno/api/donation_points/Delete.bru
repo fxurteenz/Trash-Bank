@@ -1,0 +1,22 @@
+meta {
+  name: Delete
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{api_domain}}/donation_points/delete
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "point_ids": [3]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

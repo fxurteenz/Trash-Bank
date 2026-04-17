@@ -2,6 +2,9 @@ function UserTable() {
     return {
         members: [],
         faculties: [], // Store Faculty list
+        createMajors: [], // Store majors for create dialog
+        editMajors: [], // Store majors for edit dialog
+        filterMajors: [], // Store majors for filter dropdown
         checkedMembers: { member_ids: [] },
         selectedUser: null,
         createUserDialogShow: false,
@@ -21,6 +24,7 @@ function UserTable() {
             member_name: "",
             member_email: "",
             faculty_id: "",
+            major_id: "",
             role_id: "",
         },
 
@@ -31,14 +35,19 @@ function UserTable() {
             member_email: "",
             member_password: "",
             faculty_id: "",
+            major_id: "",
             role_id: "",
         },
 
         filters: {
             faculty_id: "",
+            major_id: "",
             role: "",
             search: "",
         },
+
+        quickMenuShow: false,
+        selectedMemberForMenu: null,
 
         async initData() {
             await this.fetchMembers();
@@ -52,13 +61,14 @@ function UserTable() {
                 params.append("limit", this.limit);
                 if (this.filters.faculty_id)
                     params.append("faculty_id", this.filters.faculty_id);
+                if (this.filters.major_id)
+                    params.append("major_id", this.filters.major_id);
                 if (this.filters.role) params.append("role", this.filters.role);
                 if (this.filters.search)
                     params.append("search", this.filters.search);
 
                 const res = await fetch(`/api/members?${params.toString()}`);
                 let result = await res.json();
-                console.log(result.data);
 
                 this.members = result.data;
                 this.totalPages = Math.ceil(result.total / this.limit);
@@ -81,31 +91,87 @@ function UserTable() {
             }
         },
 
+        async fetchMajorsByFaculty(facultyId, formType) {
+            if (!facultyId) {
+                if (formType === 'create') {
+                    this.createMajors = [];
+                    this.createUserForm.major_id = "";
+                } else if (formType === 'edit') {
+                    this.editMajors = [];
+                    this.editUserForm.major_id = "";
+                } else if (formType === 'filter') {
+                    this.filterMajors = [];
+                    this.filters.major_id = "";
+                }
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/majors/faculty/${facultyId}`);
+                const result = await res.json();
+                if (result.success) {
+                    if (formType === 'create') {
+                        this.createMajors = result.result;
+                    } else if (formType === 'edit') {
+                        this.editMajors = result.result;
+                    } else if (formType === 'filter') {
+                        this.filterMajors = result.result;
+                    }
+                } else {
+                    if (formType === 'create') {
+                        this.createMajors = [];
+                    } else if (formType === 'edit') {
+                        this.editMajors = [];
+                    } else if (formType === 'filter') {
+                        this.filterMajors = [];
+                    }
+                }
+            } catch (err) {
+                console.error("โหลดข้อมูลสาขาล้มเหลว", err);
+                if (formType === 'create') {
+                    this.createMajors = [];
+                } else if (formType === 'edit') {
+                    this.editMajors = [];
+                } else if (formType === 'filter') {
+                    this.filterMajors = [];
+                }
+            }
+        },
+
         handleFilterChange() {
             this.page = 1;
             this.fetchMembers();
         },
 
+        async handleFacultyFilterChange() {
+            await this.fetchMajorsByFaculty(this.filters.faculty_id, 'filter');
+            this.filters.major_id = "";
+            this.handleFilterChange();
+        },
+
         resetFilters() {
             this.filters = {
                 faculty_id: "",
+                major_id: "",
                 role: "",
                 search: "",
             };
+            this.filterMajors = [];
             this.page = 1;
             this.fetchMembers();
         },
 
         openCreateDialog() {
             this.createUserForm = {
-                member_personal_id: "", // เพิ่ม field นี้ตอน reset
+                member_personal_id: "",
                 member_name: "",
                 member_email: "",
                 member_password: "",
                 faculty_id: "",
+                major_id: "",
                 role_id: "",
             };
-            this.majors = [];
+            this.createMajors = [];
             this.errors.create = {};
             this.createUserDialogShow = true;
         },
@@ -118,11 +184,13 @@ function UserTable() {
                 member_name: user.member_name ?? null,
                 member_email: user.member_email ?? null,
                 faculty_id: user.faculty_id ?? "",
-                role_id: user.role_id,
+                major_id: user.major_id ?? "",
+                role_id: parseInt(user.role_id),
             };
             this.errors.edit = {};
+            
             if (user.faculty_id) {
-                this.editUserForm.major_id = user.major_id ?? "";
+                await this.fetchMajorsByFaculty(user.faculty_id, 'edit');
             }
 
             console.log("Selected User:", user);
@@ -176,6 +244,9 @@ function UserTable() {
                 confirmButtonText: "ยืนยัน",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
             });
 
             if (result.isConfirmed) {
@@ -264,6 +335,58 @@ function UserTable() {
             }
         },
 
+        async confirmDeleteUser(member) {
+            if (!member) return;
+
+            const result = await Swal.fire({
+                title: "ยืนยันการลบ",
+                text: `ต้องการลบผู้ใช้ "${member.member_name}" ใช่หรือไม่?`,
+                icon: "warning",
+                showConfirmButton: true,
+                confirmButtonText: "ยืนยันการลบ",
+                confirmButtonColor: "#d33",
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const deleteRes = await fetch("/api/members/bulk-del", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ member_ids: [member.member_id] }),
+                    });
+                    const delResult = await deleteRes.json();
+
+                    if (delResult.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "ลบสำเร็จ",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                        this.fetchMembers();
+                    } else {
+                        throw new Error(
+                            delResult.message || "Something went wrong"
+                        );
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "ลบรายชื่อไม่สำเร็จ",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                }
+            }
+        },
+
         async deleteCheckedUser() {
             if (this.checkedMembers.member_ids.length === 0) return;
 
@@ -276,6 +399,9 @@ function UserTable() {
                 confirmButtonColor: "#d33",
                 showCancelButton: true,
                 cancelButtonText: "ยกเลิก",
+                didOpen: () => {
+                    Swal.getConfirmButton().focus();
+                },
             });
 
             if (result.isConfirmed) {
@@ -312,6 +438,99 @@ function UserTable() {
                     });
                 }
             }
+        },
+
+        showQuickMenu(member) {
+            this.selectedMemberForMenu = member;
+            this.quickMenuShow = true;
+        },
+
+        openWasteDeposit(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '📦 ทำรายการฝากของ',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">ไปยังหน้าฝากของสำหรับสมาชิกนี้</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปที่หน้าฝาก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/waste_deposit_pos?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openDonationExchange(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '💰 แลกของบริจาค',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">อัตรา: 1 บาท = 10 แต้ม</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปแลก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/donation_exchange?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openRedeemReward(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '🎁 แลกของรางวัล',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">เลือกของรางวัลตามแต้มที่มี</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'ไปแลก',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/redeem_reward_pos?member_id=${member.member_id}`;
+                }
+            });
+        },
+
+        openDonation(member) {
+            this.quickMenuShow = false;
+            Swal.fire({
+                title: '🎀 บริจาคสิ่งของ',
+                html: `
+                    <div class="text-left text-sm">
+                        <p><b>ผู้บริจาค:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">บันทึกการบริจาคของสิ่งประเมินค่า</p>
+                    </div>
+                `,
+                showConfirmButton: true,
+                confirmButtonText: 'บริจาค',
+                showCancelButton: true,
+                cancelButtonText: 'ยกเลิก'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/waste_center/transactions/donation_pos?member_id=${member.member_id}`;
+                }
+            });
         },
     };
 }

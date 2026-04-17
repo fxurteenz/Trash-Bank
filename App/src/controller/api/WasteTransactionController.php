@@ -46,7 +46,12 @@ class WasteTransactionController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $deposits = self::$WasteTransactionModel->GetAllTransaction(self::$QueryString);
+            $query = self::$QueryString ?? [];
+            if (!empty($query['scope']) && $query['scope'] === 'header') {
+                $deposits = self::$WasteTransactionModel->GetTransactionHeaders($query);
+            } else {
+                $deposits = self::$WasteTransactionModel->GetAllTransaction($query);
+            }
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -65,6 +70,38 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (Exception $e) {
             error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetById($id)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$WasteTransactionModel->GetTransactionByIdWithDetails((int)$id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
@@ -100,6 +137,38 @@ class WasteTransactionController extends RouterBase
             ]);
         } catch (Exception $e) {
             error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetAllByMember($memberId)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$WasteTransactionModel->GetAllTransactionByMemberId($memberId, self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode([

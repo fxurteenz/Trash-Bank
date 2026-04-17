@@ -1,0 +1,16 @@
+meta {
+  name: member_report
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/reports/member/43
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

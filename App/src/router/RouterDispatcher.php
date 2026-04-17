@@ -18,7 +18,7 @@ class RouterDispatcher
         $controller = new $class();
         $params = $match['params'] ?? [];
 
-        return call_user_func_array([$controller, $method], $params);
+        return call_user_func_array([$controller, $method], array_values($params));
     }
 
     public static function renderNotFound()

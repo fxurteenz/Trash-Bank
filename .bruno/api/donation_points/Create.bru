@@ -1,0 +1,22 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api_domain}}/donation_points
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "redeem_point": 1000
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

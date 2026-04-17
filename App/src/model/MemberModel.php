@@ -25,14 +25,19 @@ class MemberModel
             $whereClauses = [];
             $params = [];
 
-            if (!empty($query['faculty_id'])) {
+            if (!empty($query['faculty'])) {
                 $whereClauses[] = "m.faculty_id = :faculty_id";
-                $params[':faculty_id'] = $query['faculty_id'];
+                $params[':faculty_id'] = $query['faculty'];
             }
 
-            if (!empty($query['role_id'])) {
+            if (!empty($query['role'])) {
                 $whereClauses[] = "m.role_id = :role_id";
-                $params[':role_id'] = $query['role_id'];
+                $params[':role_id'] = $query['role'];
+            }
+
+            if (!empty($query['major_id'])) {
+                $whereClauses[] = "m.major_id = :major_id";
+                $params[':major_id'] = $query['major_id'];
             }
 
             if (!empty($query['search'])) {
@@ -41,19 +46,43 @@ class MemberModel
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
+            $sortDirection = 'DESC';
+            if (isset($query['order']) && strtolower($query['order']) === 'asc') {
+                $sortDirection = 'ASC';
+            }
+
+            $orderBySql = " ORDER BY m.member_id " . $sortDirection;
+
+            if (!empty($query['sort_by'])) {
+                switch ($query['sort_by']) {
+                    case 'waste_point':
+                        $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
+                        break;
+                    case 'goodness_point':
+                        $orderBySql = " ORDER BY m.member_goodness_point " . $sortDirection;
+                        break;
+                    case 'name':
+                        $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                        break;
+                }
+            }
 
             $sql = "SELECT 
-                        m.*, 
-                        f.faculty_name,
-                        r.role_name,
-                        r.role_name_th
-                    FROM 
-                        member m
-                    LEFT JOIN 
-                        faculty f ON m.faculty_id = f.faculty_id
-                    LEFT JOIN 
-                        role r ON m.role_id = r.role_id
-                    {$whereSql}";
+                    m.*, 
+                    f.faculty_name,
+                    maj.major_name,
+                    r.role_name,
+                    r.role_name_th
+                FROM 
+                    member m
+                LEFT JOIN 
+                    faculty f ON m.faculty_id = f.faculty_id
+                LEFT JOIN 
+                    major maj ON m.major_id = maj.major_id
+                LEFT JOIN 
+                    role r ON m.role_id = r.role_id
+                {$whereSql}
+                {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -122,11 +151,13 @@ class MemberModel
 
             $data['member_password'] = $encodedPassword;
             $data['created_at'] = date('Y-m-d H:i:s');
+            // Add initial points of 10 for new members
+            $data['member_point'] = 10;
 
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
-                if (!empty($value)) {
+                if ($value !== '' && $value !== null) {
                     $setClauses[] = "`{$column}` = :{$column}";
                     $updateData[$column] = $value;
                 }
@@ -180,7 +211,7 @@ class MemberModel
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
-                if (!empty($value)) {
+                if ($value !== '' && $value !== null) {
                     $setClauses[] = "`{$column}` = :{$column}";
                     $updateData[$column] = $value;
                 }
@@ -238,6 +269,439 @@ class MemberModel
         } catch (PDOException $e) {
             $this->Conn->rollBack();
             throw new Exception("Database error: " . $e->getMessage() . $ids, 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetMemberProfile($member_id): array
+    {
+        try {
+            $sql = "SELECT 
+                        m.*, 
+                        f.faculty_name,
+                        maj.major_name,
+                        r.role_name,
+                        r.role_name_th
+                    FROM 
+                        member m
+                    LEFT JOIN 
+                        faculty f ON m.faculty_id = f.faculty_id
+                    LEFT JOIN 
+                        major maj ON m.major_id = maj.major_id
+                    LEFT JOIN 
+                        role r ON m.role_id = r.role_id
+                    WHERE 
+                        m.member_id = :member_id";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$member) {
+                throw new Exception("ไม่พบข้อมูลสมาชิก", 404);
+            }
+
+            // Get member badges
+            $badgeSql = "SELECT 
+                            b.*,
+                            mb.member_badge_date
+                        FROM 
+                            member_badge mb
+                        JOIN 
+                            badge b ON mb.badge_id = b.badge_id
+                        WHERE 
+                            mb.member_id = :member_id
+                        ORDER BY 
+                            mb.member_badge_date DESC";
+
+            $badgeStmt = $this->Conn->prepare($badgeSql);
+            $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $badgeStmt->execute();
+            $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['badges'] = $badges;
+
+            // Get member easte transaction history
+            $wasteSql = "SELECT 
+                            wt.*
+                        FROM 
+                            waste_transaction wt
+                        WHERE 
+                            wt.member_id = :member_id
+                        ORDER BY 
+                            wt.created_at DESC";
+
+            $wasteStmt = $this->Conn->prepare($wasteSql);
+            $wasteStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $wasteStmt->execute();
+            $wasteTransactions = $wasteStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['waste_transactions'] = $wasteTransactions;
+
+            // member donation history
+            $donationSql = "SELECT 
+                            d.*
+                            FROM 
+                            donation d
+                            WHERE 
+                            d.member_id = :member_id
+                        ORDER BY 
+                            d.created_at DESC";
+
+            $donationStmt = $this->Conn->prepare($donationSql);
+            $donationStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $donationStmt->execute();
+            $donations = $donationStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['donations'] = $donations;
+
+            return $member;
+        } catch (PDOException $e) {
+            throw new Exception($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function RedeemReward($member_id, $data): array
+    {
+        try {
+            $this->Conn->beginTransaction();
+
+            // Get member's current points
+            $memberSql = "SELECT (member_waste_point + member_goodness_point) as total_points FROM member WHERE member_id = :member_id FOR UPDATE";
+            $memberStmt = $this->Conn->prepare($memberSql);
+            $memberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $memberStmt->execute();
+            $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$member) {
+                throw new Exception("Member not found", 404);
+            }
+
+            // Get reward details
+            $rewardSql = "SELECT * FROM reward WHERE reward_id = :reward_id FOR UPDATE";
+            $rewardStmt = $this->Conn->prepare($rewardSql);
+            $rewardStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
+            $rewardStmt->execute();
+            $reward = $rewardStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$reward) {
+                throw new Exception("Reward not found", 404);
+            }
+
+            if (!$reward['reward_active']) {
+                throw new Exception("Reward is not active", 400);
+            }
+
+            $qty = $data['quantity'] ?? 1;
+            $totalPoints = $reward['reward_point_required'] * $qty;
+
+            // Check if member has enough points
+            if ($member['total_points'] < $totalPoints) {
+                throw new Exception("Insufficient points", 400);
+            }
+
+            // Check if reward has enough stock
+            if ($reward['reward_stock'] < $qty) {
+                throw new Exception("Insufficient stock", 400);
+            }
+
+            // Create member_reward record
+            $insertSql = "INSERT INTO member_reward (
+                            member_id, 
+                            reward_id, 
+                            member_reward_date, 
+                            member_reward_qty, 
+                            member_reward_point_used, 
+                            member_reward_status
+                        ) VALUES (
+                            :member_id, 
+                            :reward_id, 
+                            CURDATE(), 
+                            :qty, 
+                            :points, 
+                            'pending'
+                        )";
+
+            $insertStmt = $this->Conn->prepare($insertSql);
+            $insertStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
+            $insertStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
+            $insertStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
+            $insertStmt->execute();
+
+            // Update member points (deduct from waste_point first, then goodness_point if needed)
+            $updateMemberSql = "UPDATE member 
+                               SET member_waste_point = GREATEST(0, member_waste_point - :points),
+                                   member_goodness_point = GREATEST(0, member_goodness_point - GREATEST(0, :points - member_waste_point))
+                               WHERE member_id = :member_id";
+            $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
+            $updateMemberStmt->bindValue(':points', $totalPoints, PDO::PARAM_INT);
+            $updateMemberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $updateMemberStmt->execute();
+
+            // Update reward stock
+            $updateRewardSql = "UPDATE reward SET reward_stock = reward_stock - :qty WHERE reward_id = :reward_id";
+            $updateRewardStmt = $this->Conn->prepare($updateRewardSql);
+            $updateRewardStmt->bindValue(':qty', $qty, PDO::PARAM_INT);
+            $updateRewardStmt->bindValue(':reward_id', $data['reward_id'], PDO::PARAM_INT);
+            $updateRewardStmt->execute();
+
+            $this->Conn->commit();
+
+            return [
+                'member_reward_id' => $this->Conn->lastInsertId(),
+                'reward_name' => $reward['reward_name'],
+                'quantity' => $qty,
+                'points_used' => $totalPoints,
+                'remaining_points' => $member['total_points'] - $totalPoints
+            ];
+        } catch (PDOException $e) {
+            $this->Conn->rollBack();
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            $this->Conn->rollBack();
+            throw $e;
+        }
+    }
+
+    public function GetMemberDashboard($member_id, $query = []): array
+    {
+        try {
+            // Get member basic info
+            $memberSql = "SELECT 
+                            m.member_id,
+                            m.member_name,
+                            m.member_waste_point,
+                            m.member_goodness_point,
+                            (m.member_waste_point + m.member_goodness_point) as total_points,
+                            m.member_email,
+                            m.member_phone,
+                            f.faculty_name,
+                            maj.major_name,
+                            r.role_name,
+                            r.role_id
+                        FROM 
+                            member m
+                        LEFT JOIN 
+                            faculty f ON m.faculty_id = f.faculty_id
+                        LEFT JOIN 
+                            major maj ON m.major_id = maj.major_id
+                        LEFT JOIN 
+                            role r ON m.role_id = r.role_id
+                        WHERE 
+                            m.member_id = :member_id";
+
+            // Add role filter if provided
+            if (!empty($query['role'])) {
+                $memberSql .= " AND r.role_id = :role_id";
+            }
+
+            $memberStmt = $this->Conn->prepare($memberSql);
+            $memberStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            if (!empty($query['role'])) {
+                $memberStmt->bindValue(':role_id', $query['role'], PDO::PARAM_INT);
+            }
+            $memberStmt->execute();
+            $member = $memberStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$member) {
+                throw new Exception("Member not found", 404);
+            }
+
+            // Get waste statistics
+            $statsSql = "SELECT 
+                            COUNT(*) as total_transactions,
+                            COALESCE(SUM(wt.waste_transaction_weight), 0) as total_weight,
+                            COALESCE(SUM(wt.waste_transaction_weight * 2.5), 0) as carbon_saved
+                        FROM 
+                            waste_transaction wt
+                        WHERE 
+                            wt.member_id = :member_id";
+
+            $statsStmt = $this->Conn->prepare($statsSql);
+            $statsStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $statsStmt->execute();
+            $stats = $statsStmt->fetch(PDO::FETCH_ASSOC);
+
+            // Get recent activities (waste transactions + rewards)
+            $activitiesSql = "
+                SELECT 
+                    'waste' as activity_type,
+                    wt.waste_transaction_id as id,
+                    wt.waste_transaction_weight as weight,
+                    wt.waste_transaction_member_point as points,
+                    wt.waste_transaction_date as activity_date,
+                    wtype.waste_type_name as description
+                FROM 
+                    waste_transaction wt
+                LEFT JOIN
+                    waste_type wtype ON wt.waste_transaction_waste_type = wtype.waste_type_id
+                WHERE 
+                    wt.member_id = :member_id
+                
+                UNION ALL
+                
+                SELECT 
+                    'reward' as activity_type,
+                    mr.member_reward_id as id,
+                    mr.member_reward_qty as weight,
+                    -mr.member_reward_point_used as points,
+                    mr.member_reward_date as activity_date,
+                    r.reward_name as description
+                FROM 
+                    member_reward mr
+                LEFT JOIN
+                    reward r ON mr.reward_id = r.reward_id
+                WHERE 
+                    mr.member_id = :member_id
+                
+                ORDER BY activity_date DESC
+                LIMIT 10";
+
+            $activitiesStmt = $this->Conn->prepare($activitiesSql);
+            $activitiesStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $activitiesStmt->execute();
+            $activities = $activitiesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Get member badges
+            $badgesSql = "SELECT 
+                            b.badge_id,
+                            b.badge_name,
+                            b.badge_description,
+                            b.badge_image,
+                            b.badge_type,
+                            mb.member_badge_date
+                        FROM 
+                            member_badge mb
+                        JOIN 
+                            badge b ON mb.badge_id = b.badge_id
+                        WHERE 
+                            mb.member_id = :member_id
+                        ORDER BY 
+                            mb.member_badge_date DESC";
+
+            $badgesStmt = $this->Conn->prepare($badgesSql);
+            $badgesStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $badgesStmt->execute();
+            $badges = $badgesStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Get available rewards (active and in stock)
+            $rewardsSql = "SELECT 
+                            reward_id,
+                            reward_name,
+                            reward_description,
+                            reward_point_required,
+                            reward_stock,
+                            reward_image
+                        FROM 
+                            reward
+                        WHERE 
+                            reward_active = 1 
+                            AND reward_stock > 0
+                        ORDER BY 
+                            reward_point_required ASC
+                        LIMIT 6";
+
+            $rewardsStmt = $this->Conn->prepare($rewardsSql);
+            $rewardsStmt->execute();
+            $rewards = $rewardsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Calculate level progress (assuming 1000 points per level)
+            $pointsPerLevel = 1000;
+            $totalPoints = $member['total_points'] ?? 0;
+            $currentLevel = floor($totalPoints / $pointsPerLevel) + 1;
+            $pointsInCurrentLevel = $totalPoints % $pointsPerLevel;
+            $levelProgress = ($pointsInCurrentLevel / $pointsPerLevel) * 100;
+
+            return [
+                'member_info' => [
+                    'id' => $member['member_id'],
+                    'name' => $member['member_name'],
+                    'email' => $member['member_email'],
+                    'phone' => $member['member_phone'],
+                    'waste_points' => (float) $member['member_waste_point'],
+                    'goodness_points' => (float) $member['member_goodness_point'],
+                    'total_points' => (float) $totalPoints,
+                    'level' => (int) $currentLevel,
+                    'level_progress' => round($levelProgress, 2),
+                    'faculty' => $member['faculty_name'],
+                    'major' => $member['major_name'],
+                    'role' => $member['role_name']
+                ],
+                'statistics' => [
+                    'total_transactions' => (int) $stats['total_transactions'],
+                    'total_weight' => (float) $stats['total_weight'],
+                    'carbon_saved' => (float) $stats['carbon_saved']
+                ],
+                'recent_activities' => $activities,
+                'badges' => $badges,
+                'rewards_available' => $rewards
+            ];
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+        }
+    }
+
+    public function GetMemberRoleCount($query = [])
+    {
+        try {
+            $filterClauses = [];
+            $params = [];
+
+            if (!empty($query['faculty'])) {
+                $filterClauses[] = "m.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $query['faculty'];
+            }
+
+            if (!empty($query['major'])) {
+                $filterClauses[] = "m.major_id = :major_id";
+                $params[':major_id'] = $query['major'];
+            }
+
+            $whereSql = !empty($filterClauses) ? " WHERE " . implode(" AND ", $filterClauses) : "";
+
+            // Get total members count
+            $totalSql = "SELECT COUNT(*) as total_members FROM member m" . $whereSql;
+            $totalStmt = $this->Conn->prepare($totalSql);
+            $totalStmt->execute($params);
+            $totalMembers = $totalStmt->fetch(PDO::FETCH_ASSOC)['total_members'];
+
+            // Get count per role
+            $joinSql = "";
+            if (!empty($filterClauses)) {
+                $joinSql = " AND " . implode(" AND ", $filterClauses);
+            }
+            
+            $roleSql = "SELECT 
+                            r.role_id, 
+                            r.role_name, 
+                            r.role_name_th,
+                            COUNT(m.member_id) as member_count
+                        FROM 
+                            role r
+                        LEFT JOIN 
+                            member m ON r.role_id = m.role_id {$joinSql}
+                        GROUP BY 
+                            r.role_id, r.role_name, r.role_name_th
+                        ORDER BY 
+                            r.role_id";
+
+            $roleStmt = $this->Conn->prepare($roleSql);
+            $roleStmt->execute($params);
+            $roleCounts = $roleStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'total_members' => (int)$totalMembers,
+                'roles' => $roleCounts
+            ];
+
+        } catch (PDOException $e) {
+            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }

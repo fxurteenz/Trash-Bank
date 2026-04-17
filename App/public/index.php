@@ -8,7 +8,7 @@ require "../vendor/autoload.php";
 use App\Router\Routes;
 
 $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 1));
-$dotenv->load();
+$dotenv->safeLoad();
 
 $AltoRouter = new AltoRouter();
 new Routes($AltoRouter);

@@ -42,7 +42,7 @@ class MemberController extends RouterBase
     public function GetAll()
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::OperateAuth();
             $result = $this->MemberModel->GetAllMembers($this->queryString);
             $response = [
                 'success' => TRUE,
@@ -161,6 +161,124 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
+        }
+    }
+    public function GetDashboard($member_id)
+    {
+        try {
+            Authentication::MemberAuth();
+            $dashboard = $this->MemberModel->GetMemberDashboard($member_id, $this->queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $dashboard,
+                'message' => 'Dashboard data retrieved successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+    public function GetProfile($member_id)
+    {
+        try {
+            // Authentication::MemberAuth();
+            $profile = $this->MemberModel->GetMemberProfile($member_id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $profile,
+                'message' => 'Profile retrieved successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function RedeemReward($member_id)
+    {
+        try {
+            Authentication::MemberAuth();
+            $result = $this->MemberModel->RedeemReward($member_id, $this->data);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'Reward redeemed successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetRoleCount()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->MemberModel->GetMemberRoleCount($this->queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
         }
     }
 }

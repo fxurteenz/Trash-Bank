@@ -94,7 +94,8 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->role_id !== 1) {
+            $role = (int)$authenticated->role_id;
+            if ($role !== 1) {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
             } else {
                 return ['success' => true, 'user_data' => $authenticated];
@@ -108,10 +109,40 @@ class Authentication
     {
         try {
             $authenticated = self::CookieAuth();
-            if ($authenticated->role_id === 1 || $authenticated->role_id === 3) {
+            $role = (int) $authenticated->role_id;
+            if ($role === 1 || $role === 3 || $role === 4) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
+    public static function CenterAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            $role = (int) $authenticated->role_id;
+            if ($role === 1 || $role === 4) {
+                return ['success' => true, 'user_data' => $authenticated];
+            } else {
+                throw new AuthenticationException('Forbidden : Permission denied.', 403);
+            }
+        } catch (AuthenticationException $th) {
+            throw new AuthenticationException($th->getMessage(), 403);
+        }
+    }
+
+    public static function MemberAuth(): array
+    {
+        try {
+            $authenticated = self::CookieAuth();
+            $role = (int) $authenticated->role_id;
+            if ($role === 2 || $role === 1) {
+                return ['success' => true, 'user_data' => $authenticated];
+            } else {
+                throw new AuthenticationException('Forbidden : Member access only.', 403);
             }
         } catch (AuthenticationException $th) {
             throw new AuthenticationException($th->getMessage(), 403);

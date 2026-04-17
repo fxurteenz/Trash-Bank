@@ -47,6 +47,11 @@ class Database{
                 password: $this->password,
                 options: $this->options
             );
+            
+            // Force UTF-8 character encoding
+            $this->conn->exec("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
+            $this->conn->exec("SET CHARACTER SET utf8mb4");
+            
             return $this->conn;
         } catch (PDOException $e) {
             $error = "Database Connection Error: " . $e->getMessage();

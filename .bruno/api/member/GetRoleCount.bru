@@ -1,0 +1,15 @@
+meta {
+  name: GetRoleCount
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{api_domain}}/members/count
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

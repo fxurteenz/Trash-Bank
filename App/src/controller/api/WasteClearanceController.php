@@ -52,8 +52,105 @@ class WasteClearanceController extends RouterBase
             http_response_code(201);
             echo json_encode([
                 'success' => TRUE,
-                'result' => $result,
+                'data' => $result,
                 'message' => 'trasaction completed successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function GetAll()
+    {
+        try {
+            Authentication::CenterAuth();
+            $result = self::$WasteClearanceModel->GetAllClearance(self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result['data'],
+                'total' => $result['total'],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Get($wcid)
+    {
+        try {
+            Authentication::CenterAuth();
+            $result = self::$WasteClearanceModel->GetClearanceDetail($wcid, self::$QueryString);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } finally {
+            exit;
+        }
+    }
+
+    public function Cancel($wcid)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = self::$WasteClearanceModel->CancelClearance($wcid);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $result,
+                'message' => 'ยกเลิกรายการเคลียร์ยอดเรียบร้อยแล้ว'
             ]);
         } catch (AuthenticationException $e) {
             header('Content-Type: application/json');

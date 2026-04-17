@@ -32,9 +32,13 @@ class UsersModel
 
             $sql =
                 'SELECT 
-                    *
+                    m.*,
+                    r.role_name,
+                    r.role_name_th
                 FROM 
-                    member 
+                    member m
+                LEFT JOIN 
+                    role r ON m.role_id = r.role_id
                 WHERE 
                     member_email = :identifier OR
                     member_personal_id = :identifier OR

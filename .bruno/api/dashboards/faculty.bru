@@ -1,0 +1,16 @@
+meta {
+  name: faculty
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/dashboards/faculty/1
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

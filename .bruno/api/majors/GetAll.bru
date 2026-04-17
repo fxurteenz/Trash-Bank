@@ -1,0 +1,23 @@
+meta {
+  name: /GetAll
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/majors
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~name: ว
+  ~page: 1
+  ~limit: 2
+  ~faculty: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

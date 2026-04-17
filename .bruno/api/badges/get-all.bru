@@ -1,0 +1,27 @@
+meta {
+  name: Get All Badges
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{domain}}/api/badges
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~badge_type: waste
+  ~search: 
+  ~limit: 10
+  ~page: 1
+}
+
+vars:pre-request {
+  domain: http://localhost:8000
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

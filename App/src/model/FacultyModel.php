@@ -23,13 +23,29 @@ class FacultyModel
             $params = [];
 
             if (!empty($query['search'])) {
-                $whereClauses[] = "faculty_name LIKE :search";
+                $whereClauses[] = "(f.faculty_name LIKE :search OR f.faculty_id LIKE :search OR f.faculty_code LIKE :search)";
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
-            $sql = "SELECT * FROM faculty {$whereSql}";
+            // --- แก้ไข SQL ตรงนี้ ---
+            $sql = "SELECT 
+                    f.*, 
+                    COALESCE(m_count.total_major, 0) AS major_count_total
+                FROM 
+                    faculty f
+                -- Subquery 1: นับจำนวน Major
+                LEFT JOIN (
+                    SELECT faculty_id, COUNT(major_id) AS total_major
+                    FROM major
+                    GROUP BY faculty_id
+                ) AS m_count ON f.faculty_id = m_count.faculty_id
+                
+                {$whereSql}
+                
+                ORDER BY f.faculty_id DESC";
+
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -53,8 +69,10 @@ class FacultyModel
             $stmt->execute();
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // ส่วนนับจำนวนทั้งหมดสำหรับ Pagination
             if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS all_faculty FROM faculty{$whereSql}";
+                // สังเกตว่า count ต้องนับจาก alias f (faculty)
+                $sqlCount = "SELECT COUNT(*) AS all_faculty FROM faculty f {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
