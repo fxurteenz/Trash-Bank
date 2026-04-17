@@ -1,616 +1,432 @@
-<div class="relative w-full bg-gradient-to-b from-[#87CEEB] via-[#E0F7FA] to-[#4CAF50] overflow-x-clip">
-    <img src="assets/images/cloud_l.png" data-speed-x="-0.2" data-speed-y="0.1"
-        class="parallax-item absolute top-[2%] left-0 w-4/12 md:w-3/12 z-10 opacity-80 pointer-events-none">
-    <img src="assets/images/cloud_r.png" data-speed-x="0.2" data-speed-y="0.1"
-        class="parallax-item absolute top-[5%] right-0 w-5/12 md:w-4/12 z-10 opacity-80 pointer-events-none">
-    <img src="assets/images/cloud1.png" data-speed-x="-0.2" data-speed-y="0.2"
-        class="parallax-item absolute top-[20%] left-[15%] w-3/12 z-0 opacity-60 pointer-events-none">
-    <img src="assets/images/cloud2.png" data-speed-x="0.2" data-speed-y="0.15"
-        class="parallax-item absolute top-[15%] right-[25%]  lg:top-[20%] w-2/12 z-0 opacity-60 pointer-events-none">
+<div x-data="wasteBankApp()" x-init="$nextTick(() => { lucide.createIcons() })" class="min-h-screen">
 
-    <section id="section-1" class="relative w-full min-h-screen flex flex-col z-20">
-        <div class="reveal-element parallax-item w-full lg:mt-4 text-center px-4 flex flex-col justify-center relative"
-            data-speed-y="-0.7" data-speed-opacity="0.5">
-            <img src="/assets/images/bru_gogreen_logo.png" alt="" class="w-[80%] mx-auto lg:w-[50%] mt-8 lg:mt-0">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <a href="/" class="h-full flex items-center justify-center">
+                        <img src="assets/images/bru_gogreen_logo.png" alt="BRU Waste Bank"
+                            class="h-[60%] hover:cursor-pointer">
+                    </a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-8">
+                    <button @click="scrollTo('about')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">รู้จักโครงการ</button>
+                    <button @click="scrollTo('how-it-works')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">การทำงาน</button>
+                    <button @click="scrollTo('rewards')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ของรางวัล</button>
+                    <button @click="scrollTo('leaderboard')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">อันดับคณะ</button>
+                    <a href="/login"
+                        class="bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 hover:cursor-pointer hover:scale-105 active:scale-98 px-6 py-2 rounded-full font-semibold transition-all">
+                        เข้าสู่ระบบ
+                    </a>
+                </div>
+
+                <div class="md:hidden flex items-center">
+                    <button @click="isMenuOpen = !isMenuOpen" class="text-gray-600">
+                        <i x-show="!isMenuOpen" data-lucide="menu" class="w-6 h-6"></i>
+                        <i x-show="isMenuOpen" x-cloak data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="flex-1 w-full flex flex-col gap-4 md:gap-6 items-center justify-center px-6 md:px-16 pb-8">
-
-            <div class="reveal-element parallax-item w-full lg:w-[60vw] overflow-x-auto no-scrollbar touch-pan-x snap-x snap-mandatory flex md:grid md:grid-cols-3 gap-2 lg:gap-8 px-4 md:px-0"
-                data-speed-y="-0.5">
-
-                <div
-                    class="min-w-[100%] md:min-w-0 snap-center bg-white/60 backdrop-blur-lg p-3 md:p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-1 md:gap-2 border border-white/20">
-                    <h2 class="text-sm md:text-lg text-gray-700">CO2e ที่ลดได้</h2>
-                    <h3 class="text-xl lg:text-3xl font-bold text-sky-500">200.65 KG.</h3>
-                </div>
-
-                <div
-                    class="min-w-[100%] md:min-w-0 snap-center bg-white/60 backdrop-blur-lg p-3 md:p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-1 md:gap-2 border border-white/20">
-                    <h2 class="text-sm md:text-lg text-gray-700">นักศึกษาที่มีส่วนร่วม</h2>
-                    <h3 class="text-xl lg:text-3xl font-bold text-purple-800">177 คน</h3>
-                </div>
-
-                <div
-                    class="min-w-[100%] md:min-w-0 snap-center bg-white/60 backdrop-blur-lg p-3 md:p-6 rounded-3xl shadow-xl flex flex-col items-center justify-center gap-1 md:gap-2 border border-white/20">
-                    <h2 class="text-sm md:text-lg text-gray-700">ขยะที่ลดได้</h2>
-                    <h3 class="text-xl lg:text-3xl font-bold text-emerald-600">325 KG.</h3>
-                </div>
+        <div x-show="isMenuOpen" x-collapse x-cloak
+            class="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3 shadow-lg absolute w-full">
+            <button @click="scrollTo('about')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">รู้จักโครงการ</button>
+            <button @click="scrollTo('how-it-works')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">การทำงาน</button>
+            <button @click="scrollTo('rewards')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</button>
+            <button @click="scrollTo('leaderboard')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">อันดับคณะ</button>
+            <div class="pt-2">
+                <button onclick="window.location.href='/login'"
+                    class="w-full bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าสู่ระบบ</button>
             </div>
+        </div>
+    </nav>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 items-stretch reveal-element w-full lg:w-[60vw] lg:mx-16 parallax-item"
-                data-speed-y="-0.5">
-                <div
-                    class="bg-white/60 backdrop-blur-lg lg:col-span-2 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col justify-center">
-                    <div class="space-y-2">
-                        <h3 class="text-lg md:text-xl lg:text-2xl font-bold text-emerald-800">
-                            "เปลี่ยนขยะให้เป็นคุณค่า ธนาคารขยะ มหาวิทยาลัยราชภัฏบุรีรัมย์"
-                        </h3>
-                        <p class="text-gray-700 text-sm md:text-base leading-relaxed">
-                            ระบบธนาคารขยะ คือ เว็บแอพลิเคชั่นที่ส่งเสริมการรีไซเคิลในมหาวิทยาลัย
-                            โดยสมาชิกสามารถนำขยะมาแลกเป็นแต้มเพื่อรับของรางวัล พร้อมด้วยระบบ Gamification
-                            เพื่อสร้างแรงจูงใจและติดตามผลกระทบต่อสิ่งแวดล้อม
-                        </p>
-                    </div>
-                </div>
-                <div class="bg-white/60 backdrop-blur-lg p-6 md:p-8 rounded-3xl shadow-xl flex flex-col justify-center">
-                    <div class="space-y-2">
-                        <h3 class="text-lg md:text-xl font-bold text-emerald-800">กิจกรรมประจำสัปดาห์</h3>
-                        <ol class="text-gray-700 text-sm md:text-base list-decimal list-inside">
-                            <li>ผู้นำประจำสัปดาห์ 10 อันดับ</li>
-                            <li>ผู้นำประจำเดือน 3 อันดับ</li>
-                            <li>รับแต้มขยะเพิ่ม 15%</li>
-                        </ol>
-                    </div>
-                </div>
+    <section id="about"
+        class="scroll-mt-20 relative min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+
+        <div class="absolute inset-0 bg-gradient-to-b from-green-50/50 to-white -z-10"></div>
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-green-400/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-700 font-semibold text-sm mb-8">
+                <span class="relative flex h-3 w-3">
+                    <span
+                        class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                ระบบธนาคารขยะเปิดให้บริการแล้ว
             </div>
-
-            <div class="flex flex-col sm:flex-row gap-3 w-full max-w-lg justify-center mt-2">
-                <button x-data @click="$dispatch('open-register'); scrollToSection(1);"
-                    class="flex-1 p-3 md:p-4 shadow-xl rounded-2xl hover:cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md bg-emerald-700 text-gray-50 transition-transform reveal-element parallax-item duration-300"
-                    data-speed-y="0.1" data-speed-opacity="0.7">
-                    <h3 class="text-base md:text-lg font-bold text-gray-50 text-center">เข้าร่วมกับเรา</h3>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-6">
+                เปลี่ยนขยะให้เป็นแต้ม<br class="hidden md:block" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">
+                    สร้างโลกสีเขียวไปด้วยกัน
+                </span>
+            </h1>
+            <p class="mt-4 text-xl text-gray-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+                เข้าร่วมโครงการธนาคารขยะ มหาวิทยาลัยราชภัฏบุรีรัมย์ คัดแยกขยะ สะสมแต้ม แลกของรางวัล
+                และร่วมสร้างสังคมคาร์บอนต่ำ พร้อมเก็บชั่วโมงจิตอาสา
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="window.location.href = '/register'"
+                    class="px-8 py-4 bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white rounded-xl font-bold text-lg shadow-lg shadow-green-600/30 transition-all hover:scale-105 active:scale-98 flex items-center justify-center gap-2">
+                    สมัครสมาชิกเลย <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
-                <button x-data @click="$dispatch('open-login'); scrollToSection(1);"
-                    class="flex-1 p-3 md:p-4 shadow-xl rounded-2xl hover:cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md bg-gray-50 text-emerald-700 transition-transform reveal-element parallax-item duration-300"
-                    data-speed-y="0.1" data-speed-opacity="0.7">
-                    <h3 class="text-base md:text-lg font-bold text-center">เข้าสู่ระบบ</h3>
+                <button @click="scrollTo('how-it-works')"
+                    class="px-8 py-4 bg-white hover:bg-gray-50 hover:cursor-pointer text-gray-700 border border-gray-200 rounded-xl font-bold text-lg shadow-sm transition-all hover:scale-105 active:scale-98">
+                    วิธีการทำงาน
                 </button>
             </div>
-
-        </div>
-    </section>
-
-    <section id="section-2"
-        class="relative w-full h-[100vh] z-50 flex flex-col justify-center items-center px-4 overflow-hidden">
-        <img src="assets/images/building.png" data-speed-y="-0.2" data-speed-opacity="0.1"
-            class="parallax-item absolute bottom-[12%] w-full min-w-[800px] object-cover z-1 pointer-events-none opacity-80">
-        <img src="assets/images/garden.png" data-speed-y="-0.1" data-speed-opacity="0.1"
-            class="parallax-item absolute bottom-0 left-0 w-full min-w-[800px] object-cover z-2 pointer-events-none">
-        <div class="absolute w-full h-[30vh] bg-emerald-700 bottom-0 -z-10 rounded-t-[60%] scale-100"></div>
-
-        <div x-data="authForm()" x-init="init()" @open-login.window="isLoginMode = true"
-            @open-register.window="isLoginMode = false" class="flex justify-center items-center min-h-screen z-20">
-            <div class="bg-white/60 backdrop-blur-lg rounded-3xl shadow-xl p-8 w-96 max-w-full">
-
-                <div x-show="!isLoginMode">
-                    <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
-                    <form @submit.prevent="submitRegistration" class="space-y-4 text-sm">
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="phone" class="text-gray-700 font-medium">
-                                เบอร์โทรศัพท์ <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                                :class="{'border-red-500': errors.member_phone}" type="text" id="phone"
-                                x-model="formData.member_phone" placeholder="หมายเลขโทรศัพท์ 10 หลัก">
-                            <span x-show="errors.member_phone" class="text-red-500 text-xs"
-                                x-text="errors.member_phone"></span>
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="password" class="text-gray-700 font-medium">
-                                รหัสผ่าน <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                                :class="{'border-red-500': errors.member_password}" type="password" id="password"
-                                x-model="formData.member_password" placeholder="อย่างน้อย 8 ตัวอักษร">
-                            <span x-show="errors.member_password" class="text-red-500 text-xs"
-                                x-text="errors.member_password"></span>
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                type="text" id="personal_id" x-model="formData.member_personal_id"
-                                placeholder="รหัสนักศึกษา/รหัสประจำตัวประชาชน">
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="email" class="text-gray-700 font-medium">อีเมล</label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                type="email" id="email" x-model="formData.member_email" placeholder="example@email.com">
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="name" class="text-gray-700 font-medium">ชื่อ-สกุล</label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                type="text" id="name" x-model="formData.member_name" placeholder="ชื่อที่ใช้แสดงในระบบ">
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="faculty" class="text-gray-700 font-medium">คณะ</label>
-                            <select id="faculty" x-model="formData.faculty_id" @change="fetchMajors()"
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white">
-                                <option value="">เลือกคณะ</option>
-                                <template x-for="faculty in faculties" :key="faculty.faculty_id">
-                                    <option :value="faculty.faculty_id" x-text="faculty.faculty_name"></option>
-                                </template>
-                            </select>
-                        </div>
-
-                        <div x-show="formData.faculty_id" class="flex flex-col space-y-1">
-                            <label for="major" class="text-gray-700 font-medium">สาขา</label>
-                            <select id="major" x-model="formData.major_id"
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white disabled:bg-gray-100"
-                                :disabled="!formData.faculty_id || majors.length === 0">
-                                <option value="" x-text="majors.length === 0 ? `ไม่มีสาขาที่เข้าร่วม` : `เลือกสาขา`">
-                                    เลือกสาขา
-                                </option>
-                                <template x-for="major in majors" :key="major.major_id">
-                                    <option :value="major.major_id" x-text="major.major_name"></option>
-                                </template>
-                            </select>
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit"
-                                class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
-                                ยืนยันการสมัคร
-                            </button>
-                        </div>
-                        <div class="text-center mt-4">
-                            <button type="button" @click="isLoginMode = true"
-                                class="text-sm text-emerald-600 hover:underline">มีบัญชีอยู่แล้ว?
-                                เข้าสู่ระบบ</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div x-show="isLoginMode" style="display: none;">
-                    <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">เข้าสู่ระบบ</h3>
-                    <form @submit.prevent="submitLogin" class="space-y-4 text-sm">
-                        <div class="flex flex-col space-y-1">
-                            <label for="login_phone" class="text-gray-700 font-medium">เบอร์โทรศัพท์</label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                                type="text" id="login_phone" x-model="loginData.identifier"
-                                placeholder="หมายเลขโทรศัพท์ 10 หลัก">
-                        </div>
-
-                        <div class="flex flex-col space-y-1">
-                            <label for="login_password" class="text-gray-700 font-medium">รหัสผ่าน</label>
-                            <input
-                                class="border border-gray-300 bg-gray-50 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400"
-                                type="password" id="login_password" x-model="loginData.password"
-                                placeholder="รหัสผ่านของคุณ">
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit"
-                                class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
-                                เข้าสู่ระบบ
-                            </button>
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <button type="button" @click="isLoginMode = false"
-                                class="text-sm text-emerald-600 hover:underline">
-                                ยังไม่มีบัญชี? สมัครสมาชิก
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
         </div>
 
-        <div class="absolute w-full bottom-[0] left-0 flex justify-center z-0 pointer-events-none">
-            <div class="flex flex-wrap justify-center items-end gap-2 md:gap-4 px-4 mb-[-10px]">
-                <img src="assets/images/pathway-section2.png" data-speed-opacity="0.7" data-speed-y="-0.2"
-                    class="parallax-item h-32 md:h-56 lg:h-100 object-contain opacity-95 drop-shadow-xl">
+        <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-8 md:mt-12 relative z-10">
+            <div
+                class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-100 border border-gray-100">
+                <template x-for="(stat, index) in stats" :key="index">
+                    <div :class="{'pt-8 md:pt-0': index !== 0}" class="flex flex-col items-center text-center">
+                        <div class="bg-gray-50 p-4 rounded-2xl mb-4" :class="stat.iconColor">
+                            <i :data-lucide="stat.icon" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-3xl font-black text-gray-900 mb-1" x-text="stat.value"></h3>
+                        <p class="text-sm text-gray-500 font-medium" x-text="stat.label"></p>
+                    </div>
+                </template>
             </div>
         </div>
     </section>
 
-    <section id="section-3"
-        class="relative w-full h-[100vh] z-40 flex flex-col justify-between overflow-hidden bg-emerald-700">
-
-        <div class="relative w-full h-[80vh] flex flex-col items-center justify-start pt-10 md:pt-16 px-4 z-30">
-
-            <div class="reveal-element parallax-item text-center bg-white/60 backdrop-blur-lg rounded-full py-4 px-8 md:py-6 md:px-12 shadow-lg mb-6 lg:mb-10 z-30"
-                data-speed-y="-0.3" data-speed-opacity="0.2">
-                <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold text-emerald-800">
-                    เส้นทางการจัดการขยะ
-                </h2>
-                <p class="text-gray-700 mt-2 text-sm md:text-lg">
-                    เรียนรู้ขั้นตอนการทำงานของโครงการ BRU Go Green
+    <section id="how-it-works"
+        class="scroll-mt-20 bg-white min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">เปลี่ยนพฤติกรรม เป็นรางวัลได้อย่างไร?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    โมเดลการทำงานที่ออกแบบมาเพื่อให้นักศึกษาและบุคลากรมีส่วนร่วมได้ง่ายๆ
+                    ผ่านแนวคิด Activity-based Volunteer Credit
                 </p>
             </div>
 
-            <div class="reveal-element parallax-item w-[80vw] max-w-5xl z-30 flex-1 flex flex-col justify-start pb-28 md:pb-32"
-                data-speed-y="-0.2">
+            <div class="grid md:grid-cols-4 gap-8 relative">
                 <div
-                    class="bg-white/60 backdrop-blur-lg p-4 md:p-8 rounded-3xl shadow-2xl border border-white/50 hover:scale-[1.02] transition-transform duration-300">
-                    <img src="assets/images/wastebank-path.png" alt="Waste Bank Path"
-                        class="h-auto object-contain max-h-[30vh] md:max-h-[35vh] drop-shadow-lg mx-auto">
+                    class="hidden md:block absolute top-1/2 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-green-100 via-green-300 to-green-100 z-10 transform -translate-y-1/2 border-dashed border-t-2">
+                </div>
+
+                <div
+                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
+                    <div
+                        class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
+                        1</div>
+                    <h3 class="text-xl font-bold text-center mb-3">คัดแยกขยะ</h3>
+                    <p class="text-gray-500 text-center text-sm">นักศึกษาคัดแยกขยะตามประเภท (พลาสติก, กระดาษ, แก้ว,
+                        โลหะ)</p>
+                </div>
+
+                <div
+                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
+                    <div
+                        class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
+                        2</div>
+                    <h3 class="text-xl font-bold text-center mb-3">ฝากที่จุดรับ</h3>
+                    <p class="text-gray-500 text-center text-sm">นำขยะมาฝากที่จุดรับของคณะ
+                        เจ้าหน้าที่ชั่งน้ำหนักและบันทึก</p>
+                </div>
+
+                <div
+                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
+                    <div
+                        class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
+                        3</div>
+                    <h3 class="text-xl font-bold text-center mb-3">รับแต้ม & แบดจ์</h3>
+                    <p class="text-gray-500 text-center text-sm">ระบบคำนวณแต้มขยะอัตโนมัติ พร้อมสะสมค่าประสบการณ์
+                        (Level)</p>
+                </div>
+
+                <div
+                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
+                    <div
+                        class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
+                        4</div>
+                    <h3 class="text-xl font-bold text-center mb-3">แลกรางวัล / กยศ.</h3>
+                    <p class="text-gray-500 text-center text-sm">ใช้แต้มแลกของจากศูนย์ใหญ่
+                        หรือใช้เป็นหลักฐานปลดล็อกชั่วโมงจิตอาสา</p>
                 </div>
             </div>
-        </div>
 
-        <div class="absolute w-full bottom-[20vh] left-0 flex justify-center z-20 pointer-events-none">
-            <div class="flex flex-wrap justify-center items-end gap-2 md:gap-4 px-4 mb-[-10px]">
-                <img src="assets/images/bin-green.png"
-                    class="h-28 md:h-56 lg:h-64 object-contain opacity-95 drop-shadow-xl">
-                <img src="assets/images/bin-blue.png"
-                    class="h-28 md:h-56 lg:h-64 object-contain opacity-95 drop-shadow-xl">
-                <img src="assets/images/bin-yellow.png"
-                    class="h-28 md:h-56 lg:h-64 object-contain opacity-95 drop-shadow-xl">
-                <img src="assets/images/bin-red.png"
-                    class="h-28 md:h-56 lg:h-64 object-contain opacity-95 drop-shadow-xl">
-                <img src="assets/images/bin-gray.png"
-                    class="h-28 md:h-56 lg:h-64 object-contain opacity-95 drop-shadow-xl">
-            </div>
-        </div>
-
-        <footer
-            class="absolute w-full bg-purple-900 h-[20vh] bottom-0 text-white flex items-center z-50 shadow-[0_-10px_20px_rgba(0,0,0,0.3)]">
-            <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-                <div class="text-center md:text-left">
-                    <h4 class="text-lg md:text-xl font-bold tracking-wide">โครงการ BRU GO GREEN</h4>
-                    <p class="text-xs md:text-sm text-emerald-300">มหาวิทยาลัยราชภัฏบุรีรัมย์</p>
+            <div
+                class="mt-8 md:mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-100 flex flex-col md:flex-row items-center gap-8">
+                <div class="bg-white p-4 rounded-full shadow-sm">
+                    <i data-lucide="clock" class="w-12 h-12 text-blue-500"></i>
                 </div>
-                <div class="text-center md:text-right">
-                    <p class="text-xs md:text-sm opacity-70">&copy;
-                        <?= date('Y') ?> BRU Go Green. All rights reserved.
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">โมเดลเก็บชั่วโมง กยศ. รูปแบบใหม่</h3>
+                    <p class="text-gray-600">
+                        แต้มจากธนาคารขยะ ทำหน้าที่เป็น <span
+                            class="font-semibold text-blue-600">"ตัวกรองความตั้งใจ"</span> เมื่อสะสมแต้มถึงเกณฑ์
+                        จะสามารถปลดล็อกสิทธิ์เข้าร่วมกิจกรรมจิตอาสาจริงของศูนย์ใหญ่หรือคณะได้
+                        ชั่วโมงเกิดจากการลงมือทำจริง ไม่ใช่การนำขยะมาซื้อชั่วโมง
                     </p>
                 </div>
             </div>
-        </footer>
-
+        </div>
     </section>
+
+    <section class="scroll-mt-20 py-6 md:py-12 bg-gray-900 text-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
+            <div
+                class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
+            </div>
+            <div
+                class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000">
+            </div>
+            <div
+                class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000">
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center justify-center p-3 bg-gray-800 rounded-full mb-4">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-yellow-400"></i>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">สนุกไปกับการรักษ์โลก (Gamification)</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+                    สะสมแต้ม เลื่อนระดับ และปลดล็อกเหรียญตราเกียรติยศ เพื่อเป็นผู้นำด้านสิ่งแวดล้อม
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div
+                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
+                    <div
+                        class="w-20 h-20 mx-auto bg-green-900/50 rounded-full flex items-center justify-center border-4 border-green-500 mb-4 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                        <span class="text-4xl">♻️</span>
+                    </div>
+                    <h4 class="font-bold text-lg text-white mb-1">พลาสติกมาสเตอร์</h4>
+                    <p class="text-xs text-green-400 font-medium">Recycling Badge</p>
+                    <p class="text-xs text-gray-400 mt-2">รีไซเคิลพลาสติกครบ 50 กก.</p>
+                </div>
+                <div
+                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
+                    <div
+                        class="w-20 h-20 mx-auto bg-emerald-900/50 rounded-full flex items-center justify-center border-4 border-emerald-500 mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                        <span class="text-4xl">🌱</span>
+                    </div>
+                    <h4 class="font-bold text-lg text-white mb-1">ผู้พิทักษ์สีเขียว</h4>
+                    <p class="text-xs text-emerald-400 font-medium">Green Impact</p>
+                    <p class="text-xs text-gray-400 mt-2">ลดคาร์บอนครบ 100 kgCO₂e</p>
+                </div>
+                <div
+                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
+                    <div
+                        class="w-20 h-20 mx-auto bg-blue-900/50 rounded-full flex items-center justify-center border-4 border-blue-500 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                        <span class="text-4xl">🤝</span>
+                    </div>
+                    <h4 class="font-bold text-lg text-white mb-1">จิตอาสาดีเด่น</h4>
+                    <p class="text-xs text-blue-400 font-medium">Community Badge</p>
+                    <p class="text-xs text-gray-400 mt-2">เข้าร่วมกิจกรรม 5 ครั้ง</p>
+                </div>
+                <div
+                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
+                    <div
+                        class="w-20 h-20 mx-auto bg-yellow-900/50 rounded-full flex items-center justify-center border-4 border-yellow-500 mb-4 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                        <span class="text-4xl">⭐</span>
+                    </div>
+                    <h4 class="font-bold text-lg text-white mb-1">ฮีโร่เลเวล 10</h4>
+                    <p class="text-xs text-yellow-400 font-medium">Achievement</p>
+                    <p class="text-xs text-gray-400 mt-2">แต้มสะสมรวม 10,000 แต้ม</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="rewards"
+        class="scroll-mt-20 bg-gray-50 min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                        <i data-lucide="gift" class="text-rose-500 w-8 h-8"></i> รายการของรางวัล
+                    </h2>
+                    <p class="text-gray-600 max-w-2xl text-lg">
+                        ใช้แต้มขยะและแต้มความดีที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
+                    </p>
+                </div>
+                <div
+                    class="mt-6 md:mt-0 bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+                    <div class="text-right">
+                        <p class="text-xs text-gray-500 font-medium">การคำนวณแต้ม</p>
+                        <p class="font-bold text-gray-900 text-sm">แต้ม = (ราคา/กก. × น้ำหนัก) / 2 × 10</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <template x-for="(reward, index) in rewards" :key="index">
+                    <div
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group">
+                        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform"
+                            x-text="reward.icon">
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 mb-1" x-text="reward.name"></h3>
+                        <p class="text-sm text-gray-500 mb-6 h-10" x-text="reward.desc"></p>
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+                            <div class="flex items-center gap-1.5 font-bold text-green-600">
+                                <i data-lucide="award" class="w-5 h-5"></i> <span
+                                    x-text="reward.points + ' แต้ม'"></span>
+                            </div>
+                            <button
+                                class="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                แลกรางวัล
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <section id="leaderboard"
+        class="scroll-mt-20 bg-white min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
+                    <i data-lucide="trophy" class="w-8 h-8 text-yellow-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">กระดานผู้นำระดับคณะ</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    การแข่งขันเชิงสร้างสรรค์ เพื่อค้นหาสุดยอดคณะที่มีส่วนร่วมในการจัดการขยะและลดคาร์บอนได้มากที่สุด
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-500 text-sm font-semibold uppercase tracking-wider">
+                                <th class="py-5 px-6">อันดับ</th>
+                                <th class="py-5 px-6">คณะ</th>
+                                <th class="py-5 px-6 text-right">แต้มสะสมรวม</th>
+                                <th class="py-5 px-6 text-right hidden sm:table-cell">ปริมาณขยะ</th>
+                                <th class="py-5 px-6 text-right hidden md:table-cell">คาร์บอนที่ลดได้ (CO₂e)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <template x-for="item in leaderboard" :key="item.rank">
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="py-5 px-6">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                            :class="{
+                             'bg-yellow-100 text-yellow-700': item.rank === 1,
+                             'bg-gray-100 text-gray-600': item.rank === 2,
+                             'bg-orange-100 text-orange-700': item.rank === 3,
+                             'bg-gray-50 text-gray-400': item.rank > 3
+                           }" x-text="item.rank">
+                                        </div>
+                                    </td>
+                                    <td class="py-5 px-6 font-bold text-gray-900" x-text="item.faculty"></td>
+                                    <td class="py-5 px-6 text-right font-bold text-green-600" x-text="item.points">
+                                    </td>
+                                    <td class="py-5 px-6 text-right text-gray-500 hidden sm:table-cell"
+                                        x-text="item.weight"></td>
+                                    <td class="py-5 px-6 text-right text-emerald-600 font-medium hidden md:table-cell">
+                                        <span class="flex items-center justify-end gap-1"><i data-lucide="leaf"
+                                                class="w-4 h-4"></i> <span x-text="item.carbon"></span></span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+                    <button
+                        class="text-green-600 font-semibold text-sm hover:underline flex items-center justify-center gap-1 mx-auto">
+                        ดูอันดับทั้งหมด <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                <div class="flex flex-col justify-center items-center">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div>
+                            <img class="h-10" src="assets/images/ธนาคารขยะFullLogo.png" alt="">
+                            <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
+                        </div>
+                        <div>
+                            <img class="h-10" src="assets/images/bru_gogreen_logo.png" alt="">
+                            <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
+                        </div>
+                    </div>
+                    <p class="text-sm">
+                        โครงการธนาคารขยะ มหาวิทยาลัยราชภัฏบุรีรัมย์<br />
+                        สร้างสังคมคาร์บอนต่ำอย่างยั่งยืน
+                    </p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm">
+                        © <span x-text="new Date().getFullYear()"></span>
+                        มหาวิทยาลัยราชภัฏบุรีรัมย์.<br />สงวนลิขสิทธิ์.
+                    </p>
+                </div>
+                <div class="flex justify-center md:justify-end gap-4">
+                    <button class="hover:text-white transition-all cursor-pointer">ติดต่อแอดมิน</button>
+                    <button class="hover:text-white transition-all cursor-pointer">นโยบายความเป็นส่วนตัว</button>
+                </div>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <script>
-    // ==========================================
-    // 1. Custom JS Scroll Snap 
-    // ==========================================
-    const sections = [
-        document.getElementById('section-1'),
-        document.getElementById('section-2'),
-        document.getElementById('section-3')
-    ];
-    let currentSectionIndex = 0;
-    let isAnimating = false;
-    let touchStartY = 0;
-
-    // ตั้งค่า Index ตอนโหลดหน้าเว็บใหม่ (ป้องกัน Refresh แล้วบัค)
-    window.addEventListener('load', () => {
-        const scrollY = window.scrollY;
-        if (scrollY < window.innerHeight * 0.5) currentSectionIndex = 0;
-        else if (scrollY < window.innerHeight * 1.5) currentSectionIndex = 1;
-        else currentSectionIndex = 2;
-    });
-
-    function scrollToSection(index) {
-        if (index < 0 || index >= sections.length) return;
-
-        isAnimating = true; // ล็อกไม่ให้เลื่อนซ้อน
-        currentSectionIndex = index;
-
-        let targetY = 0;
-        if (index === sections.length - 1) {
-            // ถ้าเป็น Section สุดท้าย (50vh) ให้เลื่อนไปขอบล่างสุดของเว็บ
-            targetY = document.documentElement.scrollHeight - window.innerHeight;
-        } else {
-            // Section อื่นๆ ให้เลื่อนไปขอบบน
-            targetY = sections[index].offsetTop;
-        }
-
-        window.scrollTo({
-            top: targetY,
-            behavior: 'smooth'
-        });
-
-        // ปลดล็อกหลังจากเลื่อนเสร็จ 
-        setTimeout(() => {
-            isAnimating = false;
-        }, 400);
-    }
-
-    // 1.1 ตรวจจับการหมุนลูกกลิ้งเมาส์ (Desktop)
-    window.addEventListener('wheel', (e) => {
-        e.preventDefault(); // ปิดการเลื่อนปกติของเบราว์เซอร์
-        if (isAnimating) return;
-
-        if (e.deltaY > 0) { // เลื่อนลง
-            scrollToSection(currentSectionIndex + 1);
-        } else if (e.deltaY < 0) { // เลื่อนขึ้น
-            scrollToSection(currentSectionIndex - 1);
-        }
-    }, { passive: false });
-
-    // 1.2 ตรวจจับการปัดนิ้ว (Mobile/Tablet)
-    let touchStartX = 0;
-    let isSwipingHorizontally = false; // ตัวแปรเช็กว่ากำลังปัดแนวนอนอยู่ไหม
-
-    window.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartX = e.touches[0].clientX;
-        isSwipingHorizontally = false; // รีเซ็ตค่าทุกครั้งที่เริ่มแตะจอ
-    }, { passive: false });
-
-    window.addEventListener('touchmove', (e) => {
-        const isHorizontalScroll = e.target.closest('.overflow-x-auto');
-
-        if (isHorizontalScroll) {
-            let deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-            let deltaY = Math.abs(e.touches[0].clientY - touchStartY);
-
-            // ถ้าตั้งใจปัดแนวนอน (แกน X ขยับมากกว่าแกน Y)
-            if (deltaX > deltaY) {
-                isSwipingHorizontally = true; // จำไว้ว่ากำลังปัดแนวนอน
-                return; // ปล่อยให้เบราว์เซอร์เลื่อนการ์ดซ้าย-ขวาตามปกติ
-            }
-        }
-
-        // ถ้าไม่ได้ปัดแนวนอน ให้บล็อกการเลื่อนจอแบบปกติ เพื่อใช้ Custom Scroll Snap ของเรา
-        e.preventDefault();
-    }, { passive: false });
-
-    window.addEventListener('touchend', (e) => {
-        if (isAnimating) return;
-
-        // *** จุดสำคัญ: ถ้าผู้ใช้กำลังปัดการ์ดซ้าย-ขวาอยู่ ให้ยกเลิกการเลื่อนหน้าจอแนวตั้ง ***
-        if (isSwipingHorizontally) return;
-
-        let touchEndY = e.changedTouches[0].clientY;
-        let deltaY = touchStartY - touchEndY;
-
-        // ตรวจจับระยะการปัดนิ้วแนวตั้งเพื่อเปลี่ยน Section
-        if (deltaY > 50) { // ปัดขึ้น (ดูเนื้อหาด้านล่าง)
-            scrollToSection(currentSectionIndex + 1);
-        } else if (deltaY < -50) { // ปัดลง (กลับขึ้นบน)
-            scrollToSection(currentSectionIndex - 1);
-        }
-    });
-
-
-    // ==========================================
-    // 2. Advanced Parallax 
-    // ==========================================
-    let isScrolling = false;
-    window.addEventListener('scroll', function () {
-        if (!isScrolling) {
-            window.requestAnimationFrame(function () {
-                updateParallax();
-                isScrolling = false;
-            });
-            isScrolling = true;
-        }
-    });
-
-    function updateParallax() {
-        const parallaxItems = document.querySelectorAll('.parallax-item');
-        let scrollPosition = window.pageYOffset;
-
-        parallaxItems.forEach(item => {
-            let speedX = parseFloat(item.getAttribute('data-speed-x')) || 0;
-            let speedY = parseFloat(item.getAttribute('data-speed-y')) || 0;
-            let speedOpacity = parseFloat(item.getAttribute('data-speed-opacity')) || 0;
-
-            // --- ส่วนที่ 1: เก็บค่า Opacity เริ่มต้นไว้ ---
-            // ถ้ายังไม่มีการเก็บค่า ให้เก็บค่าที่ได้จาก CSS/Tailwind ไว้ก่อน
-            if (!item.dataset.baseOpacity) {
-                item.dataset.baseOpacity = window.getComputedStyle(item).opacity;
-            }
-            let baseOpacity = parseFloat(item.dataset.baseOpacity);
-
-            let parentSection = item.closest('section');
-            let sectionOffset = parentSection ? parentSection.offsetTop : 0;
-            let relativeScroll = scrollPosition - sectionOffset;
-
-            // คำนวณตำแหน่ง
-            let moveX = relativeScroll * speedX;
-            let moveY = relativeScroll * speedY;
-            let isCenterX = item.classList.contains('-translate-x-1/2');
-            let baseTransform = isCenterX ? 'translateX(-50%) ' : '';
-            item.style.transform = `${baseTransform}translate3d(${moveX}px, ${moveY}px, 0)`;
-
-            // --- ส่วนที่ 2: คำนวณ Opacity โดยอิงจากค่าเริ่มต้น ---
-            if (speedOpacity > 0) {
-                // คำนวณหาค่าลดทอน (Reduction)
-                let reduction = (Math.abs(relativeScroll) / 500) * speedOpacity;
-                // เอาค่าเริ่มต้น (baseOpacity) ลบด้วยส่วนที่ลดทอน
-                let newOpacity = baseOpacity - reduction;
-
-                if (newOpacity < 0) newOpacity = 0;
-                if (newOpacity > baseOpacity) newOpacity = baseOpacity;
-
-                item.style.opacity = newOpacity;
-            }
-        });
-    }
-
-    // ==========================================
-    // 3. Intersection Observer 
-    // ==========================================
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('reveal-active');
-            }
-        });
-    }, { threshold: 0.1 });
-
-    const hiddenElements = document.querySelectorAll('.reveal-element');
-    hiddenElements.forEach((el) => observer.observe(el));
-</script>
-
-<script>
-    function authForm() {
-        return {
-            isLoginMode: false,
-            formData: {
-                member_phone: '',
-                member_password: '',
-                member_personal_id: '',
-                member_email: '',
-                member_name: '',
-                faculty_id: '',
-                major_id: '',
-            },
-            faculties: [],
-            majors: [],
-            errors: {},
-            loginData: {
-                identifier: '',
-                password: ''
-            },
-            init() {
-                this.fetchFaculties();
-            },
-
-            async fetchFaculties() {
-                try {
-                    const response = await fetch('/api/faculties');
-                    const result = await response.json();
-                    if (result.success) {
-                        this.faculties = result.data;
-                    }
-                } catch (error) {
-                    console.error('Could not fetch faculties:', error);
-                }
-            },
-
-            async fetchMajors() {
-                this.majors = [];
-                this.formData.major_id = '';
-                if (!this.formData.faculty_id) {
-                    return;
-                }
-                try {
-                    const response = await fetch(`/api/majors/faculty/${this.formData.faculty_id}`);
-                    const result = await response.json();
-                    if (result.success) {
-                        this.majors = result.result;
-                    }
-                } catch (error) {
-                    console.error('Could not fetch majors:', error);
-                }
-            },
-
-            validateForm() {
-                this.errors = {};
-                if (!this.formData.member_phone) {
-                    this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
-                }
-                if (!this.formData.member_password) {
-                    this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
-                } else if (this.formData.member_password.length < 8) {
-                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
-                }
-                return Object.keys(this.errors).length === 0;
-            },
-
-            async submitRegistration() {
-                if (!this.validateForm()) return;
-
-                try {
-                    const response = await fetch('/register', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify(this.formData)
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        await Swal.fire({
-                            icon: 'success',
-                            title: 'สมัครสมาชิกสำเร็จ!',
-                            text: 'กำลังสลับไปยังหน้าเข้าสู่ระบบ',
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-
-                        // สมัครสำเร็จ ให้สลับหน้าต่างเป็น Login ทันที (แทนที่จะเปลี่ยนหน้าเพจ)
-                        this.isLoginMode = true;
-                        this.loginData.identifier = this.formData.member_phone; // เติมเบอร์ให้เลยเพื่อความสะดวก
-
-                    } else {
-                        throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
-                    }
-                } catch (error) {
-                    Swal.fire({ icon: 'error', title: 'สมัครสมาชิกไม่สำเร็จ', text: error.message });
-                }
-            },
-            async submitLogin() {
-                if (!this.loginData.identifier || !this.loginData.password) {
-                    Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
-                    return;
-                }
-
-                try {
-                    const response = await fetch('/login', { // ปรับ URL endpoint ให้ตรงกับ Backend ของคุณ
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify(this.loginData)
-                    });
-                    const result = await response.json();
-                    console.log("Login success:", result);
-                    if (result.success) {
-                        await Swal.fire({
-                            icon: "success",
-                            title: "เข้าสู่ระบบสำเร็จ",
-                            text: "กำลังพาท่านเข้าสู่ระบบ...",
-                            timer: 1500,
-                            showConfirmButton: false,
-                        });
-
-                        const userRole = parseInt(result.data.user_data.role_id);
-                        console.log(result);
-
-                        if (userRole === 1 || userRole === "1") {
-                            window.location.href = "/admin";
-                        } else if (userRole === 3 || userRole === "3") {
-                            window.location.href = "/staff";
-                        } else if (userRole === 4 || userRole === "4") {
-                            window.location.href = "/waste_center";
-                        } else if (userRole === 2 || userRole === "2") {
-                            window.location.href = "/user";
-                        } else {
-                            // console.log(result);
-                            throw new Error("Hacker ? ", 500);
-                        }
-                    } else {
-                        throw new Error(result.message || result, 500);
-                    }
-                } catch (error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "เข้าสู่ระบบไม่สำเร็จ",
-                        text: error.message || "ข้อมูลหรือรหัสผ่านไม่ถูกต้อง",
-                    });
-                }
-            }
-        }
-    }
     document.addEventListener('alpine:init', () => {
-        Alpine.data('authForm', authForm); // แก้ไขชื่อเป็น authForm
-    });
+        Alpine.data('wasteBankApp', () => ({
+            isMenuOpen: false,
+            stats: [
+                { label: 'ปริมาณขยะที่รวบรวมได้ (กก.)', value: '15,420', icon: 'recycle', iconColor: 'text-green-500' },
+                { label: 'คาร์บอนที่ลดได้ (kgCO₂e)', value: '45,200', icon: 'leaf', iconColor: 'text-emerald-500' },
+                { label: 'สมาชิกเข้าร่วม (คน)', value: '2,845', icon: 'users', iconColor: 'text-blue-500' },
+                { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '1.2M', icon: 'award', iconColor: 'text-yellow-500' },
+            ],
+            rewards: [
+                { name: 'มาม่า', points: 70, desc: 'ระดับคุณภาพชีวิตในชีวิตประจำวัน', icon: '🍜' },
+                { name: 'มาม่าคัพ', points: 140, desc: 'อิ่มอร่อยสะดวกทุกที่', icon: '🍲' },
+                { name: 'ปลากระป๋อง', points: 200, desc: 'โปรตีนเน้นๆ', icon: '🥫' },
+                { name: 'กระถางรีไซเคิลเล็ก', points: 100, desc: 'สอดคล้อง Circular Economy', icon: '🪴' },
+                { name: 'แก้วน้ำพกพา', points: 300, desc: 'ช่วยลดการใช้แก้วพลาสติก', icon: '🥤' },
+                { name: 'ชุดปลูกต้นไม้เล็ก', points: 300, desc: 'เพิ่มพื้นที่สีเขียวบนโต๊ะ', icon: '🌱' },
+                { name: 'ถุงผ้า BRU', points: 300, desc: 'ถุงผ้าโลโก้มหาวิทยาลัย', icon: '🛍️' },
+                { name: 'ต้นไม้ประดับ', points: 350, desc: 'ช่วยลด CO₂ ~10-20 kg/ปี', icon: '🌳' },
+                { name: 'ถุงผ้าพรีเมียม', points: 500, desc: 'คุณภาพสูง ทนทาน', icon: '👜' },
+            ],
+            leaderboard: [
+                { rank: 1, faculty: 'คณะวิทยาศาสตร์', points: '125,400', weight: '3,200 กก.', carbon: '9,600' },
+                { rank: 2, faculty: 'คณะเทคโนโลยีการเกษตร', points: '110,200', weight: '2,850 กก.', carbon: '8,550' },
+                { rank: 3, faculty: 'คณะครุศาสตร์', points: '98,500', weight: '2,400 กก.', carbon: '7,200' },
+                { rank: 4, faculty: 'คณะวิทยาการจัดการ', points: '85,000', weight: '2,100 กก.', carbon: '6,300' },
+                { rank: 5, faculty: 'คณะมนุษยศาสตร์ฯ', points: '72,300', weight: '1,800 กก.', carbon: '5,400' },
+            ],
+            scrollTo(id) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth' });
+                    this.isMenuOpen = false;
+                }
+            }
+        }))
+    })
 </script>

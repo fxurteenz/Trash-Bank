@@ -1,30 +1,49 @@
-<!DOCTYPE html>
-<html lang="th">
+<div class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
 
-<head>
-    <title><?= $title ?? 'สมัครสมาชิก' ?></title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-3">
+                    <a href="/" class="h-full flex items-center justify-center">
+                        <img src="assets/images/bru_gogreen_logo.png" alt="BRU Waste Bank"
+                            class="h-[60%] hover:cursor-pointer">
+                    </a>
+                </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
-    <script defer src="/js/alpine.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/login"
+                        class="bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 hover:cursor-pointer hover:scale-105 active:scale-98 px-6 py-2 rounded-full font-semibold transition-all">
+                        เข้าสู่ระบบ
+                    </a>
+                </div>
 
-        .noto-sans-thai {
-            font-family: "Noto Sans Thai", sans-serif;
-        }
+                <div class="md:hidden flex items-center">
+                    <button @click="isMenuOpen = !isMenuOpen" class="text-gray-600">
+                        <i x-show="!isMenuOpen" data-lucide="menu" class="w-6 h-6"></i>
+                        <i x-show="isMenuOpen" x-cloak data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-        .open-sans {
-            font-family: "Open Sans", sans-serif;
-        }
-    </style>
-</head>
+        <div x-show="isMenuOpen" x-collapse x-cloak
+            class="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3 shadow-lg absolute w-full">
+            <a href="/about"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">รู้จักโครงการ</a>
+            <a href="/how-it-works"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">การทำงาน</a>
+            <a href="/rewards"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</a>
+            <a href="/leaderboard"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">อันดับคณะ</a>
+            <div class="pt-2">
+                <a href="/register"
+                    class="block text-center w-full bg-white border-2 border-green-600 text-green-600 px-4 py-3 rounded-xl font-semibold">สมัครสมาชิก</a>
+            </div>
+        </div>
+    </nav>
 
-<body class="min-h-screen noto-sans-thai m-0 p-0 bg-gray-100">
-
-    <div x-data="registrationForm()" x-init="init()" class="flex justify-center items-center min-h-screen">
+    <div x-data="registrationForm()" x-init="init()" class="flex-1 flex justify-center items-center px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-8 w-96 max-w-full">
             <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
 
@@ -101,124 +120,157 @@
 
                 <div class="pt-4">
                     <button type="submit"
-                        class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-colors shadow-md">
+                        class="w-full font-semibold text-white py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-all hover:scale-105 active:scale-98 shadow-md">
                         ยืนยันการสมัคร
                     </button>
                 </div>
                 <div class="text-center mt-4">
-                    <a href="/login" class="text-sm text-emerald-600 hover:underline">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</a>
+                    <p class="text-gray-600 text-sm">
+                        มีบัญชีผู้ใช้แล้ว?
+                        <a href="/login" class="text-emerald-600 hover:underline font-semibold">เข้าสู่ระบบเลย</a>
+                    </p>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="/js/swal.min.js"></script>
-    <script>
-        function registrationForm() {
-            return {
-                formData: {
-                    member_phone: '',
-                    member_password: '',
-                    member_personal_id: '',
-                    member_email: '',
-                    member_name: '',
-                    faculty_id: '',
-                    major_id: '',
-                },
-                faculties: [],
-                majors: [],
-                errors: {},
+    <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                <div class="flex flex-col justify-center items-center">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div>
+                            <img class="h-10" src="assets/images/ธนาคารขยะFullLogo.png" alt="">
+                            <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
+                        </div>
+                        <div>
+                            <img class="h-10" src="assets/images/bru_gogreen_logo.png" alt="">
+                            <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
+                        </div>
+                    </div>
+                    <p class="text-sm">
+                        โครงการธนาคารขยะ มหาวิทยาลัยราชภัฏบุรีรัมย์<br />
+                        สร้างสังคมคาร์บอนต่ำอย่างยั่งยืน
+                    </p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm">
+                        © <span x-text="new Date().getFullYear()"></span>
+                        มหาวิทยาลัยราชภัฏบุรีรัมย์.<br />สงวนลิขสิทธิ์.
+                    </p>
+                </div>
+                <div class="flex justify-center md:justify-end gap-4">
+                    <button class="hover:text-white transition-all cursor-pointer">ติดต่อแอดมิน</button>
+                    <button class="hover:text-white transition-all cursor-pointer">นโยบายความเป็นส่วนตัว</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
 
-                init() {
-                    this.fetchFaculties();
-                },
+<script>
+    function registrationForm() {
+        return {
+            formData: {
+                member_phone: '',
+                member_password: '',
+                member_personal_id: '',
+                member_email: '',
+                member_name: '',
+                faculty_id: '',
+                major_id: '',
+            },
+            faculties: [],
+            majors: [],
+            errors: {},
 
-                async fetchFaculties() {
-                    try {
-                        const response = await fetch('/api/faculties');
-                        const result = await response.json();
-                        if (result.success) {
-                            this.faculties = result.data;
-                        }
-                    } catch (error) {
-                        console.error('Could not fetch faculties:', error);
-                    }
-                },
+            init() {
+                this.fetchFaculties();
+            },
 
-                async fetchMajors() {
-                    this.majors = [];
-                    this.formData.major_id = '';
-                    if (!this.formData.faculty_id) {
-                        return;
+            async fetchFaculties() {
+                try {
+                    const response = await fetch('/api/faculties');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.faculties = result.data;
                     }
-                    try {
-                        const response = await fetch(`/api/majors/faculty/${this.formData.faculty_id}`);
-                        const result = await response.json();
-                        if (result.success) {
-                            this.majors = result.result;
-                        }
-                    } catch (error) {
-                        console.error('Could not fetch majors:', error);
-                    }
-                },
+                } catch (error) {
+                    console.error('Could not fetch faculties:', error);
+                }
+            },
 
-                validateForm() {
-                    this.errors = {};
-                    if (!this.formData.member_phone) {
-                        this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
+            async fetchMajors() {
+                this.majors = [];
+                this.formData.major_id = '';
+                if (!this.formData.faculty_id) {
+                    return;
+                }
+                try {
+                    const response = await fetch(`/api/majors/faculty/${this.formData.faculty_id}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.majors = result.result;
                     }
-                    if (!this.formData.member_password) {
-                        this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
-                    } else if (this.formData.member_password.length < 8) {
-                        this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
-                    }
-                    return Object.keys(this.errors).length === 0;
-                },
+                } catch (error) {
+                    console.error('Could not fetch majors:', error);
+                }
+            },
 
-                async submitRegistration() {
-                    if (!this.validateForm()) {
-                        return;
-                    }
+            validateForm() {
+                this.errors = {};
+                if (!this.formData.member_phone) {
+                    this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
+                }
+                if (!this.formData.member_password) {
+                    this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
+                } else if (this.formData.member_password.length < 8) {
+                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
+                }
+                return Object.keys(this.errors).length === 0;
+            },
 
-                    try {
-                        const response = await fetch('/register', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(this.formData)
+            async submitRegistration() {
+                if (!this.validateForm()) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'สมัครสมาชิกสำเร็จ!',
+                            text: 'กำลังนำท่านไปยังหน้าเข้าสู่ระบบ',
+                            timer: 2000,
+                            showConfirmButton: false,
                         });
-
-                        const result = await response.json();
-
-                        if (response.ok && result.success) {
-                            await Swal.fire({
-                                icon: 'success',
-                                title: 'สมัครสมาชิกสำเร็จ!',
-                                text: 'กำลังนำท่านไปยังหน้าเข้าสู่ระบบ',
-                                timer: 2000,
-                                showConfirmButton: false,
-                            });
-                            window.location.href = '/login';
-                        } else {
-                            throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
-                        }
-                    } catch (error) {
-                        console.error('Registration failed:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'สมัครสมาชิกไม่สำเร็จ',
-                            text: error.message,
-                        });
+                        window.location.href = '/login';
+                    } else {
+                        throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
                     }
+                } catch (error) {
+                    console.error('Registration failed:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'สมัครสมาชิกไม่สำเร็จ',
+                        text: error.message,
+                    });
                 }
             }
         }
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('registrationForm', registrationForm);
-        });
-    </script>
-</body>
-
-</html>
+    }
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('registrationForm', registrationForm);
+    });
+</script>
