@@ -1,564 +1,7 @@
 <?php
+// ไฟล์นี้ใช้สำหรับเจ้าหน้าที่คณะจัดการสมาชิกเท่านั้น
 $faculty_id = (int) $user->faculty_id ?? "null";
 ?>
-
-<script>
-    function UserTable() {
-        return {
-            facultyId: <?php echo $faculty_id; ?>,
-            roleCounts: { total_members: 0, roles: [] },
-            members: [],
-            faculties: [], // Store Faculty list
-            createMajors: [], // Store majors for create dialog
-            editMajors: [], // Store majors for edit dialog
-            filterMajors: [], // Store majors for filter dropdown
-            checkedMembers: { member_ids: [] },
-            selectedUser: null,
-            createUserDialogShow: false,
-            editUserDialogShow: false,
-            page: 1,
-            limit: 10,
-            totalPages: 1,
-
-            errors: {
-                create: {},
-                edit: {},
-            },
-
-            editUserForm: {
-                member_personal_id: "",
-                member_phone: "",
-                member_name: "",
-                member_email: "",
-                faculty_id: "",
-                major_id: "",
-                role_id: "",
-            },
-
-            createUserForm: {
-                member_personal_id: "",
-                member_phone: "",
-                member_name: "",
-                member_email: "",
-                member_password: "",
-                faculty_id: "",
-                major_id: "",
-                role_id: "",
-            },
-
-            filters: {
-                major_id: "",
-                role: "",
-                search: "",
-            },
-
-            quickMenuShow: false,
-            selectedMemberForMenu: null,
-
-            async initData() {
-                await this.fetchFaculties();
-                if (this.facultyId) {
-                    await this.fetchMajorsByFaculty(this.facultyId, 'filter');
-                }
-                await this.fetchMembers();
-                await this.fetchRoleCounts();
-            },
-
-            async fetchRoleCounts() {
-                try {
-                    const params = new URLSearchParams();
-                    if (this.facultyId)
-                        params.append("faculty", this.facultyId);
-                    if (this.filters.major_id)
-                        params.append("major", this.filters.major_id);
-
-                    const res = await fetch(`/api/members/count?${params.toString()}`);
-                    let result = await res.json();
-                    if (result.success) {
-                        this.roleCounts = result.data;
-                    }
-
-                } catch (e) {
-                    console.error(e);
-                }
-            },
-
-            async fetchMembers() {
-                try {
-                    const params = new URLSearchParams();
-                    params.append("page", this.page);
-                    params.append("limit", this.limit);
-                    if (this.facultyId)
-                        params.append("faculty", this.facultyId);
-                    if (this.filters.major_id)
-                        params.append("major_id", this.filters.major_id);
-                    if (this.filters.role) params.append("role", this.filters.role);
-                    if (this.filters.search)
-                        params.append("search", this.filters.search);
-
-                    const res = await fetch(`/api/members?${params.toString()}`);
-                    let result = await res.json();
-
-                    this.members = result.data;
-                    this.totalPages = Math.ceil(result.total / this.limit);
-                } catch (err) {
-                    console.error("โหลดข้อมูลผู้ใช้ล้มเหลว", err);
-                }
-            },
-
-            async fetchFaculties() {
-                try {
-                    const res = await fetch("/api/faculties");
-                    const result = await res.json();
-                    if (result.success || result.data) {
-                        this.faculties = result.data;
-                    } else {
-                        throw result;
-                    }
-                } catch (err) {
-                    console.error("โหลดข้อมูลคณะล้มเหลว", err);
-                }
-            },
-
-            async fetchMajorsByFaculty(facultyId, formType) {
-                if (!facultyId) {
-                    if (formType === 'create') {
-                        this.createMajors = [];
-                        this.createUserForm.major_id = "";
-                    } else if (formType === 'edit') {
-                        this.editMajors = [];
-                        this.editUserForm.major_id = "";
-                    } else if (formType === 'filter') {
-                        this.filterMajors = [];
-                        this.filters.major_id = "";
-                    }
-                    return;
-                }
-
-                try {
-                    const res = await fetch(`/api/majors/faculty/${facultyId}`);
-                    const result = await res.json();
-                    if (result.success) {
-                        if (formType === 'create') {
-                            this.createMajors = result.result;
-                        } else if (formType === 'edit') {
-                            this.editMajors = result.result;
-                        } else if (formType === 'filter') {
-                            this.filterMajors = result.result;
-                        }
-                    } else {
-                        if (formType === 'create') {
-                            this.createMajors = [];
-                        } else if (formType === 'edit') {
-                            this.editMajors = [];
-                        } else if (formType === 'filter') {
-                            this.filterMajors = [];
-                        }
-                    }
-                } catch (err) {
-                    console.error("โหลดข้อมูลสาขาล้มเหลว", err);
-                    if (formType === 'create') {
-                        this.createMajors = [];
-                    } else if (formType === 'edit') {
-                        this.editMajors = [];
-                    } else if (formType === 'filter') {
-                        this.filterMajors = [];
-                    }
-                }
-            },
-
-            handleFilterChange() {
-                this.page = 1;
-                this.fetchMembers();
-                this.fetchRoleCounts();
-            },
-
-            resetFilters() {
-                this.filters = {
-                    major_id: "",
-                    role: "",
-                    search: "",
-                };
-                this.filterMajors = [];
-                this.page = 1;
-                this.fetchMembers();
-            },
-
-            openCreateDialog() {
-                this.createUserForm = {
-                    member_personal_id: "",
-                    member_name: "",
-                    member_email: "",
-                    member_password: "",
-                    faculty_id: "",
-                    major_id: "",
-                    role_id: "",
-                };
-                this.createMajors = [];
-                this.errors.create = {};
-                this.createUserDialogShow = true;
-            },
-
-            async selectingRow(user) {
-                this.selectedUser = user;
-                this.editUserForm = {
-                    member_personal_id: user.member_personal_id ?? "",
-                    member_phone: user.member_phone ?? null,
-                    member_name: user.member_name ?? null,
-                    member_email: user.member_email ?? null,
-                    faculty_id: user.faculty_id ?? "",
-                    major_id: user.major_id ?? "",
-                    role_id: parseInt(user.role_id),
-                };
-                this.errors.edit = {};
-
-                if (user.faculty_id) {
-                    await this.fetchMajorsByFaculty(user.faculty_id, 'edit');
-                }
-
-                console.log("Selected User:", user);
-                console.log("Form Data:", this.editUserForm);
-
-                this.editUserDialogShow = true;
-            },
-
-            validateForm(formType) {
-                let isValid = true;
-                const errors = {};
-                const form =
-                    formType === "create" ? this.createUserForm : this.editUserForm;
-
-                if (!form.member_phone) {
-                    errors.member_phone = true;
-                    isValid = false;
-                }
-
-                if (!form.role_id) {
-                    errors.role_id = true;
-                    isValid = false;
-                }
-
-                if (formType === "create" && !form.member_password) {
-                    errors.member_password = true;
-                    isValid = false;
-                }
-
-                this.errors[formType] = errors;
-                return isValid;
-            },
-
-            async submitEdit() {
-                this.editUserDialogShow = false;
-                if (!this.validateForm("edit")) {
-                    await Swal.fire({
-                        icon: "warning",
-                        title: "ข้อมูลไม่ครบถ้วน",
-                        text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
-                        confirmButtonColor: "#ff8f4eff",
-                    });
-                    this.editUserDialogShow = true;
-                    return;
-                }
-                const result = await Swal.fire({
-                    title: "แก้ไขข้อมูล",
-                    text: "คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?",
-                    icon: "info",
-                    showConfirmButton: true,
-                    confirmButtonText: "ยืนยัน",
-                    showCancelButton: true,
-                    cancelButtonText: "ยกเลิก",
-                    didOpen: () => {
-                        Swal.getConfirmButton().focus();
-                    },
-                });
-
-                if (result.isConfirmed) {
-                    try {
-                        const res = await fetch(
-                            `/api/members/update/${this.selectedUser.member_id}`,
-                            {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(this.editUserForm),
-                            }
-                        );
-                        const response = await res.json();
-
-                        if (response.success) {
-                            Swal.fire({
-                                icon: "success",
-                                title: "แก้ไขสำเร็จ",
-                                timer: 2000,
-                                showConfirmButton: false,
-                            });
-                            this.selectedUser = null;
-                            this.fetchMembers();
-                        } else {
-                            throw new Error(
-                                response.message || "Something went wrong"
-                            );
-                        }
-                    } catch (error) {
-                        await Swal.fire({
-                            icon: "error",
-                            title: "ผิดพลาด",
-                            text: "แก้ไขข้อมูลไม่สำเร็จ",
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                        console.error(error);
-                        this.editUserDialogShow = true;
-                    }
-                }
-            },
-
-            async submitCreate() {
-                this.createUserDialogShow = false;
-                if (!this.validateForm("create")) {
-                    await Swal.fire({
-                        icon: "warning",
-                        title: "ข้อมูลไม่ครบถ้วน",
-                        text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
-                        confirmButtonColor: "#ff8f4eff",
-                    });
-                    this.createUserDialogShow = true;
-                    return;
-                }
-
-                try {
-                    const res = await fetch(`/api/members`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(this.createUserForm),
-                    });
-                    const response = await res.json();
-
-                    if (response.success) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "เพิ่มสำเร็จ",
-                            text: `เพิ่มผู้ใช้งานเรียบร้อย`,
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                        this.fetchMembers();
-                    } else {
-                        throw new Error(response.message || "Something went wrong");
-                    }
-                } catch (error) {
-                    console.error(error);
-                    await Swal.fire({
-                        icon: "error",
-                        title: "ผิดพลาด",
-                        text: "เพิ่มรายชื่อไม่สำเร็จ",
-                        timer: 2000,
-                        showConfirmButton: false,
-                    });
-                    this.createUserDialogShow = true;
-                }
-            },
-
-            async confirmDeleteUser(member) {
-                if (!member) return;
-
-                const result = await Swal.fire({
-                    title: "ยืนยันการลบ",
-                    text: `ต้องการลบผู้ใช้ "${member.member_name}" ใช่หรือไม่?`,
-                    icon: "warning",
-                    showConfirmButton: true,
-                    confirmButtonText: "ยืนยันการลบ",
-                    confirmButtonColor: "#d33",
-                    showCancelButton: true,
-                    cancelButtonText: "ยกเลิก",
-                    didOpen: () => {
-                        Swal.getConfirmButton().focus();
-                    },
-                });
-
-                if (result.isConfirmed) {
-                    try {
-                        const deleteRes = await fetch("/api/members/bulk-del", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ member_ids: [member.member_id] }),
-                        });
-                        const delResult = await deleteRes.json();
-
-                        if (delResult.success) {
-                            Swal.fire({
-                                icon: "success",
-                                title: "ลบสำเร็จ",
-                                timer: 2000,
-                                showConfirmButton: false,
-                            });
-                            this.fetchMembers();
-                        } else {
-                            throw new Error(
-                                delResult.message || "Something went wrong"
-                            );
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        Swal.fire({
-                            icon: "error",
-                            title: "ผิดพลาด",
-                            text: "ลบรายชื่อไม่สำเร็จ",
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                    }
-                }
-            },
-
-            async deleteCheckedUser() {
-                if (this.checkedMembers.member_ids.length === 0) return;
-
-                const result = await Swal.fire({
-                    title: "ลบข้อมูล",
-                    text: `ต้องการลบผู้ใช้ ${this.checkedMembers.member_ids.length} รายการ ใช่หรือไม่?`,
-                    icon: "warning",
-                    showConfirmButton: true,
-                    confirmButtonText: "ยืนยันการลบ",
-                    confirmButtonColor: "#d33",
-                    showCancelButton: true,
-                    cancelButtonText: "ยกเลิก",
-                    didOpen: () => {
-                        Swal.getConfirmButton().focus();
-                    },
-                });
-
-                if (result.isConfirmed) {
-                    try {
-                        const deleteRes = await fetch("/api/members/bulk-del", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(this.checkedMembers),
-                        });
-                        const delResult = await deleteRes.json();
-
-                        if (delResult.success) {
-                            Swal.fire({
-                                icon: "success",
-                                title: "ลบสำเร็จ",
-                                timer: 2000,
-                                showConfirmButton: false,
-                            });
-                            this.checkedMembers.member_ids = []; // Reset checked items
-                            this.fetchMembers();
-                        } else {
-                            throw new Error(
-                                delResult.message || "Something went wrong"
-                            );
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        Swal.fire({
-                            icon: "error",
-                            title: "ผิดพลาด",
-                            text: "ลบรายชื่อไม่สำเร็จ",
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                    }
-                }
-            },
-
-            showQuickMenu(member) {
-                this.selectedMemberForMenu = member;
-                this.quickMenuShow = true;
-            },
-
-            openWasteDeposit(member) {
-                this.quickMenuShow = false;
-                Swal.fire({
-                    title: '📦 ทำรายการฝากของ',
-                    html: `
-                    <div class="text-left text-sm">
-                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
-                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
-                        <p class="mt-3 text-gray-600">ไปยังหน้าฝากของสำหรับสมาชิกนี้</p>
-                    </div>
-                `,
-                    showConfirmButton: true,
-                    confirmButtonText: 'ไปที่หน้าฝาก',
-                    showCancelButton: true,
-                    cancelButtonText: 'ยกเลิก'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `/waste_center/transactions/waste_deposit_pos?member_id=${member.member_id}`;
-                    }
-                });
-            },
-
-            openDonationExchange(member) {
-                this.quickMenuShow = false;
-                Swal.fire({
-                    title: '💰 แลกของบริจาค',
-                    html: `
-                    <div class="text-left text-sm">
-                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
-                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
-                        <p class="mt-3 text-gray-600">อัตรา: 1 บาท = 10 แต้ม</p>
-                    </div>
-                `,
-                    showConfirmButton: true,
-                    confirmButtonText: 'ไปแลก',
-                    showCancelButton: true,
-                    cancelButtonText: 'ยกเลิก'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `/waste_center/transactions/donation_exchange?member_id=${member.member_id}`;
-                    }
-                });
-            },
-
-            openRedeemReward(member) {
-                this.quickMenuShow = false;
-                Swal.fire({
-                    title: '🎁 แลกของรางวัล',
-                    html: `
-                    <div class="text-left text-sm">
-                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
-                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
-                        <p class="mt-3 text-gray-600">เลือกของรางวัลตามแต้มที่มี</p>
-                    </div>
-                `,
-                    showConfirmButton: true,
-                    confirmButtonText: 'ไปแลก',
-                    showCancelButton: true,
-                    cancelButtonText: 'ยกเลิก'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `/waste_center/transactions/redeem_reward_pos?member_id=${member.member_id}`;
-                    }
-                });
-            },
-
-            openDonation(member) {
-                this.quickMenuShow = false;
-                Swal.fire({
-                    title: '🎀 บริจาคสิ่งของ',
-                    html: `
-                    <div class="text-left text-sm">
-                        <p><b>ผู้บริจาค:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
-                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
-                        <p class="mt-3 text-gray-600">บันทึกการบริจาคของสิ่งประเมินค่า</p>
-                    </div>
-                `,
-                    showConfirmButton: true,
-                    confirmButtonText: 'บริจาค',
-                    showCancelButton: true,
-                    cancelButtonText: 'ยกเลิก'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `/waste_center/transactions/donation_pos?member_id=${member.member_id}`;
-                    }
-                });
-            },
-        };
-    }
-
-</script>
 
 <div x-data="UserTable()" x-init="initData()" class="space-y-4 w-full">
     <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-2">
@@ -751,7 +194,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             <td class="px-2 py-2 text-xs text-end" x-text="member.member_waste_point ?? '0'"></td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
                                 <div class="flex justify-center items-center gap-1">
-                                    <!-- Quick Action Menu Button -->
                                     <button @click="showQuickMenu(member)"
                                         class="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 hover:cursor-pointer transition duration-200 px-2 py-1 rounded"
                                         title="ทำรายการ">
@@ -762,7 +204,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                         </svg>
                                     </button>
 
-                                    <!-- Edit Button -->
                                     <button @click.stop="selectingRow(member)"
                                         class="bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 px-2 py-1 rounded flex"
                                         title="แก้ไข">
@@ -773,7 +214,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                         </svg>
                                     </button>
 
-                                    <!-- Delete Button -->
                                     <button @click.stop="confirmDeleteUser(member)"
                                         class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 px-2 py-1 rounded flex"
                                         title="ลบ">
@@ -881,32 +321,9 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         <label for="create_acc_role" class="text-gray-700 font-medium">
                             บทบาท <span class="text-red-500">*</span>
                         </label>
-                        <select id="create_acc_role" x-model="createUserForm.role_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
-                            :class="{'border-red-500': errors.create.role_id}">
-                            <option value="">เลือกบทบาท</option>
-                            <option value="1">ผู้ดูแลระบบ</option>
+                        <select id="create_acc_role" x-model="createUserForm.role_id" disabled
+                            class="border border-gray-300 rounded p-1.5 bg-gray-100 text-gray-500 cursor-not-allowed">
                             <option value="2">ผู้ใช้งานทั่วไป</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
-                            <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
-                        </select>
-                        <span x-show="errors.create.role_id" class="text-red-500 text-xs">
-                            กรุณาเลือกบทบาท
-                        </span>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ
-                        </label>
-                        <select id="create_acc_faculty" x-model="createUserForm.faculty_id"
-                            @change="fetchMajorsByFaculty(createUserForm.faculty_id, 'create')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200 bg-white"
-                            :class="{'border-red-500': errors.create.faculty_id}">
-                            <option value="">เลือกคณะ</option>
-                            <template x-for="fac in faculties" :key="fac.faculty_id">
-                                <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                            </template>
                         </select>
                     </div>
 
@@ -916,7 +333,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         </label>
                         <select id="create_acc_major" x-model="createUserForm.major_id"
                             class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200 bg-white"
-                            :disabled="!createUserForm.faculty_id">
+                            :disabled="!facultyId">
                             <option value="">เลือกสาขา</option>
                             <template x-for="major in createMajors" :key="major.major_id">
                                 <option :value="major.major_id" x-text="major.major_name"></option>
@@ -996,27 +413,12 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                     </div>
 
                     <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ
-                        </label>
-                        <select id="edit_acc_faculty" x-model="editUserForm.faculty_id"
-                            @change="fetchMajorsByFaculty(editUserForm.faculty_id, 'edit')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
-                            :class="{'border-red-500': errors.edit.faculty_id}">
-                            <option value="">เลือกคณะ</option>
-                            <template x-for="fac in faculties" :key="fac.faculty_id">
-                                <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
                         <label for="edit_acc_major" class="text-gray-700 font-medium">
                             สาขา
                         </label>
                         <select id="edit_acc_major" x-model="editUserForm.major_id"
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
-                            :disabled="!editUserForm.faculty_id">
+                            :disabled="!facultyId">
                             <option value="">เลือกสาขา</option>
                             <template x-for="major in editMajors" :key="major.major_id">
                                 <option :value="major.major_id" x-text="major.major_name"></option>
@@ -1035,7 +437,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
             </div>
         </dialog>
 
-        <!-- Quick Menu Dialog -->
         <dialog x-ref="quickMenuDialog" x-show="quickMenuShow" @click.self="quickMenuShow = false"
             @close="quickMenuShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
             x-init="$watch('quickMenuShow', value => {if (value) $refs.quickMenuDialog.showModal();else $refs.quickMenuDialog.close();})">
@@ -1110,3 +511,567 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 
     </div>
 </div>
+
+<script>
+    function UserTable() {
+        return {
+            facultyId: <?php echo $faculty_id; ?>,
+            roleCounts: { total_members: 0, roles: [] },
+            members: [],
+            faculties: [],
+            createMajors: [],
+            editMajors: [],
+            filterMajors: [],
+            checkedMembers: { member_ids: [] },
+            selectedUser: null,
+            createUserDialogShow: false,
+            editUserDialogShow: false,
+            page: 1,
+            limit: 10,
+            totalPages: 1,
+
+            errors: {
+                create: {},
+                edit: {},
+            },
+
+            editUserForm: {
+                member_personal_id: "",
+                member_phone: "",
+                member_name: "",
+                member_email: "",
+                faculty_id: "",
+                major_id: "",
+                role_id: "",
+            },
+
+            createUserForm: {
+                member_personal_id: "",
+                member_phone: "",
+                member_name: "",
+                member_email: "",
+                member_password: "",
+                faculty_id: "",
+                major_id: "",
+                role_id: "",
+            },
+
+            filters: {
+                major_id: "",
+                role: "",
+                search: "",
+            },
+
+            quickMenuShow: false,
+            selectedMemberForMenu: null,
+
+            async initData() {
+                await this.fetchFaculties();
+                if (this.facultyId) {
+                    await this.fetchMajorsByFaculty(this.facultyId, 'filter');
+                }
+                await this.fetchMembers();
+                await this.fetchRoleCounts();
+            },
+
+            async fetchRoleCounts() {
+                try {
+                    const params = new URLSearchParams();
+                    if (this.facultyId)
+                        params.append("faculty", this.facultyId);
+                    if (this.filters.major_id)
+                        params.append("major", this.filters.major_id);
+
+                    const res = await fetch(`/api/members/count?${params.toString()}`);
+                    let result = await res.json();
+                    if (result.success) {
+                        this.roleCounts = result.data;
+                    }
+
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+
+            async fetchMembers() {
+                try {
+                    const params = new URLSearchParams();
+                    params.append("page", this.page);
+                    params.append("limit", this.limit);
+                    if (this.facultyId)
+                        params.append("faculty", this.facultyId);
+                    if (this.filters.major_id)
+                        params.append("major_id", this.filters.major_id);
+                    if (this.filters.role) params.append("role", this.filters.role);
+                    if (this.filters.search)
+                        params.append("search", this.filters.search);
+
+                    const res = await fetch(`/api/members?${params.toString()}`);
+                    let result = await res.json();
+
+                    this.members = result.data;
+                    this.totalPages = Math.ceil(result.total / this.limit);
+                } catch (err) {
+                    console.error("โหลดข้อมูลผู้ใช้ล้มเหลว", err);
+                }
+            },
+
+            async fetchFaculties() {
+                try {
+                    const res = await fetch("/api/faculties");
+                    const result = await res.json();
+                    if (result.success || result.data) {
+                        this.faculties = result.data;
+                    } else {
+                        throw result;
+                    }
+                } catch (err) {
+                    console.error("โหลดข้อมูลคณะล้มเหลว", err);
+                }
+            },
+
+            async fetchMajorsByFaculty(facultyId, formType) {
+                if (!facultyId) {
+                    if (formType === 'create') {
+                        this.createMajors = [];
+                        this.createUserForm.major_id = "";
+                    } else if (formType === 'edit') {
+                        this.editMajors = [];
+                        this.editUserForm.major_id = "";
+                    } else if (formType === 'filter') {
+                        this.filterMajors = [];
+                        this.filters.major_id = "";
+                    }
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/majors/faculty/${facultyId}`);
+                    const result = await res.json();
+                    if (result.success) {
+                        if (formType === 'create') {
+                            this.createMajors = result.result;
+                        } else if (formType === 'edit') {
+                            this.editMajors = result.result;
+                        } else if (formType === 'filter') {
+                            this.filterMajors = result.result;
+                        }
+                    } else {
+                        if (formType === 'create') {
+                            this.createMajors = [];
+                        } else if (formType === 'edit') {
+                            this.editMajors = [];
+                        } else if (formType === 'filter') {
+                            this.filterMajors = [];
+                        }
+                    }
+                } catch (err) {
+                    console.error("โหลดข้อมูลสาขาล้มเหลว", err);
+                    if (formType === 'create') {
+                        this.createMajors = [];
+                    } else if (formType === 'edit') {
+                        this.editMajors = [];
+                    } else if (formType === 'filter') {
+                        this.filterMajors = [];
+                    }
+                }
+            },
+
+            handleFilterChange() {
+                this.page = 1;
+                this.fetchMembers();
+                this.fetchRoleCounts();
+            },
+
+            resetFilters() {
+                this.filters = {
+                    major_id: "",
+                    role: "",
+                    search: "",
+                };
+                this.filterMajors = [];
+                this.page = 1;
+                this.fetchMembers();
+            },
+
+            // แก้ไขตรงนี้: ล็อก Role_id เป็น 2 (ผู้ใช้งานทั่วไป) เสมอตอนกดเพิ่ม
+            async openCreateDialog() {
+                this.createUserForm = {
+                    member_personal_id: "",
+                    member_name: "",
+                    member_email: "",
+                    member_password: "",
+                    faculty_id: this.facultyId,
+                    major_id: "",
+                    role_id: "2", // <--- ล็อกค่า Role เป็น 2 
+                };
+                this.errors.create = {};
+
+                if (this.facultyId) {
+                    await this.fetchMajorsByFaculty(this.facultyId, 'create');
+                } else {
+                    this.createMajors = [];
+                }
+
+                this.createUserDialogShow = true;
+            },
+
+            async selectingRow(user) {
+                this.selectedUser = user;
+                this.editUserForm = {
+                    member_personal_id: user.member_personal_id ?? "",
+                    member_phone: user.member_phone ?? null,
+                    member_name: user.member_name ?? null,
+                    member_email: user.member_email ?? null,
+                    faculty_id: this.facultyId,
+                    major_id: user.major_id ?? "",
+                    role_id: parseInt(user.role_id),
+                };
+                this.errors.edit = {};
+
+                if (this.facultyId) {
+                    await this.fetchMajorsByFaculty(this.facultyId, 'edit');
+                } else {
+                    this.editMajors = [];
+                }
+
+                this.editUserDialogShow = true;
+            },
+
+            validateForm(formType) {
+                let isValid = true;
+                const errors = {};
+                const form =
+                    formType === "create" ? this.createUserForm : this.editUserForm;
+
+                if (!form.member_phone) {
+                    errors.member_phone = true;
+                    isValid = false;
+                }
+
+                if (!form.role_id) {
+                    errors.role_id = true;
+                    isValid = false;
+                }
+
+                if (formType === "create" && !form.member_password) {
+                    errors.member_password = true;
+                    isValid = false;
+                }
+
+                this.errors[formType] = errors;
+                return isValid;
+            },
+
+            async submitEdit() {
+                this.editUserDialogShow = false;
+                if (!this.validateForm("edit")) {
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "ข้อมูลไม่ครบถ้วน",
+                        text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
+                        confirmButtonColor: "#ff8f4eff",
+                    });
+                    this.editUserDialogShow = true;
+                    return;
+                }
+                const result = await Swal.fire({
+                    title: "แก้ไขข้อมูล",
+                    text: "คุณตรวจสอบข้อมูลและแน่ใจแล้วใช่ไหม ?",
+                    icon: "info",
+                    showConfirmButton: true,
+                    confirmButtonText: "ยืนยัน",
+                    showCancelButton: true,
+                    cancelButtonText: "ยกเลิก",
+                    didOpen: () => {
+                        Swal.getConfirmButton().focus();
+                    },
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const res = await fetch(
+                            `/api/members/update/${this.selectedUser.member_id}`,
+                            {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(this.editUserForm),
+                            }
+                        );
+                        const response = await res.json();
+
+                        if (response.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "แก้ไขสำเร็จ",
+                                timer: 2000,
+                                showConfirmButton: false,
+                            });
+                            this.selectedUser = null;
+                            this.fetchMembers();
+                        } else {
+                            throw new Error(
+                                response.message || "Something went wrong"
+                            );
+                        }
+                    } catch (error) {
+                        await Swal.fire({
+                            icon: "error",
+                            title: "ผิดพลาด",
+                            text: "แก้ไขข้อมูลไม่สำเร็จ",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                        console.error(error);
+                        this.editUserDialogShow = true;
+                    }
+                }
+            },
+
+            async submitCreate() {
+                this.createUserDialogShow = false;
+                if (!this.validateForm("create")) {
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "ข้อมูลไม่ครบถ้วน",
+                        text: "กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ",
+                        confirmButtonColor: "#ff8f4eff",
+                    });
+                    this.createUserDialogShow = true;
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/members`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(this.createUserForm),
+                    });
+                    const response = await res.json();
+
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "เพิ่มสำเร็จ",
+                            text: `เพิ่มผู้ใช้งานเรียบร้อย`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                        this.fetchMembers();
+                    } else {
+                        throw new Error(response.message || "Something went wrong");
+                    }
+                } catch (error) {
+                    console.error(error);
+                    await Swal.fire({
+                        icon: "error",
+                        title: "ผิดพลาด",
+                        text: "เพิ่มรายชื่อไม่สำเร็จ",
+                        timer: 2000,
+                        showConfirmButton: false,
+                    });
+                    this.createUserDialogShow = true;
+                }
+            },
+
+            async confirmDeleteUser(member) {
+                if (!member) return;
+
+                const result = await Swal.fire({
+                    title: "ยืนยันการลบ",
+                    text: `ต้องการลบผู้ใช้ "${member.member_name}" ใช่หรือไม่?`,
+                    icon: "warning",
+                    showConfirmButton: true,
+                    confirmButtonText: "ยืนยันการลบ",
+                    confirmButtonColor: "#d33",
+                    showCancelButton: true,
+                    cancelButtonText: "ยกเลิก",
+                    didOpen: () => {
+                        Swal.getConfirmButton().focus();
+                    },
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const deleteRes = await fetch("/api/members/delete", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ member_ids: [member.member_id] }),
+                        });
+                        const delResult = await deleteRes.json();
+
+                        if (delResult.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "ลบสำเร็จ",
+                                timer: 2000,
+                                showConfirmButton: false,
+                            });
+                            this.fetchMembers();
+                        } else {
+                            throw new Error(
+                                delResult.message || "Something went wrong"
+                            );
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "ผิดพลาด",
+                            text: "ลบรายชื่อไม่สำเร็จ",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                    }
+                }
+            },
+
+            async deleteCheckedUser() {
+                if (this.checkedMembers.member_ids.length === 0) return;
+
+                const result = await Swal.fire({
+                    title: "ลบข้อมูล",
+                    text: `ต้องการลบผู้ใช้ ${this.checkedMembers.member_ids.length} รายการ ใช่หรือไม่?`,
+                    icon: "warning",
+                    showConfirmButton: true,
+                    confirmButtonText: "ยืนยันการลบ",
+                    confirmButtonColor: "#d33",
+                    showCancelButton: true,
+                    cancelButtonText: "ยกเลิก",
+                    didOpen: () => {
+                        Swal.getConfirmButton().focus();
+                    },
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const deleteRes = await fetch("/api/members/delete", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(this.checkedMembers),
+                        });
+                        const delResult = await deleteRes.json();
+
+                        if (delResult.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "ลบสำเร็จ",
+                                timer: 2000,
+                                showConfirmButton: false,
+                            });
+                            this.checkedMembers.member_ids = [];
+                            this.fetchMembers();
+                        } else {
+                            throw new Error(
+                                delResult.message || "Something went wrong"
+                            );
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "ผิดพลาด",
+                            text: "ลบรายชื่อไม่สำเร็จ",
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                    }
+                }
+            },
+
+            showQuickMenu(member) {
+                this.selectedMemberForMenu = member;
+                this.quickMenuShow = true;
+            },
+
+            openWasteDeposit(member) {
+                this.quickMenuShow = false;
+                Swal.fire({
+                    title: '📦 ทำรายการฝากของ',
+                    html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">ไปยังหน้าฝากของสำหรับสมาชิกนี้</p>
+                    </div>
+                `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ไปที่หน้าฝาก',
+                    showCancelButton: true,
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/waste_center/transactions/waste_deposit_pos?member_id=${member.member_id}`;
+                    }
+                });
+            },
+
+            openDonationExchange(member) {
+                this.quickMenuShow = false;
+                Swal.fire({
+                    title: '💰 แลกของบริจาค',
+                    html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">อัตรา: 1 บาท = 10 แต้ม</p>
+                    </div>
+                `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ไปแลก',
+                    showCancelButton: true,
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/waste_center/transactions/donation_exchange?member_id=${member.member_id}`;
+                    }
+                });
+            },
+
+            openRedeemReward(member) {
+                this.quickMenuShow = false;
+                Swal.fire({
+                    title: '🎁 แลกของรางวัล',
+                    html: `
+                    <div class="text-left text-sm">
+                        <p><b>สมาชิก:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>แต้มปัจจุบัน:</b> ${member.member_waste_point || 0}</p>
+                        <p class="mt-3 text-gray-600">เลือกของรางวัลตามแต้มที่มี</p>
+                    </div>
+                `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'ไปแลก',
+                    showCancelButton: true,
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/waste_center/transactions/redeem_reward_pos?member_id=${member.member_id}`;
+                    }
+                });
+            },
+
+            openDonation(member) {
+                this.quickMenuShow = false;
+                Swal.fire({
+                    title: '🎀 บริจาคสิ่งของ',
+                    html: `
+                    <div class="text-left text-sm">
+                        <p><b>ผู้บริจาค:</b> ${member.member_name || 'ไม่ระบุชื่อ'}</p>
+                        <p><b>เบอร์:</b> ${member.member_phone || 'ไม่ระบุ'}</p>
+                        <p class="mt-3 text-gray-600">บันทึกการบริจาคของสิ่งประเมินค่า</p>
+                    </div>
+                `,
+                    showConfirmButton: true,
+                    confirmButtonText: 'บริจาค',
+                    showCancelButton: true,
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/waste_center/transactions/donation_pos?member_id=${member.member_id}`;
+                    }
+                });
+            },
+        };
+    }
+
+</script>

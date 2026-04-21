@@ -128,7 +128,7 @@ class MemberModel
         }
     }
 
-    public function CreateMember($data)
+    public function CreateMember($data): array
     {
         try {
             if (empty($data) && !is_array($data)) {
@@ -152,7 +152,11 @@ class MemberModel
             $data['member_password'] = $encodedPassword;
             $data['created_at'] = date('Y-m-d H:i:s');
             // Add initial points of 10 for new members
-            $data['member_point'] = 10;
+            if ((int) $data["role_id"] == 2) {
+                $data['member_waste_point'] = 10;
+            } else {
+                $data['member_waste_point'] = 0;
+            }
 
             $setClauses = [];
             $updateData = [];
@@ -177,9 +181,10 @@ class MemberModel
             $id = $this->Conn->lastInsertId();
             return ["member_phone" => $data["member_phone"], "member_id" => $id];
         } catch (PDOException $e) {
-            $error = DatabaseException::handle($e);
-            throw new Exception($error['message'], $error['code']);
+            error_log($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         } catch (Exception $e) {
+            // error_log($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
@@ -676,7 +681,7 @@ class MemberModel
             if (!empty($filterClauses)) {
                 $joinSql = " AND " . implode(" AND ", $filterClauses);
             }
-            
+
             $roleSql = "SELECT 
                             r.role_id, 
                             r.role_name, 
@@ -696,7 +701,7 @@ class MemberModel
             $roleCounts = $roleStmt->fetchAll(PDO::FETCH_ASSOC);
 
             return [
-                'total_members' => (int)$totalMembers,
+                'total_members' => (int) $totalMembers,
                 'roles' => $roleCounts
             ];
 

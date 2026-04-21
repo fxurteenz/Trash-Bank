@@ -71,15 +71,17 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Create()
     {
         try {
-            Authentication::AdminAuth();
+            if ((int) $this->data["role_id"] == 1 || (int) $this->data["role_id"] == 3 || (int) $this->data["role_id"] == 4) {
+                Authentication::CenterAuth();
+            } else {
+                Authentication::OperateAuth();
+            }
             $result = $this->MemberModel->CreateMember($this->data);
 
             header('Content-Type: application/json');
@@ -101,15 +103,17 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Update($uid)
     {
         try {
-            Authentication::AdminAuth();
+            if ((int) $this->data["role_id"] == 1 || (int) $this->data["role_id"] == 3 || (int) $this->data["role_id"] == 4) {
+                Authentication::CenterAuth();
+            } else {
+                Authentication::OperateAuth();
+            }
             $user = $this->MemberModel->UpdateMember($uid, $this->data);
 
             header('Content-Type: application/json');
@@ -131,15 +135,13 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Delete()
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::OperateAuth();
             $affectedRows = $this->MemberModel->DeleteMember($this->data);
             header('Content-Type: application/json');
             http_response_code(200);
@@ -188,8 +190,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
     public function GetProfile($member_id)
@@ -217,8 +217,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -247,8 +245,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -277,8 +273,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 }
