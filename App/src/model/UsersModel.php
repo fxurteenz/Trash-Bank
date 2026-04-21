@@ -34,11 +34,14 @@ class UsersModel
                 'SELECT 
                     m.*,
                     r.role_name,
-                    r.role_name_th
+                    r.role_name_th,
+                    f.faculty_name
                 FROM 
                     member m
                 LEFT JOIN 
                     role r ON m.role_id = r.role_id
+                LEFT JOIN 
+                    faculty f ON m.faculty_id = f.faculty_id
                 WHERE 
                     member_email = :identifier OR
                     member_personal_id = :identifier OR
