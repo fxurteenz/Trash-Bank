@@ -20,16 +20,18 @@
 
         /* Shared user layout styling (only applied when footer==='user') */
         .user-mode {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background:
+                radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.1), transparent 30%),
+                radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.08), transparent 32%),
+                linear-gradient(135deg, #0e8b53 0%, #0a6f43 55%, #065835 100%);
             display: flex;
             justify-content: center;
         }
 
         .user-page {
             width: 100%;
-            max-width: 430px;
-            /* comfortable phone width */
-            padding: 16px;
+            max-width: 460px;
+            padding: 14px;
             min-height: 100vh;
         }
 

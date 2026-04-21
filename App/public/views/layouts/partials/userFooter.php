@@ -1,40 +1,42 @@
 <style>
   /* Reserve space on pages that include this footer (safe area aware) */
-  .has-footer { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .has-footer { padding-bottom: calc(98px + env(safe-area-inset-bottom, 0px)); }
 
   .game-footer {
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    background: linear-gradient(180deg, #2c3e50 0%, #1f2a44 100%);
-    box-shadow: 0 -8px 24px rgba(0,0,0,0.35);
-    padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    background: rgba(8, 63, 38, 0.88);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.28);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
     z-index: 1000;
   }
   .footer-inner {
-    max-width: 1200px;
+    max-width: 460px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
   .foot-item {
-    background: linear-gradient(180deg, #445a7b, #2a3a57);
-    border-radius: 16px;
-    padding: 10px 8px;
+    background: rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 8px 6px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #e6f0ff; text-decoration: none; font-weight: 700;
-    border: 2px solid rgba(255,255,255,0.08);
-    box-shadow: 0 6px 0 #1b253a, 0 10px 18px rgba(0,0,0,0.25);
-    transition: transform .12s ease, box-shadow .12s ease, background .2s ease;
-    min-height: 66px;
+    color: #d9ffea; text-decoration: none; font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform .14s ease, background .2s ease, border-color .2s ease;
+    min-height: 60px;
   }
-  .foot-item:hover { transform: translateY(-2px); }
-  .foot-item:active { transform: translateY(2px); box-shadow: 0 2px 0 #1b253a; }
-  .foot-item.active { background: linear-gradient(180deg, #5b7bd6, #3d55a8); border-color: #89a6ff; }
-  .foot-icon { font-size: 22px; line-height: 1; }
-  .foot-label { font-size: 12px; margin-top: 6px; letter-spacing: .2px; }
-  @media (min-width: 1024px){ .foot-label{ font-size: 13px;} .foot-icon{ font-size: 24px;} }
-  @media (max-width: 420px){ .foot-label{ font-size: 11px;} .foot-item{ min-height: 60px; } }
+  .foot-item:hover { transform: translateY(-1px); }
+  .foot-item.active {
+    background: linear-gradient(135deg, #20c06f 0%, #0f9d58 100%);
+    border-color: rgba(255,255,255,0.3);
+    color: #ffffff;
+  }
+  .foot-icon { font-size: 20px; line-height: 1; }
+  .foot-label { font-size: 11px; margin-top: 5px; letter-spacing: .2px; }
+  @media (min-width: 1024px){ .foot-label{ font-size: 12px;} .foot-icon{ font-size: 21px;} }
 </style>
 
 <?php
@@ -47,23 +49,23 @@
 <nav class="game-footer">
   <div class="footer-inner">
     <a class="foot-item <?= userFootActive('shop', $activeTab ?? '') ?>" href="/user/shop" aria-label="Shop">
-      <div class="foot-icon">🏪</div>
-      <div class="foot-label">ร้านค้า</div>
+      <div class="foot-icon">🛍️</div>
+      <div class="foot-label">ชอป</div>
     </a>
     <a class="foot-item <?= userFootActive('equipment', $activeTab ?? '') ?>" href="/user/equipment" aria-label="Equipment">
-      <div class="foot-icon">🛡️</div>
-      <div class="foot-label">อุปกรณ์</div>
+      <div class="foot-icon">🎒</div>
+      <div class="foot-label">กระเป๋า</div>
     </a>
     <a class="foot-item <?= userFootActive('dashboard', $activeTab ?? '') ?>" href="/user" aria-label="Home">
-      <div class="foot-icon">🏆</div>
-      <div class="foot-label">แดชบอร์ด</div>
+      <div class="foot-icon">🏦</div>
+      <div class="foot-label">บัญชี</div>
     </a>
     <a class="foot-item <?= userFootActive('collection', $activeTab ?? '') ?>" href="/user/collection" aria-label="Collection">
-      <div class="foot-icon">🥇</div>
-      <div class="foot-label">ของสะสม</div>
+      <div class="foot-icon">🎖️</div>
+      <div class="foot-label">รางวัล</div>
     </a>
     <a class="foot-item <?= userFootActive('quests', $activeTab ?? '') ?>" href="/user/quests" aria-label="Quests">
-      <div class="foot-icon">📜</div>
+      <div class="foot-icon">✅</div>
       <div class="foot-label">ภารกิจ</div>
     </a>
   </div>
