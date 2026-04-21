@@ -124,13 +124,11 @@ class Routes
         /* api/members */
         $this->addPrefixedRoutes('/api/members', [
             ['GET', '', [MemberController::class, 'GetAll']],
-            ['GET', '/dashboard/[i:id]', [MemberController::class, 'GetDashboard']],
             ['GET', '/profile/[i:id]', [MemberController::class, 'GetProfile']],
             ['GET', '/count', [MemberController::class, 'GetRoleCount']],
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
             ['POST', '/delete', [MemberController::class, 'Delete']],
-            ['POST', '/redeem/[i:id]', [MemberController::class, 'RedeemReward']],
         ]);
         /* /api/majors */
         $this->addPrefixedRoutes('/api/majors', [
@@ -231,7 +229,7 @@ class Routes
         /* /api/reports */
         $this->addPrefixedRoutes("/api/reports", [
             ['GET', "", [ReportController::class, "GetScopedReport"]],
-            ['GET', "/overall", [ReportController::class, "GetOverallReport"]],
+            ['GET', "/overall", [ReportController::class, "GetOverallReport"]], // TODO:check
             ['GET', "/member/[i:mid]", [ReportController::class, "GetMemberReport"]],
             ['GET', "/faculty/[i:fid]", [ReportController::class, "GetFacultyReport"]],
             ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],

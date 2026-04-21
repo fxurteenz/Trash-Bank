@@ -165,33 +165,7 @@ class MemberController extends RouterBase
             ]);
         }
     }
-    public function GetDashboard($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $dashboard = $this->MemberModel->GetMemberDashboard($member_id, $this->queryString);
 
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $dashboard,
-                'message' => 'Dashboard data retrieved successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
     public function GetProfile($member_id)
     {
         try {
@@ -204,34 +178,6 @@ class MemberController extends RouterBase
                 'success' => TRUE,
                 'data' => $profile,
                 'message' => 'Profile retrieved successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
-
-    public function RedeemReward($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $result = $this->MemberModel->RedeemReward($member_id, $this->data);
-
-            header('Content-Type: application/json');
-            http_response_code(201);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $result,
-                'message' => 'Reward redeemed successfully =)'
             ]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
