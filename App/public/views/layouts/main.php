@@ -18,12 +18,9 @@
             font-family: "Open Sans", sans-serif;
         }
 
-        /* Shared user layout styling (only applied when footer==='user') */
+        /* KBank-style user layout */
         .user-mode {
-            background:
-                radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.1), transparent 30%),
-                radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.08), transparent 32%),
-                linear-gradient(135deg, #0e8b53 0%, #0a6f43 55%, #065835 100%);
+            background: #F4F5F7;
             display: flex;
             justify-content: center;
         }
@@ -31,13 +28,13 @@
         .user-page {
             width: 100%;
             max-width: 460px;
-            padding: 14px;
+            padding: 0 0 16px;
             min-height: 100vh;
         }
 
         @media (min-width: 768px) {
             .user-page {
-                padding: 18px;
+                padding: 0 0 16px;
             }
         }
     </style>

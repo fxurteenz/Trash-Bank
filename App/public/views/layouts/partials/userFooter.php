@@ -1,73 +1,78 @@
 <style>
-  /* Reserve space on pages that include this footer (safe area aware) */
-  .has-footer { padding-bottom: calc(98px + env(safe-area-inset-bottom, 0px)); }
+  /* KBank-style bottom nav */
+  .has-footer { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
 
-  .game-footer {
+  .kbank-footer {
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    background: rgba(8, 63, 38, 0.88);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 -8px 24px rgba(0,0,0,0.28);
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-top: 1px solid #F0F1F3;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
     z-index: 1000;
   }
-  .footer-inner {
+  .kfooter-inner {
     max-width: 460px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
   }
-  .foot-item {
-    background: rgba(255,255,255,0.09);
-    border-radius: 14px;
-    padding: 8px 6px;
+  .kfoot-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: #d9ffea; text-decoration: none; font-weight: 700;
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: transform .14s ease, background .2s ease, border-color .2s ease;
-    min-height: 60px;
+    gap: 3px; text-decoration: none;
+    padding: 6px 4px;
+    border-radius: 10px;
+    transition: background 0.12s;
+    color: #9CA3AF;
+    min-height: 52px;
   }
-  .foot-item:hover { transform: translateY(-1px); }
-  .foot-item.active {
-    background: linear-gradient(135deg, #20c06f 0%, #0f9d58 100%);
-    border-color: rgba(255,255,255,0.3);
-    color: #ffffff;
+  .kfoot-item.active { color: #1B8B4B; }
+  .kfoot-icon {
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    font-size: 20px;
+    position: relative;
   }
-  .foot-icon { font-size: 20px; line-height: 1; }
-  .foot-label { font-size: 11px; margin-top: 5px; letter-spacing: .2px; }
-  @media (min-width: 1024px){ .foot-label{ font-size: 12px;} .foot-icon{ font-size: 21px;} }
+  .kfoot-icon.active-dot::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 999px;
+    background: #1B8B4B;
+  }
+  .kfoot-label {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1px;
+  }
 </style>
 
 <?php
-  // Helper to mark active
   if (!function_exists('userFootActive')) {
     function userFootActive($key, $active){ return $key === ($active ?? '') ? 'active' : ''; }
   }
 ?>
 
-<nav class="game-footer">
-  <div class="footer-inner">
-    <a class="foot-item <?= userFootActive('shop', $activeTab ?? '') ?>" href="/user/shop" aria-label="Shop">
-      <div class="foot-icon">🛍️</div>
-      <div class="foot-label">ชอป</div>
+<nav class="kbank-footer">
+  <div class="kfooter-inner">
+    <a class="kfoot-item <?= userFootActive('shop', $activeTab ?? '') ?>" href="/user/shop" aria-label="Shop">
+      <div class="kfoot-icon <?= ($activeTab??'')==='shop' ? 'active-dot' : '' ?>">🛍️</div>
+      <div class="kfoot-label">แลกรางวัล</div>
     </a>
-    <a class="foot-item <?= userFootActive('equipment', $activeTab ?? '') ?>" href="/user/equipment" aria-label="Equipment">
-      <div class="foot-icon">🎒</div>
-      <div class="foot-label">กระเป๋า</div>
+    <a class="kfoot-item <?= userFootActive('equipment', $activeTab ?? '') ?>" href="/user/equipment" aria-label="Equipment">
+      <div class="kfoot-icon <?= ($activeTab??'')==='equipment' ? 'active-dot' : '' ?>">🎒</div>
+      <div class="kfoot-label">อุปกรณ์</div>
     </a>
-    <a class="foot-item <?= userFootActive('dashboard', $activeTab ?? '') ?>" href="/user" aria-label="Home">
-      <div class="foot-icon">🏦</div>
-      <div class="foot-label">บัญชี</div>
+    <a class="kfoot-item <?= userFootActive('dashboard', $activeTab ?? '') ?>" href="/user" aria-label="Home">
+      <div class="kfoot-icon <?= ($activeTab??'')==='dashboard' ? 'active-dot' : '' ?>">🏦</div>
+      <div class="kfoot-label">บัญชี</div>
     </a>
-    <a class="foot-item <?= userFootActive('collection', $activeTab ?? '') ?>" href="/user/collection" aria-label="Collection">
-      <div class="foot-icon">🎖️</div>
-      <div class="foot-label">รางวัล</div>
+    <a class="kfoot-item <?= userFootActive('collection', $activeTab ?? '') ?>" href="/user/collection" aria-label="Collection">
+      <div class="kfoot-icon <?= ($activeTab??'')==='collection' ? 'active-dot' : '' ?>">🏅</div>
+      <div class="kfoot-label">รางวัล</div>
     </a>
-    <a class="foot-item <?= userFootActive('quests', $activeTab ?? '') ?>" href="/user/quests" aria-label="Quests">
-      <div class="foot-icon">✅</div>
-      <div class="foot-label">ภารกิจ</div>
+    <a class="kfoot-item <?= userFootActive('quests', $activeTab ?? '') ?>" href="/user/quests" aria-label="Quests">
+      <div class="kfoot-icon <?= ($activeTab??'')==='quests' ? 'active-dot' : '' ?>">✅</div>
+      <div class="kfoot-label">ภารกิจ</div>
     </a>
   </div>
-  
 </nav>

@@ -1,40 +1,122 @@
 <style>
-  .up-page { display:grid; gap:12px; }
-  .up-head { background:linear-gradient(135deg,#0e8b53,#0a6f43); color:#fff; border-radius:18px; padding:14px; box-shadow:0 10px 24px rgba(0,0,0,.16); }
-  .up-head h1 { font-size:22px; font-weight:900; }
-  .up-head p { opacity:.9; font-size:12px; margin-top:2px; }
-  .up-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-  .up-card { background:#fff; border-radius:14px; padding:12px; box-shadow:0 8px 20px rgba(0,0,0,.14); }
-  .up-icon { font-size:28px; }
-  .up-title { margin-top:8px; color:#1b3b2d; font-size:14px; font-weight:800; }
-  .up-desc { margin-top:4px; color:#6b7f76; font-size:12px; min-height:30px; }
-  .up-btn { width:100%; margin-top:10px; border:0; border-radius:10px; padding:8px 10px; color:#fff; font-weight:800; font-size:12px; background:linear-gradient(135deg,#22c55e,#16a34a); }
+  /* KBank-style Shop */
+  .ks-topbar {
+    background: #fff;
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid #F0F1F3;
+  }
+  .ks-topbar-title { font-size: 17px; font-weight: 800; color: #1A1A2E; flex: 1; }
+  .ks-topbar-pts {
+    background: #E8F5EE; border-radius: 999px;
+    padding: 4px 12px; font-size: 12px; font-weight: 800; color: #1B8B4B;
+  }
+
+  .ks-body { display: grid; gap: 0; }
+
+  .ks-banner {
+    margin: 14px 14px 0;
+    background: linear-gradient(135deg, #1B8B4B 0%, #0D6B38 100%);
+    border-radius: 16px; padding: 16px 18px;
+    color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(27,139,75,0.28);
+  }
+  .ks-banner-left .lbl { font-size: 11px; opacity: 0.8; }
+  .ks-banner-left .val { font-size: 30px; font-weight: 900; line-height: 1.1; }
+  .ks-banner-left .unit { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .ks-banner-icon { font-size: 44px; opacity: 0.8; }
+
+  .ks-section {
+    background: #fff;
+    margin: 14px 14px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .ks-section-head {
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #F0F1F3;
+  }
+  .ks-section-title { font-size: 14px; font-weight: 800; color: #1A1A2E; }
+
+  .ks-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #F0F1F3;
+  }
+  .ks-item:last-child { border-bottom: 0; }
+  .ks-item-icon {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: #E8F5EE;
+    display: grid; place-items: center; font-size: 22px;
+    flex-shrink: 0;
+  }
+  .ks-item-detail { flex: 1; min-width: 0; }
+  .ks-item-name { font-size: 14px; font-weight: 700; color: #1A1A2E; }
+  .ks-item-desc { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+  .ks-item-right { text-align: right; flex-shrink: 0; }
+  .ks-item-pts { font-size: 14px; font-weight: 800; color: #1B8B4B; }
+  .ks-item-unit { font-size: 10px; color: #9CA3AF; margin-top: 1px; }
+  .ks-redeem-btn {
+    margin-top: 6px;
+    background: linear-gradient(135deg, #1B8B4B, #0D6B38);
+    color: #fff; border: 0; border-radius: 8px;
+    padding: 5px 12px; font-size: 11px; font-weight: 800;
+    cursor: pointer; white-space: nowrap;
+  }
 </style>
 
-<div class="up-page">
-  <div class="up-head">
-    <h1>ร้านแลกแต้ม</h1>
-    <p>แลกเครดิตหรือสิทธิพิเศษด้วยแต้มขยะและแต้มความดี</p>
+<div class="ks-body">
+  <!-- Top Bar -->
+  <div class="ks-topbar">
+    <a href="/user" style="font-size:22px;text-decoration:none;color:#1A1A2E;line-height:1;">‹</a>
+    <div class="ks-topbar-title">ร้านแลกแต้ม</div>
+    <div class="ks-topbar-pts">🏆 1,280 แต้ม</div>
   </div>
 
-  <div class="up-grid">
+  <!-- Balance Banner -->
+  <div class="ks-banner">
+    <div class="ks-banner-left">
+      <div class="lbl">แต้มขยะคงเหลือ</div>
+      <div class="val">1,280</div>
+      <div class="unit">แต้ม</div>
+    </div>
+    <div class="ks-banner-icon">🛍️</div>
+  </div>
+
+  <!-- Items List -->
+  <div class="ks-section">
+    <div class="ks-section-head">
+      <div class="ks-section-title">รายการของรางวัล</div>
+    </div>
     <?php
       $items = [
-        ['icon'=>'🧴','name'=>'น้ำยาล้างจานรักษ์โลก','desc'=>'ใช้แต้มขยะ 220 แต้ม','price'=>'แลก 220 แต้ม'],
-        ['icon'=>'🛍️','name'=>'ถุงผ้าลดโลกร้อน','desc'=>'ใช้แต้มความดี 150 แต้ม','price'=>'แลก 150 แต้ม'],
-        ['icon'=>'🌱','name'=>'กล้าไม้พื้นถิ่น','desc'=>'ช่วยเพิ่มพื้นที่สีเขียว','price'=>'แลก 180 แต้ม'],
-        ['icon'=>'☕','name'=>'ส่วนลดร้านกาแฟ','desc'=>'คูปองส่วนลด 30 บาท','price'=>'แลก 120 แต้ม'],
-        ['icon'=>'🎟️','name'=>'บัตรกิจกรรมสีเขียว','desc'=>'เข้างานเวิร์กชอปฟรี','price'=>'แลก 280 แต้ม'],
-        ['icon'=>'🎁','name'=>'กล่องของขวัญรีไซเคิล','desc'=>'ของรางวัลประจำเดือน','price'=>'แลก 340 แต้ม'],
+        ['icon'=>'🧴','name'=>'น้ำยาล้างจานรักษ์โลก','desc'=>'ใช้แต้มขยะ','pts'=>220],
+        ['icon'=>'🛍️','name'=>'ถุงผ้าลดโลกร้อน','desc'=>'ใช้แต้มความดี','pts'=>150],
+        ['icon'=>'🌱','name'=>'กล้าไม้พื้นถิ่น','desc'=>'ช่วยเพิ่มพื้นที่สีเขียว','pts'=>180],
+        ['icon'=>'☕','name'=>'ส่วนลดร้านกาแฟ','desc'=>'คูปองส่วนลด 30 บาท','pts'=>120],
+        ['icon'=>'🎟️','name'=>'บัตรกิจกรรมสีเขียว','desc'=>'เข้างานเวิร์กชอปฟรี','pts'=>280],
+        ['icon'=>'🎁','name'=>'กล่องของขวัญรีไซเคิล','desc'=>'ของรางวัลประจำเดือน','pts'=>340],
       ];
       foreach($items as $item):
     ?>
-      <article class="up-card">
-        <div class="up-icon"><?= $item['icon'] ?></div>
-        <div class="up-title"><?= $item['name'] ?></div>
-        <div class="up-desc"><?= $item['desc'] ?></div>
-        <button class="up-btn"><?= $item['price'] ?></button>
-      </article>
+    <div class="ks-item">
+      <div class="ks-item-icon"><?= $item['icon'] ?></div>
+      <div class="ks-item-detail">
+        <div class="ks-item-name"><?= $item['name'] ?></div>
+        <div class="ks-item-desc"><?= $item['desc'] ?></div>
+      </div>
+      <div class="ks-item-right">
+        <div class="ks-item-pts"><?= $item['pts'] ?></div>
+        <div class="ks-item-unit">แต้ม</div>
+        <button class="ks-redeem-btn">แลก</button>
+      </div>
+    </div>
     <?php endforeach; ?>
   </div>
 </div>
