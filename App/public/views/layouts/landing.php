@@ -6,8 +6,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-    <link href="/assets/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
     <script defer src="/js/alpine-collapse.min.js"></script>
     <script defer src="/js/alpine.min.js"></script>
     <script type="text/javascript" src="js/lucide.min.js"></script>
@@ -50,6 +50,7 @@
     </main>
 
     <script src="/js/swal.min.js"></script>
+    <script> lucide.createIcons();</script>
 </body>
 
 </html>
