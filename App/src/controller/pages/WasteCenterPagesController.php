@@ -15,7 +15,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('waste_center/dashboard', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => 'home',
                 'title' => 'แดชบอร์ด',
                 'module' => '../../js/Dashboard.mjs'
@@ -34,7 +34,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('transactions/waste_deposit', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => 'wasteTransaction',
                 'title' => 'ระบบฝากขยะ',
             ], self::$Layouts);
@@ -53,7 +53,7 @@ class WasteCenterPagesController extends RouterBase
             $this->render('transactions/clear_waste', [
                 'pages' => "clearWasteTransaction",
                 'title' => 'ระบบเคลียร์ยอดฝากขยะ',
-                'user' => $user
+                'user' => $user["user_data"]
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -72,7 +72,7 @@ class WasteCenterPagesController extends RouterBase
             $this->render('transactions/waste_sale', [
                 'pages' => "saleWasteTransaction",
                 'title' => 'ระบบบันทึกการจำหน่ายออก',
-                'user' => $user
+                'user' => $user["user_data"]
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -89,7 +89,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('transactions/donation_pos', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => "donationTransaction",
                 'title' => 'บันทึกการรับของบริจาค'
             ], self::$Layouts);
@@ -105,7 +105,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('transactions/redeem_item', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => "redeemItemTransaction",
                 'title' => 'บันทึกการแลกสิ่งของ'
             ], self::$Layouts);
@@ -122,7 +122,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('history/waste_transaction', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => 'wasteTransactionHistory',
                 'title' => 'ประวัติการฝากขยะ',
             ], self::$Layouts);
@@ -139,7 +139,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('history/clear_waste', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => "clearWasteHistory",
                 'title' => 'ประวัติการเคลียร์ยอด'
             ], self::$Layouts);
@@ -155,7 +155,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('history/waste_sale_headers', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ'
             ], self::$Layouts);
@@ -171,7 +171,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('history/donation', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => "donationHistory",
                 'title' => 'ประวัติการรับของบริจาค'
             ], self::$Layouts);
@@ -188,13 +188,12 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('waste_center/manages/users', [
-                'user' => $user,
                 'pages' => 'memberManagement',
                 'title' => 'จัดการสมาชิก',
-                // 'script' => '../../js/ManageUsers.js',
+                'user' => $user["user_data"]
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
+            $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -207,7 +206,7 @@ class WasteCenterPagesController extends RouterBase
             $user = Authentication::CenterAuth();
             $this->render('waste_center/manages/details/user_detail', [
                 'member_id' => !empty($member_id) ? (int) $member_id : null,
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => 'memberManagement',
                 'title' => 'จัดการสมาชิก'
             ], self::$Layouts);
@@ -224,7 +223,7 @@ class WasteCenterPagesController extends RouterBase
         try {
             $user = Authentication::CenterAuth();
             $this->render('waste_center/manages/waste_stock', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'pages' => 'wasteStock',
                 'title' => 'ขยะในคลัง'
             ], self::$Layouts);

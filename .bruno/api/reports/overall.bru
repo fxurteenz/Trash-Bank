@@ -1,17 +1,13 @@
 meta {
-  name: Get Profile
+  name: overall
   type: http
   seq: 3
 }
 
 get {
-  url: {{domain}}/api/members/profile/5
+  url: {{api_domain}}/reports/overall
   body: none
   auth: inherit
-}
-
-vars:pre-request {
-  domain: http://localhost:8000
 }
 
 settings {

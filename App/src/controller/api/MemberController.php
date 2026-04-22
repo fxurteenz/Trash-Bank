@@ -71,15 +71,17 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Create()
     {
         try {
-            Authentication::AdminAuth();
+            if ((int) $this->data["role_id"] == 1 || (int) $this->data["role_id"] == 3 || (int) $this->data["role_id"] == 4) {
+                Authentication::CenterAuth();
+            } else {
+                Authentication::OperateAuth();
+            }
             $result = $this->MemberModel->CreateMember($this->data);
 
             header('Content-Type: application/json');
@@ -101,15 +103,17 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Update($uid)
     {
         try {
-            Authentication::AdminAuth();
+            if ((int) $this->data["role_id"] == 1 || (int) $this->data["role_id"] == 3 || (int) $this->data["role_id"] == 4) {
+                Authentication::CenterAuth();
+            } else {
+                Authentication::OperateAuth();
+            }
             $user = $this->MemberModel->UpdateMember($uid, $this->data);
 
             header('Content-Type: application/json');
@@ -131,15 +135,13 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
     public function Delete()
     {
         try {
-            Authentication::AdminAuth();
+            Authentication::OperateAuth();
             $affectedRows = $this->MemberModel->DeleteMember($this->data);
             header('Content-Type: application/json');
             http_response_code(200);
@@ -163,35 +165,7 @@ class MemberController extends RouterBase
             ]);
         }
     }
-    public function GetDashboard($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $dashboard = $this->MemberModel->GetMemberDashboard($member_id, $this->queryString);
 
-            header('Content-Type: application/json');
-            http_response_code(200);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $dashboard,
-                'message' => 'Dashboard data retrieved successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
-        }
-    }
     public function GetProfile($member_id)
     {
         try {
@@ -217,38 +191,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
-    }
-
-    public function RedeemReward($member_id)
-    {
-        try {
-            Authentication::MemberAuth();
-            $result = $this->MemberModel->RedeemReward($member_id, $this->data);
-
-            header('Content-Type: application/json');
-            http_response_code(201);
-            echo json_encode([
-                'success' => TRUE,
-                'data' => $result,
-                'message' => 'Reward redeemed successfully =)'
-            ]);
-        } catch (AuthenticationException $e) {
-            http_response_code($e->getCode() ?: 401);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } catch (Exception $e) {
-            http_response_code($e->getCode() ?: 400);
-            echo json_encode([
-                'success' => false,
-                'message' => $e->getMessage()
-            ]);
-        } finally {
-            exit;
         }
     }
 
@@ -277,8 +219,6 @@ class MemberController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 }

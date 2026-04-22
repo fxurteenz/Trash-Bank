@@ -334,7 +334,11 @@
                             class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
                             :class="{'border-red-500': errors.create.role_id}">
                             <option value="">เลือกบทบาท</option>
-                            <option value="1">ผู้ดูแลระบบ</option>
+                            <?php
+                            if ((int) $user->role_id == 1) {
+                                echo '<option value="1">ผู้ดูแลระบบ</option>';
+                            }
+                            ?>
                             <option value="2">ผู้ใช้งานทั่วไป</option>
                             <option value="3">เจ้าหน้าที่จุดฝาก</option>
                             <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
@@ -436,7 +440,11 @@
                             class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200 bg-white"
                             :class="{'border-red-500': errors.edit.role_id}">
                             <option value="">เลือกบทบาท</option>
-                            <option value="1">ผู้ดูแลระบบ</option>
+                            <?php
+                            if ((int) $user->role_id == 1) {
+                                echo '<option value="1">ผู้ดูแลระบบ</option>';
+                            }
+                            ?>
                             <option value="2">ผู้ใช้งานทั่วไป</option>
                             <option value="3">เจ้าหน้าที่จุดฝาก</option>
                             <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
@@ -931,7 +939,7 @@
 
                 if (result.isConfirmed) {
                     try {
-                        const deleteRes = await fetch("/api/members/bulk-del", {
+                        const deleteRes = await fetch("/api/members/delete", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ member_ids: [member.member_id] }),
@@ -983,7 +991,7 @@
 
                 if (result.isConfirmed) {
                     try {
-                        const deleteRes = await fetch("/api/members/bulk-del", {
+                        const deleteRes = await fetch("/api/members/delete", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify(this.checkedMembers),
