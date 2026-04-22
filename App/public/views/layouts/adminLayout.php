@@ -5,8 +5,8 @@
     <title><?= $title ?? 'Trash Bank' ?></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-    <link href="/assets/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
     <script defer src="/js/alpine-collapse.min.js"></script>
     <script defer src="/js/alpine.min.js"></script>
     <script type="text/javascript" src="/js/lucide.min.js"></script>
@@ -65,8 +65,8 @@
 
 <body class="min-h-screen bg-fixed">
 
-    <div x-data="{ sidebarOpen: window.innerWidth > 1024, profileMenuOpen: false }"
-        @resize.window="sidebarOpen = window.innerWidth > 1024" class="min-h-screen flex flex-col">
+    <div x-data="{ sidebarOpen: window.innerWidth > 1366, profileMenuOpen: false }"
+        @resize.window="sidebarOpen = window.innerWidth > 1366" class="min-h-screen flex flex-col">
 
         <header
             class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b border-slate-200 transition-all duration-300">
@@ -348,7 +348,7 @@
             class="fixed inset-0 z-10 bg-black opacity-50  lg:hidden"></div>
 
         <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'"
-            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] transition-all duration-150 ease-in-out">
+            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]  transition-all duration-150 ease-in-out">
             <?php include $viewPath; ?>
         </main>
 
