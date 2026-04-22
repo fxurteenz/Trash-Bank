@@ -140,7 +140,7 @@
                 <div class="flex flex-col justify-center items-center">
                     <div class="flex items-center gap-3 mb-4">
                         <div>
-                            <img class="h-10" src="assets/images/ธนาคารขยะFullLogo.png" alt="">
+                            <img class="h-10" src="assets/images/waste_bankFullLogo.png" alt="">
                             <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
                         </div>
                         <div>

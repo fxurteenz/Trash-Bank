@@ -80,7 +80,7 @@
                     </svg>
                 </button>
                 <a href="/admin" class="flex items-center gap-2 group">
-                    <img src="/assets/images/ธนาคารขยะFullLogo.png" class="h-10" alt="BRU Waste Bank">
+                    <img src="/assets/images/waste_bankFullLogo.png" class="h-10" alt="BRU Waste Bank">
                 </a>
             </div>
 
