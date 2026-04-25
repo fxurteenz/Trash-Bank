@@ -1,460 +1,315 @@
 <style>
-    :root {
-        --pad: clamp(12px, 2.5vw, 20px);
-        --radius-lg: 20px;
-        --radius-md: 16px;
-        --shadow-1: 0 8px 32px rgba(0, 0, 0, 0.2);
-        --shadow-2: 0 8px 32px rgba(0, 0, 0, 0.15);
-    }
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+  /* ─── KBank-style Dashboard ─── */
+  .kd-topbar {
+    background: #fff;
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #F0F1F3;
+  }
+  .kd-topbar-left { display: flex; align-items: center; gap: 10px; }
+  .kd-avatar {
+    width: 38px; height: 38px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1B8B4B, #0D6B38);
+    color: #fff; font-size: 16px; font-weight: 800;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .kd-greet-sub { font-size: 11px; color: #9CA3AF; }
+  .kd-greet-name { font-size: 14px; font-weight: 800; color: #1A1A2E; margin-top: 1px; }
+  .kd-topbar-right { display: flex; align-items: center; gap: 10px; }
+  .kd-icon-btn {
+    width: 36px; height: 36px; border-radius: 999px;
+    background: #F4F5F7;
+    display: grid; place-items: center; font-size: 17px;
+    text-decoration: none; border: none; cursor: pointer;
+  }
 
-    /* Body styling is handled by layout for user pages */
+  .kd-body { display: grid; gap: 0; }
 
-    .dashboard-container { width: 100%; padding: var(--pad); }
+  /* Account Card */
+  .kd-account-card {
+    background: linear-gradient(140deg, #1B8B4B 0%, #0D6B38 60%, #0A5A2F 100%);
+    margin: 14px 14px 0;
+    border-radius: 18px;
+    padding: 20px 20px 16px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(27,139,75,0.35);
+  }
+  .kd-account-card::before {
+    content: '';
+    position: absolute;
+    width: 180px; height: 180px;
+    border-radius: 999px;
+    top: -60px; right: -50px;
+    background: rgba(255,255,255,0.08);
+  }
+  .kd-account-card::after {
+    content: '';
+    position: absolute;
+    width: 100px; height: 100px;
+    border-radius: 999px;
+    bottom: -30px; left: 30px;
+    background: rgba(255,255,255,0.06);
+  }
+  .kd-acc-label { font-size: 11px; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; }
+  .kd-acc-balance { font-size: 38px; font-weight: 900; line-height: 1.1; margin: 4px 0 2px; letter-spacing: -1px; }
+  .kd-acc-unit { font-size: 14px; opacity: 0.85; font-weight: 600; }
+  .kd-acc-row { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.18); }
+  .kd-acc-sub { text-align: center; }
+  .kd-acc-sub .sub-val { font-size: 17px; font-weight: 800; }
+  .kd-acc-sub .sub-lbl { font-size: 10px; opacity: 0.75; margin-top: 2px; }
+  .kd-acc-divider { width: 1px; height: 34px; background: rgba(255,255,255,0.22); }
+  .kd-acc-badge { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 3px 8px; font-size: 11px; font-weight: 700; }
 
-    /* Header Section */
-    .header {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        border-radius: var(--radius-lg);
-        padding: clamp(14px, 2vw, 24px);
-        margin-bottom: 16px;
-        box-shadow: var(--shadow-1);
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-        align-items: center;
-    }
+  /* Quick Actions */
+  .kd-actions {
+    background: #fff;
+    margin: 14px 14px 0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+  }
+  .kd-action {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    text-decoration: none;
+    padding: 6px 4px;
+    border-radius: 12px;
+    transition: background 0.15s;
+  }
+  .kd-action:active { background: #F4F5F7; }
+  .kd-action-icon {
+    width: 46px; height: 46px;
+    border-radius: 14px;
+    display: grid; place-items: center;
+    font-size: 21px;
+  }
+  .kd-action-icon.green { background: #E8F5EE; }
+  .kd-action-icon.blue  { background: #E0F2FE; }
+  .kd-action-icon.amber { background: #FEF3C7; }
+  .kd-action-icon.purple{ background: #F3E8FF; }
+  .kd-action-label { font-size: 11px; font-weight: 700; color: #374151; text-align: center; }
 
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
+  /* Section headers */
+  .kd-section {
+    background: #fff;
+    margin: 14px 14px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+  }
+  .kd-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+  }
+  .kd-section-title { font-size: 14px; font-weight: 800; color: #1A1A2E; }
+  .kd-section-more { font-size: 12px; color: #1B8B4B; font-weight: 700; text-decoration: none; }
 
-    .user-avatar {
-        width: clamp(52px, 8vw, 64px);
-        height: clamp(52px, 8vw, 64px);
-        border-radius: 50%;
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: clamp(18px, 3.5vw, 26px);
-        font-weight: bold;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-    }
+  /* Stats row */
+  .kd-stats {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    border-top: 1px solid #F0F1F3;
+  }
+  .kd-stat {
+    padding: 12px 8px; text-align: center;
+    border-right: 1px solid #F0F1F3;
+  }
+  .kd-stat:last-child { border-right: 0; }
+  .kd-stat-icon { font-size: 18px; }
+  .kd-stat-val { font-size: 17px; font-weight: 900; color: #1A1A2E; margin-top: 3px; }
+  .kd-stat-lbl { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
 
-    .user-details h2 {
-        color: white;
-        font-size: clamp(18px, 2.5vw, 24px);
-        margin-bottom: 5px;
-    }
+  /* Waste bars */
+  .kd-bar-list { padding: 0 16px 14px; }
+  .kd-bar-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+  .kd-bar-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+  .kd-bar-name { font-size: 13px; color: #374151; font-weight: 600; flex: 1; }
+  .kd-bar-track { flex: 2; background: #F0F1F3; border-radius: 999px; height: 6px; overflow: hidden; }
+  .kd-bar-fill { height: 100%; border-radius: 999px; }
+  .kd-bar-kg { font-size: 12px; color: #6B7280; font-weight: 700; min-width: 52px; text-align: right; }
 
-    .user-level {
-        background: rgba(255, 255, 255, 0.3);
-        padding: 5px 15px;
-        border-radius: 20px;
-        color: white;
-        font-weight: bold;
-    }
-
-    .stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
-
-    .stat-item { text-align: center; background: rgba(255, 255, 255, 0.2); padding: 10px 12px; border-radius: 14px; backdrop-filter: blur(10px); }
-
-    .stat-value {
-        color: white;
-        font-size: clamp(16px, 2.2vw, 22px);
-        font-weight: bold;
-        display: block;
-    }
-
-    .stat-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 12px;
-        display: block;
-        margin-top: 5px;
-    }
-
-    /* Progress Section */
-    .progress-section {
-        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        border-radius: var(--radius-lg);
-        padding: clamp(14px, 2.2vw, 24px);
-        margin-bottom: 16px;
-        box-shadow: var(--shadow-1);
-    }
-
-    .progress-header {
-        color: white;
-        font-size: clamp(18px, 3vw, 28px);
-        font-weight: bold;
-        text-align: center;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .progress-bar-container { background: rgba(255, 255, 255, 0.3); border-radius: 999px; height: clamp(28px, 5vw, 40px); overflow: hidden; position: relative; margin-bottom: 10px; }
-
-    .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        transition: width 0.5s ease;
-    }
-
-    .level-info {
-        text-align: center;
-        color: white;
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    /* Cards Grid */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
-
-    .card {
-        background: white;
-        border-radius: var(--radius-lg);
-        padding: clamp(14px, 2vw, 22px);
-        box-shadow: var(--shadow-2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .card-icon {
-        width: clamp(64px, 10vw, 80px);
-        height: clamp(64px, 10vw, 80px);
-        margin: 0 auto 14px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(28px, 6vw, 40px);
-        box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .card-title {
-        font-size: clamp(14px, 2.3vw, 18px);
-        font-weight: bold;
-        color: #333;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .card-value {
-        font-size: clamp(20px, 4.5vw, 28px);
-        font-weight: bold;
-        color: #667eea;
-        text-align: center;
-        margin-bottom: 8px;
-    }
-
-    .card-description {
-        font-size: 14px;
-        color: #666;
-        text-align: center;
-    }
-
-    /* Achievements Section */
-    .achievements-section { background: white; border-radius: var(--radius-lg); padding: clamp(14px, 2.2vw, 24px); box-shadow: var(--shadow-2); margin-bottom: 16px; }
-
-    .section-title {
-        font-size: 24px;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; }
-
-    .achievement {
-        text-align: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-        cursor: pointer;
-    }
-
-    .achievement:hover {
-        transform: scale(1.05);
-    }
-
-    .achievement.locked {
-        opacity: 0.5;
-        filter: grayscale(100%);
-    }
-
-    .achievement-icon {
-        font-size: 48px;
-        margin-bottom: 10px;
-    }
-
-    .achievement-name {
-        font-size: 14px;
-        font-weight: bold;
-        color: #333;
-    }
-
-    /* Activities Section */
-    .activities-section { background: white; border-radius: var(--radius-lg); padding: clamp(14px, 2.2vw, 24px); box-shadow: var(--shadow-2); }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 15px;
-        border-bottom: 1px solid #f0f0f0;
-        transition: background 0.3s ease;
-    }
-
-    .activity-item:hover {
-        background: #f9f9f9;
-        border-radius: 10px;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 24px;
-    }
-
-    .activity-details {
-        flex: 1;
-    }
-
-    .activity-title {
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 5px;
-    }
-
-    .activity-time {
-        font-size: 12px;
-        color: #999;
-    }
-
-    .activity-points {
-        font-size: 18px;
-        font-weight: bold;
-        color: #4caf50;
-    }
-
-    @media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } .cards-grid { grid-template-columns: 1fr; } }
+  /* Transaction list */
+  .kd-txn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #F0F1F3;
+  }
+  .kd-txn:last-child { border-bottom: 0; }
+  .kd-txn-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: grid; place-items: center; font-size: 18px;
+    flex-shrink: 0;
+  }
+  .kd-txn-icon.recycle { background: #E8F5EE; }
+  .kd-txn-icon.redeem  { background: #FEF3C7; }
+  .kd-txn-icon.carbon  { background: #E0F2FE; }
+  .kd-txn-detail { flex: 1; min-width: 0; }
+  .kd-txn-name { font-size: 13px; font-weight: 700; color: #1A1A2E; }
+  .kd-txn-time { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+  .kd-txn-amount { font-size: 14px; font-weight: 800; }
+  .kd-txn-amount.plus  { color: #1B8B4B; }
+  .kd-txn-amount.minus { color: #EF4444; }
 </style>
 
-<div class="dashboard-container">
-    <!-- Header -->
-    <div class="header">
-        <div class="user-info">
-            <div class="user-avatar">👤</div>
-            <div class="user-details">
-                <h2 id="userName">สมชาย ใจดี</h2>
-                <span class="user-level">🏆 Level 38</span>
-            </div>
-        </div>
-        <div class="stats">
-            <div class="stat-item">
-                <span class="stat-value">⚡ 180/30</span>
-                <span class="stat-label">พลังงาน</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">💰 21.3K</span>
-                <span class="stat-label">เหรียญ</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-value">💎 1135</span>
-                <span class="stat-label">เพชร</span>
-            </div>
-        </div>
+<!-- Top Bar -->
+<div class="kd-body">
+  <div class="kd-topbar">
+    <div class="kd-topbar-left">
+      <div class="kd-avatar">ส</div>
+      <div>
+        <div class="kd-greet-sub">สวัสดี,</div>
+        <div class="kd-greet-name">สมชาย ใจดี</div>
+      </div>
     </div>
-
-    <!-- Progress Section -->
-    <div class="progress-section">
-        <div class="progress-header">🎯 ดูดคาล 14</div>
-        <div class="progress-bar-container">
-            <div class="progress-bar" style="width: 20%;">
-                20%
-            </div>
-        </div>
-        <div class="level-info">ผ่านด่านแล้ว 1 / 5 ด่าน</div>
+    <div class="kd-topbar-right">
+      <button class="kd-icon-btn" aria-label="แจ้งเตือน">🔔</button>
     </div>
+  </div>
 
-    <!-- Main Cards -->
-    <div class="cards-grid">
-        <div class="card">
-            <div class="card-icon">♻️</div>
-            <div class="card-title">ขยะที่รีไซเคิล</div>
-            <div class="card-value">24.5 กก.</div>
-            <div class="card-description">เดือนนี้</div>
-        </div>
-
-        <div class="card">
-            <div class="card-icon">🌱</div>
-            <div class="card-title">คาร์บอนที่ลดได้</div>
-            <div class="card-value">12.3 กก.</div>
-            <div class="card-description">ช่วยโลกแล้ว!</div>
-        </div>
-
-        <div class="card">
-            <div class="card-icon">💰</div>
-            <div class="card-title">รายได้สะสม</div>
-            <div class="card-value">1,850 บาท</div>
-            <div class="card-description">ทั้งหมด</div>
-        </div>
-
-        <div class="card">
-            <div class="card-icon">🎁</div>
-            <div class="card-title">ของรางวัล</div>
-            <div class="card-value">8 ชิ้น</div>
-            <div class="card-description">รอรับ</div>
-        </div>
+  <!-- Account Card -->
+  <div class="kd-account-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="kd-acc-label">แต้มขยะสะสม</div>
+      <span class="kd-acc-badge">♻️ สมาชิก</span>
     </div>
-
-    <!-- Achievements Section -->
-    <div class="achievements-section">
-        <div class="section-title">
-            <span>🏆</span>
-            <span>ความสำเร็จ</span>
-        </div>
-        <div class="achievements-grid">
-            <div class="achievement">
-                <div class="achievement-icon">🏆</div>
-                <div class="achievement-name">เริ่มต้น</div>
-            </div>
-            <div class="achievement">
-                <div class="achievement-icon">⚡</div>
-                <div class="achievement-name">มือใหม่</div>
-            </div>
-            <div class="achievement">
-                <div class="achievement-icon">👑</div>
-                <div class="achievement-name">ระดับ 10</div>
-            </div>
-            <div class="achievement">
-                <div class="achievement-icon">💎</div>
-                <div class="achievement-name">นักสะสม</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🔒</div>
-                <div class="achievement-name">ปริศนา</div>
-            </div>
-            <div class="achievement locked">
-                <div class="achievement-icon">🔒</div>
-                <div class="achievement-name">ล็อก</div>
-            </div>
-        </div>
+    <div class="kd-acc-balance">1,280</div>
+    <div class="kd-acc-unit">แต้ม</div>
+    <div class="kd-acc-row">
+      <div class="kd-acc-sub">
+        <div class="sub-val">845</div>
+        <div class="sub-lbl">แต้มความดี</div>
+      </div>
+      <div class="kd-acc-divider"></div>
+      <div class="kd-acc-sub">
+        <div class="sub-val">2,430</div>
+        <div class="sub-lbl">เครดิตสะสม (บ.)</div>
+      </div>
+      <div class="kd-acc-divider"></div>
+      <div class="kd-acc-sub">
+        <div class="sub-val">132.4</div>
+        <div class="sub-lbl">ขยะรวม (กก.)</div>
+      </div>
     </div>
+  </div>
 
-    <!-- Recent Activities -->
-    <div class="activities-section">
-        <div class="section-title">
-            <span>📊</span>
-            <span>กิจกรรมล่าสุด</span>
-        </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">♻️</div>
-            <div class="activity-details">
-                <div class="activity-title">รีไซเคิลขยะพลาสติก</div>
-                <div class="activity-time">2 ชั่วโมงที่แล้ว</div>
-            </div>
-            <div class="activity-points">+50 แต้ม</div>
-        </div>
+  <!-- Quick Actions -->
+  <div class="kd-actions">
+    <a class="kd-action" href="/user/shop">
+      <div class="kd-action-icon green">🛍️</div>
+      <div class="kd-action-label">แลกรางวัล</div>
+    </a>
+    <a class="kd-action" href="#">
+      <div class="kd-action-icon blue">♻️</div>
+      <div class="kd-action-label">ฝากขยะ</div>
+    </a>
+    <a class="kd-action" href="/user/quests">
+      <div class="kd-action-icon amber">✅</div>
+      <div class="kd-action-label">ภารกิจ</div>
+    </a>
+    <a class="kd-action" href="/user/collection">
+      <div class="kd-action-icon purple">🏅</div>
+      <div class="kd-action-label">รางวัล</div>
+    </a>
+  </div>
 
-        <div class="activity-item">
-            <div class="activity-icon">🎁</div>
-            <div class="activity-details">
-                <div class="activity-title">รับของรางวัล</div>
-                <div class="activity-time">5 ชั่วโมงที่แล้ว</div>
-            </div>
-            <div class="activity-points">-100 แต้ม</div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon">⬆️</div>
-            <div class="activity-details">
-                <div class="activity-title">เลื่อนระดับ 38</div>
-                <div class="activity-time">เมื่อวาน</div>
-            </div>
-            <div class="activity-points">+200 แต้ม</div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon">🌱</div>
-            <div class="activity-details">
-                <div class="activity-title">ลดคาร์บอน 10 กก.</div>
-                <div class="activity-time">2 วันที่แล้ว</div>
-            </div>
-            <div class="activity-points">+75 แต้ม</div>
-        </div>
+  <!-- Stats -->
+  <div class="kd-section">
+    <div class="kd-section-head">
+      <div class="kd-section-title">สถิติของฉัน</div>
     </div>
+    <div class="kd-stats">
+      <div class="kd-stat">
+        <div class="kd-stat-icon">🌿</div>
+        <div class="kd-stat-val">84.6</div>
+        <div class="kd-stat-lbl">คาร์บอน (กก.)</div>
+      </div>
+      <div class="kd-stat">
+        <div class="kd-stat-icon">⚖️</div>
+        <div class="kd-stat-val">132.4</div>
+        <div class="kd-stat-lbl">ขยะฝาก (กก.)</div>
+      </div>
+      <div class="kd-stat">
+        <div class="kd-stat-icon">🎯</div>
+        <div class="kd-stat-val">Lv.5</div>
+        <div class="kd-stat-lbl">ระดับ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Waste Breakdown -->
+  <div class="kd-section">
+    <div class="kd-section-head">
+      <div class="kd-section-title">สัดส่วนขยะที่ฝาก</div>
+      <a href="#" class="kd-section-more">ดูทั้งหมด ›</a>
+    </div>
+    <div class="kd-bar-list">
+      <div class="kd-bar-row">
+        <div class="kd-bar-dot" style="background:#1B8B4B"></div>
+        <div class="kd-bar-name">พลาสติก</div>
+        <div class="kd-bar-track"><div class="kd-bar-fill" style="width:72%;background:#1B8B4B"></div></div>
+        <div class="kd-bar-kg">51.2 กก.</div>
+      </div>
+      <div class="kd-bar-row">
+        <div class="kd-bar-dot" style="background:#0EA5E9"></div>
+        <div class="kd-bar-name">กระดาษ</div>
+        <div class="kd-bar-track"><div class="kd-bar-fill" style="width:54%;background:#0EA5E9"></div></div>
+        <div class="kd-bar-kg">38.7 กก.</div>
+      </div>
+      <div class="kd-bar-row">
+        <div class="kd-bar-dot" style="background:#F59E0B"></div>
+        <div class="kd-bar-name">โลหะ</div>
+        <div class="kd-bar-track"><div class="kd-bar-fill" style="width:33%;background:#F59E0B"></div></div>
+        <div class="kd-bar-kg">24.1 กก.</div>
+      </div>
+      <div class="kd-bar-row">
+        <div class="kd-bar-dot" style="background:#8B5CF6"></div>
+        <div class="kd-bar-name">แก้ว</div>
+        <div class="kd-bar-track"><div class="kd-bar-fill" style="width:26%;background:#8B5CF6"></div></div>
+        <div class="kd-bar-kg">18.4 กก.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="kd-section" style="margin-bottom:0">
+    <div class="kd-section-head">
+      <div class="kd-section-title">รายการล่าสุด</div>
+      <a href="#" class="kd-section-more">ดูทั้งหมด ›</a>
+    </div>
+    <div class="kd-txn">
+      <div class="kd-txn-icon recycle">♻️</div>
+      <div class="kd-txn-detail">
+        <div class="kd-txn-name">ฝากขยะพลาสติก</div>
+        <div class="kd-txn-time">วันนี้ 10:42 น.</div>
+      </div>
+      <div class="kd-txn-amount plus">+120 แต้ม</div>
+    </div>
+    <div class="kd-txn">
+      <div class="kd-txn-icon redeem">🎁</div>
+      <div class="kd-txn-detail">
+        <div class="kd-txn-name">แลกของรางวัล</div>
+        <div class="kd-txn-time">เมื่อวาน 14:15 น.</div>
+      </div>
+      <div class="kd-txn-amount minus">-80 แต้ม</div>
+    </div>
+    <div class="kd-txn">
+      <div class="kd-txn-icon carbon">🌱</div>
+      <div class="kd-txn-detail">
+        <div class="kd-txn-name">สะสมเครดิตคาร์บอน</div>
+        <div class="kd-txn-time">เมื่อวาน 09:10 น.</div>
+      </div>
+      <div class="kd-txn-amount plus">+35 แต้ม</div>
+    </div>
+  </div>
+
 </div>
-
-<script>
-    // Animation for progress bar
-    window.addEventListener('load', () => {
-        const progressBar = document.querySelector('.progress-bar');
-        setTimeout(() => {
-            progressBar.style.width = '20%';
-        }, 500);
-    });
-
-    // Add click handlers for cards
-    document.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('click', function() {
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = '';
-            }, 200);
-        });
-    });
-
-    // Achievement click handler
-    document.querySelectorAll('.achievement:not(.locked)').forEach(achievement => {
-        achievement.addEventListener('click', function() {
-            alert('คุณได้รับความสำเร็จ: ' + this.querySelector('.achievement-name').textContent);
-        });
-    });
-</script>

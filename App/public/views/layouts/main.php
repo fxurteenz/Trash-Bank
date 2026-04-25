@@ -18,24 +18,23 @@
             font-family: "Open Sans", sans-serif;
         }
 
-        /* Shared user layout styling (only applied when footer==='user') */
+        /* KBank-style user layout */
         .user-mode {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #F4F5F7;
             display: flex;
             justify-content: center;
         }
 
         .user-page {
             width: 100%;
-            max-width: 430px;
-            /* comfortable phone width */
-            padding: 16px;
+            max-width: 460px;
+            padding: 0 0 16px;
             min-height: 100vh;
         }
 
         @media (min-width: 768px) {
             .user-page {
-                padding: 18px;
+                padding: 0 0 16px;
             }
         }
     </style>
