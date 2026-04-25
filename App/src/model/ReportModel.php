@@ -290,40 +290,49 @@ class ReportModel
 
     public function FacultyLeaderboard(array $query): array
     {
-        [$whereSql, $params] = $this->buildDateFilters($query);
-        $sort = $query['sort'] ?? 'weight';
-        $orderMap = [
-            'weight' => 'total_weight',
-            'value' => 'total_value',
-            'co2' => 'total_co2',
-            'fraction' => 'faculty_fraction'
-        ];
-        $orderBy = $orderMap[$sort] ?? 'total_weight';
-        $limit = isset($query['limit']) ? (int) $query['limit'] : 20;
+        try {
+            [$whereSql, $params] = $this->buildDateFilters($query);
+            $sort = $query['sort'] ?? 'weight';
 
-        $sql = "SELECT 
+            // Map ค่า sort เหมือนเดิม
+            $orderMap = [
+                'weight' => 'total_weight',
+                'value' => 'total_value',
+                'co2' => 'total_co2',
+            ];
+            $orderBy = $orderMap[$sort] ?? 'total_weight';
+            $limit = isset($query['limit']) ? (int) $query['limit'] : 20;
+
+            // ปรับ SQL Query ให้เข้ากับโครงสร้างตารางใหม่
+            $sql = "SELECT 
                     f.faculty_id,
                     f.faculty_name,
-                    COALESCE(SUM(w.waste_transaction_weight),0) AS total_weight,
-                    COALESCE(SUM(w.waste_transaction_faculty_fraction),0) AS faculty_fraction,
-                    COALESCE(SUM(wt.waste_type_price * w.waste_transaction_weight),0) AS total_value,
-                    COALESCE(SUM(wt.waste_type_co2 * w.waste_transaction_weight),0) AS total_co2,
+                    -- รวมน้ำหนักจากฟิลด์ใหม่
+                    COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                    -- รวมพอยต์ (สมมติให้ใช้แทน value/price เดิม)
+                    COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_value,
+                    -- รวม CO2e จากฟิลด์ใหม่ (ไม่ต้อง JOIN เพื่อไปคูณแล้ว)
+                    COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2,
                     COUNT(DISTINCT w.member_id) AS member_participation
                 FROM waste_transaction w
                 LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
-                LEFT JOIN waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
                 {$whereSql}
                 GROUP BY f.faculty_id
                 ORDER BY {$orderBy} DESC
                 LIMIT :limit";
 
-        $stmt = $this->Conn->prepare($sql);
-        foreach ($params as $k => $v) {
-            $stmt->bindValue($k, $v);
+            $stmt = $this->Conn->prepare($sql);
+            foreach ($params as $k => $v) {
+                $stmt->bindValue($k, $v);
+            }
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
         }
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function CarbonImpact(array $query): array

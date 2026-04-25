@@ -1,20 +1,18 @@
 meta {
-  name: /GetAll
+  name: faculty leaderboard
   type: http
   seq: 1
 }
 
 get {
-  url: {{api_domain}}/majors?faculty=1
+  url: {{api_domain}}/leaders/faculty?month=01&year=2026
   body: none
   auth: inherit
 }
 
 params:query {
-  faculty: 1
-  ~name: ว
-  ~page: 1
-  ~limit: 2
+  month: 01
+  year: 2026
 }
 
 settings {
