@@ -190,7 +190,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             ชื่อ
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
                             บทบาท
                         </th>
                         <th
@@ -211,13 +211,13 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                 <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
                                     x-model="checkedMembers.member_ids">
                             </td>
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs "
                                 x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
 
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
 
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
 
