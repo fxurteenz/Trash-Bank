@@ -1,6 +1,7 @@
 <?php
 namespace App\Model;
 use App\Utils\Database;
+use App\Utils\DatabaseException;
 use Exception;
 use PDO;
 use PDOException;
@@ -144,7 +145,9 @@ class FacultyModel
             $updated_row = $stmt->rowCount();
             return $updated_row;
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $error = DatabaseException::handle($e);
+            throw new Exception($error['message'], $error['code']);
+            // throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -182,7 +185,9 @@ class FacultyModel
             $result = $stmt->rowCount();
             return $result;
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $error = DatabaseException::handle($e);
+            throw new Exception($error['message'], $error['code']);
+            // throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -227,7 +232,9 @@ class FacultyModel
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
             }
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $error = DatabaseException::handle($e);
+            throw new Exception($error['message'], $error['code']);
+            // throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
