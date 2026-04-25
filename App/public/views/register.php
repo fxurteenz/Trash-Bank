@@ -48,15 +48,66 @@
             <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
 
             <div class="relative mb-8">
-                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <!-- <div class="overflow-hidden mb-2 h-2 text-xs flex rounded bg-gray-200">
                     <div :style="'width: ' + ((step - 1) / 2 * 100) + '%'"
                         class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-emerald-500 transition-all duration-300">
                     </div>
-                </div>
-                <div class="flex justify-between text-xs text-gray-500 font-medium">
-                    <span :class="{'text-emerald-600': step >= 1}">ประเภทสมาชิก</span>
-                    <span :class="{'text-emerald-600': step >= 2}">เบอร์โทรศัพท์</span>
-                    <span :class="{'text-emerald-600': step >= 3}">เพิ่มเติม</span>
+                </div> -->
+                <div class="flex justify-between text-xs text-gray-500 font-light gap-2">
+                    <div :class="{'text-emerald-600': step >= 1}"
+                        class="flex-1/3 flex flex-col items-center justify-center text-center">
+                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
+                            <div :style="'width: ' + ((step - 1) / 1 * 100) + '%'"
+                                class="shadow-none flex flex-col text-center rounded whitespace-nowrap text-white justify-center bg-emerald-500 transition-all duration-300">
+                            </div>
+                        </div>
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m-.5-11v7q0 .425.288.713T12.5 17t.713-.288T13.5 16V8q0-.425-.288-.712T12.5 7h-2q-.425 0-.712.288T9.5 8t.288.713T10.5 9z"
+                                    stroke-width="0.5" stroke="currentColor" />
+                            </svg>
+                        </div>
+                        <span>
+                            ประเภทสมาชิก
+                        </span>
+                    </div>
+                    <div :class="{'text-emerald-600': step >= 2}"
+                        class="flex-1/3 flex flex-col items-center justify-center text-center">
+                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
+                            <div :style="'width: ' + ((step - 2) / 1 * 100) + '%'"
+                                class="shadow-none flex flex-col text-center whitespace-nowrap rounded justify-center bg-emerald-500 transition-all duration-300">
+                            </div>
+                        </div>
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m2-3q.425 0 .713-.288T15 16t-.288-.712T14 15h-3v-2h2q.825 0 1.413-.587T15 11V9q0-.825-.587-1.412T13 7h-3q-.425 0-.712.288T9 8t.288.713T10 9h3v2h-2q-.825 0-1.412.588T9 13v3q0 .425.288.713T10 17z"
+                                    stroke-width="0.5" stroke="currentColor" />
+                            </svg>
+                        </div>
+                        <span>
+                            เบอร์โทรศัพท์
+                        </span>
+                    </div>
+                    <div :class="{'text-emerald-600': step >= 3}"
+                        class="flex-1/3 flex flex-col items-center justify-center text-center">
+                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
+                            <div :style="'width: ' + ((step - 3) / 1 * 100) + '%'"
+                                class="shadow-none flex flex-col text-center whitespace-nowrap rounded justify-center bg-emerald-500 transition-all duration-300">
+                            </div>
+                        </div>
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
+                                <path fill="currentColor"
+                                    d="M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m-2-3h3q.825 0 1.413-.587T15 15v-1.5q0-.65-.425-1.075T13.5 12q.65 0 1.075-.425T15 10.5V9q0-.825-.587-1.412T13 7h-3q-.425 0-.712.288T9 8t.288.713T10 9h3v2h-1q-.425 0-.712.288T11 12t.288.713T12 13h1v2h-3q-.425 0-.712.288T9 16t.288.713T10 17"
+                                    stroke-width="0.5" stroke="currentColor" />
+                            </svg>
+                        </div>
+                        <span>
+                            รายละเอียดเพิ่มเติม
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -385,8 +436,9 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'สมัครสมาชิกไม่สำเร็จ',
-                        text: error.message,
-                        confirmButtonColor: '#059669'
+                        html: "<p class='mb-2'>" + error.message + "</p><hr><p class='mt-1 text-xs font-light'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
+                        confirmButtonColor: '#009966',
+                        confirmButtonText: 'ลองใหม่'
                     });
                 }
             }
