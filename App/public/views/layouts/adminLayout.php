@@ -5,8 +5,8 @@
     <title><?= $title ?? 'Trash Bank' ?></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-    <link href="/assets/output.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
     <script defer src="/js/alpine-collapse.min.js"></script>
     <script defer src="/js/alpine.min.js"></script>
     <script type="text/javascript" src="/js/lucide.min.js"></script>
@@ -65,8 +65,8 @@
 
 <body class="min-h-screen bg-fixed">
 
-    <div x-data="{ sidebarOpen: window.innerWidth > 1024, profileMenuOpen: false }"
-        @resize.window="sidebarOpen = window.innerWidth > 1024" class="min-h-screen flex flex-col">
+    <div x-data="{ sidebarOpen: window.innerWidth > 1366, profileMenuOpen: false }"
+        @resize.window="sidebarOpen = window.innerWidth > 1366" class="min-h-screen flex flex-col">
 
         <header
             class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between h-16 px-4 bg-white border-b border-slate-200 transition-all duration-300">
@@ -208,19 +208,9 @@
                                 d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
                                 stroke-width="0.5" stroke="currentColor" />
                         </svg>
-                        <span class="text-sm font-medium">แลกของ</span>
-                    </a>
-
-                    <a href="/admin/transactions/redeem_reward"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="M12.984 15a1 1 0 0 0 1.848.53l2.688-2.687a1 1 0 0 0-1.415-1.414l-1.12 1.12V5a1 1 0 0 0-2 0zm-1.969-6a1 1 0 0 0-1.848-.53L6.48 11.157a1 1 0 1 0 1.414 1.414l1.121-1.12V19a1 1 0 1 0 2 0z"
-                                stroke-width="0.5" stroke="currentColor" />
-                        </svg>
                         <span class="text-sm font-medium">แลกของรางวัล</span>
                     </a>
+
                 </div>
 
                 <div class="mt-6">
@@ -259,17 +249,6 @@
                         <span class="text-sm font-medium">หมวดหมู่ขยะ</span>
                     </a>
 
-                    <a href="/admin/manage/rewards"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 2.75a6.25 6.25 0 1 0 0 12.5a6.25 6.25 0 0 0 0-12.5M4.25 9a7.75 7.75 0 1 1 15.025 2.677l2.288 2.368c.257.267.471.489.631.674c.158.182.32.39.415.632c.334.845.066 1.845-.739 2.337c-.23.142-.494.2-.72.238c-.232.04-.526.07-.873.107l-.024.002c-.459.049-.546.064-.605.087a.68.68 0 0 0-.397.417c-.026.07-.041.173-.088.644l-.002.022c-.036.361-.066.664-.103.902c-.036.23-.09.494-.223.725c-.47.822-1.459 1.13-2.317.767c-.241-.102-.446-.273-.62-.435c-.18-.166-.393-.388-.65-.655l-.02-.02L12 17.09l-3.232 3.405l-.015.015c-.257.267-.471.489-.65.655c-.175.162-.38.333-.62.435c-.86.363-1.848.055-2.318-.767c-.132-.231-.187-.494-.223-.726c-.037-.237-.067-.54-.102-.9l-.003-.023c-.046-.471-.062-.573-.087-.644a.68.68 0 0 0-.397-.417c-.06-.023-.147-.038-.606-.087l-.023-.002c-.347-.037-.641-.068-.873-.107c-.226-.037-.49-.096-.721-.238c-.804-.492-1.072-1.492-.739-2.337c.096-.242.257-.45.415-.632c.16-.185.374-.407.632-.674l2.287-2.368A7.7 7.7 0 0 1 4.25 9m1.178 4.109l-1.896 1.963c-.276.286-.462.478-.592.629a1.2 1.2 0 0 0-.154.2c-.09.23 0 .424.119.503c.009.003.06.02.194.043c.18.03.43.057.806.097l.075.008c.34.035.641.067.91.17c.599.23 1.057.71 1.272 1.312c.096.269.126.573.16.927l.008.075c.038.389.064.649.094.84c.026.162.046.214.047.217c.08.135.244.201.425.125c0 0 .05-.027.186-.154c.145-.134.33-.325.605-.61l.002-.002l2.72-2.866a7.76 7.76 0 0 1-4.981-3.477m8.163 3.478a7.76 7.76 0 0 0 4.982-3.478l1.896 1.963c.276.286.461.478.591.629c.123.14.151.195.154.2c.09.23 0 .424-.118.503c-.01.003-.06.02-.194.043c-.181.03-.43.057-.807.097l-.075.008c-.339.035-.641.067-.91.17c-.598.23-1.057.71-1.272 1.312c-.096.269-.126.573-.16.927l-.008.075c-.038.389-.064.649-.094.84c-.025.162-.046.214-.046.217c-.08.135-.245.202-.427.125h.002s-.05-.027-.187-.154a17 17 0 0 1-.605-.61l-.002-.002zm-1.59-9.553q-.087.15-.2.354l-.098.176l-.022.04c-.079.144-.209.382-.426.547c-.221.168-.488.226-.643.26l-.043.009l-.191.043c-.176.04-.318.072-.44.103c.079.097.182.219.316.376l.13.152l.03.034c.108.125.283.325.363.585c.08.256.052.52.035.686l-.005.047l-.02.203a23 23 0 0 0-.041.46c.104-.046.222-.1.363-.165l.179-.082l.04-.02c.144-.067.394-.184.672-.184c.279 0 .528.117.672.185l.04.019l.18.082c.14.065.258.12.363.165l-.042-.46l-.02-.203l-.005-.047c-.017-.167-.044-.43.035-.686c.08-.26.255-.46.363-.585l.03-.034l.13-.152c.134-.157.237-.279.317-.376c-.122-.03-.265-.063-.44-.103l-.191-.043l-.043-.01c-.156-.033-.422-.091-.644-.26c-.217-.164-.347-.402-.425-.545l-.023-.041l-.098-.176q-.112-.204-.199-.354M11.013 5.8c.172-.225.485-.55.986-.55c.502 0 .815.325.987.55c.164.214.33.511.5.816l.022.041l.099.177l.056.1l.099.023l.19.043l.048.01c.328.075.653.148.903.247c.277.109.65.32.795.785c.142.455-.037.841-.193 1.09c-.145.23-.364.486-.59.749l-.03.035l-.13.153l-.082.097l.012.135l.02.203l.004.046c.035.352.068.692.055.964c-.012.286-.08.718-.468 1.011c-.4.304-.84.238-1.12.157c-.258-.073-.562-.214-.87-.355l-.043-.02l-.179-.083l-.085-.039l-.085.04l-.178.082l-.044.02c-.307.141-.612.282-.87.355c-.28.08-.72.147-1.12-.157c-.387-.293-.455-.725-.468-1.01c-.012-.273.02-.613.055-.965l.005-.046l.02-.203l.012-.135l-.083-.097l-.13-.153l-.03-.035c-.225-.263-.445-.52-.59-.75c-.156-.248-.334-.634-.193-1.09c.145-.463.519-.675.795-.784c.25-.099.576-.172.904-.246l.046-.01l.191-.044l.1-.023l.056-.1l.098-.177l.023-.041c.17-.305.335-.602.5-.816"
-                                clip-rule="evenodd" stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">ของรางวัล</span>
-                    </a>
-
                     <a href="/admin/manage/point_group"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
@@ -281,6 +260,20 @@
                         <span class="text-sm font-medium">กลุ่มแต้ม</span>
                     </a>
 
+                </div>
+                
+                <div class="mt-6">
+                    <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">คลัง</p>
+                    <a href="/waste_center/stock/waste"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
+                            <path fill="currentColor"
+                                d="M7.5 0c4 0 7.5 3.5 7.5 7.5S11.5 15 7.5 15S0 11.5 0 7.5S3.5 0 7.5 0m0 1C4 1 1 4 1 7.5S4 14 7.5 14S14 11 14 7.5S11 1 7.5 1M2.84 6.98c.24.03 1.43.15 1.72.18c.29.04.17.89-.09.86c-.27-.02-1.44-.14-1.72-.18c-.29-.03-.16-.89.09-.86m7.48 0c.35-.04 1.32-.13 1.7-.16c.39-.04.4.87.06.9c-.35.04-1.28.12-1.64.16c-.37.03-.47-.85-.12-.9m-3.02.11c.09-.27.86-.03.76.28c-.09.32-.42 1.36-.52 1.63c-.1.28-.95.08-.84-.23c.12-.3.52-1.45.6-1.68m2.17 2.42c.29.11 1.37.52 1.61.62c.24.11-.05.93-.31.81c-.32-.11-1.32-.49-1.61-.62c-.3-.13.01-.91.31-.81m-4.77.08c.08.19.54 1.44.61 1.69c.08.25-.68.56-.8.29c-.11-.28-.44-1.34-.54-1.62c-.1-.27.66-.54.73-.36m2.11 1.37c.28.11 1.36.45 1.65.54c.28.09.04.92-.27.82s-1.36-.43-1.65-.53c-.28-.11-.01-.93.27-.83M13 5c-1 1-1.75 1-2.75 0c-1 1-1.75 1-2.75 0c-1 1-1.7 1-2.7 0C3.8 6 3 6 2 5c-.5 1-.5 2-.5 2.5c0 3 2.5 6 6 6s6-3 6-6c0-.5 0-1.5-.5-2.5"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">ขยะในคลัง</span>
+                    </a>
                 </div>
 
                 <div class="mt-6">
@@ -348,7 +341,7 @@
             class="fixed inset-0 z-10 bg-black opacity-50  lg:hidden"></div>
 
         <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'"
-            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] transition-all duration-150 ease-in-out">
+            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]  transition-all duration-150 ease-in-out">
             <?php include $viewPath; ?>
         </main>
 

@@ -2,10 +2,11 @@ function FacultyMajor() {
     return {
         selectedFaculty: null,
         selectedFacultyShow: false,
+        selectedFilterFacultyId: null, // เพิ่ม State สำหรับเก็บคณะที่ใช้กรอง
         AllFacultyData: [],
         facultyPage: 1,
         facultyTotalPages: 1,
-        facultyLimit: 7,
+        facultyLimit: 10,
         facultyListForSelect: [],
 
         // Major States
@@ -15,7 +16,7 @@ function FacultyMajor() {
         majorPage: 1,
         majorTotalPages: 1,
         majorLimit: 6,
-        
+
         // Faculty Major Modal
         facultyMajorModalShow: false,
         facultyMajorList: [],
@@ -65,12 +66,32 @@ function FacultyMajor() {
             this.selectedFacultyShow = true;
         },
 
+        // ฟังก์ชันสำหรับกรองสาขาเมื่อคลิกที่แถวคณะ
+        filterMajorsByFaculty(faculty) {
+            // ถ้ากดคณะเดิมซ้ำ ให้ล้างตัวกรอง
+            if (this.selectedFilterFacultyId === faculty.faculty_id) {
+                this.selectedFilterFacultyId = null;
+            } else {
+                this.selectedFilterFacultyId = faculty.faculty_id;
+            }
+            // รีเซ็ตหน้ากลับไปหน้าแรก และดึงข้อมูลใหม่
+            this.majorPage = 1;
+            this.fetchAllMajors(1);
+        },
+
+        // ฟังก์ชันล้างตัวกรอง
+        clearMajorFilter() {
+            this.selectedFilterFacultyId = null;
+            this.majorPage = 1;
+            this.fetchAllMajors(1);
+        },
+
         async openFacultyMajorModal(faculty) {
             this.selectedFaculty = faculty;
             try {
                 const res = await fetch(`/api/majors/faculty/${faculty.faculty_id}`);
                 const result = await res.json();
-                
+
                 if (result.success) {
                     this.facultyMajorList = result.result;
                 } else {
@@ -93,7 +114,7 @@ function FacultyMajor() {
             try {
                 const res = await fetch(`/api/faculties?page=${page}&limit=${this.facultyLimit}`);
                 const result = await res.json();
-                
+
                 if (result.success) {
                     this.AllFacultyData = result.data;
                     this.facultyPage = result.page;
@@ -108,7 +129,7 @@ function FacultyMajor() {
             try {
                 const res = await fetch("/api/faculties");
                 const result = await res.json();
-                
+
                 if (result.success) {
                     this.facultyListForSelect = result.data;
                 }
@@ -117,15 +138,24 @@ function FacultyMajor() {
             }
         },
 
+        // ปรับปรุง fetchAllMajors เพื่อให้รองรับ query string 'faculty'
         async fetchAllMajors(page = 1) {
             try {
-                const res = await fetch(`/api/majors?page=${page}&limit=${this.majorLimit}`);
+                let url = `/api/majors?page=${page}&limit=${this.majorLimit}`;
+
+                // หากมีการกรองคณะ ให้เพิ่ม queryString
+                if (this.selectedFilterFacultyId) {
+                    url += `&faculty=${this.selectedFilterFacultyId}`;
+                }
+
+                const res = await fetch(url);
                 const result = await res.json();
 
                 if (result.success) {
                     this.AllMajorData = result.result;
                     this.majorPage = page;
-                    this.majorTotalPages = Math.ceil(result.total / this.majorLimit);
+                    // ป้องกันกรณีที่ Total เป็น undefined หรือ 0
+                    this.majorTotalPages = Math.ceil((result.total || result.result.length) / this.majorLimit) || 1;
                 }
             } catch (error) {
                 console.error(error);
@@ -162,7 +192,8 @@ function FacultyMajor() {
                 major_name: null,
                 major_name_en: null,
                 major_code: null,
-                faculty_id: null,
+                // หากมีการกรองอยู่ ให้เลือกคณะนั้นในฟอร์มอัตโนมัติ (Optional แต่ทำให้ UX ดีขึ้น)
+                faculty_id: this.selectedFilterFacultyId || null,
             };
             this.majorFormErrors = {};
             this.majorDialogShow = true;
@@ -222,7 +253,7 @@ function FacultyMajor() {
                             timer: 1500,
                             showConfirmButton: false,
                         });
-                        this.fetchAllMajors();
+                        this.fetchAllMajors(); // ดึงข้อมูลใหม่ โดยยังคงติด Filter เดิม (ถ้ามี)
                         if (
                             this.isEditingMajor &&
                             this.selectedMajor &&
@@ -322,10 +353,10 @@ function FacultyMajor() {
 
         openEditFacultyDialog(faculty) {
             this.isEditingFaculty = true;
-            this.facultyForm = { faculty_id: faculty.faculty_id, faculty_name: faculty.faculty_name, faculty_code: faculty.faculty_code};
+            this.facultyForm = { faculty_id: faculty.faculty_id, faculty_name: faculty.faculty_name, faculty_code: faculty.faculty_code };
             this.facultyFormErrors = {};
             this.facultyDialogShow = true;
-            
+
         },
 
         async submitFacultyForm() {
@@ -374,7 +405,7 @@ function FacultyMajor() {
                             this.isEditingFaculty &&
                             this.selectedFaculty &&
                             this.selectedFaculty.faculty_id ===
-                                this.facultyForm.faculty_id
+                            this.facultyForm.faculty_id
                         ) {
                             this.selectedFaculty = { ...this.facultyForm };
                         }
@@ -391,8 +422,12 @@ function FacultyMajor() {
                 console.error(error);
                 await Swal.fire({
                     icon: "error",
-                    title: "ผิดพลาด",
-                    text: `${action}คณะไม่สำเร็จ`,
+                    title: "ไม่สำเร็จ",
+                    html: `<p>ไม่สามารถ${action}คณะได้</p><p></p> ${error.message}</p><br><hr><p class='text-xs'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>`,
+                    timer: 5000,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#009966',
+                    confirmButtonText: "ปิด"
                 });
                 this.facultyDialogShow = true;
             }
@@ -402,7 +437,7 @@ function FacultyMajor() {
             if (!this.selectedFaculty) return;
             Swal.fire({
                 title: "ยืนยันการลบ?",
-                text: `ต้องการลบคณะ "${this.selectedFaculty.faculty_name}" ใช่หรือไม่?`,
+                html: `<p>ต้องการลบคณะ "${this.selectedFaculty.faculty_name}" ใช่หรือไม่?</p><br><hr><p class='text-xs text-red-500 mt-1'>กระบวนการเสี่ยงต่อความผิดพลาดของข้อมูล, กรุณาดำเนินการด้วยความระมัดระวัง</p>`,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonText: "ลบเลย",
@@ -413,7 +448,6 @@ function FacultyMajor() {
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        // สมมติ API ลบ
                         const res = await fetch("/api/faculties/delete", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -423,22 +457,32 @@ function FacultyMajor() {
                         });
                         const data = await res.json();
                         if (data.success) {
-                            Swal.fire(
-                                "ลบสำเร็จ",
-                                "ข้อมูลถูกลบเรียบร้อยแล้ว",
-                                "success"
-                            );
+                            Swal.fire({
+                                icon: "success",
+                                title: "ลบสำเร็จ",
+                                timer: 2000,
+                                showConfirmButton: false,
+                            });
                             this.CloseFacultyDetail();
                             this.fetchAllFaculty();
+
+                            // ถ้าบังเอิญคณะที่ลบ เป็นคณะเดียวกับที่ใช้อยู่ใน Filter ให้ล้างค่า
+                            if (this.selectedFilterFacultyId === this.selectedFaculty.faculty_id) {
+                                this.clearMajorFilter();
+                            }
                         } else {
                             throw data;
                         }
                     } catch (error) {
-                        Swal.fire(
-                            "ข้อผิดพลาด",
-                            "ไม่สามารถลบข้อมูลได้",
-                            "error"
-                        );
+                        Swal.fire({
+                            icon: "error",
+                            title: "ไม่สำเร็จ",
+                            html: "<p>" + (error.message || "ไม่สามารถลบได้") + "</p><br><hr><p class='text-xs'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
+                            timer: 5000,
+                            showConfirmButton: true,
+                            confirmButtonColor: '#009966',
+                            confirmButtonText: "ปิด"
+                        });
                     }
                 }
             });

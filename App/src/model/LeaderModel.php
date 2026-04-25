@@ -25,54 +25,39 @@ class LeaderModel
 
             switch ($sort) {
                 case 'carbon':
-                    $orderBy = 'total_co2';
+                    $orderBy = 'total_co2e';
                     break;
                 case 'point':
                     $orderBy = 'total_point';
                     break;
-                case 'fraction':
-                    $orderBy = 'total_fraction';
-                    break;
                 case 'weight':
                     $orderBy = 'total_weight';
                     break;
-                case 'value':
-                    $orderBy = 'total_value';
-                    break;
             }
 
-            $whereClause = "";
-            $conditions = [];
-            if ($month)
-                $conditions[] = "MONTH(w.waste_transaction_create_date) = :month";
-            if ($year)
-                $conditions[] = "YEAR(w.waste_transaction_create_date) = :year";
-            if (!empty($conditions)) {
-                $whereClause = "WHERE " . implode(" AND ", $conditions);
+            $joinConditions = ["f.faculty_id = w.faculty_id"];
+            if ($month) {
+                $joinConditions[] = "MONTH(w.created_at) = :month";
             }
+            if ($year) {
+                $joinConditions[] = "YEAR(w.created_at) = :year";
+            }
+            $onClause = "ON " . implode(" AND ", $joinConditions);
 
-            $sql =
-                "SELECT
-                    f.faculty_id,
-                    f.faculty_name,
-                    SUM(w.waste_transaction_weight) AS total_weight,
-                    SUM(w.waste_transaction_member_point) AS total_point,
-                    SUM(w.waste_transaction_faculty_fraction) AS total_fraction,
-                    SUM(wt.waste_type_price * w.waste_transaction_weight) AS total_value,
-                    SUM(wt.waste_type_co2 * w.waste_transaction_weight) AS total_co2
-                FROM
-                    waste_transaction w
-                LEFT JOIN
-                    member a ON w.member_id = a.member_id
-                LEFT JOIN
-                    faculty f ON a.faculty_id = f.faculty_id
-                LEFT JOIN
-                    waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                {$whereClause}
-                GROUP BY
-                    f.faculty_id
-                ORDER BY
-                    {$orderBy} DESC";
+            $sql = "SELECT
+                        f.faculty_id,
+                        f.faculty_name,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM
+                        faculty f
+                    LEFT JOIN
+                        waste_transaction w {$onClause}
+                    GROUP BY
+                        f.faculty_id
+                    ORDER BY
+                        {$orderBy} DESC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -88,6 +73,7 @@ class LeaderModel
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
+
             if ($month) {
                 $stmt->bindValue(':month', $month, PDO::PARAM_INT);
             }
@@ -98,21 +84,7 @@ class LeaderModel
             $stmt->execute();
             $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $stmtCount = "SELECT COUNT(DISTINCT a.faculty_id) AS total_rows 
-                          FROM waste_transaction w 
-                          LEFT JOIN member a ON w.member_id = a.member_id
-                          {$whereClause}";
-            $stmtCount = $this->Conn->prepare($stmtCount);
-            if ($month) {
-                $stmtCount->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
-                $stmtCount->bindValue(':year', $year, PDO::PARAM_INT);
-            }
-            $stmtCount->execute();
-            $total = $stmtCount->fetch(PDO::FETCH_ASSOC);
-
-            return ['stats' => $stats, 'total' => $total['total_rows']];
+            return ['stats' => $stats, 'total' => count($stats)];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
         } catch (Exception $e) {

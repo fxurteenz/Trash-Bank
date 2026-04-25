@@ -4,8 +4,11 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 ?>
 
 <div x-data="UserTable()" x-init="initData()" class="space-y-4 w-full">
-    <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-2">
-        <div class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-3 xl:col-span-1">
+    <!-- Top Card -->
+    <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2">
+        <div @click="filterByRole('')"
+            class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-4 xl:col-span-1 cursor-pointer hover:scale-105 active:scale-95 duration-300 ease-out hover:shadow-md hover:shadow-emerald-500/50 transition-all"
+            :class="filters.role === '' ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
@@ -20,63 +23,121 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 </div>
             </div>
         </div>
-        <template x-for="role in roleCounts.roles" :key="role.role_id">
-            <div class="bg-white rounded-md shadow p-6 col-span-1">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-600" x-text="role.role_name_th"></p>
-                        <p class="text-2xl font-bold text-emerald-700" x-text="role.member_count"></p>
-                    </div>
-                    <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                        <div x-show="role.role_name == 'admin'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M6 21v-2a4 4 0 0 1 4-4h2m10 1c0 4-2.5 6-3.5 6S15 20 15 16c1 0 2.5-.5 3.5-1.5c1 1 2.5 1.5 3.5 1.5M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0" />
-                            </svg>
-                        </div>
-                        <div x-show="role.role_name == 'staff'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
-                            </svg>
-                        </div>
-                        <div x-show="role.role_name == 'member'">
-                            <div x-show="role.role_name == 'member'">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                                    <path fill="none" stroke="currentColor" stroke-linecap="round"
-                                        stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div x-show="role.role_name == 'center'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2">
-                                    <path
-                                        d="m13.163 2.168l8.021 5.828c.694.504.984 1.397.719 2.212l-3.064 9.43a1.98 1.98 0 0 1-1.881 1.367H7.042a1.98 1.98 0 0 1-1.881-1.367l-3.064-9.43a1.98 1.98 0 0 1 .719-2.212l8.021-5.828a1.98 1.98 0 0 1 2.326 0" />
-                                    <path
-                                        d="M12 13a3 3 0 1 0 0-6a3 3 0 0 0 0 6m-6 7.703V20a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v.707" />
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
+        <div @click="filterByRole(roleCounts.roles[0]?.role_id)"
+            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            :class="filters.role === roleCounts.roles[0]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[0]?.role_name_th"></p>
+                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[0]?.member_count">
+                    </p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 21v-2a4 4 0 0 1 4-4h2m10 1c0 4-2.5 6-3.5 6S15 20 15 16c1 0 2.5-.5 3.5-1.5c1 1 2.5 1.5 3.5 1.5M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0" />
+                    </svg>
                 </div>
             </div>
-        </template>
+        </div>
+        <div @click="filterByRole(roleCounts.roles[1]?.role_id)"
+            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            :class="filters.role === roleCounts.roles[1]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[1]?.role_name_th"></p>
+                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[1]?.member_count">
+                    </p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div @click="filterByRole(roleCounts.roles[2]?.role_id)"
+            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            :class="filters.role === roleCounts.roles[2]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[2]?.role_name_th"></p>
+                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[2]?.member_count">
+                    </p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div @click="filterByRole(roleCounts.roles[3]?.role_id)"
+            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            :class="filters.role === roleCounts.roles[3]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[3]?.role_name_th"></p>
+                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[3]?.member_count">
+                    </p>
+                </div>
+                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <path
+                                d="m13.163 2.168l8.021 5.828c.694.504.984 1.397.719 2.212l-3.064 9.43a1.98 1.98 0 0 1-1.881 1.367H7.042a1.98 1.98 0 0 1-1.881-1.367l-3.064-9.43a1.98 1.98 0 0 1 .719-2.212l8.021-5.828a1.98 1.98 0 0 1 2.326 0" />
+                            <path
+                                d="M12 13a3 3 0 1 0 0-6a3 3 0 0 0 0 6m-6 7.703V20a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v.707" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-bold">รายชื่อผู้ใช้งาน</h2>
-            <div class="flex gap-2">
+            <div class="flex justify-between mb-1 text-gray-700 text-xs font-regular">
+                <div class="flex justify-end text-xs space-x-2">
+                    <div @click="openCreateDialog" :class="createUserDialogShow && 'bg-emerald-300'"
+                        class="group cursor-pointer flex items-center py-2 px-4 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 transition-colors font-medium text-emerald-700">
+                        <button class="group-hover:rotate-90 duration-300" title="Add New">
+                            <svg class="stroke-teal-500 fill-none group-active:stroke-teal-200 group-active:duration-0 duration-300"
+                                viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-width="1.5"
+                                    d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z">
+                                </path>
+                                <path stroke-width="1.5" d="M8 12H16"></path>
+                                <path stroke-width="1.5" d="M12 16V8"></path>
+                            </svg>
+                        </button>
+                        <span>เพิ่ม</span>
+                    </div>
 
+                    <button
+                        class="group cursor-pointer flex items-center py-2 px-4 border-2 border-red-500 rounded-full hover:bg-red-100 space-x-1 hover:scale-105 font-medium text-red-700 disabled:opacity-50"
+                        @click="deleteCheckedUser" :disabled="checkedMembers.member_ids.length === 0">
+                        <div :class="[checkedMembers.member_ids.length === 0 ? 'opacity-100' : 'opacity-100 group-hover:rotate-90']"
+                            class="duration-300 transition-transform">
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 16 16"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 8h8m2.5 0a6.5 6.5 0 1 1-13 0a6.5 6.5 0 0 1 13 0Z" stroke-width="1.5" />
+                            </svg>
+                        </div>
+                        <span class="select-none">ลบ</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
             <div>
                 <label for="filter_major" class="block text-xs font-medium text-gray-700 mb-1">สาขา</label>
                 <select id="filter_major" x-model="filters.major_id" @change="handleFilterChange()"
@@ -112,45 +173,14 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 class="text-sm text-gray-500 hover:text-gray-700 underline">ล้างตัวกรอง</button>
         </div>
 
-        <div class="flex justify-between mb-1 text-gray-700 text-xs font-regular">
-            <div class="flex justify-end text-xs space-x-2">
-                <div @click="openCreateDialog" :class="createUserDialogShow && 'bg-emerald-300'"
-                    class="group cursor-pointer flex items-center py-2 px-4 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 transition-colors font-medium text-emerald-700">
-                    <button class="group-hover:rotate-90 duration-300" title="Add New">
-                        <svg class="stroke-teal-500 fill-none group-active:stroke-teal-200 group-active:duration-0 duration-300"
-                            viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-width="1.5"
-                                d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z">
-                            </path>
-                            <path stroke-width="1.5" d="M8 12H16"></path>
-                            <path stroke-width="1.5" d="M12 16V8"></path>
-                        </svg>
-                    </button>
-                    <span>เพิ่ม</span>
-                </div>
-
-                <button
-                    class="group cursor-pointer flex items-center py-2 px-4 border-2 border-red-500 rounded-full hover:bg-red-100 space-x-1 transition-colors font-medium text-red-700 disabled:opacity-50"
-                    @click="deleteCheckedUser" :disabled="checkedMembers.member_ids.length === 0">
-                    <div :class="[checkedMembers.member_ids.length === 0 ? 'opacity-100' : 'opacity-100 group-hover:rotate-90']"
-                        class="duration-300 transition-transform">
-                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 16 16"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 8h8m2.5 0a6.5 6.5 0 1 1-13 0a6.5 6.5 0 0 1 13 0Z" stroke-width="1.5" />
-                        </svg>
-                    </div>
-                    <span class="select-none">ลบ</span>
-                </button>
-            </div>
-        </div>
-
         <div class="mt-4 overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                 <thead class="bg-gray-50">
                     <tr>
                         <th
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            เลือก</th>
+                            เลือก
+                        </th>
                         <th
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             เบอร์โทรศัพท์
@@ -160,7 +190,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             ชื่อ
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
                             บทบาท
                         </th>
                         <th
@@ -175,19 +205,19 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="member in members" :key="member.member_id">
                         <tr @click="window.open(`/staff/manage/members/detail/${member.member_id}`, '_blank')"
-                            class="hover:bg-emerald-50 cursor-pointer transition-colors"
+                            class="hover:bg-gray-50 cursor-pointer transition-colors"
                             :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
                             <td class="px-2 py-2 text-center" @click.stop>
                                 <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
                                     x-model="checkedMembers.member_ids">
                             </td>
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs "
                                 x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
 
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
 
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
 
@@ -224,6 +254,13 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                         </svg>
                                     </button>
                                 </div>
+                            </td>
+                        </tr>
+                    </template>
+                    <template x-if="members.length === 0">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500 text-sm">
+                                ไม่มีข้อมูลผู้ใช้งาน
                             </td>
                         </tr>
                     </template>
@@ -270,8 +307,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         <label for="create_acc_tel">
                             เบอร์โทรศัพท์ <span class="text-red-500">*</span>
                         </label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="create_acc_tel" x-model="createUserForm.member_phone"
                             placeholder="หมายเลขโทรศัพท์">
                         <span x-show="errors.create.member_phone" class="text-red-500 text-xs">
@@ -283,8 +319,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         <label for="create_acc_pass" class="text-gray-700 font-medium">
                             รหัสผ่าน <span class="text-red-500">*</span>
                         </label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             :class="{'border-red-500': errors.create.member_password}" type="password"
                             id="create_acc_pass" x-model="createUserForm.member_password" placeholder="8 character">
                         <span x-show="errors.create.member_password" class="text-red-500 text-xs">
@@ -294,8 +329,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 
                     <div class="flex flex-col space-y-1">
                         <label for="create_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             :class="{'border-red-500': errors.create.member_personal_id}" type="text"
                             id="create_acc_personal_id" x-model="createUserForm.member_personal_id"
                             placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
@@ -303,16 +337,14 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 
                     <div class="flex flex-col space-y-1">
                         <label for="create_acc_mail">อีเมล์</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="create_acc_mail" x-model="createUserForm.member_email"
                             placeholder="อีเมลล์">
                     </div>
 
                     <div class="flex flex-col space-y-1">
                         <label for="create_acc_name">ชื่อ</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="create_acc_name" x-model="createUserForm.member_name"
                             placeholder="ชื่อที่ใช้แสดงผล">
                     </div>
@@ -332,7 +364,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             สาขา
                         </label>
                         <select id="create_acc_major" x-model="createUserForm.major_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200 bg-white"
+                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
                             :disabled="!facultyId">
                             <option value="">เลือกสาขา</option>
                             <template x-for="major in createMajors" :key="major.major_id">
@@ -344,10 +376,10 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 </div>
 
                 <div class="mt-4 text-right">
-                    <button @click="submitCreate"
-                        class="px-3 py-1 bg-sky-300 rounded hover:bg-sky-400 cursor-pointer">ยืนยัน</button>
                     <button @click="createUserDialogShow = false"
-                        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer">ยกเลิก</button>
+                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-400 hover:scale-105">ยกเลิก</button>
+                    <button @click="submitCreate"
+                        class="px-3 py-1 bg-emerald-500 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105">เพิ่มผู้ใช้งาน</button>
                 </div>
             </div>
         </dialog>
@@ -364,8 +396,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         <label for="edit_acc_tel">
                             เบอร์โทรศัพท์ <span class="text-red-500">*</span>
                         </label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="edit_acc_tel" x-model="editUserForm.member_phone"
                             placeholder="เบอร์โทรศัพท์">
                         <span x-show="errors.edit.member_phone" class="text-red-500 text-xs">
@@ -375,8 +406,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             :class="{'border-red-500': errors.edit.member_personal_id}" type="text"
                             id="edit_acc_personal_id" x-model="editUserForm.member_personal_id"
                             placeholder="รหัสนักศึกษา/รหัสประจำตัวปชช.">
@@ -384,15 +414,13 @@ $faculty_id = (int) $user->faculty_id ?? "null";
 
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_mail">อีเมล์</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="edit_acc_mail" x-model="editUserForm.member_email" placeholder="อีเมล์">
                     </div>
 
                     <div class="flex flex-col space-y-1">
                         <label for="edit_acc_name">ชื่อ</label>
-                        <input
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
+                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="edit_acc_name" x-model="editUserForm.member_name"
                             placeholder="ชื่อที่ใช้แสดงผล">
                     </div>
@@ -401,7 +429,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                         <label for="edit_acc_role" class="text-gray-700 font-medium">บทบาท <span
                                 class="text-red-500">*</span></label>
                         <select id="edit_acc_role" x-model="editUserForm.role_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200 bg-white"
+                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
                             :class="{'border-red-500': errors.edit.role_id}">
                             <option value="">เลือกบทบาท</option>
                             <option value="1">ผู้ดูแลระบบ</option>
@@ -417,7 +445,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             สาขา
                         </label>
                         <select id="edit_acc_major" x-model="editUserForm.major_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-sky-300 focus:ring-3 focus:border-sky-200 bg-white"
+                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
                             :disabled="!facultyId">
                             <option value="">เลือกสาขา</option>
                             <template x-for="major in editMajors" :key="major.major_id">
@@ -429,10 +457,10 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 </div>
 
                 <div class="mt-4 text-right space-x-2">
-                    <button @click="submitEdit"
-                        class="px-4 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 cursor-pointer font-medium transition-colors">ยืนยัน</button>
                     <button @click="editUserDialogShow = false"
-                        class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 cursor-pointer transition-colors">ยกเลิก</button>
+                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-400 hover:scale-105">ยกเลิก</button>
+                    <button @click="submitEdit"
+                        class="px-3 py-1 bg-emerald-500 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105">ยืนยันความเปลี่ยนแปลง</button>
                 </div>
             </div>
         </dialog>
@@ -683,6 +711,11 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 this.fetchRoleCounts();
             },
 
+            filterByRole(roleId) {
+                this.filters.role = roleId || "";
+                this.handleFilterChange();
+            },
+
             resetFilters() {
                 this.filters = {
                     major_id: "",
@@ -694,7 +727,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                 this.fetchMembers();
             },
 
-            // แก้ไขตรงนี้: ล็อก Role_id เป็น 2 (ผู้ใช้งานทั่วไป) เสมอตอนกดเพิ่ม
+
             async openCreateDialog() {
                 this.createUserForm = {
                     member_personal_id: "",
@@ -817,10 +850,12 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                     } catch (error) {
                         await Swal.fire({
                             icon: "error",
-                            title: "ผิดพลาด",
-                            text: "แก้ไขข้อมูลไม่สำเร็จ",
-                            timer: 2000,
-                            showConfirmButton: false,
+                            title: "ไม่สำเร็จ",
+                            html: "<p>" + (error.message || "ไม่สามารถแก้ไขข้อมูลได้") + "</p><br><hr><p class='text-xs'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
+                            timer: 5000,
+                            showConfirmButton: true,
+                            confirmButtonColor: '#009966',
+                            confirmButtonText: "ปิด"
                         });
                         console.error(error);
                         this.editUserDialogShow = true;
@@ -865,10 +900,12 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                     console.error(error);
                     await Swal.fire({
                         icon: "error",
-                        title: "ผิดพลาด",
-                        text: "เพิ่มรายชื่อไม่สำเร็จ",
-                        timer: 2000,
-                        showConfirmButton: false,
+                        title: "ไม่สำเร็จ",
+                        html: "<p>" + (error.message || "ไม่สามารถเพิ่มผู้ใช้งานได้") + "</p><br><hr><p class='text-xs'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
+                        timer: 5000,
+                        showConfirmButton: true,
+                        confirmButtonColor: '#009966',
+                        confirmButtonText: "ปิด"
                     });
                     this.createUserDialogShow = true;
                 }

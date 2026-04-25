@@ -181,8 +181,10 @@ class MemberModel
             $id = $this->Conn->lastInsertId();
             return ["member_phone" => $data["member_phone"], "member_id" => $id];
         } catch (PDOException $e) {
-            error_log($e->getMessage());
-            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+            // error_log($e->getMessage());
+            $error = DatabaseException::handle($e);
+            throw new Exception($error['message'], $error['code']);
+            // throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         } catch (Exception $e) {
             // error_log($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -238,7 +240,9 @@ class MemberModel
             $result = $stmt->rowCount();
             return $result;
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage(), 500);
+            $error = DatabaseException::handle($e);
+            throw new Exception($error['message'], $error['code']);
+            // throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }

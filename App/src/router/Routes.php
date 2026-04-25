@@ -21,7 +21,7 @@ use App\Controller\Api\FacultyDetailController;
 use App\Controller\Api\MemberItemController;
 use App\Controller\Api\DashboardDataController;
 use App\Controller\Api\PointGroupController;
-
+use App\Controller\Api\StatisticDataController;
 use App\Controller\Pages\StaffPagesController;
 use App\Controller\Pages\WasteCenterPagesController;
 use App\Controller\Pages\PagesController;
@@ -223,21 +223,25 @@ class Routes
         /* /api/dashboard */
         $this->addPrefixedRoutes("/api/dashboards", [
             ['GET', "/faculty/[i:fid]", [DashboardDataController::class, "GetFacultyDashboard"]],
-            ['GET', "/waste_center", [DashboardDataController::class, "GetCenterDashboard"]],
+            ['GET', "/center", [DashboardDataController::class, "GetCenterAdminDashboard"]],
             // ['GET', "/member/[i:mid]", [DashboardDataController::class, "MemberDashboard"]],
         ]);
-        /* /api/reports */
-        $this->addPrefixedRoutes("/api/reports", [
-            ['GET', "", [ReportController::class, "GetScopedReport"]],
-            ['GET', "/overall", [ReportController::class, "GetOverallReport"]], // TODO:check
-            ['GET', "/member/[i:mid]", [ReportController::class, "GetMemberReport"]],
-            ['GET', "/faculty/[i:fid]", [ReportController::class, "GetFacultyReport"]],
-            ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],
-            ['GET', "/leaderboard/faculties", [ReportController::class, "GetFacultyLeaderboard"]],
-            ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
-            ['GET', "/by-type", [ReportController::class, "GetByType"]],
-            ['GET', "/by-faculty", [ReportController::class, "GetByCategory"]],
-            ['GET', "/waste/member/[i:memberId]", [ReportController::class, "GetMemberWasteSummary"]],
+        /* /api/reports BROKE NEED FIX */
+        // $this->addPrefixedRoutes("/api/reports", [
+        //     ['GET', "", [ReportController::class, "GetScopedReport"]],
+        //     ['GET', "/overall", [ReportController::class, "GetOverallReport"]],
+        //     ['GET', "/member/[i:mid]", [ReportController::class, "GetMemberReport"]],
+        //     ['GET', "/faculty/[i:fid]", [ReportController::class, "GetFacultyReport"]],
+        //     ['GET', "/leaderboard/members", [ReportController::class, "GetMemberLeaderboard"]],
+        //     ['GET', "/leaderboard/faculties", [ReportController::class, "GetFacultyLeaderboard"]],
+        //     ['GET', "/carbon", [ReportController::class, "GetCarbonImpact"]],
+        //     ['GET', "/by-type", [ReportController::class, "GetByType"]],
+        //     ['GET', "/by-faculty", [ReportController::class, "GetByCategory"]],
+        //     ['GET', "/waste/member/[i:memberId]", [ReportController::class, "GetMemberWasteSummary"]],
+        // ]);
+        /* api/statistics */
+        $this->addPrefixedRoutes('/api/statistics', [
+            ['GET', '', [StatisticDataController::class, 'GetHomePageData']],
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
