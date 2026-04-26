@@ -33,7 +33,14 @@
             // --- Init ---
             async init() {
                 await this.loadWasteTypes();
-                this.focusMemberInput();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get('member_id');
+                if (memberId) {
+                    await this.fetchMemberById(memberId);
+                } else {
+                    this.focusMemberInput();
+                }
             },
 
             get formatPoints() {
@@ -49,6 +56,22 @@
                         this.$refs.memberInput.focus();
                     }
                 });
+            },
+
+            async fetchMemberById(id) {
+                try {
+                    const response = await fetch(`/api/members/profile/${id}`);
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.selectMember(result.data);
+                    } else {
+                        this.showNotification('ไม่พบข้อมูลสมาชิกจาก URL', 'error');
+                        this.focusMemberInput();
+                    }
+                } catch (error) {
+                    console.error('Error fetching member by ID:', error);
+                    this.focusMemberInput();
+                }
             },
 
             // --- Member Logic ---

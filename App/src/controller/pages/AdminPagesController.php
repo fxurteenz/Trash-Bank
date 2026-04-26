@@ -44,7 +44,23 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
-
+    public function ManageUsersDetail($member_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('waste_center/details/user_detail', [
+                'pages' => "manageUsers",
+                'title' => 'จัดการผู้ใช้งาน',
+                'member_id' => !empty($member_id) ? (int) $member_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
     public function ManageFaculty()
     {
         try {

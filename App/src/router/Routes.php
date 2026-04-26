@@ -98,6 +98,7 @@ class Routes
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             // manage
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
+            ['GET', '/manage/members/detail/[i:mid]', [AdminPagesController::class, 'ManageUsersDetail']],
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
