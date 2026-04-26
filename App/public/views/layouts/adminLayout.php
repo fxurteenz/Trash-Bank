@@ -249,6 +249,28 @@
                         <span class="text-sm font-medium">หมวดหมู่ขยะ</span>
                     </a>
 
+                    <a href="/admin/manage/reward"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 56 56">
+                            <path fill="currentColor"
+                                d="M9.66 16.094c-2.742 0-4.453 1.804-4.453 4.664v5.906c0 2.461 1.195 4.148 3.375 4.57v14.578c0 4.43 2.414 6.75 6.844 6.75h25.148c4.43 0 6.844-2.32 6.844-6.75V31.235c2.203-.422 3.375-2.109 3.375-4.57v-5.906c0-2.86-1.57-4.664-4.453-4.664h-4.97c1.313-1.29 2.086-2.977 2.086-4.875c0-4.547-3.586-7.781-8.133-7.781c-3.351 0-6.094 1.851-7.312 5.156c-1.22-3.305-3.985-5.156-7.336-5.156c-4.524 0-8.133 3.234-8.133 7.78c0 1.9.75 3.587 2.062 4.876Zm12.773 0c-3.867 0-5.906-2.274-5.906-4.711c0-2.531 1.875-4.031 4.383-4.031c2.883 0 5.156 2.226 5.156 5.953v2.789Zm11.133 0h-3.633v-2.79c0-3.726 2.274-5.952 5.157-5.952c2.508 0 4.406 1.5 4.406 4.03c0 2.438-2.11 4.712-5.93 4.712m-22.945 3.539h15.305v8.156H10.62c-1.172 0-1.64-.492-1.64-1.664v-4.852c0-1.171.468-1.64 1.64-1.64m34.781 0c1.172 0 1.617.469 1.617 1.64v4.852c0 1.172-.445 1.664-1.617 1.664H30.074v-8.156Zm-30 29.414c-1.968 0-3.046-1.102-3.046-3.047V31.328h13.57v17.719ZM43.645 46c0 1.945-1.079 3.047-3.024 3.047H30.074V31.328h13.57Z"
+                                stroke-width="1.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">รางวัล</span>
+                    </a>
+
+                    <a href="/admin/manage/badge"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="8" r="7" />
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                        </svg>
+                        <span class="text-sm font-medium">เหรียญตรา</span>
+                    </a>
+
                     <a href="/admin/manage/point_group"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
@@ -261,10 +283,10 @@
                     </a>
 
                 </div>
-                
+
                 <div class="mt-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">คลัง</p>
-                    <a href="/waste_center/stock/waste"
+                    <a href="/admin/stock/waste"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
@@ -273,6 +295,16 @@
                                 stroke-width="0.5" stroke="currentColor" />
                         </svg>
                         <span class="text-sm font-medium">ขยะในคลัง</span>
+                    </a>
+                    <a href="/admin/stock/reward"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                            <path fill="currentColor"
+                                d="M9 4v3.234L5.516 5.143L4.484 6.857L6.39 8H3v19h6v-2H5V10h8.027c.833-.62 1.857-1 2.973-1c.352 0 .682.042 1 .102V8h-3.389l1.905-1.143l-1.032-1.714L11 7.234V4zm7 7c-1.645 0-3 1.355-3 3c0 .352.075.684.188 1H11v12h18V15h-2.188A2.9 2.9 0 0 0 27 14c0-1.645-1.355-3-3-3c-1.75 0-2.938 1.328-3.719 2.438c-.105.147-.188.294-.281.439c-.094-.145-.176-.29-.281-.44C18.937 12.328 17.75 11 16 11m0 2c.625 0 1.438.671 2.063 1.563c.152.218.129.231.25.439H16c-.566 0-1-.434-1-1A.985.985 0 0 1 16 13m8 0c.566 0 1 .434 1 1s-.434 1-1 1h-2.313c.122-.207.098-.22.25-.438C22.563 13.672 23.375 13 24 13m-11 4h6v8h-6zm8 0h6v8h-6z"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">ของรางวัลในคลัง</span>
                     </a>
                 </div>
 
@@ -323,7 +355,7 @@
                         <span class="text-sm font-medium">ประวัติการรับสิ่งของ</span>
                     </a>
 
-                    <a href="/admin/history/redeem_reward"
+                    <a href="/admin/history/redeem"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
