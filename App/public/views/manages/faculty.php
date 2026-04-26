@@ -1,4 +1,4 @@
-<div x-data="FacultyMajor()" x-init="fetchAllFaculty(1), fetchAllMajors(1), fetchAllFacultiesForSelect()"
+<div x-data="FacultyMajor()" x-init="fetchAllFaculty(), fetchAllFacultiesForSelect()"
     class="flex flex-col lg:flex-row gap-4 h-[calc(100vh-6rem)] w-full">
 
     <div class="bg-white rounded-md shadow p-6 lg:basis-2/3 flex flex-col overflow-hidden h-full">
@@ -29,7 +29,7 @@
                 <thead class="bg-gray-50 sticky top-0 z-0 shadow-sm">
                     <tr>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b bg-gray-50">
+                            class="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b bg-gray-50">
                             #
                         </th>
                         <th
@@ -37,7 +37,11 @@
                             ชื่อคณะ
                         </th>
                         <th
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b bg-gray-50">
+                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase tracking-wider border-b bg-gray-50">
+                            จำนวนสาขา
+                        </th>
+                        <th
+                            class="px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b bg-gray-50">
                             จัดการ
                         </th>
                     </tr>
@@ -45,12 +49,13 @@
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="(faculty, index) in AllFacultyData" :key="faculty.faculty_id">
                         <tr class="hover:bg-gray-50 transition duration-200 cursor-pointer"
-                            @click="filterMajorsByFaculty(faculty)"
+                            @click="filterMajorsByFaculty(faculty);selectedFaculty = faculty;"
                             :class="selectedFilterFacultyId === faculty.faculty_id ? 'bg-sky-100 ring-1 ring-sky-300' : (selectedFaculty?.faculty_id === faculty.faculty_id ? 'bg-sky-50' : '')">
-                            <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900"
-                                x-text="(facultyPage - 1) * facultyLimit + index + 1"></td>
+                            <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900" x-text="index + 1"></td>
                             <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900"
                                 x-text="`${faculty.faculty_code || ' ? '} : ${faculty.faculty_name}`"></td>
+                            <td class="py-2 px-2 text-end whitespace-nowrap text-sm text-gray-900"
+                                x-text="`${faculty.major_count_total || '0'}`"></td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2"
                                 @click.stop>
                                 <button @click="openFacultyMajorModal(faculty)"
@@ -84,24 +89,6 @@
                     </template>
                 </tbody>
             </table>
-        </div>
-
-        <div class="flex items-center justify-between mt-4 text-xs shrink-0">
-            <button @click="changeFacultyPage(facultyPage - 1)" :disabled="facultyPage <= 1"
-                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
-                ก่อนหน้า
-            </button>
-            <div class="flex items-center space-x-2">
-                <template x-for="p in facultyTotalPages">
-                    <button class="px-2 py-1 rounded"
-                        :class="p === facultyPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                        @click="page = p; changeFacultyPage(p)" x-text="p"></button>
-                </template>
-            </div>
-            <button @click="changeFacultyPage(facultyPage + 1)" :disabled="facultyPage >= facultyTotalPages"
-                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
-                ถัดไป
-            </button>
         </div>
 
         <dialog x-show="facultyMajorModalShow" x-ref="facultyMajorModal"
@@ -215,7 +202,9 @@
         <div class="flex justify-between mb-4">
             <div class="">
                 <h1 class="text-2xl font-bold text-slate-900">จัดการสาขา</h1>
-                <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบข้อมูลสาขา</p>
+                <p class="text-slate-600 font-light text-sm"
+                    x-text="`ภายในคณะ ${selectedFaculty.faculty_name || 'ยังไม่เลือกคณะ'}`">
+                </p>
             </div>
             <div class="flex gap-2">
                 <div @click="openCreateMajorDialog" :class="majorDialogShow && !isEditingMajor && 'bg-emerald-300'"
@@ -238,106 +227,59 @@
         <div class="mt-2 text-lg text-gray-700 flex flex-col flex-1 border-t border-gray-100 py-2 overflow-hidden">
 
             <div class="flex items-center justify-between shrink-0 mb-3">
-                <h3 class="font-semibold text-gray-800 text-base"
-                    x-text="selectedFilterFacultyId ? 'รายการสาขา (กรองตามคณะ)' : 'รายการสาขาทั้งหมด'"></h3>
-                <button x-show="selectedFilterFacultyId" @click="clearMajorFilter()"
-                    class="text-xs text-red-500 hover:text-red-700 underline font-medium cursor-pointer" x-cloak>
-                    ล้างตัวกรอง
-                </button>
+                <h3 class="font-semibold text-gray-800 text-base" x-text="'รายการสาขา'"></h3>
             </div>
 
             <div class="grid grid-cols-3 lg:grid-cols-1 gap-2 flex-1 overflow-y-auto pr-2 pb-2 content-start">
-                <template x-for="major in AllMajorData" :key="major.major_id">
-                    <div class="grid grid-cols-2 px-4 py-3 border border-gray-100 shadow-xs rounded transition duration-200 hover:shadow-md hover:bg-purple-50 cursor-pointer"
-                        :class="selectedMajor?.major_id === major.major_id ? 'ring-2 ring-purple-400 bg-purple-50' : 'bg-white'"
-                        @click="SelectMajor(major)">
-                        <div>
-                            <div class="font-semibold text-base">
-                                <span class="text-truncated" x-text="major.major_name"></span>
-                                <span x-show="major.major_code" class="text-xs text-gray-500"
-                                    x-text="`(${major.major_code})`"></span>
-                            </div>
-                            <div class="text-xs text-gray-500" x-text="`คณะ: ${major.faculty_name || 'ไม่ระบุ'}`">
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1 justify-end items-end">
-                            <button @click="SelectMajor(major);openEditMajorDialog(selectedMajor)"
-                                x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0 scale-90"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                class="bg-amber-100 text-amber-700 p-2 rounded-lg hover:bg-amber-200 border border-amber-200 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                            </button>
-
-                            <button @click="SelectMajor(major);confirmDeleteMajor()"
-                                x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0 scale-90"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                class="bg-red-100 text-red-700 p-2 rounded-lg hover:bg-red-200 border border-red-200 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        </div>
+                <template x-if="!selectedFilterFacultyId">
+                    <div class="flex items-center justify-center h-full text-gray-500 text-sm mt-10">
+                        <p>กรุณาเลือกคณะเพื่อดูรายการสาขา</p>
                     </div>
                 </template>
-            </div>
+                <template x-if="selectedFilterFacultyId && AllMajorData.length === 0">
+                    <div class="flex items-center justify-center h-full text-gray-500 text-sm mt-10">
+                        <p>ไม่พบข้อมูลสาขาในคณะนี้</p>
+                    </div>
+                </template>
+                <template x-if="selectedFilterFacultyId">
+                    <template x-for="major in AllMajorData" :key="major.major_id">
+                        <div class="grid grid-cols-2 px-4 py-3 border border-gray-100 shadow-xs rounded transition duration-200 hover:shadow-md"
+                            :class="selectedMajor?.major_id === major.major_id ? 'ring-2 ring-purple-400 bg-purple-50' : 'bg-white'">
+                            <div>
+                                <div class="font-semibold text-base">
+                                    <span class="text-truncated" x-text="major.major_name"></span>
+                                    <span x-show="major.major_code" class="text-xs text-gray-500"
+                                        x-text="`(${major.major_code})`"></span>
+                                </div>
+                            </div>
+                            <div class="flex gap-1 justify-end items-end">
+                                <button @click="SelectMajor(major);openEditMajorDialog(selectedMajor)"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="bg-amber-100 text-amber-700 p-2 rounded-lg hover:bg-amber-200 border border-amber-200 font-medium text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
 
-            <div class="flex items-center justify-between mt-4 text-xs shrink-0">
-                <button @click="changeMajorPage(majorPage - 1)" :disabled="majorPage <= 1"
-                    class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
-                    ก่อนหน้า
-                </button>
-                <div class="flex items-center space-x-2">
-                    <template x-for="p in majorTotalPages">
-                        <button class="px-2 py-1 rounded"
-                            :class="p === majorPage ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                            @click="page = p; changeMajorPage(p)" x-text="p"></button>
+                                <button @click="SelectMajor(major);confirmDeleteMajor()"
+                                    x-transition:enter="transition ease-out duration-300"
+                                    x-transition:enter-start="opacity-0 scale-90"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="bg-red-100 text-red-700 p-2 rounded-lg hover:bg-red-200 border border-red-200 font-medium text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </template>
-                </div>
-
-                <button @click="changeMajorPage(majorPage + 1)" :disabled="majorPage >= majorTotalPages"
-                    class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50">
-                    ถัดไป
-                </button>
-            </div>
-        </div>
-
-        <div x-show="selectedMajorShow" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-3" x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0"
-            x-transition:leave-end="opacity-0 translate-y-3"
-            class="shrink-0 mt-4 overflow-x-auto pt-2 border border-gray-100 rounded bg-gray-50">
-            <div class="flex justify-between items-start px-4 pt-2">
-                <h3 class="text-lg font-bold text-purple-700 text-shadow-xs"
-                    x-text="`สาขา ${selectedMajor ? selectedMajor.major_name: 'กรุณาเลือกสาขา'}`"></h3>
-                <button @click="CloseMajorDetail()"
-                    class="text-gray-500 hover:text-gray-900 hover:cursor-pointer transition duration-200 hover:scale-105">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
-            </div>
-
-            <div class="px-4 pb-4 rounded space-y-2">
-                <div class="text-sm space-y-1 mt-2">
-                    <div><span class="font-semibold">ชื่อสาขา (ไทย):</span> <span
-                            x-text="selectedMajor?.major_name"></span></div>
-                    <div><span class="font-semibold">ชื่อสาขา (อังกฤษ):</span> <span
-                            x-text="selectedMajor?.major_name_en || '-'"></span></div>
-                    <div><span class="font-semibold">อักษรย่อ:</span> <span
-                            x-text="selectedMajor?.major_code || '-'"></span></div>
-                    <div><span class="font-semibold">สังกัดคณะ:</span> <span
-                            x-text="selectedMajor?.faculty_name || 'ไม่ระบุ'"></span></div>
-                </div>
+                </template>
             </div>
         </div>
 

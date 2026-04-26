@@ -4,18 +4,12 @@ function FacultyMajor() {
         selectedFacultyShow: false,
         selectedFilterFacultyId: null, // เพิ่ม State สำหรับเก็บคณะที่ใช้กรอง
         AllFacultyData: [],
-        facultyPage: 1,
-        facultyTotalPages: 1,
-        facultyLimit: 10,
         facultyListForSelect: [],
 
         // Major States
         selectedMajor: null,
         selectedMajorShow: false,
         AllMajorData: [],
-        majorPage: 1,
-        majorTotalPages: 1,
-        majorLimit: 6,
 
         // Faculty Major Modal
         facultyMajorModalShow: false,
@@ -71,19 +65,17 @@ function FacultyMajor() {
             // ถ้ากดคณะเดิมซ้ำ ให้ล้างตัวกรอง
             if (this.selectedFilterFacultyId === faculty.faculty_id) {
                 this.selectedFilterFacultyId = null;
+                this.AllMajorData = [];
             } else {
                 this.selectedFilterFacultyId = faculty.faculty_id;
+                this.fetchAllMajors();
             }
-            // รีเซ็ตหน้ากลับไปหน้าแรก และดึงข้อมูลใหม่
-            this.majorPage = 1;
-            this.fetchAllMajors(1);
         },
 
         // ฟังก์ชันล้างตัวกรอง
         clearMajorFilter() {
             this.selectedFilterFacultyId = null;
-            this.majorPage = 1;
-            this.fetchAllMajors(1);
+            this.AllMajorData = [];
         },
 
         async openFacultyMajorModal(faculty) {
@@ -110,15 +102,13 @@ function FacultyMajor() {
             this.selectedMajorShow = true;
         },
 
-        async fetchAllFaculty(page = 1) {
+        async fetchAllFaculty() {
             try {
-                const res = await fetch(`/api/faculties?page=${page}&limit=${this.facultyLimit}`);
+                const res = await fetch(`/api/faculties`);
                 const result = await res.json();
 
                 if (result.success) {
                     this.AllFacultyData = result.data;
-                    this.facultyPage = result.page;
-                    this.facultyTotalPages = Math.ceil(result.total / this.facultyLimit);
                 }
             } catch (error) {
                 console.error(error);
@@ -138,38 +128,24 @@ function FacultyMajor() {
             }
         },
 
-        // ปรับปรุง fetchAllMajors เพื่อให้รองรับ query string 'faculty'
-        async fetchAllMajors(page = 1) {
+        async fetchAllMajors() {
+            if (!this.selectedFilterFacultyId) {
+                this.AllMajorData = [];
+                return;
+            }
             try {
-                let url = `/api/majors?page=${page}&limit=${this.majorLimit}`;
-
-                // หากมีการกรองคณะ ให้เพิ่ม queryString
-                if (this.selectedFilterFacultyId) {
-                    url += `&faculty=${this.selectedFilterFacultyId}`;
-                }
-
-                const res = await fetch(url);
+                const res = await fetch(`/api/majors/faculty/${this.selectedFilterFacultyId}`);
                 const result = await res.json();
 
                 if (result.success) {
                     this.AllMajorData = result.result;
-                    this.majorPage = page;
-                    // ป้องกันกรณีที่ Total เป็น undefined หรือ 0
-                    this.majorTotalPages = Math.ceil((result.total || result.result.length) / this.majorLimit) || 1;
+                } else {
+                    this.AllMajorData = [];
                 }
             } catch (error) {
                 console.error(error);
+                this.AllMajorData = [];
             }
-        },
-
-        changeFacultyPage(page) {
-            if (page < 1 || page > this.facultyTotalPages) return;
-            this.fetchAllFaculty(page);
-        },
-
-        changeMajorPage(page) {
-            if (page < 1 || page > this.majorTotalPages) return;
-            this.fetchAllMajors(page);
         },
 
         // --- Major CRUD ---
