@@ -56,11 +56,6 @@
                 <div class="flex justify-between text-xs text-gray-500 font-light gap-2">
                     <div :class="{'text-emerald-600': step >= 1}"
                         class="flex-1/3 flex flex-col items-center justify-center text-center">
-                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
-                            <div :style="'width: ' + ((step - 1) / 1 * 100) + '%'"
-                                class="shadow-none flex flex-col text-center rounded whitespace-nowrap text-white justify-center bg-emerald-500 transition-all duration-300">
-                            </div>
-                        </div>
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -71,14 +66,15 @@
                         <span>
                             ประเภทสมาชิก
                         </span>
+                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
+                            <div :style="'width: 100%'"
+                                class="shadow-none flex flex-col text-center rounded whitespace-nowrap text-white justify-center bg-emerald-500 transition-all duration-300">
+                            </div>
+                        </div>
+
                     </div>
                     <div :class="{'text-emerald-600': step >= 2}"
                         class="flex-1/3 flex flex-col items-center justify-center text-center">
-                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
-                            <div :style="'width: ' + ((step - 2) / 1 * 100) + '%'"
-                                class="shadow-none flex flex-col text-center whitespace-nowrap rounded justify-center bg-emerald-500 transition-all duration-300">
-                            </div>
-                        </div>
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -89,14 +85,15 @@
                         <span>
                             เบอร์โทรศัพท์
                         </span>
-                    </div>
-                    <div :class="{'text-emerald-600': step >= 3}"
-                        class="flex-1/3 flex flex-col items-center justify-center text-center">
                         <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
-                            <div :style="'width: ' + ((step - 3) / 1 * 100) + '%'"
+                            <div :style="'width: ' + ((step - 2) / 1 * 100) + '%'"
                                 class="shadow-none flex flex-col text-center whitespace-nowrap rounded justify-center bg-emerald-500 transition-all duration-300">
                             </div>
                         </div>
+
+                    </div>
+                    <div :class="{'text-emerald-600': step >= 3}"
+                        class="flex-1/3 flex flex-col items-center justify-center text-center">
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -107,6 +104,11 @@
                         <span>
                             รายละเอียดเพิ่มเติม
                         </span>
+                        <div class="w-full h-2 text-xs flex rounded bg-gray-200 mb-1">
+                            <div :style="'width: ' + ((step - 3) / 1 * 100) + '%'"
+                                class="shadow-none flex flex-col text-center whitespace-nowrap rounded justify-center bg-emerald-500 transition-all duration-300">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,7 +116,11 @@
             <form @submit.prevent="submitRegistration" class="space-y-4 text-sm">
 
                 <div x-show="step === 1">
-                    <label class="text-gray-700 font-medium block mb-3 text-center">คุณเป็น</label>
+                    <div class="flex text-center justify-center mb-3">
+                        <label class="text-gray-700 font-medium text-center text-lg">เลือกประเภทสมาชิก&nbsp;</label>
+                        <label class="text-emerald-700 font-semibold text-center text-lg">คุณเป็น</label>
+                    </div>
+
                     <div class="space-y-3">
                         <label
                             class="flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer transition-all"
@@ -124,6 +130,16 @@
                             <div class="font-semibold text-lg"
                                 :class="member_type === 'student' ? 'text-emerald-700' : 'text-gray-600'">
                                 นักศึกษา
+                            </div>
+                        </label>
+                        <label
+                            class="flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer transition-all"
+                            :class="member_type === 'teacher' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 hover:bg-gray-50'">
+                            <input type="radio" x-model="member_type" value="teacher" class="hidden">
+                            <i data-lucide="id-card-lanyard"></i>
+                            <div class="font-semibold text-lg"
+                                :class="member_type === 'staff' ? 'text-emerald-700' : 'text-gray-600'">
+                                อาจารย์
                             </div>
                         </label>
                         <label
@@ -199,16 +215,18 @@
                                 type="email" id="email" x-model="formData.member_email" placeholder="example@email.com">
                         </div>
 
-                        <template x-if="member_type === 'student'">
+                        <template x-if="member_type === 'student' || member_type === 'teacher'">
                             <div class="space-y-4">
-                                <div class="flex flex-col space-y-1">
-                                    <label for="personal_id"
-                                        class="text-gray-700 font-medium text-lg">รหัสประจำตัวนักศึกษา</label>
-                                    <input
-                                        class="border border-gray-300 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                        type="text" id="personal_id" x-model="formData.member_personal_id"
-                                        placeholder="รหัสนักศึกษา">
-                                </div>
+                                <template x-if="member_type === 'student'">
+                                    <div class="flex flex-col space-y-1">
+                                        <label for="personal_id"
+                                            class="text-gray-700 font-medium text-lg">รหัสประจำตัวนักศึกษา</label>
+                                        <input
+                                            class="border border-gray-300 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
+                                            type="text" id="personal_id" x-model="formData.member_personal_id"
+                                            placeholder="รหัสนักศึกษา">
+                                    </div>
+                                </template>
 
                                 <div class="flex flex-col space-y-1">
                                     <label for="faculty" class="text-gray-700 font-medium text-lg">คณะ</label>
@@ -237,6 +255,7 @@
                                 </div>
                             </div>
                         </template>
+
                     </div>
 
                     <div class="pt-6 flex gap-3">
