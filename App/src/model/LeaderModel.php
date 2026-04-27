@@ -84,7 +84,13 @@ class LeaderModel
             $stmt->execute();
             $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return ['stats' => $stats, 'total' => count($stats)];
+            // นับจำนวนคณะทั้งหมดสำหรับ Pagination
+            $countSql = "SELECT COUNT(faculty_id) FROM faculty";
+            $countStmt = $this->Conn->prepare($countSql);
+            $countStmt->execute();
+            $totalRecords = (int) $countStmt->fetchColumn();
+
+            return ['stats' => $stats, 'total' => $totalRecords];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
         } catch (Exception $e) {
@@ -95,7 +101,7 @@ class LeaderModel
     public function LeadingMember($query): array
     {
         try {
-            $role = $query['role'] ?? null;
+            $facultyId = $query['faculty_id'] ?? null;
             $month = $query['month'] ?? null;
             $year = $query['year'] ?? null;
             $sort = $query['sort'] ?? 'point';
@@ -108,28 +114,39 @@ class LeaderModel
                 case 'point':
                     $orderBy = 'total_point';
                     break;
+                case 'goodness':
+                    $orderBy = 'total_goodness';
+                    break;
                 case 'weight':
                     $orderBy = 'total_weight';
                     break;
             }
 
             // 1. เงื่อนไขสำหรับการ JOIN (กรองข้อมูล Transaction ตามเวลา)
+            $params = [];
             $onClause = "w.member_id = a.member_id";
-            if ($month)
+            if ($month) {
                 $onClause .= " AND MONTH(w.created_at) = :month";
-            if ($year)
+                $params[':month'] = $month;
+            }
+            if ($year) {
                 $onClause .= " AND YEAR(w.created_at) = :year";
+                $params[':year'] = $year;
+            }
 
             // 2. เงื่อนไขสำหรับการ WHERE (กรองที่ตัว Member)
-            $whereClause = "";
-            if ($role)
-                $whereClause = "WHERE a.member_role = :role";
+            $whereClauses = ["a.role_id IN (2,5)"];
+            $countParams = [];
+            if ($facultyId) {
+                $whereClauses[] = "a.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $facultyId;
+                $countParams[':faculty_id'] = $facultyId;
+            }
+            $whereClause = "WHERE " . implode(" AND ", $whereClauses);
 
             $countSql = "SELECT COUNT(*) FROM member a {$whereClause}";
             $countStmt = $this->Conn->prepare($countSql);
-            if ($role)
-                $countStmt->bindValue(':role', $role);
-            $countStmt->execute();
+            $countStmt->execute($countParams);
             $totalRecords = (int) $countStmt->fetchColumn();
             // -------------------------------------------------------
 
@@ -139,8 +156,9 @@ class LeaderModel
                 a.member_id,
                 a.member_name,
                 a.member_phone,
+                COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                a.member_goodness_point AS total_goodness,
                 COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                a.member_waste_point AS total_point,
                 COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2
             FROM
                 member a
@@ -148,7 +166,7 @@ class LeaderModel
                 waste_transaction w ON {$onClause}
             {$whereClause}
             GROUP BY
-                a.member_id, a.member_name, a.member_phone, a.member_waste_point
+                a.member_id, a.member_name, a.member_phone, a.member_goodness_point
             ORDER BY
                 {$orderBy} DESC
         ";
@@ -168,13 +186,9 @@ class LeaderModel
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
-            if ($role)
-                $stmt->bindValue(':role', $role);
-            if ($month)
-                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-            if ($year)
-                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
-
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
             $stmt->execute();
             $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

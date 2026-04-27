@@ -17,7 +17,6 @@ class AdminPagesController extends RouterBase
             $this->render('admin/adminDashboard', [
                 'pages' => 'dashboard',
                 'title' => 'ผู้ดูแลระบบ',
-                'module' => '../../js/Dashboard.mjs',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {

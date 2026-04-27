@@ -1,8 +1,22 @@
-<div class="space-y-6">
+<div class="space-y-4" x-data="adminDashboard()" x-init="init()">
     <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">📊 Dashboard Admin</h1>
-        <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-slate-900">📊 Dashboard Admin</h1>
+            <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
+        </div>
+
+        <div class="flex bg-slate-200 p-1 rounded-lg w-full md:w-auto">
+            <button @click="period = 'today'"
+                :class="period === 'today' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">วันนี้</button>
+            <button @click="period = 'month'"
+                :class="period === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">เดือนนี้</button>
+            <button @click="period = 'all'"
+                :class="period === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ทั้งหมด</button>
+        </div>
     </div>
 
     <!-- Stats Cards -->
@@ -23,10 +37,16 @@
                         </g>
                     </svg>
                 </div>
+                <div>
+                    <p class="text-4xl font-bold"
+                        x-text="Number(currentSummary?.total_weight || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                    </p>
+                    <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
+                </div>
+
             </div>
-            <p class="text-emerald-100 text-sm mb-1">ปริมาณขยะ (เดือนนี้)</p>
-            <p class="text-4xl font-bold">1.2K</p>
-            <p class="text-sm text-emerald-100 mt-1">กิโลกรัม</p>
+            <p class="text-emerald-100 text-sm mb-1" x-text="`ปริมาณขยะ ${periodText}`"></p>
+
         </div>
 
         <!-- Carbon Reduction -->
@@ -41,10 +61,15 @@
                             stroke-width="0.2" stroke="currentColor" />
                     </svg>
                 </div>
+                <div>
+                    <p class="text-4xl font-bold"
+                        x-text="Number(currentSummary?.total_co2e || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                    </p>
+                    <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂e</p>
+                </div>
             </div>
-            <p class="text-blue-100 text-sm mb-1">การลดคาร์บอน (เดือนนี้)</p>
-            <p class="text-4xl font-bold">1.2</p>
-            <p class="text-sm text-blue-100 mt-1">กิโลกรัม CO₂</p>
+            <p class="text-blue-100 text-sm mb-1" x-text="`การลดคาร์บอน ${periodText}`"></p>
+
         </div>
 
         <!-- User Transactions -->
@@ -64,10 +89,15 @@
                         </g>
                     </svg>
                 </div>
+                <div>
+                    <p class="text-4xl font-bold"
+                        x-text="Number(currentSummary?.transaction_count || 0).toLocaleString()"></p>
+                    <p class="text-sm text-purple-100 mt-1">ครั้ง</p>
+
+                </div>
             </div>
-            <p class="text-purple-100 text-sm mb-1">ผู้ใช้บริการ (เดือนนี้)</p>
-            <p class="text-4xl font-bold">46</p>
-            <p class="text-sm text-purple-100 mt-1">ครั้ง</p>
+            <p class="text-purple-100 text-sm mb-1" x-text="`รายการฝากขยะ ${periodText}`"></p>
+
         </div>
 
         <!-- Growth -->
@@ -85,103 +115,22 @@
                         </g>
                     </svg>
                 </div>
+                <div>
+                    <p class="text-4xl font-bold" x-text="Number(dashboardData.total_member || 0).toLocaleString()"></p>
+                    <p class="text-sm text-orange-100 mt-1">คน</p>
+                </div>
             </div>
-            <p class="text-orange-100 text-sm mb-1">ความพัฒนา (เดือนนี้)</p>
-            <p class="text-4xl font-bold">+25%</p>
-            <p class="text-sm text-orange-100 mt-1">เพิ่มขึ้น</p>
+            <p class="text-orange-100 text-sm mb-1">ผู้ใช้งานระบบทั้งหมด</p>
+
         </div>
     </div>
 
     <!-- Quick Actions Section -->
     <div>
-        <h2 class="text-2xl font-bold text-slate-900 mb-5">⚡ การเข้าถึงด่วน</h2>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">⚡ การเข้าถึงด่วน</h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <a href="/admin/manage/users"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
-                <div class="flex justify-center mb-4">
-                    <div
-                        class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 group-hover:scale-110 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="font-semibold text-slate-900">จัดการผู้ใช้</p>
-                <p class="text-sm text-slate-600 mt-1">Users</p>
-            </a>
-
-            <a href="/admin/manage/faculty"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
-                <div class="flex justify-center mb-4">
-                    <div
-                        class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                            <polyline points="9 22 9 12 15 12 15 22" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="font-semibold text-slate-900">คณะ/สาขา</p>
-                <p class="text-sm text-slate-600 mt-1">Faculty</p>
-            </a>
-
-            <a href="/admin/manage/reward"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
-                <div class="flex justify-center mb-4">
-                    <div
-                        class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 56 56">
-                            <path fill="currentColor"
-                                d="M9.66 16.094c-2.742 0-4.453 1.804-4.453 4.664v5.906c0 2.461 1.195 4.148 3.375 4.57v14.578c0 4.43 2.414 6.75 6.844 6.75h25.148c4.43 0 6.844-2.32 6.844-6.75V31.235c2.203-.422 3.375-2.109 3.375-4.57v-5.906c0-2.86-1.57-4.664-4.453-4.664h-4.97c1.313-1.29 2.086-2.977 2.086-4.875c0-4.547-3.586-7.781-8.133-7.781c-3.351 0-6.094 1.851-7.312 5.156c-1.22-3.305-3.985-5.156-7.336-5.156c-4.524 0-8.133 3.234-8.133 7.78c0 1.9.75 3.587 2.062 4.876Zm12.773 0c-3.867 0-5.906-2.274-5.906-4.711c0-2.531 1.875-4.031 4.383-4.031c2.883 0 5.156 2.226 5.156 5.953v2.789Zm11.133 0h-3.633v-2.79c0-3.726 2.274-5.952 5.157-5.952c2.508 0 4.406 1.5 4.406 4.03c0 2.438-2.11 4.712-5.93 4.712m-22.945 3.539h15.305v8.156H10.62c-1.172 0-1.64-.492-1.64-1.664v-4.852c0-1.171.468-1.64 1.64-1.64m34.781 0c1.172 0 1.617.469 1.617 1.64v4.852c0 1.172-.445 1.664-1.617 1.664H30.074v-8.156Zm-30 29.414c-1.968 0-3.046-1.102-3.046-3.047V31.328h13.57v17.719ZM43.645 46c0 1.945-1.079 3.047-3.024 3.047H30.074V31.328h13.57Z"
-                                stroke-width="1.5" stroke="currentColor" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="font-semibold text-slate-900">รางวัล</p>
-                <p class="text-sm text-slate-600 mt-1">Rewards</p>
-            </a>
-
-            <a href="/admin/manage/badge"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
-                <div class="flex justify-center mb-4">
-                    <div
-                        class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="8" r="7" />
-                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="font-semibold text-slate-900">เหรียญตรา</p>
-                <p class="text-sm text-slate-600 mt-1">Badges</p>
-            </a>
-
-            <a href="/admin/manage/waste_type"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
-                <div class="flex justify-center mb-4">
-                    <div
-                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-200 group-hover:scale-110 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <path d="M20 7h-9" />
-                            <path d="M14 17H5" />
-                            <circle cx="17" cy="17" r="3" />
-                            <circle cx="7" cy="7" r="3" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="font-semibold text-slate-900">หมวดหมู่ขยะ</p>
-                <p class="text-sm text-slate-600 mt-1">Waste Types</p>
-            </a>
-
             <a href="/admin/transactions/waste"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 group-hover:bg-teal-200 group-hover:scale-110 transition-all">
@@ -199,7 +148,7 @@
             </a>
 
             <a href="/admin/transactions/clear_waste"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 group-hover:bg-amber-200 group-hover:scale-110 transition-all">
@@ -215,7 +164,7 @@
             </a>
 
             <a href="/admin/transactions/waste_sale"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
@@ -234,7 +183,7 @@
             </a>
 
             <a href="/admin/transactions/donation"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
@@ -250,7 +199,7 @@
             </a>
 
             <a href="/admin/transactions/redeem_item"
-                class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
@@ -267,114 +216,294 @@
                 <p class="font-semibold text-slate-900">แลกของรางวัล</p>
                 <p class="text-sm text-slate-600 mt-1">Redeem</p>
             </a>
+
+            <a href="/admin/manage/users"
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                <div class="flex justify-center mb-4">
+                    <div
+                        class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 group-hover:scale-110 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-slate-900">จัดการผู้ใช้</p>
+                <p class="text-sm text-slate-600 mt-1">Users</p>
+            </a>
+
+            <a href="/admin/manage/faculty"
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                <div class="flex justify-center mb-4">
+                    <div
+                        class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-slate-900">คณะ/สาขา</p>
+                <p class="text-sm text-slate-600 mt-1">Faculty</p>
+            </a>
+
+            <a href="/admin/manage/reward"
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                <div class="flex justify-center mb-4">
+                    <div
+                        class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 56 56">
+                            <path fill="currentColor"
+                                d="M9.66 16.094c-2.742 0-4.453 1.804-4.453 4.664v5.906c0 2.461 1.195 4.148 3.375 4.57v14.578c0 4.43 2.414 6.75 6.844 6.75h25.148c4.43 0 6.844-2.32 6.844-6.75V31.235c2.203-.422 3.375-2.109 3.375-4.57v-5.906c0-2.86-1.57-4.664-4.453-4.664h-4.97c1.313-1.29 2.086-2.977 2.086-4.875c0-4.547-3.586-7.781-8.133-7.781c-3.351 0-6.094 1.851-7.312 5.156c-1.22-3.305-3.985-5.156-7.336-5.156c-4.524 0-8.133 3.234-8.133 7.78c0 1.9.75 3.587 2.062 4.876Zm12.773 0c-3.867 0-5.906-2.274-5.906-4.711c0-2.531 1.875-4.031 4.383-4.031c2.883 0 5.156 2.226 5.156 5.953v2.789Zm11.133 0h-3.633v-2.79c0-3.726 2.274-5.952 5.157-5.952c2.508 0 4.406 1.5 4.406 4.03c0 2.438-2.11 4.712-5.93 4.712m-22.945 3.539h15.305v8.156H10.62c-1.172 0-1.64-.492-1.64-1.664v-4.852c0-1.171.468-1.64 1.64-1.64m34.781 0c1.172 0 1.617.469 1.617 1.64v4.852c0 1.172-.445 1.664-1.617 1.664H30.074v-8.156Zm-30 29.414c-1.968 0-3.046-1.102-3.046-3.047V31.328h13.57v17.719ZM43.645 46c0 1.945-1.079 3.047-3.024 3.047H30.074V31.328h13.57Z"
+                                stroke-width="1.5" stroke="currentColor" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-slate-900">รางวัล</p>
+                <p class="text-sm text-slate-600 mt-1">Rewards</p>
+            </a>
+
+            <a href="/admin/manage/badge"
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                <div class="flex justify-center mb-4">
+                    <div
+                        class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="8" r="7" />
+                            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-slate-900">เหรียญตรา</p>
+                <p class="text-sm text-slate-600 mt-1">Badges</p>
+            </a>
+
+            <a href="/admin/manage/waste_type"
+                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                <div class="flex justify-center mb-4">
+                    <div
+                        class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-200 group-hover:scale-110 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M20 7h-9" />
+                            <path d="M14 17H5" />
+                            <circle cx="17" cy="17" r="3" />
+                            <circle cx="7" cy="7" r="3" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="font-semibold text-slate-900">หมวดหมู่ขยะ</p>
+                <p class="text-sm text-slate-600 mt-1">Waste Types</p>
+            </a>
+
         </div>
     </div>
 
-    <!-- Charts Section -->
-    <div>
-        <h2 class="text-2xl font-bold text-slate-900 mb-5">📈 สถิติและกราฟ</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Waste Total Chart -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะรวม</h3>
-                <div class="h-80">
-                    <canvas id="waste-total"></canvas>
-                </div>
-            </div>
+    <!-- Leaderboards Section -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-8 mb-4">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">🏆 จัดอันดับ (Leaderboards)</h2>
+        </div>
+        <div class="flex bg-slate-200 p-1 rounded-lg w-full md:w-auto">
+            <button @click="leaderboardPeriod = 'month'"
+                :class="leaderboardPeriod === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">เดือนนี้</button>
+            <button @click="leaderboardPeriod = 'year'"
+                :class="leaderboardPeriod === 'year' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ปีนี้</button>
+            <button @click="leaderboardPeriod = 'all'"
+                :class="leaderboardPeriod === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ทั้งหมด</button>
+        </div>
+    </div>
 
-            <!-- Carbon Total Chart -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">การลดคาร์บอนรวม</h3>
-                <div class="h-80">
-                    <canvas id="carbon-total"></canvas>
-                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Faculty Leaderboard -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-900">🏆 5 อันดับคณะยอดเยี่ยม</h2>
+                <select x-model="facultySort"
+                    class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-1.5 outline-none cursor-pointer">
+                    <option value="point">คะแนนสะสม</option>
+                    <option value="weight">น้ำหนักขยะ</option>
+                </select>
             </div>
-
-            <!-- Waste by Faculty -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะแยกตามคณะ</h3>
-                <div class="h-80">
-                    <canvas id="waste-by-faculty"></canvas>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
+                            <th class="px-4 py-2">คณะ</th>
+                            <th class="px-4 py-2 text-right">น้ำหนัก (กก.)</th>
+                            <th class="px-4 py-2 text-right rounded-r-lg">คะแนน</th>
+                            <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <template x-for="(faculty, index) in facultyLeaderboard" :key="faculty.faculty_id">
+                            <tr class="bg-white hover:bg-slate-50 transition">
+                                <td class="px-4 py-3 font-bold text-slate-900" x-text="index + 1"></td>
+                                <td class="px-4 py-3 font-medium text-slate-700" x-text="faculty.faculty_name"></td>
+                                <td class="px-4 py-3 text-right font-medium text-emerald-600"
+                                    x-text="Number(faculty.total_weight || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-amber-500"
+                                    x-text="Number(faculty.total_point || 0).toLocaleString()"></td>
+                                <td class="px-4 py-3 text-right font-bold text-sky-500"
+                                    x-text="Number(faculty.total_co2e || 0).toLocaleString()"></td>
+                            </tr>
+                        </template>
+                        <template x-if="facultyLeaderboard.length === 0">
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-            <!-- Carbon by Faculty -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">คาร์บอนแยกตามคณะ</h3>
-                <div class="h-80">
-                    <canvas id="carbon-by-faculty"></canvas>
-                </div>
+        <!-- Member Leaderboard -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-slate-900">🏅 5 อันดับสมาชิกยอดเยี่ยม</h2>
+                <select x-model="memberSort"
+                    class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-1.5 outline-none cursor-pointer">
+                    <option value="point">แต้มขยะ</option>
+                    <option value="goodness">แต้มความดี</option>
+                </select>
             </div>
-
-            <!-- Waste by Year -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">ปริมาณขยะรายปี</h3>
-                <div class="h-80">
-                    <canvas id="waste-by-year"></canvas>
-                </div>
-            </div>
-
-            <!-- Carbon by Year -->
-            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                <h3 class="text-lg font-bold text-slate-900 mb-4">คาร์บอนรายปี</h3>
-                <div class="h-80">
-                    <canvas id="carbon-by-year"></canvas>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-600">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+                        <tr>
+                            <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
+                            <th class="px-4 py-2">ชื่อผู้ใช้งาน</th>
+                            <th class="px-4 py-2 text-right">แต้มขยะ</th>
+                            <th class="px-4 py-2 text-right rounded-r-lg">แต้มความดี</th>
+                            <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <template x-for="(member, index) in memberLeaderboard" :key="member.member_id">
+                            <tr class="bg-white hover:bg-slate-50 transition">
+                                <td class="px-4 py-3 font-bold text-slate-900" x-text="index + 1"></td>
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-slate-700" x-text="member.member_name || 'ไม่มีชื่อ'">
+                                    </div>
+                                    <div class="text-xs text-slate-400 mt-0.5" x-text="member.member_phone || '-'">
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-right font-medium text-emerald-600"
+                                    x-text="Number(member.total_point || 0).toLocaleString()">
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-amber-500"
+                                    x-text="Number(member.total_goodness || 0).toLocaleString()"></td>
+                                <td class="px-4 py-3 text-right font-bold text-sky-500"
+                                    x-text="Number(member.total_co2e || 0).toLocaleString()"></td>
+                            </tr>
+                        </template>
+                        <template x-if="memberLeaderboard.length === 0">
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Recent Activities -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex justify-between items-center mb-5">
-            <h2 class="text-2xl font-bold text-slate-900">📋 รายการล่าสุด</h2>
-            <a href="/admin/manage/waste_transaction"
-                class="text-emerald-600 hover:text-emerald-700 font-medium text-sm">ดูทั้งหมด →</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead class="bg-slate-100 border-b-2 border-slate-300">
-                    <tr class="text-left text-sm font-bold text-slate-700">
-                        <th class="px-6 py-3">วันที่</th>
-                        <th class="px-6 py-3">ผู้ฝาก</th>
-                        <th class="px-6 py-3">ประเภท</th>
-                        <th class="px-6 py-3 text-right">น้ำหนัก (กก.)</th>
-                        <th class="px-6 py-3 text-right">คะแนน</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                    <tr class="hover:bg-slate-50 transition text-sm">
-                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
-                        <td class="px-6 py-4 font-medium text-slate-900">นายสมชาย ใจดี</td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold">พลาสติก</span>
-                        </td>
-                        <td class="px-6 py-4 text-right font-medium">5.50</td>
-                        <td class="px-6 py-4 text-right font-bold text-emerald-600">55</td>
-                    </tr>
-                    <tr class="hover:bg-slate-50 transition text-sm">
-                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
-                        <td class="px-6 py-4 font-medium text-slate-900">นางสาวสมหญิง รักษา</td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">กระดาษ</span>
-                        </td>
-                        <td class="px-6 py-4 text-right font-medium">3.20</td>
-                        <td class="px-6 py-4 text-right font-bold text-emerald-600">32</td>
-                    </tr>
-                    <tr class="hover:bg-slate-50 transition text-sm">
-                        <td class="px-6 py-4 text-slate-700">13/01/2026</td>
-                        <td class="px-6 py-4 font-medium text-slate-900">นายวิทย์ มานะ</td>
-                        <td class="px-6 py-4">
-                            <span
-                                class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">ขวด</span>
-                        </td>
-                        <td class="px-6 py-4 text-right font-medium">8.00</td>
-                        <td class="px-6 py-4 text-right font-bold text-emerald-600">80</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
+
+<script>
+    function adminDashboard() {
+        return {
+            dashboardData: {},
+            period: 'month', // 'all', 'month', 'today'
+            leaderboardPeriod: 'all', // 'all', 'month', 'year'
+            facultySort: 'point', // 'point', 'weight'
+            memberSort: 'point', // 'point', 'goodness'
+            facultyLeaderboard: [],
+            memberLeaderboard: [],
+
+            get currentSummary() {
+                if (this.period === 'all') return this.dashboardData.summary || {};
+                if (this.period === 'today') return this.dashboardData.summary_today || {};
+                return this.dashboardData.summary_month || {};
+            },
+
+            get periodText() {
+                if (this.period === 'all') return '(ทั้งหมด)';
+                if (this.period === 'today') return '(วันนี้)';
+                return '(เดือนนี้)';
+            },
+
+            async init() {
+                this.$watch('leaderboardPeriod', () => {
+                    this.fetchFacultyLeaderboard();
+                    this.fetchMemberLeaderboard();
+                });
+                this.$watch('facultySort', () => {
+                    this.fetchFacultyLeaderboard();
+                });
+                this.$watch('memberSort', () => {
+                    this.fetchMemberLeaderboard();
+                });
+
+                try {
+                    const res = await fetch('/api/dashboards/center');
+                    const json = await res.json();
+                    if (json.success || json.data) {
+                        this.dashboardData = json.data;
+                    }
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                }
+
+                await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard()]);
+            },
+
+            async fetchFacultyLeaderboard() {
+                try {
+                    let params = `?limit=5&sort=${this.facultySort}`;
+                    const now = new Date();
+                    if (this.leaderboardPeriod === 'month') {
+                        params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
+                    } else if (this.leaderboardPeriod === 'year') {
+                        params += `&year=${now.getFullYear()}`;
+                    }
+
+                    const res = await fetch(`/api/leaders/faculty${params}`);
+                    const json = await res.json();
+                    if (json.success) this.facultyLeaderboard = json.data || [];
+                } catch (e) {
+                    console.error('Error fetching faculty leaderboard:', e);
+                }
+            },
+
+            async fetchMemberLeaderboard() {
+                try {
+                    let params = `?limit=5&sort=${this.memberSort}`;
+                    const now = new Date();
+                    if (this.leaderboardPeriod === 'month') {
+                        params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
+                    } else if (this.leaderboardPeriod === 'year') {
+                        params += `&year=${now.getFullYear()}`;
+                    }
+
+                    const res = await fetch(`/api/leaders/member${params}`);
+                    const json = await res.json();
+                    if (json.success) this.memberLeaderboard = json.result || [];
+                } catch (e) {
+                    console.error('Error fetching leaderboards:', e);
+                }
+            },
+        }
+    }
+</script>

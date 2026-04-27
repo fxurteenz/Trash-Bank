@@ -87,6 +87,18 @@ class DashboardDataModel
             $stmt = $this->Conn->prepare($summarySql);
             $stmt->execute();
             $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            // summary statistic (waste_transaction)
+            $summaryMonthSql = "SELECT 
+                            COUNT(w.waste_transaction_id) AS transaction_count,
+                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
+                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                       FROM waste_transaction w
+                       WHERE MONTH(w.created_at) = MONTH(NOW()) AND YEAR(w.created_at) = YEAR(NOW())";
+
+            $stmt = $this->Conn->prepare($summaryMonthSql);
+            $stmt->execute();
+            $summaryMonth = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
             // summary today statistic (waste_transaction)
             $summaryTodaySql = "SELECT 
                             COUNT(w.waste_transaction_id) AS transaction_count,
@@ -103,22 +115,23 @@ class DashboardDataModel
                                     COUNT(m.member_id) AS member_count
                                 FROM 
                                     member m
-                                WHERE m.role_id = 2";
-            $stmtToday = $this->Conn->prepare($summaryMemberSql);
-            $stmtToday->execute();
-            $summaryMember = $stmtToday->fetch(PDO::FETCH_ASSOC) ?: [];
-            $summary['total_member'] = $summaryMember['member_count'];
+                                WHERE m.role_id IN (2, 4)";
+            $stmtMember = $this->Conn->prepare($summaryMemberSql);
+            $stmtMember->execute();
+            $summaryMember = $stmtMember->fetch(PDO::FETCH_ASSOC) ?: [];
+            $totalMember = $summaryMember['member_count'];
 
-            // faculty_detail
-            $facultySql = "SELECT * FROM faculty";
-            $fStmt = $this->Conn->prepare($facultySql);
-            $fStmt->execute();
-            $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $transactionCounts = [
+                'total' => (int) ($summary['transaction_count'] ?? 0),
+                'month' => (int) ($summaryMonth['transaction_count'] ?? 0),
+                'today' => (int) ($summaryToday['transaction_count'] ?? 0),
+            ];
 
             return [
-                'faculty' => $faculty,
                 'summary' => $summary,
-                'summary_today' => $summaryToday
+                'summary_month' => $summaryMonth,
+                'summary_today' => $summaryToday,
+                'total_member' => $totalMember
             ];
 
         } catch (PDOException $th) {
