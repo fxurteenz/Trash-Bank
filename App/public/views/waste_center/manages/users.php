@@ -7,7 +7,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.total_members"></p>
+                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.total_members || 0).toLocaleString()"></p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
@@ -24,7 +24,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[0]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[0]?.member_count">
+                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[0]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -42,7 +42,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[1]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[1]?.member_count">
+                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[1]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -60,7 +60,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[2]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[2]?.member_count">
+                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[2]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -78,7 +78,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[3]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="roleCounts.roles[3]?.member_count">
+                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[3]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -191,9 +191,10 @@
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             เบอร์โทรศัพท์
                         </th>
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            ชื่อ
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMembers('name')">
+                            ชื่อ <span x-show="filters.sort_by === 'name'"
+                                x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
@@ -203,13 +204,15 @@
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             คณะ
                         </th>
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            แต้มขยะ
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMembers('waste_point')">
+                            แต้มขยะ <span x-show="filters.sort_by === 'waste_point'"
+                                x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
-                        <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            แต้มความดี
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMembers('goodness_point')">
+                            แต้มความดี <span x-show="filters.sort_by === 'goodness_point'"
+                                x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
                             class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
@@ -231,19 +234,43 @@
                             </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
-
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
-                                x-text="member.member_name ?? 'ไม่มีชื่อ'"></td>
-
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs">
+                                <div class="flex items-center gap-1">
+                                    <svg x-show="member.role_id == 3" class="text-emerald-600" title="เจ้าหน้าที่คณะ"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                        <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                            stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
+                                    </svg>
+                                    <svg x-show="member.role_id == 4" class="text-emerald-600" title="เจ้าหน้าที่ศูนย์"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                        <g fill="none" stroke="currentColor" stroke-linecap="round"
+                                            stroke-linejoin="round" stroke-width="2">
+                                            <path
+                                                d="m13.163 2.168l8.021 5.828c.694.504.984 1.397.719 2.212l-3.064 9.43a1.98 1.98 0 0 1-1.881 1.367H7.042a1.98 1.98 0 0 1-1.881-1.367l-3.064-9.43a1.98 1.98 0 0 1 .719-2.212l8.021-5.828a1.98 1.98 0 0 1 2.326 0" />
+                                            <path
+                                                d="M12 13a3 3 0 1 0 0-6a3 3 0 0 0 0 6m-6 7.703V20a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v.707" />
+                                        </g>
+                                    </svg>
+                                    <svg x-show="member.role_id == 1" class="text-emerald-600" title="ผู้ดูแลระบบ"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                        <path fill="none" stroke="currentColor" stroke-linecap="round"
+                                            stroke-linejoin="round" stroke-width="2"
+                                            d="M6 21v-2a4 4 0 0 1 4-4h2m10 1c0 4-2.5 6-3.5 6S15 20 15 16c1 0 2.5-.5 3.5-1.5c1 1 2.5 1.5 3.5 1.5M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0" />
+                                    </svg>
+                                    <span x-text="member.member_name ?? 'ไม่มีชื่อ'"></span>
+                                </div>
+                            </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.faculty_name || ''">
                             </td>
-                            <td class="px-2 py-2 text-xs text-end" x-text="member.member_waste_point ?? '0'"></td>
+                            <td class="px-2 py-2 text-xs text-end" x-text="Number(parseInt(member.member_waste_point) || 0).toLocaleString()">
+                            </td>
                             <td class="px-2 py-2 text-xs text-end"
-                                x-text="parseInt(member.member_goodness_point )?? '0'"></td>
+                                x-text="Number(parseInt(member.member_goodness_point) || 0).toLocaleString()"></td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
                                 <div class="flex justify-center items-center gap-1">
                                     <!-- Edit Button -->
@@ -317,22 +344,36 @@
             </table>
         </div>
 
-        <div class="flex items-center justify-between mt-4 text-xs">
-            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" :disabled="page <= 1"
-                @click="page--; fetchMembers()">
-                ก่อนหน้า
-            </button>
-            <div class="flex items-center space-x-2">
-                <template x-for="p in totalPages">
-                    <button class="px-2 py-1 rounded"
-                        :class="p === page ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                        @click="page = p; fetchMembers()" x-text="p"></button>
-                </template>
+        <div class="flex flex-col md:flex-row items-center justify-between mt-4 text-xs gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600">แสดง</span>
+                <select x-model="limit" @change="handleFilterChange()"
+                    class="px-2 py-1 bg-gray-100 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="text-gray-600">รายการ</span>
             </div>
-            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-                :disabled="page >= totalPages" @click="page++; fetchMembers()">
-                ถัดไป
-            </button>
+
+            <div class="flex items-center space-x-2">
+                <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    :disabled="page <= 1" @click="page--; fetchMembers()">
+                    ก่อนหน้า
+                </button>
+                <div class="flex items-center space-x-1">
+                    <template x-for="p in totalPages">
+                        <button class="px-2 py-1 rounded"
+                            :class="p === page ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+                            @click="page = p; fetchMembers()" x-text="p"></button>
+                    </template>
+                </div>
+                <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    :disabled="page >= totalPages" @click="page++; fetchMembers()">
+                    ถัดไป
+                </button>
+            </div>
         </div>
 
         <dialog x-show="createUserDialogShow" x-ref="createUserDialog" @click.self="createUserDialogShow = false"
@@ -579,7 +620,7 @@
                     <div class="bg-blue-50 rounded-lg p-3 mb-4 text-sm">
                         <p><b>สมาชิก:</b> <span x-text="selectedMemberForMenu.member_name || 'ไม่ระบุชื่อ'"></span></p>
                         <p><b>เบอร์:</b> <span x-text="selectedMemberForMenu.member_phone || 'ไม่ระบุ'"></span></p>
-                        <p><b>แต้ม:</b> <span x-text="selectedMemberForMenu.member_waste_point || '0'"></span></p>
+                        <p><b>แต้ม:</b> <span x-text="Number(parseInt(selectedMemberForMenu.member_waste_point) || 0).toLocaleString()"></span></p>
                     </div>
                 </template>
 
@@ -675,6 +716,8 @@
                 major_id: "",
                 role: "",
                 search: "",
+                sort_by: "",
+                order: "DESC",
             },
 
             quickMenuShow: false,
@@ -716,6 +759,10 @@
                     if (this.filters.role) params.append("role", this.filters.role);
                     if (this.filters.search)
                         params.append("search", this.filters.search);
+                    if (this.filters.sort_by) {
+                        params.append("sort_by", this.filters.sort_by);
+                        params.append("order", this.filters.order);
+                    }
 
                     const res = await fetch(`/api/members?${params.toString()}`);
                     let result = await res.json();
@@ -799,12 +846,25 @@
                 this.fetchRoleCounts();
             },
 
+            sortMembers(column) {
+                if (this.filters.sort_by === column) {
+                    this.filters.order = this.filters.order === 'ASC' ? 'DESC' : 'ASC';
+                } else {
+                    this.filters.sort_by = column;
+                    this.filters.order = 'DESC';
+                }
+                this.page = 1;
+                this.fetchMembers();
+            },
+
             resetFilters() {
                 this.filters = {
                     faculty_id: "",
                     major_id: "",
                     role: "",
                     search: "",
+                    sort_by: "",
+                    order: "DESC",
                 };
                 this.filterMajors = [];
                 this.page = 1;

@@ -108,50 +108,50 @@ class LeaderModel
                 case 'point':
                     $orderBy = 'total_point';
                     break;
-                case 'fraction':
-                    $orderBy = 'total_fraction';
-                    break;
                 case 'weight':
                     $orderBy = 'total_weight';
                     break;
-                case 'value':
-                    $orderBy = 'total_value';
-                    break;
             }
 
-            $whereClause = "";
-            $conditions = [];
-            if ($role)
-                $conditions[] = "a.member_role = :role";
+            // 1. เงื่อนไขสำหรับการ JOIN (กรองข้อมูล Transaction ตามเวลา)
+            $onClause = "w.member_id = a.member_id";
             if ($month)
-                $conditions[] = "MONTH(w.waste_transaction_create_date) = :month";
+                $onClause .= " AND MONTH(w.created_at) = :month";
             if ($year)
-                $conditions[] = "YEAR(w.waste_transaction_create_date) = :year";
-            if (!empty($conditions))
-                $whereClause = "WHERE " . implode(" AND ", $conditions);
+                $onClause .= " AND YEAR(w.created_at) = :year";
 
-            $sql =
-                "SELECT
-                    a.member_id,
-                    a.member_name,
-                    a.member_personal_id,
-                    a.member_phone,
-                    SUM(w.waste_transaction_weight) AS total_weight,
-                    SUM(w.waste_transaction_member_point) AS total_point,
-                    SUM(w.waste_transaction_faculty_fraction) AS total_fraction,
-                    SUM(wt.waste_type_price * w.waste_transaction_weight) AS total_value,
-                    SUM(wt.waste_type_co2 * w.waste_transaction_weight) AS total_co2
-                FROM
-                    waste_transaction w
-                LEFT JOIN
-                    member a ON w.member_id = a.member_id
-                LEFT JOIN
-                    waste_type wt ON w.waste_transaction_waste_type = wt.waste_type_id
-                {$whereClause}
-                GROUP BY
-                    w.member_id
-                ORDER BY
-                    {$orderBy} DESC";
+            // 2. เงื่อนไขสำหรับการ WHERE (กรองที่ตัว Member)
+            $whereClause = "";
+            if ($role)
+                $whereClause = "WHERE a.member_role = :role";
+
+            $countSql = "SELECT COUNT(*) FROM member a {$whereClause}";
+            $countStmt = $this->Conn->prepare($countSql);
+            if ($role)
+                $countStmt->bindValue(':role', $role);
+            $countStmt->execute();
+            $totalRecords = (int) $countStmt->fetchColumn();
+            // -------------------------------------------------------
+
+            // 3. SQL สำหรับดึงข้อมูลหลัก
+            $sql = "
+            SELECT
+                a.member_id,
+                a.member_name,
+                a.member_phone,
+                COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                a.member_waste_point AS total_point,
+                COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2
+            FROM
+                member a
+            LEFT JOIN
+                waste_transaction w ON {$onClause}
+            {$whereClause}
+            GROUP BY
+                a.member_id, a.member_name, a.member_phone, a.member_waste_point
+            ORDER BY
+                {$orderBy} DESC
+        ";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -163,48 +163,29 @@ class LeaderModel
 
             $stmt = $this->Conn->prepare($sql);
 
+            // Bind ค่าต่างๆ
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             }
-            if ($role) {
+            if ($role)
                 $stmt->bindValue(':role', $role);
-            }
-            if ($month) {
+            if ($month)
                 $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
+            if ($year)
                 $stmt->bindValue(':year', $year, PDO::PARAM_INT);
-            }
 
             $stmt->execute();
             $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $stmtCount = "SELECT 
-                            COUNT(DISTINCT w.member_id) AS total_rows 
-                        FROM 
-                            waste_transaction w 
-                        LEFT JOIN 
-                            member a ON w.member_id = a.member_id 
-                        {$whereClause}";
-            $stmtCount = $this->Conn->prepare($stmtCount);
+            // ส่งค่า totalRecords ที่นับได้จริงกลับไป
+            return [
+                'stats' => $stats,
+                'total' => $totalRecords
+            ];
 
-            if ($role) {
-                $stmtCount->bindValue(':role', $role);
-            }
-            if ($month) {
-                $stmtCount->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
-                $stmtCount->bindValue(':year', $year, PDO::PARAM_INT);
-            }
-
-            $stmtCount->execute();
-            $total = $stmtCount->fetch(PDO::FETCH_ASSOC);
-
-            return ['stats' => $stats, 'total' => $total['total_rows']];
         } catch (PDOException $e) {
-            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+            throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }

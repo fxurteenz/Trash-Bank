@@ -51,7 +51,7 @@ class MemberModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = " ORDER BY m.member_id " . $sortDirection;
+            $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
@@ -68,7 +68,16 @@ class MemberModel
             }
 
             $sql = "SELECT 
-                    m.*, 
+                    m.member_id, 
+                    m.member_name, 
+                    m.member_phone, 
+                    m.member_email, 
+                    m.member_personal_id, 
+                    m.member_waste_point, 
+                    m.member_goodness_point, 
+                    m.role_id,
+                    m.faculty_id,
+                    m.major_id,
                     f.faculty_name,
                     maj.major_name,
                     r.role_name,

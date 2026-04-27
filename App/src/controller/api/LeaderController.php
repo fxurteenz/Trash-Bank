@@ -50,8 +50,8 @@ class LeaderController
                 'success' => TRUE,
                 'data' => $result['stats'],
                 'total' => $result['total'],
-                'page' => (int) (self::$queryString['page'] ?? 1),
-                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'page' => (int) (self::$queryString['page'] ?? 0),
+                'limit' => (int) (self::$queryString['limit'] ?? 0),
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {
@@ -85,8 +85,8 @@ class LeaderController
                 'success' => TRUE,
                 'result' => $result['stats'],
                 'total' => $result['total'],
-                'page' => (int) (self::$queryString['page'] ?? 1),
-                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'page' => (int) (self::$queryString['page'] ?? 0),
+                'limit' => (int) (self::$queryString['limit'] ?? 0),
                 'message' => 'successfully =)'
             ]);
         } catch (AuthenticationException $e) {

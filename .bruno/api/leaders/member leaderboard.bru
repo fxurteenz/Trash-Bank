@@ -1,18 +1,18 @@
 meta {
-  name: GetAll
+  name: member leaderboard
   type: http
-  seq: 1
+  seq: 2
 }
 
 get {
-  url: {{api_domain}}/faculties/1
+  url: {{api_domain}}/leaders/member
   body: none
   auth: inherit
 }
 
 params:query {
-  ~page: 1
-  ~limit: 1
+  ~month: 01
+  ~year: 2026
 }
 
 settings {

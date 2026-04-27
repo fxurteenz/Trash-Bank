@@ -78,6 +78,23 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+    public function ManageFacultyDetail($faculty_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/faculty', [
+                'pages' => "manageFaculty",
+                'title' => 'จัดการข้อมูลคณะ',
+                'faculty_id' => !empty($faculty_id) ? (int) $faculty_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 
     public function ManageWasteType()
     {
