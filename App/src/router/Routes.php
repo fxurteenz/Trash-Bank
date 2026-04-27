@@ -100,6 +100,8 @@ class Routes
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/members/detail/[i:mid]', [AdminPagesController::class, 'ManageUsersDetail']],
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
+            ['GET', '/manage/faculty/detail/[i:fid]', [AdminPagesController::class, 'ManageFacultyDetail']],
+
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
@@ -225,7 +227,6 @@ class Routes
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
             ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
-            ['GET', '/detail', [FacultyDetailController::class, 'GetFacultyDetail']],
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
