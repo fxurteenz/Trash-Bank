@@ -112,6 +112,24 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function ManageWasteTypeDetail($waste_type_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/waste_type', [
+                'pages' => "manageWasteType",
+                'title' => 'จัดการหมวดหมู่ขยะ',
+                'waste_type_id' => !empty($waste_type_id) ? (int) $waste_type_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function ManageWasteTransaction()
     {
         try {

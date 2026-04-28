@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/leaders/faculty?month=01&year=2026
+  url: {{api_domain}}/leaders/faculty
   body: none
   auth: inherit
 }
 
 params:query {
-  month: 01
-  year: 2026
+  ~month: 01
+  ~year: 2026
 }
 
 settings {

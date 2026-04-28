@@ -95,10 +95,10 @@ class WasteCategoryModel
                 throw new Exception('กรุณาลองใหม่, ระบุชื่อหมวดหมู่ขยะ', 400);
             }
 
-            if (empty($data['waste_category_co2_per_kg'])) {
-                // error_log("ERROR : waste_category_name");
-                throw new Exception('กรุณาลองใหม่, ระบุปริมาณการลด CO2 ต่อกิโลกรัม', 400);
-            }
+            // if (empty($data['waste_category_co2_per_kg'])) {
+            //     // error_log("ERROR : waste_category_name");
+            //     throw new Exception('กรุณาลองใหม่, ระบุปริมาณการลด CO2 ต่อกิโลกรัม', 400);
+            // }
 
             $data["updated_at"] = date('Y-m-d H:i:s');
 
