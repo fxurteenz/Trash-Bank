@@ -1,5 +1,4 @@
-<div x-data="FacultyMajor()" x-init="fetchAllFaculty(), fetchAllFacultiesForSelect()"
-    class="h-[calc(100vh-6rem)] w-full">
+<div x-data="FacultyMajor()" x-init="fetchAllFaculty()" class="h-[calc(100vh-6rem)] w-full">
     <div class="bg-white rounded-md shadow p-6 overflow-hidden h-full">
 
         <div class="flex justify-between mb-4">
@@ -7,7 +6,7 @@
                 <h1 class="text-2xl font-bold text-slate-900">จัดการคณะ</h1>
                 <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบข้อมูลคณะ</p>
             </div>
-            <div @click="openCreateFacultyDialog" :class="facultyDialogShow && !isEditingFaculty && 'bg-emerald-300'"
+            <div @click="openCreateFacultyDialog" :class="facultyDialogShow && 'bg-emerald-300'"
                 class="group cursor-pointer flex items-center py-2 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
                 <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
                     <svg class="stroke-emerald-600 fill-none group-active:stroke-emerald-300 group-active:duration-0 duration-300"
@@ -55,35 +54,75 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="(faculty, index) in AllFacultyData" :key="faculty.faculty_id">
-                        <tr class="hover:bg-gray-50 transition duration-200 cursor-pointer"
-                            @click="window.location.href = `/admin/manage/faculty/detail/${faculty.faculty_id}`;selectedFaculty = faculty;">
+                        <tr :class="editingFacultyId === faculty.faculty_id ? 'bg-amber-50' : 'hover:bg-gray-50'"
+                            class="transition duration-200 cursor-pointer"
+                            @click="if(editingFacultyId !== faculty.faculty_id) { window.location.href = `/admin/manage/faculty/detail/${faculty.faculty_id}`; selectedFaculty = faculty; }">
                             <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900" x-text="index + 1"></td>
-                            <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900"
-                                x-text="`${faculty.faculty_code || ' ? '} : ${faculty.faculty_name} `"></td>
+                            <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900">
+                                <div x-show="editingFacultyId !== faculty.faculty_id">
+                                    <span x-text="`${faculty.faculty_code || ' ? '} : ${faculty.faculty_name}`"></span>
+                                </div>
+                                <div x-show="editingFacultyId === faculty.faculty_id" class="flex gap-2" @click.stop
+                                    x-cloak>
+                                    <input type="text" x-model="editFacultyForm.faculty_code"
+                                        @keydown.enter="saveEditFaculty()"
+                                        class="w-16 border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none"
+                                        placeholder="รหัสย่อ">
+                                    <input type="text" x-model="editFacultyForm.faculty_name"
+                                        @keydown.enter="saveEditFaculty()"
+                                        class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none"
+                                        placeholder="ชื่อคณะ">
+                                </div>
+                            </td>
                             <td class="py-2 px-2 text-center whitespace-nowrap text-sm text-gray-900"
                                 x-text="`${faculty.faculty_point || '0'}`"></td>
                             <td class="py-2 px-1 text-center whitespace-nowrap text-sm text-gray-900"
                                 x-text="`${faculty.major_count_total || '0'}`"></td>
                             <td class="py-2 px-1 text-center whitespace-nowrap text-sm text-gray-900"
                                 x-text="`${faculty.total_member || '0'}`"></td>
-                            <td class="px-2 py-2 whitespace-nowrap text-center text-sm flex justify-center items-center gap-2"
-                                @click.stop>
-                                <button @click="openEditFacultyDialog(faculty)"
-                                    class=" bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                <button @click="SelectFaculty(faculty); confirmDeleteFaculty(faculty)"
-                                    class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                            <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
+                                <div x-show="editingFacultyId !== faculty.faculty_id"
+                                    class="flex justify-center items-center gap-2">
+                                    <button @click.stop="startEditFaculty(faculty)"
+                                        class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
+                                        title="แก้ไข">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button @click.stop="SelectFaculty(faculty); confirmDeleteFaculty()"
+                                        class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:scale-105 cursor-pointer rounded-md"
+                                        title="ลบ">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div x-show="editingFacultyId === faculty.faculty_id"
+                                    class="flex justify-center items-center gap-2" x-cloak>
+                                    <button @click.stop="saveEditFaculty()"
+                                        class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md"
+                                        title="บันทึก">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                    <button @click.stop="cancelEditFaculty()"
+                                        class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md"
+                                        title="ยกเลิก">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     </template>
@@ -101,8 +140,7 @@
 
             <div class="bg-white p-6 rounded-lg shadow-xl w-80">
                 <div class="flex justify-between ">
-                    <h3 class="font-bold text-lg mb-3" x-text="isEditingFaculty ? 'แก้ไขคณะ' : 'เพิ่มข้อมูลคณะใหม่'">
-                    </h3>
+                    <h3 class="font-bold text-lg mb-3">เพิ่มข้อมูลคณะใหม่</h3>
                     <svg class="text-gray-500 hover:text-gray-900 hover:cursor-pointer transition duration-200 hover:scale-105"
                         @click="facultyDialogShow = false" xmlns="http://www.w3.org/2000/svg" width="10" height="10"
                         viewBox="0 0 32 32">
@@ -134,9 +172,9 @@
                 </div>
 
                 <div class="mt-4 text-right">
-                    <button @click="submitFacultyForm" class="px-3 py-1 text-white rounded cursor-pointer shadow"
-                        :class="isEditingFaculty ? 'bg-amber-500 hover:bg-amber-600' : 'bg-sky-400 hover:bg-sky-500'"
-                        x-text="isEditingFaculty ? 'บันทึกแก้ไข' : 'ยืนยันเพิ่ม'">
+                    <button @click="submitFacultyForm"
+                        class="px-3 py-1 text-white rounded cursor-pointer shadow bg-sky-400 hover:bg-sky-500">
+                        ยืนยันเพิ่ม
                     </button>
                     <button @click="facultyDialogShow = false"
                         class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer">

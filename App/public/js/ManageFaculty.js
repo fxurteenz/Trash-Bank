@@ -7,7 +7,12 @@ function FacultyMajor() {
         facultyDialogShow: false,
 
         // Edit States
-        isEditingFaculty: false,
+        editingFacultyId: null,
+        editFacultyForm: {
+            faculty_id: null,
+            faculty_name: null,
+            faculty_code: null,
+        },
 
         // Forms
         facultyForm: {
@@ -53,7 +58,6 @@ function FacultyMajor() {
         },
 
         openCreateFacultyDialog() {
-            this.isEditingFaculty = false;
             this.facultyForm = {
                 faculty_id: null,
                 faculty_name: null,
@@ -63,12 +67,13 @@ function FacultyMajor() {
             this.facultyDialogShow = true;
         },
 
-        openEditFacultyDialog(faculty) {
-            this.isEditingFaculty = true;
-            this.facultyForm = { faculty_id: faculty.faculty_id, faculty_name: faculty.faculty_name, faculty_code: faculty.faculty_code };
-            this.facultyFormErrors = {};
-            this.facultyDialogShow = true;
+        startEditFaculty(faculty) {
+            this.editingFacultyId = faculty.faculty_id;
+            this.editFacultyForm = { ...faculty };
+        },
 
+        cancelEditFaculty() {
+            this.editingFacultyId = null;
         },
 
         async submitFacultyForm() {
@@ -76,10 +81,8 @@ function FacultyMajor() {
                 return;
             }
             this.facultyDialogShow = false;
-            const action = this.isEditingFaculty ? "แก้ไข" : "เพิ่ม";
-            const url = this.isEditingFaculty
-                ? `/api/faculties/update/${this.facultyForm.faculty_id}`
-                : "/api/faculties";
+            const action = "เพิ่ม";
+            const url = "/api/faculties";
 
             try {
                 const confirmed = await Swal.fire({
@@ -113,14 +116,6 @@ function FacultyMajor() {
                             showConfirmButton: false,
                         });
                         this.fetchAllFaculty();
-                        if (
-                            this.isEditingFaculty &&
-                            this.selectedFaculty &&
-                            this.selectedFaculty.faculty_id ===
-                            this.facultyForm.faculty_id
-                        ) {
-                            this.selectedFaculty = { ...this.facultyForm };
-                        }
                         this.facultyForm = {
                             faculty_id: null,
                             faculty_name: null,
@@ -142,6 +137,47 @@ function FacultyMajor() {
                     confirmButtonText: "ปิด"
                 });
                 this.facultyDialogShow = true;
+            }
+        },
+
+        async saveEditFaculty() {
+            if (!this.editFacultyForm.faculty_name || this.editFacultyForm.faculty_name.trim() === '') {
+                Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อคณะ', 'warning');
+                return;
+            }
+            try {
+                const res = await fetch(`/api/faculties/update/${this.editFacultyForm.faculty_id}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(this.editFacultyForm),
+                });
+                const result = await res.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'แก้ไขข้อมูลเรียบร้อย',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    this.editingFacultyId = null;
+                    this.fetchAllFaculty();
+                } else {
+                    throw result;
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: "error",
+                    title: "ไม่สำเร็จ",
+                    html: `<p>ไม่สามารถแก้ไขคณะได้</p><p>${error.message}</p>`,
+                    timer: 5000,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#009966',
+                    confirmButtonText: "ปิด"
+                });
             }
         },
 

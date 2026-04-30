@@ -218,10 +218,11 @@ $faculty_id = $faculty_id ?? "null";
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white">
+            <table class="min-w-full bg-white border border-gray-200 mb-6">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ลำดับ
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อสาขา (TH)</th>
@@ -235,25 +236,88 @@ $faculty_id = $faculty_id ?? "null";
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="(major, index) in majors" :key="major.major_id">
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="index + 1"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                                x-text="major.major_name"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                x-text="major.major_name_en || '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                x-text="major.major_code || '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2">
-                                <button @click="openEditMajorDialog(major)"
-                                    class="text-amber-600 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-1 rounded-md transition shadow cursor-pointer hover:scale-105 active:scale-95 ">แก้ไข</button>
-                                <button @click="confirmDeleteMajor(major)"
-                                    class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md transition shadow cursor-pointer hover:scale-105 active:scale-95">ลบ</button>
+                        <tr :class="editingMajorId === major.major_id ? 'bg-amber-50' : 'hover:bg-gray-50'"
+                            class="transition">
+                            <td class="px-2 py-1 whitespace-nowrap text-sm text-gray-500 text-center"
+                                x-text="index + 1"></td>
+                            <td class="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <template x-if="editingMajorId !== major.major_id"><span
+                                        x-text="major.major_name"></span></template>
+                                <template x-if="editingMajorId === major.major_id">
+                                    <input type="text" x-model="editMajorForm.major_name" @click.stop
+                                        @keydown.enter="saveEditMajor()"
+                                        class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+                                <template x-if="editingMajorId !== major.major_id"><span
+                                        x-text="major.major_name_en || '-'"></span></template>
+                                <template x-if="editingMajorId === major.major_id">
+                                    <input type="text" x-model="editMajorForm.major_name_en" @click.stop
+                                        @keydown.enter="saveEditMajor()"
+                                        class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+                                <template x-if="editingMajorId !== major.major_id"><span
+                                        x-text="major.major_code || '-'"></span></template>
+                                <template x-if="editingMajorId === major.major_id">
+                                    <input type="text" x-model="editMajorForm.major_code" @click.stop
+                                        @keydown.enter="saveEditMajor()"
+                                        class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-center text-sm font-medium space-x-2">
+                                <template x-if="editingMajorId !== major.major_id">
+                                    <div class="flex justify-center items-center gap-2">
+                                        <button @click="startEditMajor(major)"
+                                            class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="แก้ไข">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="confirmDeleteMajor(major)"
+                                            class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ลบ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="editingMajorId === major.major_id">
+                                    <div class="flex justify-center items-center gap-2">
+                                        <button @click.stop="saveEditMajor()"
+                                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md"
+                                            title="บันทึก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="cancelEditMajor()"
+                                            class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ยกเลิก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
                             </td>
                         </tr>
                     </template>
                     <template x-if="majors.length === 0">
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">ไม่มีข้อมูลสาขา</td>
+                            <td colspan="5" class="px-2 py-8 text-center text-gray-500">ไม่มีข้อมูลสาขา</td>
                         </tr>
                     </template>
                 </tbody>
@@ -261,85 +325,51 @@ $faculty_id = $faculty_id ?? "null";
         </div>
     </div>
 
-    <!-- User Stats Card -->
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div
-                class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-4 rounded-lg shadow text-center flex justify-between items-center">
-                <div class="text-white flex-col justify-center items-center gap-1">
-                    <p class="text-sm font-semibold mb-2">สมาชิกทั้งหมด</p>
-                    <div class="w-10 h-10 p-2 rounded-full text-emerald-500 bg-white flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0-4 0m-2 8v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1M15 5a2 2 0 1 0 4 0a2 2 0 0 0-4 0m2 5h2a2 2 0 0 1 2 2v1M5 5a2 2 0 1 0 4 0a2 2 0 0 0-4 0m-2 8v-1a2 2 0 0 1 2-2h2" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-3xl font-bold text-white" x-text="faculty.total_member || '0'"></p>
-            </div>
-            <div
-                class="bg-gradient-to-br from-sky-500 to-sky-600 p-4 rounded-lg shadow text-center flex justify-between items-center">
-                <div class="text-white flex-col justify-center items-center gap-1">
-                    <p class="text-sm font-semibold mb-2">นักศึกษา</p>
-                    <div class="w-10 h-10 p-2 rounded-full text-sky-500 bg-white flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-3xl font-bold text-white" x-text="faculty.user_count || '0'"></p>
-            </div>
-            <div
-                class="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-lg shadow text-center flex justify-between items-center">
-                <div class="text-white flex-col justify-center items-center gap-1">
-                    <p class="text-sm font-semibold mb-2">เจ้าหน้าที่คณะ</p>
-                    <div class="w-10 h-10 p-2 rounded-full text-purple-500 bg-white flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-3xl font-bold text-white" x-text="faculty.staff_count || '0'"></p>
-            </div>
-            <div
-                class="bg-gradient-to-br from-yellow-500 to-yellow-600  p-4 rounded-lg shadow text-center flex justify-between items-center">
-                <div class="text-white flex-col justify-center items-center gap-1">
-                    <p class="text-sm font-semibold mb-2">ผู้ดูแลระบบ</p>
-                    <div class="w-10 h-10 p-2 rounded-full text-amber-500 bg-white flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 21v-2a4 4 0 0 1 4-4h2m10 1c0 4-2.5 6-3.5 6S15 20 15 16c1 0 2.5-.5 3.5-1.5c1 1 2.5 1.5 3.5 1.5M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0" />
-                        </svg>
-                    </div>
-                </div>
-                <p class="text-3xl font-bold text-white" x-text="faculty.admin_count || '0'"></p>
-            </div>
-        </div>
-    </div>
-
     <!-- Members List -->
     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h2 class="text-xl font-bold text-slate-900 mb-6">สถิติผู้ใช้งาน</h2>
+        <div class="overflow-x-auto border border-gray-200 mb-6">
+            <table class="min-w-full bg-white text-center">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">สมาชิกทั้งหมด
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">นักศึกษา</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">เจ้าหน้าที่คณะ
+                        </th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ดูแลระบบ
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold " x-text="faculty.total_member || '0'">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.user_count || '0'">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.staff_count || '0'">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.admin_count || '0'">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-slate-900">รายชื่อสมาชิกในคณะ</h2>
             <button @click="openCreateMemberDialog()"
                 class="bg-emerald-500 shadow cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-emerald-600 hover:scale-105 active:scale-95 transition font-medium flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                    clip-rule="evenodd" />
+                    <path fill-rule="evenodd"
+                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                        clip-rule="evenodd" />
                 </svg>
                 เพิ่มสมาชิก
             </button>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full bg-white">
+            <table class="min-w-full bg-white  border border-gray-200 ">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ
@@ -364,73 +394,130 @@ $faculty_id = $faculty_id ?? "null";
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="(member, index) in members" :key="member.member_id">
-                        <tr class="hover:bg-gray-50 transition cursor-pointer"
-                            @click="window.open(`/${manager_role}/manage/members/detail/${member.member_id}`, '_blank')">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                        <tr :class="editingMemberId === member.member_id ? 'bg-amber-50' : 'hover:bg-gray-50'"
+                            class="transition cursor-pointer"
+                            @click="if(editingMemberId !== member.member_id) window.open(`/${manager_role}/manage/members/detail/${member.member_id}`, '_blank')">
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500"
                                 x-text="(memberPage - 1) * memberLimit + index + 1"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
-                                x-text="member.member_name"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                x-text="member.role_name_th || '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                x-text="member.major_name || '-'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-emerald-600"
+                            <td class="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
+                                <template x-if="editingMemberId !== member.member_id"><span
+                                        x-text="member.member_name"></span></template>
+                                <template x-if="editingMemberId === member.member_id">
+                                    <input type="text" x-model="editUserForm.member_name" @click.stop
+                                        @keydown.enter="saveEditMember()"
+                                        class="w-full border border-gray-300 rounded p-1 text-xs bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                                <template x-if="editingMemberId !== member.member_id"><span
+                                        x-text="member.role_name_th || '-'"></span></template>
+                                <template x-if="editingMemberId === member.member_id">
+                                    <select x-model="editUserForm.role_id" @click.stop
+                                        class="w-full border border-gray-300 rounded p-1 text-xs bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                        <option value="">เลือกบทบาท</option>
+                                        <option value="2">นักศึกษา</option>
+                                        <option value="4">อาจารย์</option>
+                                        <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
+                                        <option value="1">ผู้ดูแลระบบ</option>
+                                    </select>
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500">
+                                <template x-if="editingMemberId !== member.member_id"><span
+                                        x-text="member.major_name || '-'"></span></template>
+                                <template x-if="editingMemberId === member.member_id">
+                                    <select x-model="editUserForm.major_id" @click.stop
+                                        class="w-full border border-gray-300 rounded p-1 text-xs bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                        <option value="">เลือกสาขา</option>
+                                        <template x-for="m in majors" :key="m.major_id">
+                                            <option :value="m.major_id" x-text="m.major_name"></option>
+                                        </template>
+                                    </select>
+                                </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-right font-bold text-emerald-600"
                                 x-text="member.member_waste_point || '0'"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-yellow-600"
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-right font-bold text-yellow-600"
                                 x-text="Math.floor(member.member_goodness_point || 0)"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm flex justify-center items-center gap-1"
-                                @click.stop>
-                                <button @click.stop="openEditMemberDialog(member)"
-                                    class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
-                                    title="แก้ไข">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                <button @click="openWasteDeposit(member)"
-                                    class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:bg-gradient-to-br hover:from-emerald-600 hover:to-emerald-700 hover:scale-105 cursor-pointer rounded-md"
-                                    title="ฝากขยะ">
-                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="28"
-                                        height="28" viewBox="0 0 24 24">
-                                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
-                                            <path stroke-linejoin="round"
-                                                d="M12 22c-.818 0-1.6-.325-3.163-.974C4.946 19.41 3 18.602 3 17.243V7.745M12 22c.818 0 1.6-.325 3.163-.974C19.054 19.41 21 18.602 21 17.243V7.745M12 22v-9.831M3 7.745c0 .603.802.985 2.405 1.747l2.92 1.39C10.13 11.74 11.03 12.17 12 12.17M3 7.745c0-.604.802-.986 2.405-1.748L7.5 5M21 7.745c0 .603-.802.985-2.405 1.747l-2.92 1.39C13.87 11.74 12.97 12.17 12 12.17m9-4.424c0-.604-.802-.986-2.405-1.748L16.5 5M6 13.152l2 .983" />
-                                            <path
-                                                d="M12.004 2v7m0 0c.263.004.522-.18.714-.405L14 7.062M12.004 9c-.254-.003-.511-.186-.714-.405L10 7.062" />
-                                        </g>
-                                    </svg>
-                                </button>
-                                <button @click="openRedeemReward(member)"
-                                    class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-2 text-white hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 hover:scale-105 cursor-pointer rounded-md"
-                                    title="แลกของรางวัล">
-                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
-                                        height="24" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                            d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
-                                            stroke-width="0.5" stroke="currentColor" />
-                                    </svg>
-                                </button>
-                                <button @click="openDonation(member)"
-                                    class="bg-gradient-to-br from-purple-400 to-purple-500 p-2 text-white hover:bg-gradient-to-br hover:from-purple-500 hover:to-purple-600 hover:scale-105 cursor-pointer rounded-md"
-                                    title="บริจาคสิ่งของ">
-                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
-                                        height="24" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                            d="M4 21h9.62a4 4 0 0 0 3.037-1.397l5.102-5.952a1 1 0 0 0-.442-1.6l-1.968-.656a3.04 3.04 0 0 0-2.823.503l-3.185 2.547l-.617-1.235A3.98 3.98 0 0 0 9.146 11H4c-1.103 0-2 .897-2 2v6c0 1.103.897 2 2 2m0-8h5.146c.763 0 1.448.423 1.789 1.105l.447.895H7v2h6.014a1 1 0 0 0 .442-.11l.003-.001l.004-.002h.003l.002-.001h.004l.001-.001c.009.003.003-.001.003-.001c.01 0 .002-.001.002-.001h.001l.002-.001l.003-.001l.002-.001l.002-.001l.003-.001l.002-.001c.003 0 .001-.001.002-.001l.003-.002l.002-.001l.002-.001l.003-.001l.002-.001h.001l.002-.001h.001l.002-.001l.002-.001c.009-.001.003-.001.003-.001l.002-.001a1 1 0 0 0 .11-.078l4.146-3.317c.262-.208.623-.273.94-.167l.557.186l-4.133 4.823a2.03 2.03 0 0 1-1.52.688H4zM16 2h-.017c-.163.002-1.006.039-1.983.705c-.951-.648-1.774-.7-1.968-.704L12.002 2h-.004c-.801 0-1.555.313-2.119.878C9.313 3.445 9 4.198 9 5s.313 1.555.861 2.104l3.414 3.586a1.006 1.006 0 0 0 1.45-.001l3.396-3.568C18.688 6.555 19 5.802 19 5s-.313-1.555-.878-2.121A2.98 2.98 0 0 0 16.002 2zm1 3c0 .267-.104.518-.311.725L14 8.55l-2.707-2.843C11.104 5.518 11 5.267 11 5s.104-.518.294-.708A.98.98 0 0 1 11.979 4c.025.001.502.032 1.067.485q.121.098.247.222l.707.707l.707-.707q.126-.124.247-.222c.529-.425.976-.478 1.052-.484a1 1 0 0 1 .701.292c.189.189.293.44.293.707"
-                                            stroke-width="0.5" stroke="currentColor" />
-                                    </svg>
-                                </button>
-                                <button @click.stop="confirmDeleteMember(member)"
-                                    class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md"
-                                    title="ลบ">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                            <td class="px-2 py-2 whitespace-nowrap text-center text-xs" @click.stop>
+                                <template x-if="editingMemberId !== member.member_id">
+                                    <div class="flex justify-center items-center gap-1">
+                                        <button @click.stop="startEditMember(member)"
+                                            class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="แก้ไข">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="openWasteDeposit(member)"
+                                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:bg-gradient-to-br hover:from-emerald-600 hover:to-emerald-700 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ฝากขยะ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24">
+                                                <g fill="none" stroke="currentColor" stroke-linecap="round"
+                                                    stroke-width="1.5">
+                                                    <path stroke-linejoin="round"
+                                                        d="M12 22c-.818 0-1.6-.325-3.163-.974C4.946 19.41 3 18.602 3 17.243V7.745M12 22c.818 0 1.6-.325 3.163-.974C19.054 19.41 21 18.602 21 17.243V7.745M12 22v-9.831M3 7.745c0 .603.802.985 2.405 1.747l2.92 1.39C10.13 11.74 11.03 12.17 12 12.17M3 7.745c0-.604.802-.986 2.405-1.748L7.5 5M21 7.745c0 .603-.802.985-2.405 1.747l-2.92 1.39C13.87 11.74 12.97 12.17 12 12.17m9-4.424c0-.604-.802-.986-2.405-1.748L16.5 5M6 13.152l2 .983" />
+                                                    <path
+                                                        d="M12.004 2v7m0 0c.263.004.522-.18.714-.405L14 7.062M12.004 9c-.254-.003-.511-.186-.714-.405L10 7.062" />
+                                                </g>
+                                            </svg>
+                                        </button>
+                                        <button @click="openRedeemReward(member)"
+                                            class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-2 text-white hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 hover:scale-105 cursor-pointer rounded-md"
+                                            title="แลกของรางวัล">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
+                                                    stroke-width="0.5" stroke="currentColor" />
+                                            </svg>
+                                        </button>
+                                        <button @click="openDonation(member)"
+                                            class="bg-gradient-to-br from-purple-400 to-purple-500 p-2 text-white hover:bg-gradient-to-br hover:from-purple-500 hover:to-purple-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="บริจาคสิ่งของ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M4 21h9.62a4 4 0 0 0 3.037-1.397l5.102-5.952a1 1 0 0 0-.442-1.6l-1.968-.656a3.04 3.04 0 0 0-2.823.503l-3.185 2.547l-.617-1.235A3.98 3.98 0 0 0 9.146 11H4c-1.103 0-2 .897-2 2v6c0 1.103.897 2 2 2m0-8h5.146c.763 0 1.448.423 1.789 1.105l.447.895H7v2h6.014a1 1 0 0 0 .442-.11l.003-.001l.004-.002h.003l.002-.001h.004l.001-.001c.009.003.003-.001.003-.001c.01 0 .002-.001.002-.001h.001l.002-.001l.003-.001l.002-.001l.002-.001l.003-.001l.002-.001c.003 0 .001-.001.002-.001l.003-.002l.002-.001l.002-.001l.003-.001l.002-.001h.001l.002-.001h.001l.002-.001l.002-.001c.009-.001.003-.001.003-.001l.002-.001a1 1 0 0 0 .11-.078l4.146-3.317c.262-.208.623-.273.94-.167l.557.186l-4.133 4.823a2.03 2.03 0 0 1-1.52.688H4zM16 2h-.017c-.163.002-1.006.039-1.983.705c-.951-.648-1.774-.7-1.968-.704L12.002 2h-.004c-.801 0-1.555.313-2.119.878C9.313 3.445 9 4.198 9 5s.313 1.555.861 2.104l3.414 3.586a1.006 1.006 0 0 0 1.45-.001l3.396-3.568C18.688 6.555 19 5.802 19 5s-.313-1.555-.878-2.121A2.98 2.98 0 0 0 16.002 2zm1 3c0 .267-.104.518-.311.725L14 8.55l-2.707-2.843C11.104 5.518 11 5.267 11 5s.104-.518.294-.708A.98.98 0 0 1 11.979 4c.025.001.502.032 1.067.485q.121.098.247.222l.707.707l.707-.707q.126-.124.247-.222c.529-.425.976-.478 1.052-.484a1 1 0 0 1 .701.292c.189.189.293.44.293.707"
+                                                    stroke-width="0.5" stroke="currentColor" />
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="confirmDeleteMember(member)"
+                                            class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ลบ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="editingMemberId === member.member_id">
+                                    <div class="flex justify-center items-center gap-1">
+                                        <button @click.stop="saveEditMember()"
+                                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md"
+                                            title="บันทึก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="cancelEditMember()"
+                                            class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ยกเลิก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
                             </td>
                         </tr>
                     </template>
@@ -484,8 +571,7 @@ $faculty_id = $faculty_id ?? "null";
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="majorDialogShow = false"
         x-show="majorDialogShow" x-cloak>
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md border border-gray-200">
-            <h3 class="text-lg font-bold text-gray-900 mb-4" x-text="isEditingMajor ? 'แก้ไขสาขา' : 'เพิ่มสาขาใหม่'">
-            </h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-4">เพิ่มสาขาใหม่</h3>
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อสาขา (TH) <span
@@ -508,8 +594,7 @@ $faculty_id = $faculty_id ?? "null";
                 <button @click="majorDialogShow = false"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
                 <button @click="submitMajorForm"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition"
-                    x-text="isEditingMajor ? 'บันทึกแก้ไข' : 'เพิ่มสาขา'"></button>
+                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">เพิ่มสาขา</button>
             </div>
         </div>
     </div>
@@ -583,67 +668,6 @@ $faculty_id = $faculty_id ?? "null";
         </div>
     </div>
 
-    <!-- Edit Member Modal -->
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-        @click.self="editUserDialogShow = false" x-show="editUserDialogShow" x-cloak>
-        <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md border border-gray-200">
-            <h3 class="text-lg font-bold text-gray-900 mb-4">แก้ไขข้อมูลผู้ใช้งาน</h3>
-            <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" x-model="editUserForm.member_phone"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-                    <span x-show="errors.edit.member_phone" class="text-red-500 text-xs">กรุณากรอกหมายเลขโทรศัพท์</span>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสประจำตัว</label>
-                    <input type="text" x-model="editUserForm.member_personal_id"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
-                    <input type="email" x-model="editUserForm.member_email"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อที่ใช้แสดงผล</label>
-                    <input type="text" x-model="editUserForm.member_name"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">บทบาท <span
-                            class="text-red-500">*</span></label>
-                    <select x-model="editUserForm.role_id"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white">
-                        <option value="">เลือกบทบาท</option>
-                        <option value="2">นักศึกษา</option>
-                        <option value="4">อาจารย์</option>
-                        <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
-                        <option value="1">ผู้ดูแลระบบ</option>
-
-                    </select>
-                    <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">สาขา</label>
-                    <select x-model="editUserForm.major_id"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white">
-                        <option value="">เลือกสาขา</option>
-                        <template x-for="major in majors" :key="major.major_id">
-                            <option :value="major.major_id" x-text="major.major_name"></option>
-                        </template>
-                    </select>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end space-x-3">
-                <button @click="editUserDialogShow = false"
-                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
-                <button @click="submitEditMember"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">บันทึก</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script>
@@ -669,11 +693,12 @@ $faculty_id = $faculty_id ?? "null";
             facultyForm: { faculty_name: '', faculty_code: '' },
 
             majorDialogShow: false,
-            isEditingMajor: false,
+            editingMajorId: null,
+            editMajorForm: { major_id: null, major_name: '', major_name_en: '', major_code: '', faculty_id: null },
             majorForm: { major_id: null, major_name: '', major_name_en: '', major_code: '', faculty_id: null },
 
             createUserDialogShow: false,
-            editUserDialogShow: false,
+            editingMemberId: null,
             selectedUser: null,
             errors: { create: {}, edit: {} },
 
@@ -807,15 +832,17 @@ $faculty_id = $faculty_id ?? "null";
 
             // -- Major actions --
             openCreateMajorDialog() {
-                this.isEditingMajor = false;
                 this.majorForm = { major_id: null, major_name: '', major_name_en: '', major_code: '', faculty_id: this.facultyId };
                 this.majorDialogShow = true;
             },
 
-            openEditMajorDialog(major) {
-                this.isEditingMajor = true;
-                this.majorForm = { ...major };
-                this.majorDialogShow = true;
+            startEditMajor(major) {
+                this.editingMajorId = major.major_id;
+                this.editMajorForm = { ...major };
+            },
+
+            cancelEditMajor() {
+                this.editingMajorId = null;
             },
 
             async submitMajorForm() {
@@ -824,16 +851,37 @@ $faculty_id = $faculty_id ?? "null";
                     return;
                 }
                 try {
-                    const url = this.isEditingMajor ? `/api/majors/update/${this.majorForm.major_id}` : `/api/majors`;
-                    const res = await fetch(url, {
+                    const res = await fetch(`/api/majors`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(this.majorForm)
                     });
                     const result = await res.json();
                     if (result.success) {
-                        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลสาขาแล้ว', timer: 1500, showConfirmButton: false });
+                        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'เพิ่มข้อมูลสาขาแล้ว', timer: 1500, showConfirmButton: false });
                         this.majorDialogShow = false;
+                        this.fetchFaculty();
+                    } else throw new Error(result.message);
+                } catch (e) {
+                    Swal.fire('ข้อผิดพลาด', e.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+                }
+            },
+
+            async saveEditMajor() {
+                if (!this.editMajorForm.major_name) {
+                    Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อสาขา', 'warning');
+                    return;
+                }
+                try {
+                    const res = await fetch(`/api/majors/update/${this.editMajorForm.major_id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.editMajorForm)
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'แก้ไขข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                        this.editingMajorId = null;
                         this.fetchFaculty();
                     } else throw new Error(result.message);
                 } catch (e) {
@@ -883,8 +931,9 @@ $faculty_id = $faculty_id ?? "null";
                 this.createUserDialogShow = true;
             },
 
-            openEditMemberDialog(user) {
+            startEditMember(user) {
                 this.selectedUser = user;
+                this.editingMemberId = user.member_id;
                 this.editUserForm = {
                     member_personal_id: user.member_personal_id ?? "",
                     member_phone: user.member_phone ?? null,
@@ -895,7 +944,10 @@ $faculty_id = $faculty_id ?? "null";
                     role_id: user.role_id ? parseInt(user.role_id) : "",
                 };
                 this.errors.edit = {};
-                this.editUserDialogShow = true;
+            },
+
+            cancelEditMember() {
+                this.editingMemberId = null;
             },
 
             validateMemberForm(formType) {
@@ -943,21 +995,21 @@ $faculty_id = $faculty_id ?? "null";
                 }
             },
 
-            async submitEditMember() {
+            async saveEditMember() {
                 if (!this.validateMemberForm("edit")) {
                     Swal.fire('แจ้งเตือน', 'กรุณากรอกข้อมูลในช่องที่มีเครื่องหมายดอกจัน (*) ให้ครบ', 'warning');
                     return;
                 }
                 try {
-                    const res = await fetch(`/api/members/update/${this.selectedUser.member_id}`, {
+                    const res = await fetch(`/api/members/update/${this.editingMemberId}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(this.editUserForm),
                     });
                     const response = await res.json();
                     if (response.success) {
-                        Swal.fire({ icon: "success", title: "แก้ไขสำเร็จ", timer: 2000, showConfirmButton: false });
-                        this.editUserDialogShow = false;
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'แก้ไขข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
+                        this.editingMemberId = null;
                         this.fetchMembers();
                         this.fetchFaculty();
                     } else throw new Error(response.message || "Something went wrong");
