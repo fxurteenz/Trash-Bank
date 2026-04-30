@@ -30,6 +30,30 @@ class FacultyModel
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
+            $sortDirection = 'DESC';
+            if (isset($query['order']) && strtoupper($query['order']) === 'ASC') {
+                $sortDirection = 'ASC';
+            }
+
+            $orderBySql = " ORDER BY f.faculty_id " . $sortDirection;
+
+            if (!empty($query['sort_by'])) {
+                switch ($query['sort_by']) {
+                    case 'name':
+                        $orderBySql = " ORDER BY f.faculty_name " . $sortDirection;
+                        break;
+                    case 'point':
+                        $orderBySql = " ORDER BY f.faculty_point " . $sortDirection;
+                        break;
+                    case 'major':
+                        $orderBySql = " ORDER BY major_count_total " . $sortDirection;
+                        break;
+                    case 'member':
+                        $orderBySql = " ORDER BY total_member " . $sortDirection;
+                        break;
+                }
+            }
+
             // --- แก้ไข SQL ตรงนี้ ---
             $sql = "SELECT 
                     f.*, 
@@ -59,7 +83,7 @@ class FacultyModel
                 
                 {$whereSql}
                 
-                ORDER BY f.faculty_id DESC";
+                {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 

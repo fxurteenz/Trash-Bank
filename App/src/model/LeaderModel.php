@@ -21,6 +21,7 @@ class LeaderModel
             $month = $query['month'] ?? null;
             $year = $query['year'] ?? null;
             $sort = $query['sort'] ?? 'point';
+            $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
             $orderBy = 'total_point';
 
             switch ($sort) {
@@ -32,6 +33,9 @@ class LeaderModel
                     break;
                 case 'weight':
                     $orderBy = 'total_weight';
+                    break;
+                case 'name':
+                    $orderBy = 'f.faculty_name';
                     break;
             }
 
@@ -57,7 +61,7 @@ class LeaderModel
                     GROUP BY
                         f.faculty_id
                     ORDER BY
-                        {$orderBy} DESC";
+                    {$orderBy} {$orderDirection}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -105,6 +109,7 @@ class LeaderModel
             $month = $query['month'] ?? null;
             $year = $query['year'] ?? null;
             $sort = $query['sort'] ?? 'point';
+            $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
             $orderBy = 'total_point';
 
             switch ($sort) {
@@ -119,6 +124,9 @@ class LeaderModel
                     break;
                 case 'weight':
                     $orderBy = 'total_weight';
+                    break;
+                case 'name':
+                    $orderBy = 'a.member_name';
                     break;
             }
 
@@ -168,7 +176,7 @@ class LeaderModel
             GROUP BY
                 a.member_id, a.member_name, a.member_phone, a.member_goodness_point
             ORDER BY
-                {$orderBy} DESC
+                {$orderBy} {$orderDirection}
         ";
 
             $isPagination = isset($query['page']) && isset($query['limit']);

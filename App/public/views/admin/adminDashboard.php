@@ -327,20 +327,27 @@
         <div class="bg-white rounded-xl shadow-md p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-slate-900">🏆 5 อันดับคณะยอดเยี่ยม</h2>
-                <select x-model="facultySort"
-                    class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-1.5 outline-none cursor-pointer">
-                    <option value="point">คะแนนสะสม</option>
-                    <option value="weight">น้ำหนักขยะ</option>
-                </select>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs text-slate-700 uppercase bg-slate-100">
                         <tr>
                             <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
-                            <th class="px-4 py-2">คณะ</th>
-                            <th class="px-4 py-2 text-right">น้ำหนัก (กก.)</th>
-                            <th class="px-4 py-2 text-right rounded-r-lg">คะแนน</th>
+                            <th class="px-4 py-2 cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortFaculties('name')">
+                                คณะ <span x-show="facultySort === 'name'"
+                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortFaculties('weight')">
+                                น้ำหนัก (กก.) <span x-show="facultySort === 'weight'"
+                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortFaculties('point')">
+                                คะแนน <span x-show="facultySort === 'point'"
+                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
                             <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
                         </tr>
                     </thead>
@@ -372,20 +379,27 @@
         <div class="bg-white rounded-xl shadow-md p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-slate-900">🏅 5 อันดับสมาชิกยอดเยี่ยม</h2>
-                <select x-model="memberSort"
-                    class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-1.5 outline-none cursor-pointer">
-                    <option value="point">แต้มขยะ</option>
-                    <option value="goodness">แต้มความดี</option>
-                </select>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left text-slate-600">
                     <thead class="text-xs text-slate-700 uppercase bg-slate-100">
                         <tr>
                             <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
-                            <th class="px-4 py-2">ชื่อผู้ใช้งาน</th>
-                            <th class="px-4 py-2 text-right">แต้มขยะ</th>
-                            <th class="px-4 py-2 text-right rounded-r-lg">แต้มความดี</th>
+                            <th class="px-4 py-2 cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortMembers('name')">
+                                ชื่อผู้ใช้งาน <span x-show="memberSort === 'name'"
+                                    x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortMembers('point')">
+                                แต้มขยะ <span x-show="memberSort === 'point'"
+                                    x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortMembers('goodness')">
+                                แต้มความดี <span x-show="memberSort === 'goodness'"
+                                    x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
                             <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
                         </tr>
                     </thead>
@@ -427,8 +441,10 @@
             dashboardData: {},
             period: 'month', // 'all', 'month', 'today'
             leaderboardPeriod: 'all', // 'all', 'month', 'year'
-            facultySort: 'point', // 'point', 'weight'
-            memberSort: 'point', // 'point', 'goodness'
+            facultySort: 'point', // 'point', 'weight', 'name'
+            facultySortOrder: 'DESC',
+            memberSort: 'point', // 'point', 'goodness', 'name'
+            memberSortOrder: 'DESC',
             facultyLeaderboard: [],
             memberLeaderboard: [],
 
@@ -469,9 +485,29 @@
                 await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard()]);
             },
 
+            sortMembers(column) {
+                if (this.memberSort === column) {
+                    this.memberSortOrder = this.memberSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                    this.fetchMemberLeaderboard();
+                } else {
+                    this.memberSortOrder = 'DESC';
+                    this.memberSort = column; // การเปลี่ยนค่าตรงนี้จะไป trigger watch ให้ fetch ข้อมูลอัตโนมัติ
+                }
+            },
+
+            sortFaculties(column) {
+                if (this.facultySort === column) {
+                    this.facultySortOrder = this.facultySortOrder === 'ASC' ? 'DESC' : 'ASC';
+                    this.fetchFacultyLeaderboard();
+                } else {
+                    this.facultySortOrder = 'DESC';
+                    this.facultySort = column;
+                }
+            },
+
             async fetchFacultyLeaderboard() {
                 try {
-                    let params = `?limit=5&sort=${this.facultySort}`;
+                    let params = `?limit=5&page=1&sort=${this.facultySort}&order=${this.facultySortOrder}`;
                     const now = new Date();
                     if (this.leaderboardPeriod === 'month') {
                         params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
@@ -489,7 +525,7 @@
 
             async fetchMemberLeaderboard() {
                 try {
-                    let params = `?limit=5&sort=${this.memberSort}`;
+                    let params = `?limit=5&page=1&sort=${this.memberSort}&order=${this.memberSortOrder}`;
                     const now = new Date();
                     if (this.leaderboardPeriod === 'month') {
                         params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
