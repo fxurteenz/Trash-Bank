@@ -112,14 +112,14 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function ManageWasteTypeDetail($waste_type_id)
+    public function ManageWasteCategoryDetail($wcid)
     {
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/details/waste_type', [
                 'pages' => "manageWasteType",
                 'title' => 'จัดการหมวดหมู่ขยะ',
-                'waste_type_id' => !empty($waste_type_id) ? (int) $waste_type_id : null,
+                'wcid' => !empty($wcid) ? (int) $wcid : null,
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
