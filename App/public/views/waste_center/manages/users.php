@@ -7,7 +7,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.total_members || 0).toLocaleString()"></p>
+                    <p class="text-2xl font-bold text-emerald-700"
+                        x-text="Number(roleCounts.total_members || 0).toLocaleString()"></p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
@@ -24,7 +25,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[0]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[0]?.member_count || 0).toLocaleString()">
+                    <p class="text-2xl font-bold text-emerald-700"
+                        x-text="Number(roleCounts.roles[0]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -42,7 +44,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[1]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[1]?.member_count || 0).toLocaleString()">
+                    <p class="text-2xl font-bold text-emerald-700"
+                        x-text="Number(roleCounts.roles[1]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -60,7 +63,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[2]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[2]?.member_count || 0).toLocaleString()">
+                    <p class="text-2xl font-bold text-emerald-700"
+                        x-text="Number(roleCounts.roles[2]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -78,7 +82,8 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[3]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700" x-text="Number(roleCounts.roles[3]?.member_count || 0).toLocaleString()">
+                    <p class="text-2xl font-bold text-emerald-700"
+                        x-text="Number(roleCounts.roles[3]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -180,42 +185,47 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th
-                            class="py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-                            ลำดับ
-                        </th>
-                        <th
-                            class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             เลือก
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            ลำดับ
+                        </th>
+
+                        <th
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             เบอร์โทรศัพท์
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                        <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
                             @click="sortMembers('name')">
                             ชื่อ <span x-show="filters.sort_by === 'name'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            ทางลัด
+                        </th>
+                        <th
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
                             บทบาท
                         </th>
                         <th
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             คณะ
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                        <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
                             @click="sortMembers('waste_point')">
                             แต้มขยะ <span x-show="filters.sort_by === 'waste_point'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
+                        <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
                             @click="sortMembers('goodness_point')">
                             แต้มความดี <span x-show="filters.sort_by === 'goodness_point'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
-                            class="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-2 py-2 text-end text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             <span class="font-normal " x-text="`หน้า ${page} จาก ${totalPages}`">
                             </span>
                         </th>
@@ -226,12 +236,13 @@
                         <tr @click="window.open(`/admin/manage/members/detail/${member.member_id}`, '_blank')"
                             class="hover:bg-gray-100 cursor-pointer transition-all"
                             :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
-                            <td class="px-2 py-2 text-center text-xs text-gray-500"
-                                x-text="(page - 1) * limit + index + 1"></td>
                             <td class="px-2 py-2 text-center" @click.stop>
                                 <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
                                     x-model="checkedMembers.member_ids">
                             </td>
+                            <td class="px-2 py-2 text-center text-xs text-gray-500"
+                                x-text="(page - 1) * limit + index + 1"></td>
+
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs"
                                 x-text="member.member_phone ?? 'ไม่ระบุ'"></td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs">
@@ -261,13 +272,50 @@
                                     <span x-text="member.member_name ?? 'ไม่มีชื่อ'"></span>
                                 </div>
                             </td>
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs">
+                                <!-- Quick Action Menu Button -->
+                                <button @click="openWasteDeposit(member)"
+                                    class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:bg-gradient-to-br hover:from-emerald-600 hover:to-emerald-700 hover:scale-105 cursor-pointer rounded-md"
+                                    title="ฝากขยะ">
+                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="28"
+                                        height="28" viewBox="0 0 24 24">
+                                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
+                                            <path stroke-linejoin="round"
+                                                d="M12 22c-.818 0-1.6-.325-3.163-.974C4.946 19.41 3 18.602 3 17.243V7.745M12 22c.818 0 1.6-.325 3.163-.974C19.054 19.41 21 18.602 21 17.243V7.745M12 22v-9.831M3 7.745c0 .603.802.985 2.405 1.747l2.92 1.39C10.13 11.74 11.03 12.17 12 12.17M3 7.745c0-.604.802-.986 2.405-1.748L7.5 5M21 7.745c0 .603-.802.985-2.405 1.747l-2.92 1.39C13.87 11.74 12.97 12.17 12 12.17m9-4.424c0-.604-.802-.986-2.405-1.748L16.5 5M6 13.152l2 .983" />
+                                            <path
+                                                d="M12.004 2v7m0 0c.263.004.522-.18.714-.405L14 7.062M12.004 9c-.254-.003-.511-.186-.714-.405L10 7.062" />
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button @click="openRedeem(member)"
+                                    class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-2 text-white hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 hover:scale-105 cursor-pointer rounded-md"
+                                    title="แลกของรางวัล">
+                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
+                                            stroke-width="0.5" stroke="currentColor" />
+                                    </svg>
+                                </button>
+                                <button @click="openDonation(member)"
+                                    class="bg-gradient-to-br from-purple-400 to-purple-500 p-2 text-white hover:bg-gradient-to-br hover:from-purple-500 hover:to-purple-600 hover:scale-105 cursor-pointer rounded-md"
+                                    title="บริจาคสิ่งของ">
+                                    <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
+                                        height="24" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M4 21h9.62a4 4 0 0 0 3.037-1.397l5.102-5.952a1 1 0 0 0-.442-1.6l-1.968-.656a3.04 3.04 0 0 0-2.823.503l-3.185 2.547l-.617-1.235A3.98 3.98 0 0 0 9.146 11H4c-1.103 0-2 .897-2 2v6c0 1.103.897 2 2 2m0-8h5.146c.763 0 1.448.423 1.789 1.105l.447.895H7v2h6.014a1 1 0 0 0 .442-.11l.003-.001l.004-.002h.003l.002-.001h.004l.001-.001c.009.003.003-.001.003-.001c.01 0 .002-.001.002-.001h.001l.002-.001l.003-.001l.002-.001l.002-.001l.003-.001l.002-.001c.003 0 .001-.001.002-.001l.003-.002l.002-.001l.002-.001l.003-.001l.002-.001h.001l.002-.001h.001l.002-.001l.002-.001c.009-.001.003-.001.003-.001l.002-.001a1 1 0 0 0 .11-.078l4.146-3.317c.262-.208.623-.273.94-.167l.557.186l-4.133 4.823a2.03 2.03 0 0 1-1.52.688H4zM16 2h-.017c-.163.002-1.006.039-1.983.705c-.951-.648-1.774-.7-1.968-.704L12.002 2h-.004c-.801 0-1.555.313-2.119.878C9.313 3.445 9 4.198 9 5s.313 1.555.861 2.104l3.414 3.586a1.006 1.006 0 0 0 1.45-.001l3.396-3.568C18.688 6.555 19 5.802 19 5s-.313-1.555-.878-2.121A2.98 2.98 0 0 0 16.002 2zm1 3c0 .267-.104.518-.311.725L14 8.55l-2.707-2.843C11.104 5.518 11 5.267 11 5s.104-.518.294-.708A.98.98 0 0 1 11.979 4c.025.001.502.032 1.067.485q.121.098.247.222l.707.707l.707-.707q.126-.124.247-.222c.529-.425.976-.478 1.052-.484a1 1 0 0 1 .701.292c.189.189.293.44.293.707"
+                                            stroke-width="0.5" stroke="currentColor" />
+                                    </svg>
+                                </button>
+                            </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.faculty_name || ''">
                             </td>
-                            <td class="px-2 py-2 text-xs text-end" x-text="Number(parseInt(member.member_waste_point) || 0).toLocaleString()">
+                            <td class="px-2 py-2 text-xs text-end"
+                                x-text="Number(parseInt(member.member_waste_point) || 0).toLocaleString()">
                             </td>
                             <td class="px-2 py-2 text-xs text-end"
                                 x-text="Number(parseInt(member.member_goodness_point) || 0).toLocaleString()"></td>
@@ -283,42 +331,6 @@
                                                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </button>
-                                    <!-- Quick Action Menu Button -->
-                                    <button @click="openWasteDeposit(member)"
-                                        class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:bg-gradient-to-br hover:from-emerald-600 hover:to-emerald-700 hover:scale-105 cursor-pointer rounded-md"
-                                        title="ฝากขยะ">
-                                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="28"
-                                            height="28" viewBox="0 0 24 24">
-                                            <g fill="none" stroke="currentColor" stroke-linecap="round"
-                                                stroke-width="1.5">
-                                                <path stroke-linejoin="round"
-                                                    d="M12 22c-.818 0-1.6-.325-3.163-.974C4.946 19.41 3 18.602 3 17.243V7.745M12 22c.818 0 1.6-.325 3.163-.974C19.054 19.41 21 18.602 21 17.243V7.745M12 22v-9.831M3 7.745c0 .603.802.985 2.405 1.747l2.92 1.39C10.13 11.74 11.03 12.17 12 12.17M3 7.745c0-.604.802-.986 2.405-1.748L7.5 5M21 7.745c0 .603-.802.985-2.405 1.747l-2.92 1.39C13.87 11.74 12.97 12.17 12 12.17m9-4.424c0-.604-.802-.986-2.405-1.748L16.5 5M6 13.152l2 .983" />
-                                                <path
-                                                    d="M12.004 2v7m0 0c.263.004.522-.18.714-.405L14 7.062M12.004 9c-.254-.003-.511-.186-.714-.405L10 7.062" />
-                                            </g>
-                                        </svg>
-                                    </button>
-                                    <button @click="openRedeem(member)"
-                                        class="bg-gradient-to-br from-yellow-500 to-yellow-600 p-2 text-white hover:bg-gradient-to-br hover:from-yellow-600 hover:to-yellow-700 hover:scale-105 cursor-pointer rounded-md"
-                                        title="แลกของรางวัล">
-                                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
-                                            height="24" viewBox="0 0 24 24">
-                                            <path fill="currentColor"
-                                                d="M11.3 8.3L9.2 6.2q-.3-.3-.3-.7t.3-.7l2.1-2.1q.3-.3.7-.3t.7.3l2.1 2.1q.3.3.3.7t-.3.7l-2.1 2.1q-.3.3-.7.3t-.7-.3M2 20q-.425 0-.712-.288T1 19v-3q0-.85.588-1.425T3 14h3.275q.5 0 .95.25t.725.675q.725.975 1.788 1.525T12 17q1.225 0 2.288-.55t1.762-1.525q.325-.425.763-.675t.912-.25H21q.85 0 1.425.575T23 16v3q0 .425-.288.713T22 20h-5q-.425 0-.712-.288T16 19v-1.275q-.875.625-1.888.95T12 19q-1.075 0-2.1-.337T8 17.7V19q0 .425-.288.713T7 20zm2-7q-1.25 0-2.125-.875T1 10q0-1.275.875-2.137T4 7q1.275 0 2.138.863T7 10q0 1.25-.862 2.125T4 13m16 0q-1.25 0-2.125-.875T17 10q0-1.275.875-2.137T20 7q1.275 0 2.138.863T23 10q0 1.25-.862 2.125T20 13"
-                                                stroke-width="0.5" stroke="currentColor" />
-                                        </svg>
-                                    </button>
-                                    <button @click="openDonation(member)"
-                                        class="bg-gradient-to-br from-purple-400 to-purple-500 p-2 text-white hover:bg-gradient-to-br hover:from-purple-500 hover:to-purple-600 hover:scale-105 cursor-pointer rounded-md"
-                                        title="บริจาคสิ่งของ">
-                                        <svg class="w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" width="24"
-                                            height="24" viewBox="0 0 24 24">
-                                            <path fill="currentColor"
-                                                d="M4 21h9.62a4 4 0 0 0 3.037-1.397l5.102-5.952a1 1 0 0 0-.442-1.6l-1.968-.656a3.04 3.04 0 0 0-2.823.503l-3.185 2.547l-.617-1.235A3.98 3.98 0 0 0 9.146 11H4c-1.103 0-2 .897-2 2v6c0 1.103.897 2 2 2m0-8h5.146c.763 0 1.448.423 1.789 1.105l.447.895H7v2h6.014a1 1 0 0 0 .442-.11l.003-.001l.004-.002h.003l.002-.001h.004l.001-.001c.009.003.003-.001.003-.001c.01 0 .002-.001.002-.001h.001l.002-.001l.003-.001l.002-.001l.002-.001l.003-.001l.002-.001c.003 0 .001-.001.002-.001l.003-.002l.002-.001l.002-.001l.003-.001l.002-.001h.001l.002-.001h.001l.002-.001l.002-.001c.009-.001.003-.001.003-.001l.002-.001a1 1 0 0 0 .11-.078l4.146-3.317c.262-.208.623-.273.94-.167l.557.186l-4.133 4.823a2.03 2.03 0 0 1-1.52.688H4zM16 2h-.017c-.163.002-1.006.039-1.983.705c-.951-.648-1.774-.7-1.968-.704L12.002 2h-.004c-.801 0-1.555.313-2.119.878C9.313 3.445 9 4.198 9 5s.313 1.555.861 2.104l3.414 3.586a1.006 1.006 0 0 0 1.45-.001l3.396-3.568C18.688 6.555 19 5.802 19 5s-.313-1.555-.878-2.121A2.98 2.98 0 0 0 16.002 2zm1 3c0 .267-.104.518-.311.725L14 8.55l-2.707-2.843C11.104 5.518 11 5.267 11 5s.104-.518.294-.708A.98.98 0 0 1 11.979 4c.025.001.502.032 1.067.485q.121.098.247.222l.707.707l.707-.707q.126-.124.247-.222c.529-.425.976-.478 1.052-.484a1 1 0 0 1 .701.292c.189.189.293.44.293.707"
-                                                stroke-width="0.5" stroke="currentColor" />
-                                        </svg>
-                                    </button>
-
                                     <!-- Delete Button -->
                                     <button @click.stop="confirmDeleteUser(member)"
                                         class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md"
@@ -494,9 +506,9 @@
 
                 <div class="mt-4 text-right">
                     <button @click="createUserDialogShow = false"
-                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-400 hover:scale-105">ยกเลิก</button>
+                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-400 hover:scale-105 transition duration-100">ยกเลิก</button>
                     <button @click="submitCreate"
-                        class="px-3 py-1 bg-emerald-500 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105">เพิ่มผู้ใช้งาน</button>
+                        class="px-3 py-1 bg-emerald-500 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105 transition duration-100">เพิ่มผู้ใช้งาน</button>
                 </div>
             </div>
         </dialog>
@@ -594,72 +606,9 @@
 
                 <div class="mt-4 text-right space-x-2">
                     <button @click="editUserDialogShow = false"
-                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-400 hover:scale-105">ยกเลิก</button>
+                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-500 hover:scale-105 transition duration-100">ยกเลิก</button>
                     <button @click="submitEdit"
-                        class="px-3 py-1 bg-emerald-500 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105">ยืนยันความเปลี่ยนแปลง</button>
-                </div>
-            </div>
-        </dialog>
-
-        <!-- Quick Menu Dialog -->
-        <dialog x-ref="quickMenuDialog" x-show="quickMenuShow" @click.self="quickMenuShow = false"
-            @close="quickMenuShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
-            x-init="$watch('quickMenuShow', value => {if (value) $refs.quickMenuDialog.showModal();else $refs.quickMenuDialog.close();})">
-            <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-w-full">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-lg">เมนูด่วน</h3>
-                    <button @click="quickMenuShow = false" class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <template x-if="selectedMemberForMenu">
-                    <div class="bg-blue-50 rounded-lg p-3 mb-4 text-sm">
-                        <p><b>สมาชิก:</b> <span x-text="selectedMemberForMenu.member_name || 'ไม่ระบุชื่อ'"></span></p>
-                        <p><b>เบอร์:</b> <span x-text="selectedMemberForMenu.member_phone || 'ไม่ระบุ'"></span></p>
-                        <p><b>แต้ม:</b> <span x-text="Number(parseInt(selectedMemberForMenu.member_waste_point) || 0).toLocaleString()"></span></p>
-                    </div>
-                </template>
-
-                <div class="space-y-2">
-                    <button @click="openWasteDeposit(selectedMemberForMenu)"
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path d="M7 2H3v20h4V2zm8 0h-4v20h4V2zm8 0h-4v20h4V2z" />
-                        </svg>
-                        ฝากขยะ
-                    </button>
-
-                    <button @click="openRedeemReward(selectedMemberForMenu)"
-                        class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M12 2L15.09 8.26H22L17.45 12.74L19.54 19L12 15.27L4.46 19L6.55 12.74L2 8.26H8.91L12 2Z" />
-                        </svg>
-                        แลกของรางวัล
-                    </button>
-
-                    <button @click="openDonation(selectedMemberForMenu)"
-                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
-                        </svg>
-                        บริจาคสิ่งของ
-                    </button>
-                </div>
-
-                <div class="mt-4">
-                    <button @click="quickMenuShow = false"
-                        class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
-                        ปิด
-                    </button>
+                        class="px-3 py-1 bg-emerald-600 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105 transition duration-100">ยืนยัน</button>
                 </div>
             </div>
         </dialog>

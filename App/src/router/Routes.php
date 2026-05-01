@@ -103,7 +103,7 @@ class Routes
             ['GET', '/manage/faculty/detail/[i:fid]', [AdminPagesController::class, 'ManageFacultyDetail']],
 
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
-            ["GET", "/manage/waste_type/detail/[i:wtid]", [AdminPagesController::class, "ManageWasteTypeDetail"]],
+            ["GET", "/manage/waste_type/detail/[i:wcid]", [AdminPagesController::class, "ManageWasteCategoryDetail"]],
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],

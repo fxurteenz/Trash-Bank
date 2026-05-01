@@ -92,7 +92,7 @@
                                     <template x-if="editingCategoryId !== category.waste_category_id">
                                         <div class="flex justify-center items-center gap-2">
                                             <button @click.stop="startEditCategory(category)"
-                                                class="bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 p-1 w-8 h-8 rounded-full flex items-center justify-center">
+                                                class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -101,7 +101,7 @@
                                                 </svg>
                                             </button>
                                             <button @click.stop="confirmDeleteCategory(category)"
-                                                class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 p-1 w-8 h-8 rounded-full flex items-center justify-center">
+                                                class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -114,20 +114,20 @@
                                     <template x-if="editingCategoryId === category.waste_category_id">
                                         <div class="flex gap-2">
                                             <button @click.stop="saveEditCategory()"
-                                                class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                                class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg> <span>&nbsp;บันทึก</span>
+                                                </svg>
                                             </button>
                                             <button @click.stop="cancelEditCategory()"
-                                                class="bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:cursor-pointer text-gray-700 cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                                class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                     viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg> <span>&nbsp;ยกเลิก</span>
+                                                </svg>
                                             </button>
                                         </div>
                                     </template>

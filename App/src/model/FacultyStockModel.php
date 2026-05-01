@@ -46,7 +46,7 @@ class FacultyStockModel
             }
 
             $sql = "SELECT fws.waste_type_id, fws.stock_weight, wt.waste_type_name, 
-                       wc.waste_category_id, wc.waste_category_name
+                       wc.waste_category_id, wc.waste_category_name,wt.waste_type_price
                 FROM faculty_waste_stock fws
                 JOIN waste_type wt ON fws.waste_type_id = wt.waste_type_id
                 JOIN waste_category wc ON wt.waste_category_id = wc.waste_category_id

@@ -125,16 +125,18 @@ $wcid = $wcid ?? "null";
                                 <template x-if="editingTypeId !== type.waste_type_id">
                                     <div class="flex gap-2">
                                         <button @click.stop="startEdit(type)"
-                                            class=" bg-amber-100 text-amber-700 hover:bg-amber-200 border border-amber-200 hover:cursor-pointer transition duration-200 p-1 w-8 h-8 rounded-full flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                            class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
                                         <button @click.stop="confirmDelete(type)"
-                                            class="bg-red-100 hover:bg-red-200 border border-red-200 hover:cursor-pointer text-red-700 cursor-pointer transition duration-200 p-1 w-8 h-8 rounded-full flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                            class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -145,20 +147,20 @@ $wcid = $wcid ?? "null";
                                 <template x-if="editingTypeId === type.waste_type_id">
                                     <div class="flex gap-2">
                                         <button @click.stop="saveEdit()"
-                                            class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200 hover:cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M5 13l4 4L19 7" />
-                                            </svg> <span>&nbsp;บันทึก</span>
+                                            </svg>
                                         </button>
                                         <button @click.stop="cancelEdit()"
-                                            class="bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:cursor-pointer text-gray-700 cursor-pointer transition duration-200 px-3 py-1 rounded-full flex">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none"
+                                            class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M6 18L18 6M6 6l12 12" />
-                                            </svg> <span>&nbsp;ยกเลิก</span>
+                                            </svg>
                                         </button>
                                     </div>
                                 </template>
