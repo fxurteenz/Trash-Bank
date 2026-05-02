@@ -56,7 +56,7 @@ class WasteClearanceModel
 
                 $rateResult = self::GetWasteTypeRate($this->Conn, $item["waste_type_id"]);
 
-                $value = ($rateResult["waste_type_price"] * $item["clearance_weight"]) / 2 * 10;
+                $value = ($rateResult["waste_type_price"] * $item["clearance_weight"]) * 6;
                 $integer_point = (int) floor($value);
 
                 $totalWeight += $item["clearance_weight"];

@@ -15,6 +15,8 @@
             isLoadingStock: false,
             isSubmitting: false,
             todayStats: { count: 0, weight: 0 },
+            itemForm: { wasteCode: '', weight: '' },
+            selectedStockItem: null,
 
             // --- Computed ---
             get totalWeight() {
@@ -22,6 +24,19 @@
             },
             get activeItemsCount() {
                 return this.items.filter(i => parseFloat(i.clearance_weight) > 0).length;
+            },
+            get activeItemsList() {
+                return this.items.filter(i => parseFloat(i.clearance_weight) > 0);
+            },
+            get totalPoints() {
+                return this.items.reduce((sum, item) => {
+                    const weight = parseFloat(item.clearance_weight) || 0;
+                    const price = parseFloat(item.waste_type_price) || 0;
+                    if (weight > 0) {
+                        return sum + Math.floor((price * weight) * 6);
+                    }
+                    return sum;
+                }, 0);
             },
 
             // --- Cookie Helpers (Reused) ---
@@ -46,7 +61,21 @@
             async init() {
                 await this.loadFaculties();
                 this.loadTodayStats();
-                this.focusFacultyInput();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const facultyId = urlParams.get('faculty_id');
+
+                if (facultyId) {
+                    const faculty = this.allFaculties.find(f => f.faculty_id.toString() === facultyId);
+                    if (faculty) {
+                        await this.selectFaculty(faculty);
+                    } else {
+                        this.showNotification('ไม่พบข้อมูลคณะจาก URL', 'error');
+                        this.focusFacultyInput();
+                    }
+                } else {
+                    this.focusFacultyInput();
+                }
             },
 
             focusFacultyInput() {
@@ -122,11 +151,18 @@
                 this.showNotification('เลือกคณะ: ' + faculty.faculty_name, 'success');
 
                 await this.loadFacultyStock(faculty.faculty_id);
+
+                this.$nextTick(() => {
+                    if (this.$refs.weightInput) {
+                        this.$refs.weightInput.focus();
+                    }
+                });
             },
 
             resetFaculty() {
                 this.currentFaculty = null;
                 this.items = [];
+                this.clearItemForm();
                 this.focusFacultyInput();
             },
 
@@ -159,6 +195,74 @@
                 this.items[index].clearance_weight = '';
             },
 
+            setAllMaxWeight() {
+                this.items.forEach(item => {
+                    item.clearance_weight = item.stock_weight;
+                });
+                this.showNotification('ระบุยอดเคลียร์ทั้งหมดที่มีในคลังแล้ว', 'success');
+            },
+
+            searchStockItem() {
+                const search = this.itemForm.wasteCode.toLowerCase();
+                const exactMatch = this.items.find(type =>
+                    type.waste_type_id.toString().padStart(3, '0') === search ||
+                    type.waste_type_id.toString() === search
+                );
+                this.selectedStockItem = exactMatch || null;
+            },
+
+            addClearanceItem() {
+                const weightToAdd = parseFloat(this.itemForm.weight);
+                if (!weightToAdd || isNaN(weightToAdd) || weightToAdd <= 0) {
+                    this.showNotification('กรุณากรอกน้ำหนักให้ถูกต้อง (มากกว่า 0)', 'error');
+                    this.$refs.weightInput.focus();
+                    return;
+                }
+
+                // เลือกรหัสขยะอัตโนมัติจากคำค้นหา หากยังไม่ได้เลือกจาก Dropdown
+                if (!this.selectedStockItem && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.items.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedStockItem = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
+                if (!this.itemForm.wasteCode || !this.selectedStockItem) {
+                    this.showNotification('กรุณาเลือกรหัสชนิดขยะที่มีในคลัง', 'error');
+                    this.$refs.wasteCodeInput.focus();
+                    return;
+                }
+
+                const itemIndex = this.items.findIndex(i => i.waste_type_id === this.selectedStockItem.waste_type_id);
+                if (itemIndex === -1) return;
+
+                const stockWeight = parseFloat(this.items[itemIndex].stock_weight);
+                const currentClearance = parseFloat(this.items[itemIndex].clearance_weight || 0);
+                const newClearance = currentClearance + weightToAdd;
+
+                if (newClearance > stockWeight) {
+                    this.showNotification(`คำเตือน: น้ำหนักเคลียร์ (${newClearance} กก.) มากกว่าที่มีในคลัง (${stockWeight} กก.)`, 'warning');
+                }
+
+                this.items[itemIndex].clearance_weight = newClearance;
+                this.showNotification(`เพิ่มยอดเคลียร์ ${weightToAdd} กก. แล้ว`, 'success');
+
+                this.clearItemForm();
+                this.$refs.weightInput.focus();
+            },
+
+            clearItemForm() {
+                this.itemForm.wasteCode = '';
+                this.itemForm.weight = '';
+                this.selectedStockItem = null;
+            },
+
             cancelAll() {
                 const activeItems = this.items.filter(i => parseFloat(i.clearance_weight) > 0);
                 if (activeItems.length === 0) return;
@@ -187,14 +291,6 @@
                 if (!this.currentFaculty) {
                     this.showNotification('กรุณาเลือกคณะ', 'warning');
                     return;
-                }
-
-                // ตรวจสอบว่าน้ำหนักเกินสต็อกหรือไม่
-                for (let item of activeItems) {
-                    if (parseFloat(item.clearance_weight) > parseFloat(item.stock_weight)) {
-                        this.showNotification(`น้ำหนัก "${item.waste_type_name}" เกินกว่าที่มีในคลัง!`, 'error');
-                        return;
-                    }
                 }
 
                 // Confirm Dialog
@@ -246,7 +342,9 @@
                         this.setCookie('clearanceStats', JSON.stringify({ date: today, count: this.todayStats.count, weight: this.todayStats.weight }));
 
                         this.items = [];
+                        this.clearItemForm();
                         this.resetFaculty();
+                        await this.loadFaculties(); // ดึงข้อมูลคณะและแต้มล่าสุดใหม่หลังจากบันทึกเสร็จ
                     } else {
                         throw new Error(result.message || 'บันทึกไม่สำเร็จ');
                     }
@@ -345,7 +443,7 @@
                 <div class="flex items-center justify-between">
                     <p class="text-amber-100 text-xs font-medium uppercase tracking-wider mb-1">ยอดเคลียร์วันนี้</p>
                     <h2 class="text-3xl font-bold flex items-center gap-2">
-                        <span x-text="todayStats.weight.toFixed(2)">0</span>
+                        <span x-text="todayStats.weight.toFixed(4)">0</span>
                         <span class="text-sm font-normal text-amber-100 mt-2">กก.</span>
                     </h2>
                 </div>
@@ -412,6 +510,12 @@
                             <p class="text-xs text-slate-500">รหัส: <span x-text="currentFaculty?.faculty_id"></span>
                             </p>
                         </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">แต้มคณะคงเหลือ</p>
+                            <p class="text-3xl font-bold text-slate-800"
+                                x-text="Number(currentFaculty?.faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -422,61 +526,106 @@
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full overflow-hidden">
 
+            <div x-show="currentFaculty" class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10"
+                style="display: none;">
+                <h2 class="text-xl font-bold text-slate-900 mb-3">ระบุขยะที่ต้องการเคลียร์</h2>
+                <div class="grid grid-cols-12 gap-3">
+                    <div class="col-span-4">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนักเคลียร์ (กก.)</label>
+                        <input x-ref="weightInput" x-model="itemForm.weight"
+                            @keydown.enter="$refs.wasteCodeInput.focus()"
+                            @keydown.tab.prevent="$refs.wasteCodeInput.focus()" type="number" step="0.0001"
+                            placeholder="0.0000"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสชนิดขยะ</label>
+                        <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
+                            @keydown.tab.prevent="addClearanceItem()" @keydown.enter="addClearanceItem()"
+                            @input="searchStockItem()" type="text" placeholder="พิมพ์รหัสขยะที่มีในคลัง"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
+                            list="stockItemList" autocomplete="off">
+                        <datalist id="stockItemList">
+                            <template x-for="item in items" :key="item.waste_type_id">
+                                <option :value="item.waste_type_id.toString().padStart(3, '0')"
+                                    :label="`${item.waste_category_name} : ${item.waste_type_name} (คลัง: ${Number(item.stock_weight).toFixed(4)} กก.)`">
+                                </option>
+                            </template>
+                        </datalist>
+                        <p class="text-[10px] text-amber-600 mt-1 font-medium truncate"
+                            x-text="selectedStockItem ? `${selectedStockItem.waste_category_name} : ${selectedStockItem.waste_type_name} (มีในคลัง ${Number(selectedStockItem.stock_weight).toFixed(4)} กก.)`:  'ระบุรหัสชนิดขยะเพื่อตรวจสอบสต็อก'">
+                        </p>
+                    </div>
+                    <div class="col-span-3 flex items-center">
+                        <button @click="addClearanceItem()"
+                            class="w-full px-4 py-2 mb-[2px] bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
+                            เพิ่มยอดเคลียร์
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div x-show="currentFaculty" class="flex-1 min-h-0 bg-white rounded-xl shadow-xl p-6 flex flex-col"
                 style="display: none;">
 
-                <h2 class="text-xl font-bold text-slate-900 mb-2 shrink-0 flex items-center justify-between">
-                    <span>รายการขยะในคลัง</span>
-                    <span class="bg-amber-100 text-amber-700 text-sm px-2 py-1 rounded-md"
-                        x-text="activeItemsCount + ' รายการที่ระบุยอด'"></span>
-                </h2>
+                <div class="mb-2 shrink-0 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span>รายการขยะในคลัง</span>
 
-                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
+                    </h2>
+                    <button x-show="items.length > 0" @click="setAllMaxWeight()"
+                        class="text-xs px-3 py-1.5 bg-sky-100 text-sky-700 rounded-md hover:bg-sky-200 transition-colors font-medium shadow-sm cursor-pointer">
+                        ทั้งหมด
+                    </button>
+                </div>
+
+                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
                     <div x-show="isLoadingStock" class="p-8 text-center text-slate-500">
                         <span class="inline-block animate-spin mr-2">⏳</span> กำลังโหลดข้อมูลคลังขยะ...
                     </div>
 
-                    <template x-if="!isLoadingStock">
-                        <template x-for="(item, index) in items" :key="index">
-                            <div :class="item.clearance_weight > 0 ? 'border-amber-400 bg-amber-50 shadow-sm' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'"
-                                class="flex items-center justify-between p-4 rounded-lg transition border">
-
-                                <div class="flex-col">
-                                    <p class="font-bold text-slate-900 text-base" x-text="`${item.waste_type_name}`">
-                                    </p>
-                                    <span class="text-sm text-slate-700 text-base"
-                                        x-text="`${item.waste_category_name}`"></span>
-                                    <p class="text-xs text-slate-500">รหัส: <span x-text="item.waste_type_id"></span>
-                                    </p>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <div class="flex items-end gap-1.5 text-amber-800">
-                                        <span class="text-xs font-medium">คงเหลือในคลัง:</span>
-                                        <span class="font-bold text-lg"
-                                            x-text="Number(item.stock_weight).toFixed(3)"></span>
-                                        <span class="text-xs font-medium">กก.</span>
-                                    </div>
-                                    <div class="relative w-32">
-                                        <input type="number" step="0.001" min="0" :max="item.stock_weight"
-                                            x-model="item.clearance_weight"
-                                            class="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition text-right pr-8 bg-white"
-                                            placeholder="0.000">
-                                        <span
-                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">กก.</span>
-                                    </div>
-                                    <button @click="setMaxWeight(index)"
-                                        class="text-xs px-2 py-1 bg-sky-100 text-sky-700 rounded hover:bg-sky-200 font-medium whitespace-nowrap cursor-pointer shadow">
-                                        ทั้งหมด
-                                    </button>
-                                    <button @click="clearWeight(index)"
-                                        class="text-xs px-2 py-1 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 font-medium whitespace-nowrap cursor-pointer shadow">
-                                        เคลียร์
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
-                    </template>
+                    <table x-show="!isLoadingStock && items.length > 0" class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 rounded-tl-lg">รหัสขยะ</th>
+                                <th scope="col" class="px-4 py-3">ชนิดขยะ</th>
+                                <th scope="col" class="px-4 py-3 text-right">ในคลัง (กก.)</th>
+                                <th scope="col" class="px-4 py-3 text-right">ยอดเคลียร์ (กก.)</th>
+                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-16">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(item, index) in items" :key="index">
+                                <tr class="border-b last:border-b-0 transition-colors group"
+                                    :class="parseFloat(item.clearance_weight) > 0 ? 'bg-amber-50 hover:bg-amber-100' : 'bg-white hover:bg-slate-50'">
+                                    <td class="px-4 py-3 font-medium text-slate-900"
+                                        x-text="item.waste_type_id.toString().padStart(3, '0')"></td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-semibold text-slate-800"
+                                            x-text="`${item.waste_category_name} : ${item.waste_type_name}`"></div>
+                                        <!-- <div class="text-xs text-slate-500" x-text="item.waste_category_name"></div> -->
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-bold text-amber-700"
+                                        x-text="Number(item.stock_weight).toFixed(4)"></td>
+                                    <td class="px-4 py-3 text-right font-bold text-emerald-600"
+                                        x-text="parseFloat(item.clearance_weight) > 0 ? Number(item.clearance_weight).toFixed(4) : '-'">
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button x-show="parseFloat(item.clearance_weight) > 0"
+                                            @click="clearWeight(index)"
+                                            class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors hover:bg-red-50 cursor-pointer"
+                                            title="ลบยอดเคลียร์">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
 
                     <div x-show="!isLoadingStock && items.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
@@ -522,10 +671,17 @@
                         <div class="flex justify-between items-center">
                             <span class="text-amber-100 text-lg">น้ำหนักรวม</span>
                             <div class="text-right">
-                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(3)"></span>
+                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(4)"></span>
                                 <span class="text-sm text-amber-200">กก.</span>
                             </div>
                         </div>
+
+                        <div class="bg-black/20 rounded-xl p-4 mt-4 backdrop-blur-sm">
+                            <p class="text-amber-100 text-sm mb-1">คะแนนที่จะได้รับ</p>
+                            <p class="text-3xl font-bold tracking-tight text-white"
+                                x-text="totalPoints.toLocaleString()"></p>
+                        </div>
+
                     </div>
                 </div>
 

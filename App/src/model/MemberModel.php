@@ -79,6 +79,7 @@ class MemberModel
                     m.faculty_id,
                     m.major_id,
                     f.faculty_name,
+                    f.faculty_point as member_faculty_point,
                     maj.major_name,
                     r.role_name,
                     r.role_name_th
@@ -298,6 +299,7 @@ class MemberModel
             $sql = "SELECT 
                         m.*, 
                         f.faculty_name,
+                        f.faculty_point as member_faculty_point,
                         maj.major_name,
                         r.role_name,
                         r.role_name_th
