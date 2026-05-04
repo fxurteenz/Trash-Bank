@@ -168,7 +168,7 @@ class AdminPagesController extends RouterBase
     {
         try {
             $user = Authentication::AdminAuth();
-            $this->render('maintenance', [
+            $this->render('manages/rewards', [
                 'pages' => "manageBadges",
                 'title' => 'จัดการของรางวัล',
                 'user' => $user["user_data"]
@@ -180,6 +180,38 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function ManageRewardCategories()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/reward_categories', [
+                'pages' => "manageRewardCategories",
+                'title' => 'จัดการหมวดหมู่ของรางวัล',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageRewardCategoryDetail($cid)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/reward_category', [
+                'pages' => "manageRewardCategories",
+                'title' => 'รายการของรางวัลในหมวดหมู่',
+                'cid' => !empty($cid) ? (int) $cid : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 
     public function ManagePointGroup()
     {

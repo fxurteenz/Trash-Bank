@@ -1,0 +1,22 @@
+meta {
+  name: Create donation item category
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{api_domain}}/donations/items/category
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "donation_item_category_name":"ของใช้"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

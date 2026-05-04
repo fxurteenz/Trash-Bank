@@ -1,0 +1,22 @@
+meta {
+  name: Update donation item category
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{api_domain}}/donations/items/category/update/001
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "donation_item_category_name":"อาหารแห้ง"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

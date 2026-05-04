@@ -108,6 +108,9 @@ class Routes
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
             ["GET", "/manage/reward", [AdminPagesController::class, "ManageRewards"]],
+            ["GET", "/manage/reward_category", [AdminPagesController::class, "ManageRewardCategories"]],
+            ["GET", "/manage/reward_category/detail/[i:cid]", [AdminPagesController::class, "ManageRewardCategoryDetail"]],
+
 
             // transaction
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
@@ -212,8 +215,17 @@ class Routes
             ['GET', '', [DonationController::class, 'GetAll']],
             ['GET', '/items', [DonationController::class, 'GetItems']],
             ['GET', '/[i:id]', [DonationController::class, 'Get']],
+            ['GET', '/items/uncategorised', [DonationController::class, 'GetUncategorisedItems']],
+            ['GET', '/items/categorised', [DonationController::class, 'GetCategorisedItems']],
             ['POST', '', [DonationController::class, 'Create']],
-            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
+            ['POST', '/items', [DonationController::class, 'CreateItem']],
+            ['POST', '/items/update/[i:id]', [DonationController::class, 'UpdateItem']],
+            ['GET', '/items/category', [DonationController::class, 'GetItemCategories']],
+            ['GET', '/items/category/[i:cid]', [DonationController::class, 'GetItemByCategories']],
+            ['POST', '/items/category', [DonationController::class, 'CreateItemCategory']],
+            ['POST', '/items/category/update/[i:id]', [DonationController::class, 'UpdateItemCategory']],
+            ['POST', '/items/category/bulk_update', [DonationController::class, 'BulkUpdateItemCategory']],
+            ['POST', '/items/activate', [DonationController::class, 'ToggleItemAvailable']],
             ['POST', '/delete', [DonationController::class, 'Delete']],
         ]);
         /* /api/donations */
