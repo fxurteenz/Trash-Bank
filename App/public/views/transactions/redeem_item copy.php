@@ -545,63 +545,50 @@
                 </div>
 
                 <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
-                    <table x-show="filteredItems.length > 0" class="w-full text-sm text-left text-slate-600 relative">
-                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
-                            <tr>
-                                <th scope="col" class="px-4 py-3 rounded-tl-lg w-16">รูปภาพ</th>
-                                <th scope="col" class="px-4 py-3">ชื่อของรางวัล</th>
-                                <th scope="col" class="px-4 py-3 text-right">คงเหลือ (ชิ้น)</th>
-                                <th scope="col" class="px-4 py-3 text-right">ใช้แต้ม/ชิ้น</th>
-                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-24">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="item in filteredItems" :key="item.donation_item_id">
-                                <tr class="border-b last:border-b-0 transition-colors group"
-                                    :class="selectedItems.find(i => i.donation_item_id === item.donation_item_id) ? 'bg-purple-50 hover:bg-purple-100' : 'bg-white hover:bg-slate-50'">
-                                    <td class="px-4 py-2">
-                                        <div
-                                            class="w-10 h-10 bg-slate-100 rounded overflow-hidden border border-slate-200">
-                                            <template x-if="item.donation_item_image">
-                                                <img :src="'/assets/images/donation_items/' + item.donation_item_image"
-                                                    class="w-full h-full object-cover">
-                                            </template>
-                                            <template x-if="!item.donation_item_image">
-                                                <img src="/assets/images/donation_items/placeholder.png"
-                                                    class="w-full h-full object-cover opacity-50">
-                                            </template>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <template x-for="item in filteredItems" :key="item.donation_item_id">
+                            <div :class="selectedItems.find(i => i.donation_item_id === item.donation_item_id) ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:shadow-md border-slate-200 bg-white'"
+                                class="border-2 rounded-xl overflow-hidden transition-all flex flex-col h-full">
+                                <div class="w-full h-32 bg-slate-100 border-b border-slate-100 shrink-0">
+                                    <template x-if="item.donation_item_image">
+                                        <img :src="'/assets/images/donation_items/' + item.donation_item_image"
+                                            class="w-full h-full object-cover">
+                                    </template>
+                                    <template x-if="!item.donation_item_image">
+                                        <img src="/assets/images/donation_items/placeholder.png"
+                                            class="w-full h-full object-cover opacity-50">
+                                    </template>
+                                </div>
+                                <div class="p-3 flex flex-col flex-1 gap-2">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 line-clamp-2 text-sm leading-tight"
+                                            x-text="item.donation_item_name"></h3>
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            คงเหลือ: <span x-text="item.donation_item_amount"></span> ชิ้น
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between mt-auto pt-2 border-t border-slate-100">
+                                        <div class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">
+                                            <span x-text="item.donation_item_redeem_point"></span> แต้ม
                                         </div>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="font-bold text-slate-800 line-clamp-2 leading-tight"
-                                            x-text="item.donation_item_name"></div>
-                                        <div class="text-[10px] text-slate-500 mt-0.5"
-                                            x-text="'รหัส: ' + item.donation_item_id.toString().padStart(3, '0')"></div>
-                                    </td>
-                                    <td class="px-4 py-3 text-right font-medium text-slate-700"
-                                        x-text="item.donation_item_amount"></td>
-                                    <td class="px-4 py-3 text-right">
-                                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded"
-                                            x-text="item.donation_item_redeem_point + ' แต้ม'"></span>
-                                    </td>
-                                    <td class="px-4 py-3 text-center">
                                         <button
                                             x-show="!selectedItems.find(i => i.donation_item_id === item.donation_item_id)"
                                             @click.stop="selectItem(item)"
-                                            class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
+                                            class="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm transition-colors">
                                             เพิ่ม
                                         </button>
                                         <button
                                             x-show="selectedItems.find(i => i.donation_item_id === item.donation_item_id)"
                                             @click.stop="removeItemById(item.donation_item_id)" x-cloak
-                                            class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
+                                            class="px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded shadow-sm transition-colors">
                                             นำออก
                                         </button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
 
                     <div x-show="filteredItems.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
@@ -647,16 +634,16 @@
 
                     <div class="space-y-4" x-show="selectedItems.length > 0">
                         <div
-                            class="bg-white rounded-xl p-4 mt-2 backdrop-blur-sm max-h-60 overflow-y-auto custom-scrollbar">
+                            class="bg-black/20 rounded-xl p-4 mt-2 backdrop-blur-sm max-h-60 overflow-y-auto custom-scrollbar">
                             <ul class="space-y-3 text-sm">
                                 <template x-for="(item, index) in selectedItems" :key="index">
                                     <li
-                                        class="flex flex-col gap-2 pb-3 last:border-0 last:pb-0 border-b border-gray-300">
+                                        class="flex flex-col gap-2 border-b border-white/10 pb-3 last:border-0 last:pb-0">
                                         <div class="flex justify-between items-start">
-                                            <span class="text-purple-700 font-semibold pr-2 line-clamp-2"
+                                            <span class="text-white font-semibold pr-2 line-clamp-2"
                                                 x-text="item.donation_item_name"></span>
                                             <button @click="removeItem(index)"
-                                                class="text-rose-500 hover:text-rose-400 cursor-pointer transition-colors shrink-0">
+                                                class="text-rose-300 hover:text-rose-100 transition-colors shrink-0">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -665,15 +652,15 @@
                                             </button>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <div class="flex items-center gap-2 bg-purple-100 rounded">
+                                            <div class="flex items-center gap-2">
                                                 <button @click="decreaseQty(index)"
-                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">-</button>
-                                                <span class="text-purple-700 font-bold w-8 text-center"
+                                                    class="w-7 h-7 rounded bg-white/20 hover:bg-white/30 text-white font-bold flex items-center justify-center transition">-</button>
+                                                <span class="text-white font-bold w-8 text-center"
                                                     x-text="item.qty"></span>
                                                 <button @click="increaseQty(index)"
-                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">+</button>
+                                                    class="w-7 h-7 rounded bg-white/20 hover:bg-white/30 text-white font-bold flex items-center justify-center transition">+</button>
                                             </div>
-                                            <span class="text-purple-700 font-bold"
+                                            <span class="text-purple-200 font-bold"
                                                 x-text="(item.donation_item_redeem_point * item.qty) + ' แต้ม'"></span>
                                         </div>
                                     </li>

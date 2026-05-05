@@ -337,7 +337,7 @@ class AdminPagesController extends RouterBase
             $user = Authentication::AdminAuth();
             $this->render('transactions/redeem_item', [
                 'pages' => "redeemItemTransaction",
-                'title' => 'บันทึกการแลกสิ่งของ',
+                'title' => 'แลกของรางวัล',
                 'user' => $user["user_data"]
 
             ], self::$AdminTemplate);

@@ -249,6 +249,30 @@
                         <span class="text-sm font-medium">หมวดหมู่ขยะ</span>
                     </a>
 
+                    <a href="/admin/manage/reward_category"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- 1. แฟ้ม (Folder) ถูกย่อและย้ายไปซ้ายบนเล็กน้อย -->
+                            <g transform="translate(1, 2) scale(0.85)">
+                                <path
+                                    d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+                            </g>
+
+                            <!-- 2. กลุ่มกล่องของขวัญ (Gift Box Group) ขยายขนาดและวางไว้ด้านหน้ามุมขวาล่าง -->
+                            <!-- กล่องสี่เหลี่ยม (ขนาด 8x8) -->
+                            <rect x="15.5" y="14.5" width="8" height="8" rx="1" />
+                            <!-- ริบบิ้น (เส้นคาดกล่อง) -->
+                            <path d="M19.5 14.5v8" />
+                            <path d="M15.5 18.5h8" />
+                            <!-- โบว์ของขวัญ (2 ห่วงด้านบน) ขยายสัดส่วนโบว์เป็น 1:2 เพื่อให้ชัดขึ้น -->
+                            <path d="M19.5 14.5c-0.8-1.6 -2.4-1.6 -2.4 0 Z" />
+                            <path d="M19.5 14.5c0.8-1.6 2.4-1.6 2.4 0 Z" />
+                        </svg>
+                        <span class="text-sm font-medium">หมวดหมู่ของรางวัล</span>
+                    </a>
+
                     <a href="/admin/manage/reward"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
@@ -296,7 +320,7 @@
                         </svg>
                         <span class="text-sm font-medium">ขยะในคลัง</span>
                     </a>
-                    <a href="/admin/stock/reward"
+                    <!-- <a href="/admin/stock/reward"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -305,7 +329,7 @@
                                 stroke-width="0.5" stroke="currentColor" />
                         </svg>
                         <span class="text-sm font-medium">ของรางวัลในคลัง</span>
-                    </a>
+                    </a> -->
                 </div>
 
                 <div class="mt-6">

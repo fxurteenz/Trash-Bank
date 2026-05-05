@@ -21,94 +21,141 @@ class DonationModel
     public function CreateDonation(array $data, $staff): array
     {
         try {
-            // 1. Validation
+            // 1. Validation ข้อมูลพื้นฐาน
             if (empty($data)) {
                 throw new Exception('No data provided', 400);
-            }
-
-            if (empty($data['donation_item_name'])) {
-                throw new Exception('กรุณาลองใหม่, ระบุชื่อสิ่งของที่ได้รับ', 400);
-            }
-            if (empty($data['donation_item_amount']) || !is_numeric($data['donation_item_amount'])) {
-                throw new Exception('กรุณาลองใหม่, ระบุจำนวนที่ได้รับให้ถูกต้อง', 400);
-            }
-            if (empty($data['donation_item_value']) || !is_numeric($data['donation_item_value'])) {
-                throw new Exception('กรุณาลองใหม่, ระบุมูลค่าต่อชิ้น', 400);
             }
             if (!isset($data['member_id']) || empty($data['member_id'])) {
                 throw new Exception('กรุณาลองใหม่, ไม่พบข้อมูลผู้บริจาค', 400);
             }
-            // 2. Data Preparation
-            $qty = (int) $data['donation_item_amount'];
-            $pricePerUnit = (float) $data['donation_item_value'];
-            $totalValue = $qty * $pricePerUnit;
-            $description = isset($data['donation_description']) ? $data['donation_description'] : null;
-            $memberId = $data['member_id']; // ผ่านการ Validate มาแล้วว่าไม่ว่างแน่นอน
-            $redeemPoint = isset($data['donation_item_redeem_point']) && is_numeric($data['donation_item_redeem_point']) ? (int) $data['donation_item_redeem_point'] : 0;
+            if (!isset($data['items']) || !is_array($data['items']) || count($data['items']) === 0) {
+                throw new Exception('กรุณาลองใหม่, ไม่พบรายการสิ่งของที่บริจาค', 400);
+            }
 
-            // เริ่ม Transaction (สำคัญมากเมื่อต้องลง 2 ตารางพร้อมกัน)
+            $memberId = $data['member_id'];
+            $description = $data['donation_description'] ?? null;
+            $staffId = $staff['user_data']->member_id;
+
+            // 2. Data Preparation & Calculation (วนลูปคำนวณยอดรวมก่อนเริ่ม Transaction)
+            $overallTotalValue = 0;
+            $overallGoodnessPoint = 0;
+            $processedItems = [];
+
+            foreach ($data['items'] as $index => $item) {
+                // Validate แต่ละ Item
+                if (empty($item['name'])) {
+                    throw new Exception("กรุณาลองใหม่, ระบุชื่อสิ่งของที่ได้รับ (รายการที่ " . ($index + 1) . ")", 400);
+                }
+                if (empty($item['amount']) || !is_numeric($item['amount'])) {
+                    throw new Exception("กรุณาลองใหม่, ระบุจำนวนที่ได้รับให้ถูกต้อง (รายการที่ " . ($index + 1) . ")", 400);
+                }
+                if (empty($item['value']) || !is_numeric($item['value'])) {
+                    throw new Exception("กรุณาลองใหม่, ระบุมูลค่าต่อชิ้น (รายการที่ " . ($index + 1) . ")", 400);
+                }
+
+                $qty = (int) $item['amount'];
+                $pricePerUnit = (float) $item['value'];
+                $itemTotalValue = $qty * $pricePerUnit;
+                $itemGoodnessPoint = $itemTotalValue * 10; // คำนวณแต้มความดี x10
+                $redeemPoint = isset($item['redeem_point']) && is_numeric($item['redeem_point']) ? (int) $item['redeem_point'] : 0;
+
+                $overallTotalValue += $itemTotalValue;
+                $overallGoodnessPoint += $itemGoodnessPoint;
+
+                // เก็บข้อมูลที่จัดเตรียมไว้เพื่อไป insert ในภายหลัง
+                $processedItems[] = [
+                    'name' => $item['name'],
+                    'qty' => $qty,
+                    'price' => $pricePerUnit,
+                    'item_goodness_point' => $itemGoodnessPoint,
+                    'redeem_point' => $redeemPoint
+                ];
+            }
+
+            // เริ่ม Transaction 
             $this->Conn->beginTransaction();
 
-            // Step 3: Insert into 'donation' table (History Log)
+            // Step 3: Insert into 'donation' table (บันทึกข้อมูลหลัก / Header)
             $sqlDonation = "INSERT INTO donation 
-                        (member_id, staff_id, donation_item_name, donation_item_qty, 
-                         donation_total_value, donation_goodness_point, donation_description, created_at) 
-                        VALUES 
-                        (:member_id, :staff_id, :item_name, :item_amount, 
-                         :total_value, :goodness_point, :description, NOW())";
+                            (member_id, staff_id, donation_total_value, donation_total_goodness_point, donation_description, created_at) 
+                            VALUES 
+                            (:member_id, :staff_id, :total_value, :total_goodness_point, :description, NOW())";
 
             $stmtDonation = $this->Conn->prepare($sqlDonation);
             $stmtDonation->execute([
                 ':member_id' => $memberId,
-                ':staff_id' => $staff['user_data']->member_id,
-                ':item_name' => $data['donation_item_name'],
-                ':item_amount' => $qty,
-                ':total_value' => $totalValue,
-                ':goodness_point' => $totalValue * 10,
+                ':staff_id' => $staffId,
+                ':total_value' => $overallTotalValue,
+                ':total_goodness_point' => $overallGoodnessPoint,
                 ':description' => $description
             ]);
 
-            // Step 4: Upsert into 'donation_item' table (Inventory)
+            // ดึง ID ของ donation ล่าสุดเพื่อไปใส่ในตาราง detail
+            $donationId = $this->Conn->lastInsertId();
+
+            // เตรียม Statement สำหรับ Loop Insert (เพื่อประสิทธิภาพที่ดี)
+            $sqlDetail = "INSERT INTO donation_detail 
+                          (donation_id, donation_detail_item_name, donation_detail_item_value, donation_detail_item_amount, donation_detail_goodness_point) 
+                          VALUES 
+                          (:donation_id, :name, :value, :amount, :goodness_point)";
+            $stmtDetail = $this->Conn->prepare($sqlDetail);
+
             $sqlInventory = "INSERT INTO donation_item 
-                         (donation_item_name, donation_item_category_id, donation_item_amount, donation_item_redeem_point, updated_at) 
-                         VALUES 
-                         (:name, 1,:qty, :redeem_point, NOW()) 
-                         ON DUPLICATE KEY UPDATE 
-                         donation_item_amount = donation_item_amount + :qty_update, 
-                         donation_item_redeem_point = :redeem_point_update,
-                         updated_at = NOW()";
-
+                             (donation_item_name, donation_item_category_id, donation_item_amount, donation_item_redeem_point, updated_at) 
+                             VALUES 
+                             (:name, 1, :qty, :redeem_point, NOW()) 
+                             ON DUPLICATE KEY UPDATE 
+                             donation_item_amount = donation_item_amount + :qty_update, 
+                             donation_item_redeem_point = :redeem_point_update,
+                             updated_at = NOW()";
             $stmtInventory = $this->Conn->prepare($sqlInventory);
-            $stmtInventory->execute([
-                ':name' => $data['donation_item_name'],
-                ':qty' => $qty,
-                ':qty_update' => $qty,
-                ':redeem_point' => $redeemPoint,
-                ':redeem_point_update' => $redeemPoint
-            ]);
 
-            // Step 5: Update member goodness point (เพิ่มแต้มความดีให้ผู้ใช้งาน)
+            // Step 4: Loop Insert details และ Upsert into inventory
+            foreach ($processedItems as $pItem) {
+                // Insert ลงตาราง detail
+                $stmtDetail->execute([
+                    ':donation_id' => $donationId,
+                    ':name' => $pItem['name'],
+                    ':value' => $pItem['price'],
+                    ':amount' => $pItem['qty'],
+                    ':goodness_point' => $pItem['item_goodness_point']
+                ]);
+
+                // Upsert ลงตาราง inventory (donation_item)
+                $stmtInventory->execute([
+                    ':name' => $pItem['name'],
+                    ':qty' => $pItem['qty'],
+                    ':qty_update' => $pItem['qty'],
+                    ':redeem_point' => $pItem['redeem_point'],
+                    ':redeem_point_update' => $pItem['redeem_point']
+                ]);
+            }
+
+            // Step 5: Update member goodness point (เพิ่มแต้มความดีรวมให้ผู้ใช้งาน)
             $sqlMember = "UPDATE member 
                           SET member_goodness_point = member_goodness_point + :goodness_point 
                           WHERE member_id = :member_id";
             $stmtMember = $this->Conn->prepare($sqlMember);
             $stmtMember->execute([
-                ':goodness_point' => $totalValue * 10,
+                ':goodness_point' => $overallGoodnessPoint,
                 ':member_id' => $memberId
             ]);
 
             $this->Conn->commit();
 
-            $data['donation_total_value'] = $totalValue;
-            $data['status'] = 'success';
-
-            return $data;
+            return [
+                'status' => 'success',
+                'donation_id' => $donationId,
+                'donation_total_value' => $overallTotalValue,
+                'donation_total_goodness_point' => $overallGoodnessPoint
+            ];
 
         } catch (PDOException $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
             }
-            throw new DatabaseException($e->getMessage(), (int) $e->getCode());
+            // อาจใช้ DatabaseException ของระบบเดิมที่คุณมี
+            throw new Exception("Database Error: " . $e->getMessage(), (int) $e->getCode());
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
@@ -324,6 +371,61 @@ class DonationModel
                     FROM donation_item
                     $whereSql 
                     ORDER BY donation_item_id DESC";
+            $isPagination = isset($query['page']) && isset($query['limit']);
+
+            if ($isPagination) {
+                $sql .= ' LIMIT :limit OFFSET :offset';
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+            foreach ($params as $k => $v)
+                $stmt->bindValue($k, $v);
+
+            if ($isPagination) {
+                $limit = (int) $query['limit'];
+                $offset = ((int) $query['page'] - 1) * $limit;
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return ['data' => $rows, 'total' => $total];
+        } catch (PDOException $e) {
+            throw new Exception("Error Processing Request", 503);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetAvailableDonationItem(array $query): array
+    {
+        try {
+
+            $where = ["d.donation_item_available = 1"];
+            $params = [];
+
+            if (!empty($query['search'])) {
+                $where[] = '(d.donation_item_name LIKE :q OR dc.donation_item_category_name LIKE :q)';
+                $params[':q'] = '%' . $query['search'] . '%';
+            }
+
+            $whereSql = !empty($where) ? ' WHERE ' . implode(' AND ', $where) : '';
+
+            $sqlCount = "SELECT COUNT(*) AS total FROM donation_item d
+                         LEFT JOIN donation_item_category dc ON d.donation_item_category_id = dc.donation_item_category_id
+                         $whereSql";
+            $stmtCount = $this->Conn->prepare($sqlCount);
+            foreach ($params as $k => $v)
+                $stmtCount->bindValue($k, $v);
+            $stmtCount->execute();
+            $total = (int) $stmtCount->fetch(PDO::FETCH_ASSOC)['total'];
+
+            $sql = "SELECT d.*, dc.donation_item_category_name
+                    FROM donation_item d
+                    LEFT JOIN donation_item_category dc ON d.donation_item_category_id = dc.donation_item_category_id
+                    $whereSql
+                    ORDER BY d.donation_item_id DESC";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {

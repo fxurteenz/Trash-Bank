@@ -136,7 +136,23 @@ class DonationController extends RouterBase
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+    public function GetAvailableItems()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->DonationModel->GetAvailableDonationItem($this->queryString ?? []);
 
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result["data"], 'total' => $result["total"], 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
     public function GetCategorisedItems()
     {
         try {

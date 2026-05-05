@@ -324,25 +324,25 @@ class MemberModel
                 throw new Exception("ไม่พบข้อมูลสมาชิก", 404);
             }
 
-            // Get member badges
-            $badgeSql = "SELECT 
-                            b.*,
-                            mb.member_badge_date
-                        FROM 
-                            member_badge mb
-                        JOIN 
-                            badge b ON mb.badge_id = b.badge_id
-                        WHERE 
-                            mb.member_id = :member_id
-                        ORDER BY 
-                            mb.member_badge_date DESC";
+            // // Get member badges
+            // $badgeSql = "SELECT 
+            //                 b.*,
+            //                 mb.member_badge_date
+            //             FROM 
+            //                 member_badge mb
+            //             JOIN 
+            //                 badge b ON mb.badge_id = b.badge_id
+            //             WHERE 
+            //                 mb.member_id = :member_id
+            //             ORDER BY 
+            //                 mb.member_badge_date DESC";
 
-            $badgeStmt = $this->Conn->prepare($badgeSql);
-            $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
-            $badgeStmt->execute();
-            $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
+            // $badgeStmt = $this->Conn->prepare($badgeSql);
+            // $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            // $badgeStmt->execute();
+            // $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $member['badges'] = $badges;
+            // $member['badges'] = $badges;
 
             // Get member easte transaction history
             $wasteSql = "SELECT 

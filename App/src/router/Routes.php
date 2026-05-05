@@ -99,14 +99,17 @@ class Routes
             // manage
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
             ['GET', '/manage/members/detail/[i:mid]', [AdminPagesController::class, 'ManageUsersDetail']],
+
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ['GET', '/manage/faculty/detail/[i:fid]', [AdminPagesController::class, 'ManageFacultyDetail']],
 
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_type/detail/[i:wcid]", [AdminPagesController::class, "ManageWasteCategoryDetail"]],
+
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
+            
             ["GET", "/manage/reward", [AdminPagesController::class, "ManageRewards"]],
             ["GET", "/manage/reward_category", [AdminPagesController::class, "ManageRewardCategories"]],
             ["GET", "/manage/reward_category/detail/[i:cid]", [AdminPagesController::class, "ManageRewardCategoryDetail"]],
@@ -217,6 +220,7 @@ class Routes
             ['GET', '/[i:id]', [DonationController::class, 'Get']],
             ['GET', '/items/uncategorised', [DonationController::class, 'GetUncategorisedItems']],
             ['GET', '/items/categorised', [DonationController::class, 'GetCategorisedItems']],
+            ['GET', '/items/available', [DonationController::class, 'GetAvailableItems']],
             ['POST', '', [DonationController::class, 'Create']],
             ['POST', '/items', [DonationController::class, 'CreateItem']],
             ['POST', '/items/update/[i:id]', [DonationController::class, 'UpdateItem']],
