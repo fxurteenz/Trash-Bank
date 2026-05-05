@@ -17,7 +17,6 @@ class AdminPagesController extends RouterBase
             $this->render('admin/adminDashboard', [
                 'pages' => 'dashboard',
                 'title' => 'ผู้ดูแลระบบ',
-                'module' => '../../js/Dashboard.mjs',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
@@ -44,7 +43,23 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
-
+    public function ManageUsersDetail($member_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('waste_center/details/user_detail', [
+                'pages' => "manageUsers",
+                'title' => 'จัดการผู้ใช้งาน',
+                'member_id' => !empty($member_id) ? (int) $member_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
     public function ManageFaculty()
     {
         try {
@@ -62,6 +77,23 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+    public function ManageFacultyDetail($faculty_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/faculty', [
+                'pages' => "manageFaculty",
+                'title' => 'จัดการข้อมูลคณะ',
+                'faculty_id' => !empty($faculty_id) ? (int) $faculty_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 
     public function ManageWasteType()
     {
@@ -70,6 +102,24 @@ class AdminPagesController extends RouterBase
             $this->render('manages/waste_type', [
                 'pages' => "manageWasteType",
                 'title' => 'จัดการหมวดหมู่ขยะ',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageWasteCategoryDetail($wcid)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/waste_type', [
+                'pages' => "manageWasteType",
+                'title' => 'จัดการหมวดหมู่ขยะ',
+                'wcid' => !empty($wcid) ? (int) $wcid : null,
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
@@ -101,10 +151,59 @@ class AdminPagesController extends RouterBase
     {
         try {
             $user = Authentication::AdminAuth();
-            $this->render('manages/badges', [
+            $this->render('maintenance', [
                 'pages' => "manageBadges",
                 'title' => 'จัดการเหรียญตรา',
                 'script' => '../../js/ManageBadges.js',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageRewards()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/rewards', [
+                'pages' => "manageBadges",
+                'title' => 'จัดการของรางวัล',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageRewardCategories()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/reward_categories', [
+                'pages' => "manageRewardCategories",
+                'title' => 'จัดการหมวดหมู่ของรางวัล',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageRewardCategoryDetail($cid)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/reward_category', [
+                'pages' => "manageRewardCategories",
+                'title' => 'รายการของรางวัลในหมวดหมู่',
+                'cid' => !empty($cid) ? (int) $cid : null,
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
@@ -138,6 +237,21 @@ class AdminPagesController extends RouterBase
             $this->render('waste_center/manages/waste_stock', [
                 'pages' => "manageWasteStock",
                 'title' => 'คลังขยะ',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    public function RewardStock()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('maintenance', [
+                'pages' => "manageWasteStock",
+                'title' => 'คลังของรางวัล',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
         } catch (AuthenticationException $th) {
@@ -223,7 +337,7 @@ class AdminPagesController extends RouterBase
             $user = Authentication::AdminAuth();
             $this->render('transactions/redeem_item', [
                 'pages' => "redeemItemTransaction",
-                'title' => 'บันทึกการแลกสิ่งของ',
+                'title' => 'แลกของรางวัล',
                 'user' => $user["user_data"]
 
             ], self::$AdminTemplate);
@@ -304,4 +418,37 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function RedeemHistory()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('maintenance', [
+                'pages' => "DonationHistory",
+                'title' => 'ประวัติการแลกของรางวัล',
+                'user' => $user["user_data"]
+
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    // Report
+    public function Report()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('maintenance', [
+                'pages' => "reports",
+                'title' => "รายงาน",
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

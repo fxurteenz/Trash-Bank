@@ -27,18 +27,24 @@ class WasteCategoryModel
             $params = [];
 
             if (!empty($query['search'])) {
-                $whereClauses[] = "waste_category_name LIKE :search";
+                $whereClauses[] = "wc.waste_category_name LIKE :search";
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 
             if (isset($query['active']) && $query['active'] !== '') {
-                $whereClauses[] = "waste_category_active = :active";
+                $whereClauses[] = "wc.waste_category_active = :active";
                 $params[':active'] = $query['active'];
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
-            $sql = "SELECT * FROM waste_category{$whereSql}";
+            $sql = "SELECT 
+                        wc.*, 
+                        COUNT(wt.waste_type_id) AS waste_type_count 
+                    FROM waste_category wc
+                    LEFT JOIN waste_type wt ON wc.waste_category_id = wt.waste_category_id
+                    {$whereSql}
+                    GROUP BY wc.waste_category_id";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
@@ -63,7 +69,7 @@ class WasteCategoryModel
             $wasteCategory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS all_category FROM waste_category{$whereSql}";
+                $sqlCount = "SELECT COUNT(*) AS all_category FROM waste_category wc {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
@@ -95,10 +101,10 @@ class WasteCategoryModel
                 throw new Exception('กรุณาลองใหม่, ระบุชื่อหมวดหมู่ขยะ', 400);
             }
 
-            if (empty($data['waste_category_co2_per_kg'])) {
-                // error_log("ERROR : waste_category_name");
-                throw new Exception('กรุณาลองใหม่, ระบุปริมาณการลด CO2 ต่อกิโลกรัม', 400);
-            }
+            // if (empty($data['waste_category_co2_per_kg'])) {
+            //     // error_log("ERROR : waste_category_name");
+            //     throw new Exception('กรุณาลองใหม่, ระบุปริมาณการลด CO2 ต่อกิโลกรัม', 400);
+            // }
 
             $data["updated_at"] = date('Y-m-d H:i:s');
 

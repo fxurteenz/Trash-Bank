@@ -63,8 +63,33 @@ class DashboardDataController
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
+        }
+    }
+
+    public function GetCenterAdminDashboard()// hot create for present we'll manage it later
+    {
+        try {
+            header('Content-Type: application/json');
+            Authentication::CenterAuth();
+            $result = self::$DashboardDataModel->CenterDashBoard(self::$queryString);
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

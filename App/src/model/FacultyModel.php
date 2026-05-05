@@ -30,10 +30,38 @@ class FacultyModel
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
+            $sortDirection = 'DESC';
+            if (isset($query['order']) && strtoupper($query['order']) === 'ASC') {
+                $sortDirection = 'ASC';
+            }
+
+            $orderBySql = " ORDER BY f.faculty_id " . $sortDirection;
+
+            if (!empty($query['sort_by'])) {
+                switch ($query['sort_by']) {
+                    case 'name':
+                        $orderBySql = " ORDER BY f.faculty_name " . $sortDirection;
+                        break;
+                    case 'point':
+                        $orderBySql = " ORDER BY f.faculty_point " . $sortDirection;
+                        break;
+                    case 'major':
+                        $orderBySql = " ORDER BY major_count_total " . $sortDirection;
+                        break;
+                    case 'member':
+                        $orderBySql = " ORDER BY total_member " . $sortDirection;
+                        break;
+                }
+            }
+
             // --- แก้ไข SQL ตรงนี้ ---
             $sql = "SELECT 
                     f.*, 
-                    COALESCE(m_count.total_major, 0) AS major_count_total
+                    COALESCE(m_count.total_major, 0) AS major_count_total,
+                    COALESCE(mem_count.admin_count, 0) AS admin_count,
+                    COALESCE(mem_count.user_count, 0) AS user_count,
+                    COALESCE(mem_count.staff_count, 0) AS staff_count,
+                    COALESCE(mem_count.total_member, 0) AS total_member
                 FROM 
                     faculty f
                 -- Subquery 1: นับจำนวน Major
@@ -42,10 +70,20 @@ class FacultyModel
                     FROM major
                     GROUP BY faculty_id
                 ) AS m_count ON f.faculty_id = m_count.faculty_id
+                -- Subquery 2: นับจำนวน Member แยกตาม Role
+                LEFT JOIN (
+                    SELECT faculty_id,
+                           SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
+                           SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as user_count,
+                           SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as staff_count,
+                           COUNT(member_id) as total_member
+                    FROM member
+                    GROUP BY faculty_id
+                ) AS mem_count ON f.faculty_id = mem_count.faculty_id
                 
                 {$whereSql}
                 
-                ORDER BY f.faculty_id DESC";
+                {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -95,14 +133,44 @@ class FacultyModel
     public function GetFacultyById($id): array
     {
         try {
-
-            $sql = "SELECT * FROM faculty WHERE faculty_id = :faculty_id";
+            $sql = "SELECT 
+                    f.*, 
+                    COALESCE(m_count.total_major, 0) AS major_count_total,
+                    COALESCE(mem_count.admin_count, 0) AS admin_count,
+                    COALESCE(mem_count.user_count, 0) AS user_count,
+                    COALESCE(mem_count.staff_count, 0) AS staff_count,
+                    COALESCE(mem_count.total_member, 0) AS total_member
+                FROM faculty f
+                LEFT JOIN (
+                    SELECT faculty_id, COUNT(major_id) AS total_major
+                    FROM major
+                    GROUP BY faculty_id
+                ) AS m_count ON f.faculty_id = m_count.faculty_id
+                LEFT JOIN (
+                    SELECT faculty_id,
+                           SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
+                           SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as user_count,
+                           SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as staff_count,
+                           COUNT(member_id) as total_member
+                    FROM member
+                    GROUP BY faculty_id
+                ) AS mem_count ON f.faculty_id = mem_count.faculty_id
+                WHERE f.faculty_id = :faculty_id";
             $stmt = $this->Conn->prepare($sql);
             $stmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            return $data;
+            if ($data) {
+                // ดึงรายการสาขาที่อยู่ในคณะนี้
+                $majorSql = "SELECT * FROM major WHERE faculty_id = :faculty_id";
+                $majorStmt = $this->Conn->prepare($majorSql);
+                $majorStmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
+                $majorStmt->execute();
+                $data['majors'] = $majorStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            }
+
+            return $data ?: [];
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {

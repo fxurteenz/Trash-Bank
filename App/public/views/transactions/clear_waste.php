@@ -11,17 +11,32 @@
             selectedIndex: -1,
 
             // --- Transaction State ---
-            itemForm: { wasteCode: '', weight: '' },
-            wasteTypes: [],
-            filteredWasteTypes: [],
-            selectedWasteType: null,
             items: [],
+            isLoadingStock: false,
             isSubmitting: false,
             todayStats: { count: 0, weight: 0 },
+            itemForm: { wasteCode: '', weight: '' },
+            selectedStockItem: null,
 
             // --- Computed ---
             get totalWeight() {
-                return this.items.reduce((sum, item) => sum + parseFloat(item.weight || 0), 0);
+                return this.items.reduce((sum, item) => sum + parseFloat(item.clearance_weight || 0), 0);
+            },
+            get activeItemsCount() {
+                return this.items.filter(i => parseFloat(i.clearance_weight) > 0).length;
+            },
+            get activeItemsList() {
+                return this.items.filter(i => parseFloat(i.clearance_weight) > 0);
+            },
+            get totalPoints() {
+                return this.items.reduce((sum, item) => {
+                    const weight = parseFloat(item.clearance_weight) || 0;
+                    const price = parseFloat(item.waste_type_price) || 0;
+                    if (weight > 0) {
+                        return sum + Math.floor((price * weight) * 6);
+                    }
+                    return sum;
+                }, 0);
             },
 
             // --- Cookie Helpers (Reused) ---
@@ -44,9 +59,23 @@
 
             // --- Init ---
             async init() {
-                await Promise.all([this.loadWasteTypes(), this.loadFaculties()]);
+                await this.loadFaculties();
                 this.loadTodayStats();
-                this.focusFacultyInput();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const facultyId = urlParams.get('faculty_id');
+
+                if (facultyId) {
+                    const faculty = this.allFaculties.find(f => f.faculty_id.toString() === facultyId);
+                    if (faculty) {
+                        await this.selectFaculty(faculty);
+                    } else {
+                        this.showNotification('ไม่พบข้อมูลคณะจาก URL', 'error');
+                        this.focusFacultyInput();
+                    }
+                } else {
+                    this.focusFacultyInput();
+                }
             },
 
             focusFacultyInput() {
@@ -114,14 +143,19 @@
                 });
             },
 
-            selectFaculty(faculty) {
+            async selectFaculty(faculty) {
                 this.currentFaculty = faculty;
                 this.facultySearch = '';
                 this.searchResults = [];
                 this.showDropdown = false;
                 this.showNotification('เลือกคณะ: ' + faculty.faculty_name, 'success');
+
+                await this.loadFacultyStock(faculty.faculty_id);
+
                 this.$nextTick(() => {
-                    if (this.$refs.wasteCodeInput) this.$refs.wasteCodeInput.focus();
+                    if (this.$refs.weightInput) {
+                        this.$refs.weightInput.focus();
+                    }
                 });
             },
 
@@ -132,113 +166,126 @@
                 this.focusFacultyInput();
             },
 
-            // --- Waste Type Logic ---
-            async loadWasteTypes() {
+            // --- Fetch Stock ---
+            async loadFacultyStock(facultyId) {
+                this.isLoadingStock = true;
+                this.items = [];
                 try {
-                    // ใช้ endpoint เดียวกับที่ใช้ load ปกติ
-                    const response = await fetch('/api/waste_types');
+                    const response = await fetch(`/api/faculty_stock/${facultyId}`);
                     const result = await response.json();
                     if (result.success) {
-                        this.wasteTypes = result.data || [];
-                        this.filteredWasteTypes = this.wasteTypes;
+                        this.items = (result.data || []).map(item => ({
+                            ...item,
+                            clearance_weight: '' // สร้างฟิลด์เปล่าไว้รับค่า input
+                        }));
                     }
                 } catch (error) {
-                    console.error('Error loading waste types:', error);
+                    console.error('Error loading stock:', error);
+                    this.showNotification('ไม่สามารถโหลดข้อมูลคลังขยะของคณะได้', 'error');
+                } finally {
+                    this.isLoadingStock = false;
                 }
             },
 
-            searchWasteType() {
+            setMaxWeight(index) {
+                this.items[index].clearance_weight = this.items[index].stock_weight;
+            },
+
+            clearWeight(index) {
+                this.items[index].clearance_weight = '';
+            },
+
+            setAllMaxWeight() {
+                this.items.forEach(item => {
+                    item.clearance_weight = item.stock_weight;
+                });
+                this.showNotification('ระบุยอดเคลียร์ทั้งหมดที่มีในคลังแล้ว', 'success');
+            },
+
+            searchStockItem() {
                 const search = this.itemForm.wasteCode.toLowerCase();
-                this.filteredWasteTypes = this.wasteTypes.filter(type =>
-                    type.waste_type_id.toString().includes(search) ||
-                    type.waste_type_name.toLowerCase().includes(search)
+                const exactMatch = this.items.find(type =>
+                    type.waste_type_id.toString().padStart(3, '0') === search ||
+                    type.waste_type_id.toString() === search
                 );
-                const exactMatch = this.wasteTypes.find(type =>
-                    type.waste_type_id.toString() === this.itemForm.wasteCode
-                );
-                this.selectedWasteType = exactMatch || null;
+                this.selectedStockItem = exactMatch || null;
             },
 
-            handleWasteCodeEnter() {
-                if (this.selectedWasteType) {
+            addClearanceItem() {
+                const weightToAdd = parseFloat(this.itemForm.weight);
+                if (!weightToAdd || isNaN(weightToAdd) || weightToAdd <= 0) {
+                    this.showNotification('กรุณากรอกน้ำหนักให้ถูกต้อง (มากกว่า 0)', 'error');
                     this.$refs.weightInput.focus();
+                    return;
                 }
-            },
 
-            // --- Cart Logic ---
-            addItem() {
-                if (!this.itemForm.wasteCode || !this.selectedWasteType) {
-                    this.showNotification('กรุณาเลือกชนิดขยะ', 'error');
+                // เลือกรหัสขยะอัตโนมัติจากคำค้นหา หากยังไม่ได้เลือกจาก Dropdown
+                if (!this.selectedStockItem && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.items.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedStockItem = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
+                if (!this.itemForm.wasteCode || !this.selectedStockItem) {
+                    this.showNotification('กรุณาเลือกรหัสชนิดขยะที่มีในคลัง', 'error');
                     this.$refs.wasteCodeInput.focus();
                     return;
                 }
 
-                const weightToAdd = parseFloat(this.itemForm.weight);
-                if (!weightToAdd || weightToAdd <= 0) {
-                    this.showNotification('กรุณากรอกน้ำหนักที่ถูกต้อง (> 0)', 'error');
-                    this.$refs.weightInput.focus();
-                    return;
+                const itemIndex = this.items.findIndex(i => i.waste_type_id === this.selectedStockItem.waste_type_id);
+                if (itemIndex === -1) return;
+
+                const stockWeight = parseFloat(this.items[itemIndex].stock_weight);
+                const currentClearance = parseFloat(this.items[itemIndex].clearance_weight || 0);
+                const newClearance = currentClearance + weightToAdd;
+
+                if (newClearance > stockWeight) {
+                    this.showNotification(`คำเตือน: น้ำหนักเคลียร์ (${newClearance} กก.) มากกว่าที่มีในคลัง (${stockWeight} กก.)`, 'warning');
                 }
 
-                // Check duplicate item
-                const existingIndex = this.items.findIndex(item =>
-                    item.waste_type_id === this.selectedWasteType.waste_type_id
-                );
-
-                if (existingIndex !== -1) {
-                    // Add to existing
-                    this.items[existingIndex].weight += weightToAdd;
-                    this.showNotification(`อัปเดตน้ำหนักเป็น ${this.items[existingIndex].weight.toFixed(2)} กก.`, 'success');
-                } else {
-                    // Add new
-                    this.items.push({
-                        waste_category_id: this.selectedWasteType.waste_category_id,
-                        waste_category_name: this.selectedWasteType.waste_category_name, // for display
-                        waste_type_id: this.selectedWasteType.waste_type_id,
-                        waste_type_name: this.selectedWasteType.waste_type_name, // for display
-                        weight: weightToAdd
-                    });
-                    this.showNotification('เพิ่มรายการใหม่แล้ว', 'success');
-                }
+                this.items[itemIndex].clearance_weight = newClearance;
+                this.showNotification(`เพิ่มยอดเคลียร์ ${weightToAdd} กก. แล้ว`, 'success');
 
                 this.clearItemForm();
-                this.$refs.wasteCodeInput.focus();
-            },
-
-            removeItem(index) {
-                this.items.splice(index, 1);
-                this.showNotification('ลบรายการแล้ว', 'info');
+                this.$refs.weightInput.focus();
             },
 
             clearItemForm() {
                 this.itemForm.wasteCode = '';
                 this.itemForm.weight = '';
-                this.selectedWasteType = null;
-                this.filteredWasteTypes = this.wasteTypes;
+                this.selectedStockItem = null;
             },
 
             cancelAll() {
-                if (this.items.length === 0) return;
+                const activeItems = this.items.filter(i => parseFloat(i.clearance_weight) > 0);
+                if (activeItems.length === 0) return;
                 Swal.fire({
                     title: 'ยกเลิกทั้งหมด?',
-                    text: "รายการทั้งหมดจะถูกลบ",
+                    text: "ค่าที่กรอกไว้จะถูกเคลียร์ทิ้ง",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
-                    confirmButtonText: 'ลบทั้งหมด',
+                    confirmButtonText: 'ล้างค่า',
                     cancelButtonText: 'ยกเลิก'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        this.items = [];
-                        this.clearItemForm();
+                        this.items.forEach(item => item.clearance_weight = '');
                     }
                 });
             },
 
             // --- Submission Logic (The core requirement) ---
             async submitClearance() {
-                if (this.items.length === 0) {
-                    this.showNotification('ไม่มีรายการที่จะบันทึก', 'warning');
+                const activeItems = this.items.filter(i => parseFloat(i.clearance_weight) > 0);
+                if (activeItems.length === 0) {
+                    this.showNotification('กรุณาระบุน้ำหนักในรายการที่ต้องการเคลียร์', 'warning');
                     return;
                 }
                 if (!this.currentFaculty) {
@@ -249,7 +296,7 @@
                 // Confirm Dialog
                 const confirm = await Swal.fire({
                     title: 'ยืนยันการเคลียร์ยอด?',
-                    html: `คณะ: <b>${this.currentFaculty.faculty_name}</b><br>จำนวน: <b>${this.items.length} รายการ</b>`,
+                    html: `คณะ: <b>${this.currentFaculty.faculty_name}</b><br>จำนวน: <b>${activeItems.length} รายการ</b>`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'ยืนยัน',
@@ -264,10 +311,10 @@
                     // ** Construct payload strictly as requested **
                     const payload = {
                         faculty_id: this.currentFaculty.faculty_id,
-                        items: this.items.map(item => ({
+                        items: activeItems.map(item => ({
                             waste_category_id: item.waste_category_id,
                             waste_type_id: item.waste_type_id,
-                            clearance_weight: parseFloat(item.weight)
+                            clearance_weight: parseFloat(item.clearance_weight)
                         }))
                     };
 
@@ -295,7 +342,9 @@
                         this.setCookie('clearanceStats', JSON.stringify({ date: today, count: this.todayStats.count, weight: this.todayStats.weight }));
 
                         this.items = [];
+                        this.clearItemForm();
                         this.resetFaculty();
+                        await this.loadFaculties(); // ดึงข้อมูลคณะและแต้มล่าสุดใหม่หลังจากบันทึกเสร็จ
                     } else {
                         throw new Error(result.message || 'บันทึกไม่สำเร็จ');
                     }
@@ -390,15 +439,15 @@
                 <p class="text-slate-600 text-sm">รับขยะของคณะ - ลงรายการและจ่ายแต้ม</p>
             </div>
 
-            <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg p-4 text-white">
+            <!-- <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl shadow-lg p-4 text-white">
                 <div class="flex items-center justify-between">
                     <p class="text-amber-100 text-xs font-medium uppercase tracking-wider mb-1">ยอดเคลียร์วันนี้</p>
                     <h2 class="text-3xl font-bold flex items-center gap-2">
-                        <span x-text="todayStats.weight.toFixed(2)">0</span>
+                        <span x-text="todayStats.weight.toFixed(4)">0</span>
                         <span class="text-sm font-normal text-amber-100 mt-2">กก.</span>
                     </h2>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
@@ -461,6 +510,12 @@
                             <p class="text-xs text-slate-500">รหัส: <span x-text="currentFaculty?.faculty_id"></span>
                             </p>
                         </div>
+                        <div class="text-right">
+                            <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">แต้มคณะคงเหลือ</p>
+                            <p class="text-3xl font-bold text-slate-800"
+                                x-text="Number(currentFaculty?.faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -471,83 +526,113 @@
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full overflow-hidden">
 
-            <div class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
-                <h2 class="text-xl font-bold text-slate-900 mb-3">เพิ่มรายการเคลียร์ขยะ</h2>
+            <div x-show="currentFaculty" class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10"
+                style="display: none;">
+                <h2 class="text-xl font-bold text-slate-900 mb-3">ระบุขยะที่ต้องการเคลียร์</h2>
                 <div class="grid grid-cols-12 gap-3">
+                    <div class="col-span-4">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนักเคลียร์ (กก.)</label>
+                        <input x-ref="weightInput" x-model="itemForm.weight"
+                            @keydown.enter="$refs.wasteCodeInput.focus()"
+                            @keydown.tab.prevent="$refs.wasteCodeInput.focus()" type="number" step="0.0001"
+                            placeholder="0.0000"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
+                    </div>
                     <div class="col-span-5">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
-                            @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="handleWasteCodeEnter()"
-                            @input="searchWasteType()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
+                            @keydown.tab.prevent="addClearanceItem()" @keydown.enter="addClearanceItem()"
+                            @input="searchStockItem()" type="text" placeholder="พิมพ์รหัสขยะที่มีในคลัง"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
-                            list="wasteTypeList" autocomplete="off">
-                        <datalist id="wasteTypeList">
-                            <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
-                                <option :value="type.waste_type_id"
-                                    :label="`${type.waste_category_name} : ${type.waste_type_name}`"></option>
+                            list="stockItemList" autocomplete="off">
+                        <datalist id="stockItemList">
+                            <template x-for="item in items" :key="item.waste_type_id">
+                                <option :value="item.waste_type_id.toString().padStart(3, '0')"
+                                    :label="`${item.waste_category_name} : ${item.waste_type_name} (คลัง: ${Number(item.stock_weight).toFixed(4)} กก.)`">
+                                </option>
                             </template>
                         </datalist>
                         <p class="text-[10px] text-amber-600 mt-1 font-medium truncate"
-                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name}`:  'ระบุรหัสชนิดขยะ'">
+                            x-text="selectedStockItem ? `${selectedStockItem.waste_category_name} : ${selectedStockItem.waste_type_name} (มีในคลัง ${Number(selectedStockItem.stock_weight).toFixed(4)} กก.)`:  'ระบุรหัสชนิดขยะเพื่อตรวจสอบสต็อก'">
                         </p>
                     </div>
-                    <div class="col-span-4">
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนัก (กก.)</label>
-                        <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="addItem()"
-                            @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()" type="number" step="0.01"
-                            placeholder="0.00"
-                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
-                    </div>
                     <div class="col-span-3 flex items-center">
-                        <button @click="addItem()"
+                        <button @click="addClearanceItem()"
                             class="w-full px-4 py-2 mb-[2px] bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
-                            เพิ่ม
+                            เพิ่มยอดเคลียร์
                         </button>
                     </div>
                 </div>
             </div>
 
             <div x-show="currentFaculty" class="flex-1 min-h-0 bg-white rounded-xl shadow-xl p-6 flex flex-col"
-                x-init="$watch('items', value => { $nextTick(() => { const container = $refs.listContainer; container.scrollTop = container.scrollHeight; }); })">
+                style="display: none;">
 
-                <h2 class="text-xl font-bold text-slate-900 mb-2 shrink-0 flex items-center justify-between">
-                    <span>รายการที่บันทึก</span>
-                    <span class="bg-amber-100 text-amber-700 text-sm px-2 py-1 rounded-md"
-                        x-text="items.length + ' รายการ'"></span>
-                </h2>
+                <div class="mb-2 shrink-0 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span>รายการขยะในคลัง</span>
 
-                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
-                    <template x-for="(item, index) in items" :key="index">
-                        <div
-                            class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition group border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <span
-                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-xs font-bold text-slate-500"
-                                    x-text="index + 1"></span>
-                                <div>
-                                    <p class="font-semibold text-slate-900 text-sm" x-text="item.waste_type_name"></p>
-                                    <p class="text-xs text-slate-500" x-text="item.waste_type_id"></p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="text-lg font-medium text-amber-600"
-                                    x-text="item.weight.toFixed(2) + ' กก.'"></span>
-                                <button @click="removeItem(index)"
-                                    class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors opacity-0 group-hover:opacity-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
-                    <div x-show="items.length === 0"
+                    </h2>
+                    <button x-show="items.length > 0" @click="setAllMaxWeight()"
+                        class="text-xs px-3 py-1.5 bg-sky-100 text-sky-700 rounded-md hover:bg-sky-200 transition-colors font-medium shadow-sm cursor-pointer">
+                        ทั้งหมด
+                    </button>
+                </div>
+
+                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+                    <div x-show="isLoadingStock" class="p-8 text-center text-slate-500">
+                        <span class="inline-block animate-spin mr-2">⏳</span> กำลังโหลดข้อมูลคลังขยะ...
+                    </div>
+
+                    <table x-show="!isLoadingStock && items.length > 0" class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 rounded-tl-lg">รหัสขยะ</th>
+                                <th scope="col" class="px-4 py-3">ชนิดขยะ</th>
+                                <th scope="col" class="px-4 py-3 text-right">ในคลัง (กก.)</th>
+                                <th scope="col" class="px-4 py-3 text-right">ยอดเคลียร์ (กก.)</th>
+                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-16">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(item, index) in items" :key="index">
+                                <tr class="border-b last:border-b-0 transition-colors group"
+                                    :class="parseFloat(item.clearance_weight) > 0 ? 'bg-amber-50 hover:bg-amber-100' : 'bg-white hover:bg-slate-50'">
+                                    <td class="px-4 py-3 font-medium text-slate-900"
+                                        x-text="item.waste_type_id.toString().padStart(3, '0')"></td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-semibold text-slate-800"
+                                            x-text="`${item.waste_category_name} : ${item.waste_type_name}`"></div>
+                                        <!-- <div class="text-xs text-slate-500" x-text="item.waste_category_name"></div> -->
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-bold text-amber-700"
+                                        x-text="Number(item.stock_weight).toFixed(4)"></td>
+                                    <td class="px-4 py-3 text-right font-bold text-emerald-600"
+                                        x-text="parseFloat(item.clearance_weight) > 0 ? Number(item.clearance_weight).toFixed(4) : '-'">
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button x-show="parseFloat(item.clearance_weight) > 0"
+                                            @click="clearWeight(index)"
+                                            class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors hover:bg-red-50 cursor-pointer"
+                                            title="ลบยอดเคลียร์">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <div x-show="!isLoadingStock && items.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-2" viewBox="0 0 24 24">
                             <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                         </svg>
-                        <p class="text-sm">เพิ่มรายการขยะจากฟอร์มด้านบน</p>
+                        <p class="text-sm">ไม่มีขยะค้างอยู่ในคลังของคณะนี้</p>
                     </div>
                 </div>
             </div>
@@ -580,27 +665,34 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center">
                             <span class="text-amber-100 text-lg">จำนวนรายการ</span>
-                            <span class="text-2xl font-bold" x-text="items.length"></span>
+                            <span class="text-2xl font-bold" x-text="activeItemsCount"></span>
                         </div>
                         <div class="h-px bg-amber-400 opacity-50"></div>
                         <div class="flex justify-between items-center">
                             <span class="text-amber-100 text-lg">น้ำหนักรวม</span>
                             <div class="text-right">
-                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2)"></span>
+                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(4)"></span>
                                 <span class="text-sm text-amber-200">กก.</span>
                             </div>
                         </div>
+
+                        <div class="bg-black/20 rounded-xl p-4 mt-4 backdrop-blur-sm">
+                            <p class="text-amber-100 text-sm mb-1">คะแนนที่จะได้รับ</p>
+                            <p class="text-3xl font-bold tracking-tight text-white"
+                                x-text="totalPoints.toLocaleString()"></p>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="space-y-3">
-                    <button @click="submitClearance()" :disabled="items.length === 0 || isSubmitting"
-                        :class="items.length === 0 || isSubmitting ? 'bg-amber-800/50 cursor-not-allowed text-amber-200' : 'bg-white hover:bg-amber-50 text-amber-700 shadow-lg transform hover:-translate-y-0.5'"
+                    <button @click="submitClearance()" :disabled="activeItemsCount === 0 || isSubmitting"
+                        :class="activeItemsCount === 0 || isSubmitting ? 'bg-amber-800/50 cursor-not-allowed text-amber-200' : 'bg-white hover:bg-amber-50 text-amber-700 shadow-lg transform hover:-translate-y-0.5'"
                         class="w-full px-6 py-4 rounded-xl font-bold text-xl transition-all duration-200 flex items-center justify-center gap-2">
                         <span x-show="!isSubmitting">ยืนยันการเคลียร์</span>
                         <span x-show="isSubmitting" class="flex items-center gap-2">⏳ กำลังบันทึก...</span>
                     </button>
-                    <button @click="cancelAll()" :disabled="items.length === 0"
+                    <button @click="cancelAll()" :disabled="activeItemsCount === 0"
                         class="w-full px-6 py-3 bg-red-500/20 hover:bg-red-500/30 text-white rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-white/10">
                         ยกเลิกทั้งหมด
                     </button>

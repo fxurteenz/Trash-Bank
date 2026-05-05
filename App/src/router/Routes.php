@@ -98,25 +98,44 @@ class Routes
             ['GET', '', [AdminPagesController::class, 'Dashboard']],
             // manage
             ['GET', '/manage/users', [AdminPagesController::class, 'ManageUsers']],
+            ['GET', '/manage/members/detail/[i:mid]', [AdminPagesController::class, 'ManageUsersDetail']],
+
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
+            ['GET', '/manage/faculty/detail/[i:fid]', [AdminPagesController::class, 'ManageFacultyDetail']],
+
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
+            ["GET", "/manage/waste_type/detail/[i:wcid]", [AdminPagesController::class, "ManageWasteCategoryDetail"]],
+
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
-            ["GET", "/manage/badges", [AdminPagesController::class, "ManageBadges"]],
+            ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
+            
+            ["GET", "/manage/reward", [AdminPagesController::class, "ManageRewards"]],
+            ["GET", "/manage/reward_category", [AdminPagesController::class, "ManageRewardCategories"]],
+            ["GET", "/manage/reward_category/detail/[i:cid]", [AdminPagesController::class, "ManageRewardCategoryDetail"]],
+
+
             // transaction
             ["GET", "/transactions/waste", [AdminPagesController::class, "TransactionWaste"]],
             ["GET", "/transactions/waste_sale", [AdminPagesController::class, "TransactionWasteSale"]],
             ["GET", "/transactions/donation", [AdminPagesController::class, "TransactionDonation"]],
             ["GET", "/transactions/redeem_item", [AdminPagesController::class, "TransactionRedeemDonationItem"]],
             ["GET", "/transactions/clear_waste", [AdminPagesController::class, "TransactionClearance"]],
-            ["GET", "/transactions/clear_waste/manage/[i:wcid]", [AdminPagesController::class, "ManageTransactionClearance"]],
+
             // history
             ["GET", "/history/waste_transaction", [AdminPagesController::class, "WasteTransactionHistory"]],
             ["GET", "/history/waste_sale", [AdminPagesController::class, "WasteSaleHistory"]],
             ["GET", "/history/donation", [AdminPagesController::class, "DonationHistory"]],
+            ["GET", "/history/redeem", [AdminPagesController::class, "RedeemHistory"]],
+
             ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
+
             // stock
             ["GET", "/stock/waste", [AdminPagesController::class, "WasteStock"]],
+            ["GET", "/stock/reward", [AdminPagesController::class, "RewardStock"]],
+
+            // report
+            ["GET", "/report", [AdminPagesController::class, "Report"]],
 
         ]);
 
@@ -199,8 +218,18 @@ class Routes
             ['GET', '', [DonationController::class, 'GetAll']],
             ['GET', '/items', [DonationController::class, 'GetItems']],
             ['GET', '/[i:id]', [DonationController::class, 'Get']],
+            ['GET', '/items/uncategorised', [DonationController::class, 'GetUncategorisedItems']],
+            ['GET', '/items/categorised', [DonationController::class, 'GetCategorisedItems']],
+            ['GET', '/items/available', [DonationController::class, 'GetAvailableItems']],
             ['POST', '', [DonationController::class, 'Create']],
-            ['POST', '/update/[i:id]', [DonationController::class, 'Update']],
+            ['POST', '/items', [DonationController::class, 'CreateItem']],
+            ['POST', '/items/update/[i:id]', [DonationController::class, 'UpdateItem']],
+            ['GET', '/items/category', [DonationController::class, 'GetItemCategories']],
+            ['GET', '/items/category/[i:cid]', [DonationController::class, 'GetItemByCategories']],
+            ['POST', '/items/category', [DonationController::class, 'CreateItemCategory']],
+            ['POST', '/items/category/update/[i:id]', [DonationController::class, 'UpdateItemCategory']],
+            ['POST', '/items/category/bulk_update', [DonationController::class, 'BulkUpdateItemCategory']],
+            ['POST', '/items/activate', [DonationController::class, 'ToggleItemAvailable']],
             ['POST', '/delete', [DonationController::class, 'Delete']],
         ]);
         /* /api/donations */
@@ -215,7 +244,6 @@ class Routes
         $this->addPrefixedRoutes('/api/faculties', [
             ['GET', '', [FacultyController::class, 'GetAll']],
             ['GET', '/[i:fid]', [FacultyController::class, 'Get']],
-            ['GET', '/detail', [FacultyDetailController::class, 'GetFacultyDetail']],
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],

@@ -2,12 +2,10 @@
 
     <div class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            
-        <div class="mb-4">
-            <h1 class="text-2xl font-bold text-slate-900">จัดการกลุ่มแต้ม</h1>
-            <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบ กลุ่มแต้ม สำหรับแลกของในระบบ</p>
-        </div>
-
+            <div class="mb-4">
+                <h1 class="text-2xl font-bold text-slate-900">จัดการกลุ่มแต้ม</h1>
+                <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบ กลุ่มแต้ม สำหรับแลกของในระบบ</p>
+            </div>
             <div @click="openCreateDialog"
                 class="group cursor-pointer flex items-center py-2 px-4 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 transition-colors font-medium text-emerald-700">
                 <button class="group-hover:rotate-90 duration-300" title="Add New">
@@ -20,7 +18,7 @@
                         <path stroke-width="1.5" d="M12 16V8"></path>
                     </svg>
                 </button>
-                <span>เพิ่ม</span>
+                <span>เพิ่มกลุ่มแต้มใหม่</span>
             </div>
         </div>
 
@@ -43,16 +41,69 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="group in pointGroups" :key="group.donation_item_point_id">
-                        <tr class="hover:bg-emerald-50 cursor-pointer transition-colors">
+                        <tr :class="editingGroupId === group.donation_item_point_id ? 'bg-amber-50' : 'hover:bg-gray-50'"
+                            class="transition duration-200">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                                 x-text="group.donation_item_point_id"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="group.redeem_point">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <template x-if="editingGroupId !== group.donation_item_point_id">
+                                    <span x-text="group.redeem_point"></span>
+                                </template>
+                                <template x-if="editingGroupId === group.donation_item_point_id">
+                                    <div class="flex flex-col">
+                                        <input type="number" x-model="editGroupForm.redeem_point" @click.stop
+                                            @keydown.enter="saveEditGroup()"
+                                            class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
+                                        <span x-show="errors.edit && errors.edit.redeem_point"
+                                            class="text-red-500 text-xs mt-1" x-text="errors.edit.redeem_point"></span>
+                                    </div>
+                                </template>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button @click.stop="selectingRow(group)"
-                                    class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button @click.stop="confirmDelete(group.donation_item_point_id)"
-                                    class="text-red-600 hover:text-red-900 ml-4">Delete</button>
+                                <template x-if="editingGroupId !== group.donation_item_point_id">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <button @click.stop="startEditGroup(group)"
+                                            class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="แก้ไข">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="confirmDelete(group.donation_item_point_id)"
+                                            class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-500 hover:to-red-600 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ลบ">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="editingGroupId === group.donation_item_point_id">
+                                    <div class="flex justify-end items-center gap-2">
+                                        <button @click.stop="saveEditGroup()"
+                                            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-2 text-white hover:scale-105 cursor-pointer rounded-md"
+                                            title="บันทึก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </button>
+                                        <button @click.stop="cancelEditGroup()"
+                                            class="bg-gray-400 p-2 text-white hover:bg-gray-500 hover:scale-105 cursor-pointer rounded-md"
+                                            title="ยกเลิก">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
                             </td>
                         </tr>
                     </template>
@@ -92,8 +143,7 @@
                     </label>
                     <input
                         class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
-                        type="number" id="create_redeem_point" x-model="createForm.redeem_point"
-                        placeholder="e.g. 100">
+                        type="number" id="create_redeem_point" x-model="createForm.redeem_point" placeholder="e.g. 100">
                     <span x-show="errors.create && errors.create.redeem_point" class="text-red-500 text-xs">
                         กรุณากรอกแต้มสำหรับแลก
                     </span>
@@ -108,34 +158,6 @@
         </div>
     </dialog>
 
-    <!-- Edit Dialog -->
-    <dialog x-ref="editDialog" x-show="editDialogShow" @click.self="editDialogShow = false"
-        @close="editDialogShow = false" class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
-        x-init="$watch('editDialogShow', value => {if (value) $refs.editDialog.showModal();else $refs.editDialog.close();})">
-        <div class="bg-white rounded-md shadow p-6 w-96 max-w-full">
-            <h3 class="font-bold text-lg mb-3">แก้ไขกลุ่มแต้ม</h3>
-            <div class="grid grid-1 space-y-2 text-xs">
-                <div class="flex flex-col space-y-1">
-                    <label for="edit_redeem_point">
-                        Redeem Point <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 focus:border-emerald-200"
-                        type="number" id="edit_redeem_point" x-model="editForm.redeem_point"
-                        placeholder="e.g. 100">
-                    <span x-show="errors.edit && errors.edit.redeem_point" class="text-red-500 text-xs">
-                        กรุณากรอกแต้มสำหรับแลก
-                    </span>
-                </div>
-            </div>
-            <div class="mt-4 text-right space-x-2">
-                <button @click="submitEdit"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-full hover:bg-emerald-600 cursor-pointer font-medium transition-colors">ยืนยัน</button>
-                <button @click="editDialogShow = false"
-                    class="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 cursor-pointer transition-colors">ยกเลิก</button>
-            </div>
-        </div>
-    </dialog>
 </div>
 
 <script>
@@ -143,11 +165,11 @@
         return {
             pointGroups: [],
             createDialogShow: false,
-            editDialogShow: false,
             createForm: {
                 redeem_point: ''
             },
-            editForm: {
+            editingGroupId: null,
+            editGroupForm: {
                 donation_item_point_id: null,
                 redeem_point: ''
             },
@@ -190,20 +212,25 @@
                 this.createDialogShow = true;
             },
 
-            selectingRow(group) {
-                this.editForm = { ...group
+            startEditGroup(group) {
+                this.editingGroupId = group.donation_item_point_id;
+                this.editGroupForm = {
+                    ...group
                 };
                 this.errors.edit = null;
-                this.editDialogShow = true;
+            },
+
+            cancelEditGroup() {
+                this.editingGroupId = null;
             },
 
             validateForm(formType) {
                 let isValid = true;
-                const form = formType === 'create' ? this.createForm : this.editForm;
+                const form = formType === 'create' ? this.createForm : this.editGroupForm;
                 const errorStore = {};
 
                 if (!form.redeem_point || form.redeem_point <= 0) {
-                    errorStore.redeem_point = 'Redeem point must be a positive number.';
+                    errorStore.redeem_point = 'กรุณากรอกแต้มสำหรับแลกที่มากกว่า 0';
                     isValid = false;
                 }
 
@@ -218,7 +245,7 @@
 
             async submitCreate() {
                 if (!this.validateForm('create')) {
-                     Swal.fire({
+                    Swal.fire({
                         icon: 'warning',
                         title: 'ข้อมูลไม่ถูกต้อง',
                         text: 'กรุณาตรวจสอบข้อมูลที่กรอก'
@@ -258,7 +285,7 @@
                 }
             },
 
-            async submitEdit() {
+            async saveEditGroup() {
                 if (!this.validateForm('edit')) {
                     Swal.fire({
                         icon: 'warning',
@@ -269,28 +296,30 @@
                 }
 
                 try {
-                    const response = await fetch(`/api/point_groups/update/${this.editForm.donation_item_point_id}`, {
+                    const response = await fetch(`/api/point_groups/update/${this.editGroupForm.donation_item_point_id}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ redeem_point: this.editForm.redeem_point })
+                        body: JSON.stringify({ redeem_point: this.editGroupForm.redeem_point })
                     });
                     const result = await response.json();
-                     if (result.success) {
+                    if (result.success) {
                         Swal.fire({
+                            toast: true,
+                            position: 'top-end',
                             icon: 'success',
                             title: 'แก้ไขสำเร็จ',
                             showConfirmButton: false,
                             timer: 1500
                         });
-                        this.editDialogShow = false;
+                        this.editingGroupId = null;
                         this.fetchPointGroups();
                     } else {
                         throw new Error(result.message);
                     }
                 } catch (err) {
-                     console.error('Update failed', err);
+                    console.error('Update failed', err);
                     Swal.fire({
                         icon: 'error',
                         title: 'แก้ไขไม่สำเร็จ',
@@ -315,7 +344,7 @@
                     try {
                         const response = await fetch('/api/point_groups/delete', {
                             method: 'POST',
-                             headers: {
+                            headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({ point_ids: [id] })

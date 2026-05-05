@@ -107,7 +107,7 @@ class WasteCenterPagesController extends RouterBase
             $this->render('transactions/redeem_item', [
                 'user' => $user["user_data"],
                 'pages' => "redeemItemTransaction",
-                'title' => 'บันทึกการแลกสิ่งของ'
+                'title' => 'แลกของรางวัล'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             header('location: /');

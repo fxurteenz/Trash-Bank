@@ -51,7 +51,7 @@ class MemberModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = " ORDER BY m.member_id " . $sortDirection;
+            $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
@@ -68,8 +68,18 @@ class MemberModel
             }
 
             $sql = "SELECT 
-                    m.*, 
+                    m.member_id, 
+                    m.member_name, 
+                    m.member_phone, 
+                    m.member_email, 
+                    m.member_personal_id, 
+                    m.member_waste_point, 
+                    m.member_goodness_point, 
+                    m.role_id,
+                    m.faculty_id,
+                    m.major_id,
                     f.faculty_name,
+                    f.faculty_point as member_faculty_point,
                     maj.major_name,
                     r.role_name,
                     r.role_name_th
@@ -289,6 +299,7 @@ class MemberModel
             $sql = "SELECT 
                         m.*, 
                         f.faculty_name,
+                        f.faculty_point as member_faculty_point,
                         maj.major_name,
                         r.role_name,
                         r.role_name_th
@@ -313,25 +324,25 @@ class MemberModel
                 throw new Exception("ไม่พบข้อมูลสมาชิก", 404);
             }
 
-            // Get member badges
-            $badgeSql = "SELECT 
-                            b.*,
-                            mb.member_badge_date
-                        FROM 
-                            member_badge mb
-                        JOIN 
-                            badge b ON mb.badge_id = b.badge_id
-                        WHERE 
-                            mb.member_id = :member_id
-                        ORDER BY 
-                            mb.member_badge_date DESC";
+            // // Get member badges
+            // $badgeSql = "SELECT 
+            //                 b.*,
+            //                 mb.member_badge_date
+            //             FROM 
+            //                 member_badge mb
+            //             JOIN 
+            //                 badge b ON mb.badge_id = b.badge_id
+            //             WHERE 
+            //                 mb.member_id = :member_id
+            //             ORDER BY 
+            //                 mb.member_badge_date DESC";
 
-            $badgeStmt = $this->Conn->prepare($badgeSql);
-            $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
-            $badgeStmt->execute();
-            $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
+            // $badgeStmt = $this->Conn->prepare($badgeSql);
+            // $badgeStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            // $badgeStmt->execute();
+            // $badges = $badgeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $member['badges'] = $badges;
+            // $member['badges'] = $badges;
 
             // Get member easte transaction history
             $wasteSql = "SELECT 

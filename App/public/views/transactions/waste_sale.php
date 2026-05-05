@@ -11,6 +11,8 @@
             filteredWasteTypes: [],
             selectedWasteType: null,
             items: [],
+            centerStock: [],
+            isLoadingStock: false,
             isSubmitting: false,
             todayStats: { count: 0, money: 0 },
 
@@ -21,6 +23,14 @@
 
             get totalPrice() {
                 return this.items.reduce((sum, item) => sum + parseFloat(item.price || 0), 0);
+            },
+
+            getItemSellWeight(wasteTypeId) {
+                return this.items.filter(i => i.waste_type_id == wasteTypeId).reduce((sum, i) => sum + parseFloat(i.weight), 0);
+            },
+
+            getItemSellPrice(wasteTypeId) {
+                return this.items.filter(i => i.waste_type_id == wasteTypeId).reduce((sum, i) => sum + parseFloat(i.price), 0);
             },
 
             // --- Cookie Helpers ---
@@ -43,7 +53,6 @@
 
             // --- Init ---
             async init() {
-                await this.loadWasteTypes();
                 this.loadTodayStats();
                 this.focusBuyerInput();
             },
@@ -57,7 +66,7 @@
             },
 
             // --- Buyer Logic ---
-            confirmBuyer() {
+            async confirmBuyer() {
                 if (!this.buyerName.trim()) {
                     this.showNotification('กรุณาระบุชื่อผู้ซื้อ', 'error');
                     this.$refs.buyerInput.focus();
@@ -65,6 +74,7 @@
                 }
                 this.buyerConfirmed = true;
                 this.showNotification(`ผู้ซื้อ: ${this.buyerName}`, 'success');
+                await this.loadCenterStock();
                 this.$nextTick(() => {
                     if (this.$refs.wasteCodeInput) {
                         this.$refs.wasteCodeInput.focus();
@@ -81,17 +91,26 @@
             },
 
             // --- Data Loading ---
-            async loadWasteTypes() {
+            async loadCenterStock() {
+                this.isLoadingStock = true;
                 try {
-                    const response = await fetch('/api/waste_types'); // หรือ /api/center_stock ถ้าต้องการดึงเฉพาะที่มี แต่โจทย์บอกไม่ต้องเช็คคลัง
+                    const response = await fetch('/api/center_stock');
                     const result = await response.json();
                     if (result.success) {
-                        this.wasteTypes = result.data || [];
+                        this.centerStock = result.data || [];
+                        this.wasteTypes = this.centerStock.map(item => ({
+                            waste_type_id: item.waste_type_id,
+                            waste_type_name: item.waste_type_name,
+                            waste_category_name: item.waste_category_name,
+                            stock_weight: parseFloat(item.stock_weight || 0)
+                        }));
                         this.filteredWasteTypes = this.wasteTypes;
                     }
                 } catch (error) {
-                    console.error('Error loading waste types:', error);
-                    this.showNotification('ไม่สามารถโหลดข้อมูลชนิดขยะได้', 'error');
+                    console.error('Error loading center stock:', error);
+                    this.showNotification('ไม่สามารถโหลดข้อมูลคลังศูนย์ได้', 'error');
+                } finally {
+                    this.isLoadingStock = false;
                 }
             },
 
@@ -99,23 +118,53 @@
             searchWasteType() {
                 const search = this.itemForm.wasteCode.toLowerCase();
                 this.filteredWasteTypes = this.wasteTypes.filter(type =>
+                    type.waste_type_id.toString().padStart(3, '0').includes(search) ||
                     type.waste_type_id.toString().includes(search) ||
                     type.waste_type_name.toLowerCase().includes(search)
                 );
 
                 const exactMatch = this.wasteTypes.find(type =>
+                    type.waste_type_id.toString().padStart(3, '0') === this.itemForm.wasteCode ||
                     type.waste_type_id.toString() === this.itemForm.wasteCode
                 );
                 this.selectedWasteType = exactMatch || null;
             },
 
             handleWasteCodeEnter() {
+                if (!this.selectedWasteType && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.wasteTypes.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedWasteType = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
                 if (this.selectedWasteType) {
                     this.$refs.weightInput.focus();
+                } else {
+                    this.showNotification('ไม่พบชนิดขยะที่ระบุ', 'warning');
                 }
             },
 
             addItem() {
+                if (!this.selectedWasteType && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.wasteTypes.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedWasteType = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
                 // Validation
                 if (!this.itemForm.wasteCode || !this.selectedWasteType) {
                     this.showNotification('กรุณาเลือกชนิดขยะ', 'error');
@@ -136,6 +185,15 @@
                     this.showNotification('กรุณากรอกราคาให้ถูกต้อง', 'error');
                     this.$refs.priceInput.focus();
                     return;
+                }
+
+                // ตรวจสอบน้ำหนักกับคลังศูนย์
+                const stockItem = this.centerStock.find(s => s.waste_type_id == this.selectedWasteType.waste_type_id);
+                const availableStock = stockItem ? parseFloat(stockItem.stock_weight) : 0;
+                const alreadyAdded = this.items.filter(i => i.waste_type_id == this.selectedWasteType.waste_type_id).reduce((sum, i) => sum + parseFloat(i.weight), 0);
+
+                if ((weightVal + alreadyAdded) > availableStock) {
+                    this.showNotification(`คำเตือน: น้ำหนักขายรวม (${(weightVal + alreadyAdded).toFixed(2)} กก.) มากกว่าที่มีในคลัง (${availableStock.toFixed(2)} กก.)`, 'warning');
                 }
 
                 // Add Item
@@ -324,16 +382,6 @@
                 </h1>
                 <p class="text-slate-600 text-sm">จำหน่ายขยะ - ลงรายการและจ่ายแต้ม</p>
             </div>
-
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-4 text-white">
-                <div class="flex items-center justify-between">
-                    <p class="text-blue-100 text-xs font-medium uppercase tracking-wider mb-1">ยอดขายวันนี้</p>
-                    <h2 class="text-3xl font-bold flex items-center gap-2">
-                        <span x-text="todayStats.money.toFixed(2)">0.00</span>
-                        <span class="text-sm font-normal text-blue-100 mt-2">บาท</span>
-                    </h2>
-                </div>
-            </div>
         </div>
 
         <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
@@ -385,24 +433,26 @@
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full overflow-hidden">
 
-            <div class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
+            <div x-show="buyerConfirmed" style="display: none;"
+                class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
                 <h2 class="text-xl font-bold text-slate-900 mb-3">เพิ่มรายการขาย</h2>
                 <div class="grid grid-cols-12 gap-3">
                     <div class="col-span-5">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
-                            @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="handleWasteCodeEnter()"
+                            @keydown.tab.prevent="handleWasteCodeEnter()" @keydown.enter="handleWasteCodeEnter()"
                             @input="searchWasteType()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
                             list="wasteTypeList" autocomplete="off">
                         <datalist id="wasteTypeList">
                             <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
-                                <option :value="type.waste_type_id"
-                                    :label="`${type.waste_category_name} : ${type.waste_type_name}`"></option>
+                                <option :value="type.waste_type_id.toString().padStart(3, '0')"
+                                    :label="`${type.waste_category_name} : ${type.waste_type_name} (คลัง: ${type.stock_weight.toFixed(2)} กก.)`">
+                                </option>
                             </template>
                         </datalist>
                         <p class="text-[10px] text-blue-600 mt-1 font-medium truncate"
-                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name}`:  'ระบุรหัสชนิดขยะ'">
+                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name} (มีในคลัง ${selectedWasteType?.stock_weight.toFixed(2)} กก.)`:  'ระบุรหัสชนิดขยะที่มีในคลัง'">
                         </p>
                     </div>
 
@@ -428,49 +478,54 @@
                 </div>
             </div>
 
-            <div x-show="buyerConfirmed" class="flex-1 min-h-0 bg-white rounded-xl shadow-xl p-6 flex flex-col"
-                x-init="$watch('items', value => { $nextTick(() => { const container = $refs.listContainer; container.scrollTop = container.scrollHeight; }); })">
+            <div x-show="buyerConfirmed" style="display: none;" class="flex-1 min-h-0 flex flex-col">
 
-                <h2 class="text-xl font-bold text-slate-900 mb-2 shrink-0 flex items-center justify-between">
-                    <span>รายการที่จะขาย</span>
-                    <span class="bg-blue-100 text-blue-700 text-sm px-2 py-1 rounded-md"
-                        x-text="items.length + ' รายการ'"></span>
-                </h2>
-
-                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
-                    <template x-for="(item, index) in items" :key="index">
-                        <div
-                            class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition group border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <span class="text-lg text-slate-400 w-8 text-center" x-text="index + 1 +'.'"></span>
-                                <div>
-                                    <span class="font-light text-slate-900" x-text="item.waste_type_id"></span> :
-                                    <span class="font-semibold text-slate-900" x-text="item.waste_type_name"></span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="text-right">
-                                    <p class="text-lg font-bold text-blue-600"
-                                        x-text="parseFloat(item.price).toFixed(2) + ' ฿'"></p>
-                                    <p class="text-xs text-slate-500"
-                                        x-text="parseFloat(item.weight).toFixed(2) + ' กก.'"></p>
-                                </div>
-                                <button @click="removeItem(index)"
-                                    class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors opacity-0 group-hover:opacity-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                                    </svg>
-                                </button>
-                            </div>
+                <!-- Center Stock Table -->
+                <div class="bg-white rounded-xl shadow-xl p-6 flex flex-col min-h-full">
+                    <h2 class="text-xl font-bold text-slate-900 mb-2 shrink-0 flex items-center justify-between">
+                        <span>📦 คลังขยะศูนย์</span>
+                        <span x-show="isLoadingStock" class="text-xs text-slate-500 animate-pulse">กำลังโหลด...</span>
+                    </h2>
+                    <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        <table x-show="centerStock.length > 0" class="w-full text-sm text-left text-slate-600">
+                            <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 rounded-tl-lg">รหัส</th>
+                                    <th scope="col" class="px-4 py-3">ชนิดขยะ</th>
+                                    <th scope="col" class="px-4 py-3 text-right">คงเหลือ (กก.)</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-blue-700">ขาย (กก.)</th>
+                                    <th scope="col" class="px-4 py-3 text-right text-amber-700 rounded-tr-lg">ราคา (฿)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(stock, index) in centerStock" :key="index">
+                                    <tr class="border-b last:border-b-0 transition-colors"
+                                        :class="getItemSellWeight(stock.waste_type_id) > 0 ? 'bg-blue-50 hover:bg-blue-100' : 'bg-white hover:bg-slate-50'">
+                                        <td class="px-4 py-3 font-medium text-slate-900"
+                                            x-text="stock.waste_type_id.toString().padStart(3, '0')"></td>
+                                        <td class="px-4 py-3">
+                                            <div class="font-semibold text-slate-800 truncate"
+                                                x-text="stock.waste_type_name"></div>
+                                            <div class="text-[10px] text-slate-500 truncate"
+                                                x-text="stock.waste_category_name"></div>
+                                        </td>
+                                        <td class="px-4 py-3 text-right font-bold text-emerald-600"
+                                            x-text="parseFloat(stock.stock_weight).toFixed(2)"></td>
+                                        <td class="px-4 py-3 text-right font-bold text-blue-600"
+                                            x-text="getItemSellWeight(stock.waste_type_id) > 0 ? parseFloat(getItemSellWeight(stock.waste_type_id)).toFixed(2) : '-'">
+                                        </td>
+                                        <td class="px-4 py-3 text-right font-bold text-amber-600"
+                                            x-text="getItemSellPrice(stock.waste_type_id) > 0 ? parseFloat(getItemSellPrice(stock.waste_type_id)).toFixed(2) : '-'">
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                        <div x-show="!isLoadingStock && centerStock.length === 0"
+                            class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
+                            <p class="text-sm">ไม่มีขยะในคลังศูนย์</p>
                         </div>
-                    </template>
-                    <div x-show="items.length === 0"
-                        class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-2" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                        </svg>
-                        <p class="text-sm">เพิ่มรายการขยะจากฟอร์มด้านบน</p>
                     </div>
                 </div>
             </div>
@@ -503,12 +558,43 @@
                         </svg>
                         สรุปรายการ
                     </h3>
-                    <div class="space-y-1">
+                    <div class="space-y-4">
                         <div class="flex justify-between items-center">
                             <span class="text-blue-100 text-lg">จำนวนรายการ</span>
-                            <span class="text-3xl font-bold" x-text="items.length"></span>
+                            <span class="text-2xl font-bold" x-text="items.length"></span>
                         </div>
+
+                        <div class="bg-black/20 rounded-xl p-4 mt-4 backdrop-blur-sm max-h-48 overflow-y-auto custom-scrollbar"
+                            x-show="items.length > 0">
+                            <p class="text-blue-100 text-sm mb-2 font-semibold">รายการที่ขาย:</p>
+                            <ul class="space-y-2 text-sm">
+                                <template x-for="(item, index) in items" :key="index">
+                                    <li
+                                        class="flex justify-between items-center border-b border-white/10 py-1 last:border-0 last:pb-0">
+                                        <span class="text-white truncate pr-2" x-text="item.waste_type_name"></span>
+                                        <div class="text-right whitespace-nowrap flex items-center">
+                                            <span class="text-blue-200 font-bold"
+                                                x-text="parseFloat(item.weight).toFixed(2) + ' กก.'"></span>
+                                            <span class="text-white/50 mx-1">|</span>
+                                            <span class="text-amber-300 font-bold"
+                                                x-text="parseFloat(item.price).toFixed(2) + ' ฿'"></span>
+                                            <button @click="removeItem(index)"
+                                                class="ml-2 p-1 text-red-300 hover:text-red-200 hover:bg-white/10 rounded transition-colors"
+                                                title="ลบรายการ">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                                    viewBox="0 0 24 24">
+                                                    <path fill="currentColor"
+                                                        d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+
                         <div class="h-px bg-blue-400 opacity-50"></div>
+
                         <div class="flex justify-between items-center">
                             <span class="text-blue-100 text-lg">น้ำหนักรวม</span>
                             <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>

@@ -256,7 +256,14 @@
             // --- Init ---
             async init() {
                 await this.loadRewards();
-                this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get('member_id');
+                if (memberId) {
+                    await this.fetchMemberById(memberId);
+                } else {
+                    this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+                }
             },
 
             // --- Load Data ---
@@ -282,6 +289,22 @@
                         r.reward_name.toLowerCase().includes(search) ||
                         (r.reward_description && r.reward_description.toLowerCase().includes(search))
                     );
+                }
+            },
+
+            async fetchMemberById(id) {
+                try {
+                    const response = await fetch(`/api/members/profile/${id}`);
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.selectMember(result.data);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลสมาชิกจาก URL', timer: 1500, showConfirmButton: false });
+                        this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+                    }
+                } catch (error) {
+                    console.error('Error fetching member:', error);
+                    this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
                 }
             },
 
