@@ -109,7 +109,8 @@ class MemberController extends RouterBase
     public function Update($uid)
     {
         try {
-            if ((int) $this->data["role_id"] == 1 || (int) $this->data["role_id"] == 3 || (int) $this->data["role_id"] == 4) {
+            $role_id = isset($this->data["role_id"]) ? (int) $this->data["role_id"] : null;
+            if ($role_id == 1 || $role_id == 3 || $role_id == 4) {
                 Authentication::CenterAuth();
             } else {
                 Authentication::OperateAuth();
@@ -138,6 +139,41 @@ class MemberController extends RouterBase
         }
     }
 
+    public function UpdateProfile($uid)
+    {
+        try {
+            Authentication::MemberAuth();
+            $restricted_keys = ['role_id', 'member_waste_point', 'member_goodness_point', 'faculty_id', 'major_id'];
+            foreach ($restricted_keys as $key) {
+                if (array_key_exists($key, $this->data)) {
+                    unset($this->data[$key]);
+                }
+            }
+
+            $user = $this->MemberModel->UpdateMember($uid, $this->data);
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode([
+                'success' => TRUE,
+                'result' => $user,
+                'message' => 'user updated successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data' => $this->data
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+
+            ]);
+        }
+    }
     public function Delete()
     {
         try {

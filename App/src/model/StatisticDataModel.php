@@ -106,4 +106,53 @@ class StatisticDataModel
 
     }
 
+    public function GetMemberStats(int $memberId, array $query = []): array
+    {
+        try {
+            [$whereSql, $params] = $this->buildDateFilters($query);
+            $result = ['transaction_breakdown' => [], 'category_breakdown' => []];
+            $params[':member_id'] = $memberId;
+            $whereSql = empty($whereSql) ? "WHERE w.member_id = :member_id" : $whereSql . " AND w.member_id = :member_id";
+
+            $sql = "SELECT 
+                        COUNT(w.waste_transaction_id) AS total_transactions,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM waste_transaction w
+                    {$whereSql}";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute($params);
+            $wtresult = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $result['transaction_breakdown'] = $wtresult ?: [
+                'total_transactions' => 0,
+                'total_weight' => 0,
+                'total_point' => 0,
+                'total_co2e' => 0
+            ];
+
+            $sqlDetail = "SELECT 
+                            d.waste_category_id,
+                            c.waste_category_name,
+                            COALESCE(SUM(d.waste_transaction_detail_weight), 0) AS category_total_weight
+                        FROM waste_transaction w
+                        JOIN waste_transaction_detail d ON w.waste_transaction_id = d.waste_transaction_id
+                        LEFT JOIN waste_category c ON d.waste_category_id = c.waste_category_id
+                        {$whereSql}
+                        GROUP BY d.waste_category_id";
+
+            $stmtDetail = $this->Conn->prepare($sqlDetail);
+            $stmtDetail->execute($params);
+            $result['category_breakdown'] = $stmtDetail->fetchAll(PDO::FETCH_ASSOC);
+
+            return $result;
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
 }

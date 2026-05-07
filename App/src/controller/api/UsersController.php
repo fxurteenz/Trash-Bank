@@ -57,7 +57,7 @@ class UsersController extends RouterBase
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'data' => $this->data
+                // 'data' => $this->data
             ]);
         }
     }

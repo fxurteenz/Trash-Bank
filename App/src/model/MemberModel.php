@@ -297,7 +297,18 @@ class MemberModel
     {
         try {
             $sql = "SELECT 
-                        m.*, 
+                        m.member_id,
+                        m.member_personal_id,
+                        m.member_name,
+                        m.member_phone,
+                        m.member_email,
+                        m.member_waste_point,
+                        m.member_goodness_point,
+                        m.role_id,
+                        m.faculty_id,
+                        m.major_id,
+                        m.created_at,
+                        m.updated_at,
                         f.faculty_name,
                         f.faculty_point as member_faculty_point,
                         maj.major_name,
@@ -378,6 +389,25 @@ class MemberModel
 
             $member['donations'] = $donations;
 
+            // member item history (redemption history)
+            $memberItemSql = "SELECT 
+                            mi.*,
+                            di.donation_item_name,
+                            di.donation_item_image
+                            FROM 
+                            member_item mi
+                            LEFT JOIN donation_item di ON mi.donation_item_id = di.donation_item_id
+                            WHERE 
+                            mi.member_id = :member_id
+                        ORDER BY 
+                            mi.created_at DESC";
+            $memberItemStmt = $this->Conn->prepare($memberItemSql);
+            $memberItemStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $memberItemStmt->execute();
+            $memberItems = $memberItemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $member['member_items'] = $memberItems;
+            
             return $member;
         } catch (PDOException $e) {
             throw new Exception($e->getMessage(), (int) $e->getCode());
@@ -385,7 +415,7 @@ class MemberModel
             throw $e;
         }
     }
-
+    
     public function GetMemberRoleCount($query = [])
     {
         try {

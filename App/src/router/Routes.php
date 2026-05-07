@@ -88,10 +88,11 @@ class Routes
 
         $this->addPrefixedRoutes('/user', [
             ['GET', '', [UserPagesController::class, 'Dashboard']],
-            ['GET', '/shop', [UserPagesController::class, 'Shop']],
-            ['GET', '/equipment', [UserPagesController::class, 'Equipment']],
-            ['GET', '/collection', [UserPagesController::class, 'Collection']],
-            ['GET', '/quests', [UserPagesController::class, 'Quests']],
+            // ['GET', '/shop', [UserPagesController::class, 'Shop']],
+            // ['GET', '/equipment', [UserPagesController::class, 'Equipment']],
+            // ['GET', '/collection', [UserPagesController::class, 'Collection']],
+            // ['GET', '/quests', [UserPagesController::class, 'Quests']],
+            ['GET', '/profile', [UserPagesController::class, 'Profile']],
         ]);
 
         $this->addPrefixedRoutes('/admin', [
@@ -109,7 +110,7 @@ class Routes
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
-            
+
             ["GET", "/manage/reward", [AdminPagesController::class, "ManageRewards"]],
             ["GET", "/manage/reward_category", [AdminPagesController::class, "ManageRewardCategories"]],
             ["GET", "/manage/reward_category/detail/[i:cid]", [AdminPagesController::class, "ManageRewardCategoryDetail"]],
@@ -146,7 +147,8 @@ class Routes
             ['GET', '/profile/[i:id]', [MemberController::class, 'GetProfile']],
             ['GET', '/count', [MemberController::class, 'GetRoleCount']],
             ['POST', '', [MemberController::class, 'Create']],
-            ['POST', '/update/[*:uid]', [MemberController::class, 'Update']],
+            ['POST', '/update/profile/[i:uid]', [MemberController::class, 'UpdateProfile']],
+            ['POST', '/update/[i:uid]', [MemberController::class, 'Update']],
             ['POST', '/delete', [MemberController::class, 'Delete']],
         ]);
         /* /api/majors */
@@ -270,6 +272,8 @@ class Routes
         /* api/statistics */
         $this->addPrefixedRoutes('/api/statistics', [
             ['GET', '', [StatisticDataController::class, 'GetHomePageData']],
+            ['GET', '/member/[i:mid]', [StatisticDataController::class, 'GetMemberStats']],
+
         ]);
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
