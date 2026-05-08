@@ -202,10 +202,14 @@
                 <div x-show="step === 3" style="display: none;">
                     <div class="space-y-4">
                         <div class="flex flex-col space-y-1">
-                            <label for="name" class="text-gray-700 font-medium text-lg">ชื่อ-สกุล</label>
+                            <label for="name" class="text-gray-700 font-medium text-lg">ชื่อ-สกุล <span
+                                    class="text-red-500">*</span></label>
                             <input
                                 class="border border-gray-300 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                type="text" id="name" x-model="formData.member_name" placeholder="ชื่อที่ใช้แสดงในระบบ">
+                                :class="{'border-red-500': errors.member_name}" type="text" id="name"
+                                x-model="formData.member_name" placeholder="ชื่อที่ใช้แสดงในระบบ">
+                            <span x-show="errors.member_name" class="text-red-500 text-xs"
+                                x-text="errors.member_name"></span>
                         </div>
 
                         <div class="flex flex-col space-y-1">
@@ -229,14 +233,18 @@
                                 </template>
 
                                 <div class="flex flex-col space-y-1">
-                                    <label for="faculty" class="text-gray-700 font-medium text-lg">คณะ</label>
+                                    <label for="faculty" class="text-gray-700 font-medium text-lg">คณะ <span
+                                            class="text-red-500">*</span></label>
                                     <select id="faculty" x-model="formData.faculty_id" @change="fetchMajors()"
-                                        class="border border-gray-300 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white">
+                                        class="border border-gray-300 rounded-md p-2 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 bg-white"
+                                        :class="{'border-red-500': errors.faculty_id}">
                                         <option value="">เลือกคณะ</option>
                                         <template x-for="faculty in faculties" :key="faculty.faculty_id">
                                             <option :value="faculty.faculty_id" x-text="faculty.faculty_name"></option>
                                         </template>
                                     </select>
+                                    <span x-show="errors.faculty_id" class="text-red-500 text-xs"
+                                        x-text="errors.faculty_id"></span>
                                 </div>
 
                                 <div x-show="formData.faculty_id" class="flex flex-col space-y-1">
@@ -263,14 +271,14 @@
                             class="w-1/3 font-semibold border border-2 border-gray-500 text-gray-500 hover:scale-102 py-3 px-4 rounded-lg cursor-pointer transition-all">
                             กลับ
                         </button>
-                        <button type="submit"
-                            class="w-2/3 font-semibold py-3 px-4 rounded-lg cursor-pointer transition-all hover:scale-102"
-                            :class="isStep3Empty() ? 'bg-gray-300 hover:bg-gray-400 ' : 'text-white bg-emerald-600 hover:bg-emerald-700'"
-                            x-text="isStep3Empty() ? 'ข้าม' : 'ยืนยันการสมัคร'">
+                        <button type="submit" class="w-2/3 font-semibold py-3 px-4 rounded-lg text-white" :class="{
+                                'bg-gray-400 cursor-not-allowed': getSubmitButtonText() === 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                                'bg-emerald-600 hover:bg-emerald-700 cursor-pointer transition-all hover:scale-102': getSubmitButtonText() === 'ยืนยันการสมัคร'
+                            }" x-text="getSubmitButtonText()">
                         </button>
                     </div>
                     <div class="w-full text-end">
-                        <span class="text-xs text-gray-400 ">ส่วนนี้สามารถแก้ไข/กรอกภายหลังได้</span>
+                        <span class="text-xs text-gray-400 ">ข้อมูลที่ไม่มี * สามารถกรอกภายหลังได้</span>
                     </div>
 
                 </div>
@@ -339,18 +347,6 @@
                 this.fetchFaculties();
             },
 
-            isStep3Empty() {
-                const step3Fields = [
-                    this.formData.member_name,
-                    this.formData.member_email,
-                    this.formData.member_personal_id,
-                    this.formData.faculty_id,
-                    this.formData.major_id
-                ];
-                // คืนค่า true ถ้ายกเว้นช่องว่างแล้วไม่มีการกรอกข้อมูลใดๆ เลย
-                return step3Fields.every(field => !field || field.toString().trim() === '');
-            },
-
             nextStep() {
                 if (this.step === 1) {
                     if (!this.member_type) {
@@ -405,6 +401,19 @@
                 }
             },
 
+            getSubmitButtonText() {
+                const hasName = this.formData.member_name && this.formData.member_name.trim() !== '';
+
+                const hasRequired = (this.member_type === 'student' || this.member_type === 'teacher')
+                    ? (this.formData.faculty_id && this.formData.faculty_id.toString().trim() !== '')
+                    : true;
+
+                if (!hasName || !hasRequired) {
+                    return 'กรุณากรอกข้อมูลให้ครบถ้วน';
+                }
+                return 'ยืนยันการสมัคร';
+            },
+
             validateStep2() {
                 this.errors = {};
                 if (!this.formData.member_phone) {
@@ -419,12 +428,40 @@
             },
 
             async submitRegistration() {
+                if (!this.formData.member_name || this.formData.member_name.trim() === '') {
+                    this.errors.member_name = 'กรุณากรอกชื่อ-สกุล';
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                        text: 'โปรดระบุ ชื่อ-สกุล ของท่าน',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+                delete this.errors.member_name;
+
+                if (this.member_type === 'student' || this.member_type === 'teacher') {
+                    if (!this.formData.faculty_id || this.formData.faculty_id.toString().trim() === '') {
+                        this.errors.faculty_id = 'กรุณาเลือกคณะ';
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                            text: 'โปรดระบุ คณะ ของท่าน',
+                            confirmButtonColor: '#059669'
+                        });
+                        return;
+                    }
+                    delete this.errors.faculty_id;
+                }
+
                 // หากผู้ใช้เป็นบุคลากร ให้เคลียร์ค่าของนักศึกษาที่อาจค้างอยู่เพื่อความชัวร์ (Optional)
                 if (this.member_type === 'staff') {
                     this.formData.member_personal_id = '';
                     this.formData.faculty_id = '';
                     this.formData.major_id = '';
                 }
+
+                const payload = { ...this.formData, member_type: this.member_type };
 
                 try {
                     const response = await fetch('/register', {
@@ -433,7 +470,7 @@
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         },
-                        body: JSON.stringify(this.formData)
+                        body: JSON.stringify(payload)
                     });
 
                     const result = await response.json();
