@@ -174,7 +174,7 @@
                     window.location.href = "/staff";
                 } else if (userRole === 4 || userRole === "4") {
                     window.location.href = "/waste_center";
-                } else if (userRole === 2 || userRole === "2") {
+                } else if (userRole === 2 || userRole === "2" || userRole === 5 || userRole === "5" || userRole === 6 || userRole === "6") {
                     window.location.href = "/user";
                 } else {
                     // console.log(result);

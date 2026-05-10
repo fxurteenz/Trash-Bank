@@ -15,22 +15,16 @@ class PagesController extends RouterBase
         } else {
             $decodedToken = Authentication::CookieAuth();
             $roleId = (int) $decodedToken->role_id;
-            switch ($roleId) {
-                case 1:
-                    $this->redirect('/admin');
-                    break;
-                case 2:
-                    $this->redirect('/user');
-                    break;
-                case 3:
-                    $this->redirect('/staff');
-                    break;
-                case 4:
-                    $this->redirect('/waste_center');
-                    break;
-                default:
-                    $this->redirect('/');
-                    break;
+            if ($roleId == 1) {
+                $this->redirect('/admin');
+            } else if ($roleId == 2 || $roleId == 5 || $roleId == 6) {
+                $this->redirect('/user');
+            } else if ($roleId == 3) {
+                $this->redirect('/staff');
+            } else if ($roleId == 4) {
+                $this->redirect('/waste_center');
+            } else {
+                $this->redirect('/login');
             }
 
         }

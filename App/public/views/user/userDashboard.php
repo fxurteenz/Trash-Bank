@@ -199,7 +199,7 @@
 
             async init() {
                 try {
-                    const memberId = <?php echo $user->member_id; ?>
+                    const memberId = <?php echo (int) $user->member_id; ?>
 
                     if (!memberId) {
                         window.location.href = '/login';
