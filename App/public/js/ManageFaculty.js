@@ -145,11 +145,16 @@ function FacultyMajor() {
                 Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อคณะ', 'warning');
                 return;
             }
+
             try {
-                const res = await fetch(`/api/faculties/update/${this.editFacultyForm.faculty_id}`, {
+                const payload = {
+                    faculty_name: this.editFacultyForm.faculty_name,
+                    faculty_code: this.editFacultyForm.faculty_code,
+                };
+                const res = await fetch(`/api/faculties/update/${this.editingFacultyId}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(this.editFacultyForm),
+                    body: JSON.stringify(payload),
                 });
                 const result = await res.json();
 
@@ -172,7 +177,7 @@ function FacultyMajor() {
                 Swal.fire({
                     icon: "error",
                     title: "ไม่สำเร็จ",
-                    html: `<p>ไม่สามารถแก้ไขคณะได้</p><p>${error.message}</p>`,
+                    html: `<p>ไม่สามารถแก้ไขคณะได้</p><p></p> ${error.message}</p><br><hr><p class='text-xs'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>`,
                     timer: 5000,
                     showConfirmButton: true,
                     confirmButtonColor: '#009966',
