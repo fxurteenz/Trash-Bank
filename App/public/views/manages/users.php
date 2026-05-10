@@ -391,8 +391,10 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                 echo '<option value="1">ผู้ดูแลระบบ</option>';
                             }
                             ?>
-                            <option value="2">ผู้ใช้งานทั่วไป</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
+                            <option value="2">นักศึกษา</option>
+                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="6">บุคลากร</option>
+                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
                         </select>
                         <span x-show="errors.create.role_id" class="text-red-500 text-xs">
                             กรุณาเลือกบทบาท
@@ -477,8 +479,10 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                                 echo '<option value="1">ผู้ดูแลระบบ</option>';
                             }
                             ?>
-                            <option value="2">ผู้ใช้งานทั่วไป</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
+                            <option value="2">นักศึกษา</option>
+                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="6">บุคลากร</option>
+                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
                         </select>
                         <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                     </div>

@@ -464,7 +464,9 @@
                                 echo '<option value="1">ผู้ดูแลระบบ</option>';
                             }
                             ?>
-                            <option value="2">ผู้ใช้งานทั่วไป</option>
+                            <option value="2">นักศึกษา</option>
+                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="6">บุคลากร</option>
                             <option value="3">เจ้าหน้าที่จุดฝาก</option>
                             <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
                         </select>
@@ -566,7 +568,9 @@
                                 echo '<option value="1">ผู้ดูแลระบบ</option>';
                             }
                             ?>
-                            <option value="2">ผู้ใช้งานทั่วไป</option>
+                            <option value="2">นักศึกษา</option>
+                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="6">บุคลากร</option>
                             <option value="3">เจ้าหน้าที่จุดฝาก</option>
                             <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>
                         </select>
