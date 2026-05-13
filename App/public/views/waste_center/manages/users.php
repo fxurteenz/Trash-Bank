@@ -19,14 +19,14 @@
                 </div>
             </div>
         </div>
-        <div @click="filterByRole(roleCounts.roles[0]?.role_id)"
+        <div @click="filterByRole(roleCounts.roles[4]?.role_id)"
             class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
-            :class="filters.role === roleCounts.roles[0]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            :class="filters.role === roleCounts.roles[4]?.role_id ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[0]?.role_name_th"></p>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[4]?.role_name_th"></p>
                     <p class="text-2xl font-bold text-emerald-700"
-                        x-text="Number(roleCounts.roles[0]?.member_count || 0).toLocaleString()">
+                        x-text="Number(roleCounts.roles[4]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
