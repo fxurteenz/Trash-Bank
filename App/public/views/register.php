@@ -418,6 +418,8 @@
                 this.errors = {};
                 if (!this.formData.member_phone) {
                     this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
+                } else if (this.formData.member_phone.length < 10) {
+                    this.errors.member_phone = 'เบอร์โทรศัพท์ต้องมีอย่างน้อย 10 ตัวอักษร';
                 }
                 if (!this.formData.member_password) {
                     this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
@@ -430,12 +432,12 @@
             async submitRegistration() {
                 if (!this.formData.member_name || this.formData.member_name.trim() === '') {
                     this.errors.member_name = 'กรุณากรอกชื่อ-สกุล';
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                        text: 'โปรดระบุ ชื่อ-สกุล ของท่าน',
-                        confirmButtonColor: '#059669'
-                    });
+                    // Swal.fire({
+                    //     icon: 'warning',
+                    //     title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                    //     text: 'โปรดระบุ ชื่อ-สกุล ของท่าน',
+                    //     confirmButtonColor: '#059669'
+                    // });
                     return;
                 }
                 delete this.errors.member_name;
@@ -443,12 +445,12 @@
                 if (this.member_type === 'student' || this.member_type === 'teacher') {
                     if (!this.formData.faculty_id || this.formData.faculty_id.toString().trim() === '') {
                         this.errors.faculty_id = 'กรุณาเลือกคณะ';
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                            text: 'โปรดระบุ คณะ ของท่าน',
-                            confirmButtonColor: '#059669'
-                        });
+                        // Swal.fire({
+                        //     icon: 'warning',
+                        //     title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                        //     text: 'โปรดระบุ คณะ ของท่าน',
+                        //     confirmButtonColor: '#059669'
+                        // });
                         return;
                     }
                     delete this.errors.faculty_id;

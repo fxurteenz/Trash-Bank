@@ -76,8 +76,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -85,7 +83,7 @@ class WasteTransactionController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->GetTransactionByIdWithDetails((int)$id);
+            $result = self::$WasteTransactionModel->GetTransactionByIdWithDetails((int) $id);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -108,8 +106,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -143,8 +139,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -175,8 +169,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -184,7 +176,14 @@ class WasteTransactionController extends RouterBase
     {
         try {
             $operaterData = Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
+            $roleId = $operaterData['user_data']->role_id;
+            $branchId = $operaterData['user_data']->center_branch_id;
+            $result = null;
+            if (($roleId == 1 || $roleId == 4) && !empty($branchId)) {
+                $result = self::$WasteTransactionModel->CreateWasteTransactionFromBranch(self::$Data, $operaterData);
+            } else {
+                $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
+            }
 
             header('Content-Type: application/json');
             http_response_code(201);
@@ -207,8 +206,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -272,8 +269,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -298,8 +293,6 @@ class WasteTransactionController extends RouterBase
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
         }
     }
 }
