@@ -1,5 +1,6 @@
 <?php
 namespace App\Router;
+use App\Controller\Api\CenterBranchController;
 use App\Controller\Api\FacultyStockController;
 use App\Router\RouterDispatcher;
 
@@ -10,6 +11,7 @@ use App\Controller\Api\WasteClearanceController;
 use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\WasteSaleController;
 use App\Controller\Api\FacultyController;
+
 use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
@@ -17,7 +19,6 @@ use App\Controller\Api\BadgeController;
 use App\Controller\Api\MajorController;
 use App\Controller\Api\DonationController;
 use App\Controller\Api\CenterStockController;
-use App\Controller\Api\FacultyDetailController;
 use App\Controller\Api\MemberItemController;
 use App\Controller\Api\DashboardDataController;
 use App\Controller\Api\PointGroupController;
@@ -249,6 +250,14 @@ class Routes
             ['POST', '', [FacultyController::class, 'Create']],
             ['POST', '/update/[i:fid]', [FacultyController::class, 'Update']],
             ['POST', '/delete', [FacultyController::class, 'Delete']],
+        ]);
+        /* /api/branchs*/
+        $this->addPrefixedRoutes('/api/branches', [
+            ['GET', '', [CenterBranchController::class, 'GetAll']],
+            ['GET', '/[i:bid]', [CenterBranchController::class, 'Get']],
+            ['POST', '', [CenterBranchController::class, 'Create']],
+            ['POST', '/update/[i:bid]', [CenterBranchController::class, 'Update']],
+            ['POST', '/delete', [CenterBranchController::class, 'Delete']],
         ]);
         /* /api/dashboard */
         $this->addPrefixedRoutes("/api/dashboards", [
