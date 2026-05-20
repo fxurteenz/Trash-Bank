@@ -1,9 +1,9 @@
 <div x-data="UserTable()" x-init="initData()" class="space-y-4 w-full">
     <!-- Top Card -->
-    <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-2">
+    <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-4 gap-2">
         <div @click="filterByRole('')"
             class="bg-white rounded-md shadow p-6 col-span-2 md:col-span-4 xl:col-span-1 cursor-pointer hover:scale-105 active:scale-95 duration-300 ease-out hover:shadow-md hover:shadow-emerald-500/50 transition-all"
-            :class="filters.role === '' ? 'ring-2 ring-emerald-500' : ''">
+            :class="filters.role.length === 0 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
@@ -21,7 +21,7 @@
         </div>
         <div @click="filterByRole(roleCounts.roles[4]?.role_id)"
             class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
-            :class="filters.role === roleCounts.roles[4]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            :class="filters.role.includes(roleCounts.roles[4]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600" x-text="roleCounts.roles[4]?.role_name_th"></p>
@@ -40,7 +40,7 @@
         </div>
         <div @click="filterByRole(roleCounts.roles[1]?.role_id)"
             class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
-            :class="filters.role === roleCounts.roles[1]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            :class="filters.role.includes(roleCounts.roles[1]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600">นักศึกษา</p>
@@ -57,14 +57,14 @@
                 </div>
             </div>
         </div>
-        <div @click="filterByRole(roleCounts.roles[2]?.role_id)"
+        <div @click="filterByRole(roleCounts.roles[5]?.role_id)"
             class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
-            :class="filters.role === roleCounts.roles[2]?.role_id ? 'ring-2 ring-emerald-500' : ''">
+            :class="filters.role.includes(roleCounts.roles[5]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[2]?.role_name_th"></p>
+                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[5]?.role_name_th"></p>
                     <p class="text-2xl font-bold text-emerald-700"
-                        x-text="Number(roleCounts.roles[2]?.member_count || 0).toLocaleString()">
+                        x-text="Number(roleCounts.roles[5]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
                 <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
@@ -72,29 +72,6 @@
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
                             d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div @click="filterByRole(roleCounts.roles[3]?.role_id)"
-            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
-            :class="filters.role === roleCounts.roles[3]?.role_id ? 'ring-2 ring-emerald-500' : ''">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[3]?.role_name_th"></p>
-                    <p class="text-2xl font-bold text-emerald-700"
-                        x-text="Number(roleCounts.roles[3]?.member_count || 0).toLocaleString()">
-                    </p>
-                </div>
-                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                        <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2">
-                            <path
-                                d="m13.163 2.168l8.021 5.828c.694.504.984 1.397.719 2.212l-3.064 9.43a1.98 1.98 0 0 1-1.881 1.367H7.042a1.98 1.98 0 0 1-1.881-1.367l-3.064-9.43a1.98 1.98 0 0 1 .719-2.212l8.021-5.828a1.98 1.98 0 0 1 2.326 0" />
-                            <path
-                                d="M12 13a3 3 0 1 0 0-6a3 3 0 0 0 0 6m-6 7.703V20a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v.707" />
-                        </g>
                     </svg>
                 </div>
             </div>
@@ -163,22 +140,50 @@
                     </template>
                 </select>
             </div>
-            <div>
-                <label for="filter_role" class="block text-xs font-medium text-gray-700 mb-1">บทบาท</label>
-                <select id="filter_role" x-model="filters.role" @change="handleFilterChange()"
-                    class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 hover:cursor-pointer block w-full p-1">
-                    <option value="">ทุกบทบาท</option>
+            <div class="relative" x-data="{ openRole: false }" @click.away="openRole = false">
+                <label class="block text-xs font-medium text-gray-700 mb-1">บทบาท</label>
+                <div @click="openRole = !openRole"
+                    class="bg-white border border-gray-300 text-gray-900 text-xs rounded-lg hover:border-blue-500 hover:cursor-pointer block w-full p-1.5 flex justify-between items-center min-h-[30px] select-none">
+                    <span class="truncate"
+                        x-text="filters.role.length === 0 ? 'ทุกบทบาท' : `เลือกแล้ว ${filters.role.length} บทบาท`"></span>
+                    <svg class="w-3 h-3 text-gray-500 transition-transform" :class="{'rotate-180': openRole}"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div x-show="openRole" x-cloak x-transition.opacity.duration.200ms
+                    class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg p-2 space-y-1 max-h-60 overflow-y-auto">
+                    <label class="flex items-center space-x-2 text-xs cursor-pointer hover:bg-gray-50 p-1 rounded">
+                        <input type="checkbox" class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
+                            :checked="filters.role.length === 0"
+                            @change="if($el.checked) { filters.role = []; handleFilterChange(); }">
+                        <span>ทุกบทบาท</span>
+                    </label>
+                    <div class="border-t border-gray-100 my-1"></div>
                     <template x-for="role in roleCounts.roles" :key="role.role_id">
-                        <option :value="role.role_id" x-text="role.role_name_th"></option>
+                        <label class="flex items-center space-x-2 text-xs cursor-pointer hover:bg-gray-50 p-1 rounded">
+                            <input type="checkbox"
+                                class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
+                                :value="role.role_id.toString()" x-model="filters.role" @change="handleFilterChange()">
+                            <span x-text="role.role_name_th"></span>
+                        </label>
                     </template>
-                </select>
+                </div>
             </div>
-            <div class="flex justify-center items-center">
+            <div class="flex justify-center items-center gap-2">
                 <button @click="resetFilters()"
                     class="text-sm text-gray-500 hover:scale-105 cursor-pointer bg-sky-400 px-4 py-2 rounded text-white font-semibold duration-200">ล้างตัวกรอง</button>
+                <button @click="openReport()"
+                    class="text-sm text-white hover:scale-105 cursor-pointer bg-blue-500 px-4 py-2 rounded font-semibold duration-200 flex gap-2 items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                </button>
             </div>
         </div>
-
 
         <div class="mt-4 overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg">
@@ -206,9 +211,10 @@
                             class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
                             ทางลัด
                         </th>
-                        <th
-                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell">
-                            บทบาท
+                        <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b hidden lg:table-cell cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMembers('role')">
+                            บทบาท <span x-show="filters.sort_by === 'role'"
+                                x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
                             class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
@@ -716,7 +722,7 @@
             filters: {
                 faculty_id: "",
                 major_id: "",
-                role: "",
+                role: [],
                 search: "",
                 sort_by: "",
                 order: "DESC",
@@ -759,7 +765,9 @@
                         params.append("faculty", this.filters.faculty_id);
                     if (this.filters.major_id)
                         params.append("major_id", this.filters.major_id);
-                    if (this.filters.role) params.append("role", this.filters.role);
+                    if (this.filters.role && this.filters.role.length > 0) {
+                        params.append("role", Array.isArray(this.filters.role) ? this.filters.role.join(',') : this.filters.role);
+                    }
                     if (this.filters.search)
                         params.append("search", this.filters.search);
                     if (this.filters.sort_by) {
@@ -866,7 +874,11 @@
             },
 
             filterByRole(roleId) {
-                this.filters.role = roleId || "";
+                if (roleId === '' || roleId === undefined || roleId === null) {
+                    this.filters.role = [];
+                } else {
+                    this.filters.role = [roleId.toString()];
+                }
                 this.handleFilterChange();
             },
 
@@ -891,7 +903,7 @@
                 this.filters = {
                     faculty_id: "",
                     major_id: "",
-                    role: "",
+                    role: [],
                     search: "",
                     sort_by: "",
                     order: "DESC",
@@ -899,6 +911,39 @@
                 this.filterMajors = [];
                 this.page = 1;
                 this.fetchMembers();
+            },
+
+            openReport() {
+                const params = new URLSearchParams();
+                if (this.filters.faculty_id) {
+                    params.append("faculty", this.filters.faculty_id);
+                    const facultyName = this.faculties.find(f => f.faculty_id == this.filters.faculty_id)?.faculty_name;
+                    if (facultyName) params.append("faculty_name", facultyName);
+                }
+                if (this.filters.major_id) {
+                    params.append("major_id", this.filters.major_id);
+                    const majorName = this.filterMajors.find(m => m.major_id == this.filters.major_id)?.major_name;
+                    if (majorName) params.append("major_name", majorName);
+                }
+                if (this.filters.role && this.filters.role.length > 0) {
+                    const roles = Array.isArray(this.filters.role) ? this.filters.role : [this.filters.role];
+                    params.append("role", roles.join(','));
+
+                    const roleNames = roles.map(roleId => {
+                        return this.roleCounts.roles.find(r => r.role_id == roleId)?.role_name_th;
+                    }).filter(Boolean);
+
+                    if (roleNames.length > 0) {
+                        params.append("role_name", roleNames.join(', '));
+                    }
+                }
+                if (this.filters.search) params.append("search", this.filters.search);
+                if (this.filters.sort_by) {
+                    params.append("sort_by", this.filters.sort_by);
+                    params.append("order", this.filters.order);
+                }
+
+                window.open(`/admin/report/users?${params.toString()}`, '_blank');
             },
 
             openCreateDialog() {

@@ -68,6 +68,7 @@ class Routes
             ["GET", "/history/waste_deposit", [StaffPagesController::class, 'WasteTransactionHistoryPage']],
             ["GET", "/manage/members", [StaffPagesController::class, 'ManageMemberPage']],
             ["GET", "/manage/members/detail/[i:mid]", [StaffPagesController::class, 'ManageMemberDetailPage']],
+            ["GET", "/report/users", [StaffPagesController::class, 'ReportUsers']],
             ["GET", "/stock/waste", [StaffPagesController::class, 'WasteStockPage']]
         ]);
 
@@ -84,9 +85,9 @@ class Routes
             ["GET", "/history/donation", [WasteCenterPagesController::class, 'DonationHistoryPage']],
             ["GET", "/manage/members", [WasteCenterPagesController::class, 'ManageMemberPage']],
             ["GET", "/manage/members/detail/[i:mid]", [WasteCenterPagesController::class, 'ManageMemberDetailPage']],
+            ["GET", "/report/users", [WasteCenterPagesController::class, 'ReportUsers']],
             ["GET", "/stock/centerwaste", [WasteCenterPagesController::class, 'WasteStockPage']],
             ["GET", "/stock/branchwaste", [WasteCenterPagesController::class, 'BranchStockPage']],
-
         ]);
 
         $this->addPrefixedRoutes('/user', [
@@ -146,7 +147,7 @@ class Routes
 
             // report
             ["GET", "/report", [AdminPagesController::class, "Report"]],
-
+            ["GET", "/report/users", [AdminPagesController::class, "ReportUsers"]],
         ]);
 
         /* API */

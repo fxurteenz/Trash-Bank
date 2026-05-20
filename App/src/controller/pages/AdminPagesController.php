@@ -9,6 +9,7 @@ use App\Utils\AuthenticationException;
 class AdminPagesController extends RouterBase
 {
     private static $AdminTemplate = "adminLayout";
+    private static $ReportLayout = "reportLayout";
 
     public function DashBoard()
     {
@@ -495,6 +496,22 @@ class AdminPagesController extends RouterBase
                 'title' => "รายงาน",
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ReportUsers()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('/waste_center/reports/users', [
+                'pages' => "reports",
+                'title' => "รายงานสมาชิก",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
         } catch (AuthenticationException $th) {
             header('location: /');
         } catch (Exception $e) {

@@ -9,6 +9,7 @@ use App\Utils\AuthenticationException;
 class StaffPagesController extends RouterBase
 {
     private static $Layouts = "staffLayout";
+    private static $ReportLayout = "reportLayout";
 
     public function HomePage()
     {
@@ -109,6 +110,22 @@ class StaffPagesController extends RouterBase
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ReportUsers()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('/waste_center/reports/users', [
+                'pages' => "reports",
+                'title' => "รายงานสมาชิก",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);

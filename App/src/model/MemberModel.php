@@ -31,8 +31,17 @@ class MemberModel
             }
 
             if (!empty($query['role'])) {
-                $whereClauses[] = "m.role_id = :role_id";
-                $params[':role_id'] = $query['role'];
+                $roles = is_array($query['role']) ? $query['role'] : explode(',', $query['role']);
+                $roles = array_filter(array_map('intval', $roles));
+                if (!empty($roles)) {
+                    $rolePlaceholders = [];
+                    foreach ($roles as $index => $roleId) {
+                        $paramKey = ":role_" . $index;
+                        $rolePlaceholders[] = $paramKey;
+                        $params[$paramKey] = $roleId;
+                    }
+                    $whereClauses[] = "m.role_id IN (" . implode(', ', $rolePlaceholders) . ")";
+                }
             }
 
             if (!empty($query['major_id'])) {
@@ -63,6 +72,9 @@ class MemberModel
                         break;
                     case 'name':
                         $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                        break;
+                    case 'role':
+                        $orderBySql = " ORDER BY m.role_id " . $sortDirection;
                         break;
                 }
             }
@@ -407,7 +419,7 @@ class MemberModel
             $memberItems = $memberItemStmt->fetchAll(PDO::FETCH_ASSOC);
 
             $member['member_items'] = $memberItems;
-            
+
             return $member;
         } catch (PDOException $e) {
             throw new Exception($e->getMessage(), (int) $e->getCode());
@@ -415,7 +427,7 @@ class MemberModel
             throw $e;
         }
     }
-    
+
     public function GetMemberRoleCount($query = [])
     {
         try {

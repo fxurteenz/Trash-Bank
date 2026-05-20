@@ -9,6 +9,7 @@ use App\Utils\AuthenticationException;
 class WasteCenterPagesController extends RouterBase
 {
     private static $Layouts = "wasteCenterLayout";
+    private static $ReportLayout = "reportLayout";
 
     public function HomePage()
     {
@@ -250,4 +251,19 @@ class WasteCenterPagesController extends RouterBase
         }
     }
 
+    public function ReportUsers()
+    {
+        try {
+            $user = Authentication::CenterAuth();
+            $this->render('/waste_center/reports/users', [
+                'pages' => "reports",
+                'title' => "รายงานสมาชิก",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }
