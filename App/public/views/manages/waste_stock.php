@@ -1,11 +1,12 @@
 <?php
 $facultyId = (int) $user->faculty_id;
+$facultyName = $user->faculty_name;
 ?>
 <div x-data="WasteStockTable()" x-init="fetchStock()" class="space-y-4 w-full">
 
     <div class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h2 class="text-xl font-bold">คลังขยะ</h2>
+            <h2 class="text-xl font-bold" x-text="`คลังขยะ ${facultyName}`"></h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
@@ -97,6 +98,7 @@ $facultyId = (int) $user->faculty_id;
     function WasteStockTable() {
         return {
             facultyId: <?php echo $facultyId; ?>,
+            facultyName: "<?php echo $facultyName; ?>",
             stocks: [],
             page: 1,
             limit: 10,

@@ -394,7 +394,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             <option value="2">นักศึกษา</option>
                             <option value="5">อาจารย์/ศาสตราจารย์</option>
                             <option value="6">บุคลากร</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
                         </select>
                         <span x-show="errors.create.role_id" class="text-red-500 text-xs">
                             กรุณาเลือกบทบาท
@@ -482,7 +481,6 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             <option value="2">นักศึกษา</option>
                             <option value="5">อาจารย์/ศาสตราจารย์</option>
                             <option value="6">บุคลากร</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
                         </select>
                         <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                     </div>
@@ -584,7 +582,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
     function UserTable() {
         return {
             manager_role: "<?= $user->role_name ?>",
-            facultyId: <?php echo $faculty_id; ?>,
+            facultyId: <?php echo (int) $faculty_id; ?>,
             roleCounts: { total_members: 0, roles: [] },
             members: [],
             createMajors: [],

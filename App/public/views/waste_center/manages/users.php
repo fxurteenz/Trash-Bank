@@ -43,7 +43,7 @@
             :class="filters.role === roleCounts.roles[1]?.role_id ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-600" x-text="roleCounts.roles[1]?.role_name_th"></p>
+                    <p class="text-sm text-gray-600">นักศึกษา</p>
                     <p class="text-2xl font-bold text-emerald-700"
                         x-text="Number(roleCounts.roles[1]?.member_count || 0).toLocaleString()">
                     </p>
@@ -238,7 +238,8 @@
                             :class="editUserForm && editUserForm.member_id == member.member_id ? 'bg-emerald-100' : ''">
                             <td class="px-2 py-2 text-center" @click.stop>
                                 <input type="checkbox" class="p-1" :id="member.member_id" :value="member.member_id"
-                                    x-model="checkedMembers.member_ids">
+                                    x-model="checkedMembers.member_ids"
+                                    x-show="currentUserRoleId === 1 || (member.role_id != 1 && member.role_id != 4)">
                             </td>
                             <td class="px-2 py-2 text-center text-xs text-gray-500"
                                 x-text="(page - 1) * limit + index + 1"></td>
@@ -320,7 +321,8 @@
                             <td class="px-2 py-2 text-xs text-end"
                                 x-text="Number(parseInt(member.member_goodness_point) || 0).toLocaleString()"></td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
-                                <div class="flex justify-center items-center gap-1">
+                                <div class="flex justify-center items-center gap-1"
+                                    x-show="currentUserRoleId === 1 || (member.role_id != 1 && member.role_id != 4)">
                                     <!-- Edit Button -->
                                     <button @click.stop="selectingRow(member)"
                                         class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
@@ -416,11 +418,11 @@
                             <option value="2">นักศึกษา</option>
                             <option value="5">อาจารย์/ศาสตราจารย์</option>
                             <option value="6">บุคลากร</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
+                            <option value="3">เจ้าหน้าที่จุดฝาก/คณะ</option>
                             <?php
                             if ((int) $user->role_id == 1) {
                                 echo '<option value="1">ผู้ดูแลระบบ</option>
-                                    <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>';
+                                    <option value="4">เจ้าหน้าที่ศูนย์/หน่วย</option>';
                             }
                             ?>
                         </select>
@@ -432,7 +434,7 @@
                         x-show="createUserForm.role_id == '2' || createUserForm.role_id == '5' || createUserForm.role_id == '3'"
                         x-cloak>
                         <label for="create_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ
+                            คณะ <span x-show="createUserForm.role_id == '3'" class="text-red-500">*</span>
                         </label>
                         <select id="create_acc_faculty" x-model="createUserForm.faculty_id"
                             @change="fetchMajorsByFaculty(createUserForm.faculty_id, 'create')"
@@ -443,6 +445,9 @@
                                 <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
                             </template>
                         </select>
+                        <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">
+                            กรุณาเลือกคณะ
+                        </span>
                     </div>
 
                     <div class="flex flex-col space-y-1"
@@ -551,11 +556,11 @@
                             <option value="2">นักศึกษา</option>
                             <option value="5">อาจารย์/ศาสตราจารย์</option>
                             <option value="6">บุคลากร</option>
-                            <option value="3">เจ้าหน้าที่จุดฝาก</option>
+                            <option value="3">เจ้าหน้าที่จุดฝาก/คณะ</option>
                             <?php
                             if ((int) $user->role_id == 1) {
                                 echo '<option value="1">ผู้ดูแลระบบ</option>
-                                    <option value="4">เจ้าหน้าที่ศูนย์ใหญ่</option>';
+                                    <option value="4">เจ้าหน้าที่ศูนย์/หน่วย</option>';
                             }
                             ?>
                         </select>
@@ -566,7 +571,7 @@
                         x-show="editUserForm.role_id == '2' || editUserForm.role_id == '5' || editUserForm.role_id == '3'"
                         x-cloak>
                         <label for="edit_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ
+                            คณะ <span x-show="editUserForm.role_id == '3'" class="text-red-500">*</span>
                         </label>
                         <select id="edit_acc_faculty" x-model="editUserForm.faculty_id"
                             @change="fetchMajorsByFaculty(editUserForm.faculty_id, 'edit')"
@@ -577,6 +582,9 @@
                                 <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
                             </template>
                         </select>
+                        <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">
+                            กรุณาเลือกคณะ
+                        </span>
                     </div>
 
                     <div class="flex flex-col space-y-1"
@@ -663,6 +671,7 @@
     function UserTable() {
         return {
             manager_role: "<?= $user->role_name ?>",
+            currentUserRoleId: <?= (int) ($user->role_id ?? 0) ?>,
             roleCounts: { total_members: 0, roles: [] },
             members: [],
             faculties: [], // Store Faculty list
@@ -944,7 +953,7 @@
                 if (!form.role_id) {
                     errors.role_id = true;
                     isValid = false;
-                } else if (form.role_id == '1' || form.role_id == '4') {
+                } else if (form.role_id == '1' || form.role_id == '4' || form.role_id == '3') {
                     if (!form.faculty_id) {
                         errors.faculty_id = true;
                         isValid = false;

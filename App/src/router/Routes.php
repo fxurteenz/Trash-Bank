@@ -84,7 +84,9 @@ class Routes
             ["GET", "/history/donation", [WasteCenterPagesController::class, 'DonationHistoryPage']],
             ["GET", "/manage/members", [WasteCenterPagesController::class, 'ManageMemberPage']],
             ["GET", "/manage/members/detail/[i:mid]", [WasteCenterPagesController::class, 'ManageMemberDetailPage']],
-            ["GET", "/stock/waste", [WasteCenterPagesController::class, 'WasteStockPage']],
+            ["GET", "/stock/centerwaste", [WasteCenterPagesController::class, 'WasteStockPage']],
+            ["GET", "/stock/branchwaste", [WasteCenterPagesController::class, 'BranchStockPage']],
+
         ]);
 
         $this->addPrefixedRoutes('/user', [

@@ -218,7 +218,7 @@ $faculty_id = (int) $faculty_id ?? "null";
                                 <span x-text="member.role_name_th || '-'"></span>
                             </td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-xs" @click.stop>
-                                <div class="flex justify-center items-center gap-1">
+                                <div class="flex justify-center items-center gap-1" x-show="currentUserRoleId === 1 || (member.role_id != 1 && member.role_id != 4)">
                                     <button @click.stop="startEditMember(member)"
                                         class="bg-gradient-to-br from-amber-400 to-amber-500 p-2 text-white hover:bg-gradient-to-br hover:from-amber-500 hover:to-amber-600 hover:scale-105 cursor-pointer rounded-md"
                                         title="แก้ไข">
@@ -460,6 +460,7 @@ $faculty_id = (int) $faculty_id ?? "null";
     function FacultyDetailManager() {
         return {
             manager_role: "<?= $user->role_name ?>",
+                currentUserRoleId: <?= (int)($user->role_id ?? 0) ?>,
             facultyId: <?= (int) $faculty_id; ?>,
             faculty: {},
 
