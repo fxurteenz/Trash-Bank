@@ -164,22 +164,7 @@
                     timer: 1500,
                     showConfirmButton: false,
                 });
-
-                const userRole = parseInt(result.data.user_data.role_id);
-                console.log(result);
-
-                if (userRole === 1 || userRole === "1") {
-                    window.location.href = "/admin";
-                } else if (userRole === 3 || userRole === "3") {
-                    window.location.href = "/staff";
-                } else if (userRole === 4 || userRole === "4") {
-                    window.location.href = "/waste_center";
-                } else if (userRole === 2 || userRole === "2" || userRole === 5 || userRole === "5" || userRole === 6 || userRole === "6") {
-                    window.location.href = "/user";
-                } else {
-                    // console.log(result);
-                    throw new Error("Hacker ? ", 500);
-                }
+                window.location.reload();
             } else {
                 throw new Error(result.message || result, 500);
             }

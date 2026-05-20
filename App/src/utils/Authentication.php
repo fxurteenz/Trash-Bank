@@ -95,7 +95,7 @@ class Authentication
         try {
             $authenticated = self::CookieAuth();
             $role = (int) $authenticated->role_id;
-            if ($role !== 1) {
+            if ($role !== 6) {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
             } else {
                 return ['success' => true, 'user_data' => $authenticated];
@@ -110,7 +110,7 @@ class Authentication
         try {
             $authenticated = self::CookieAuth();
             $role = (int) $authenticated->role_id;
-            if ($role === 1 || $role === 3 || $role === 4) {
+            if ($role === 4 || $role === 5 || $role === 6) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
@@ -124,7 +124,7 @@ class Authentication
         try {
             $authenticated = self::CookieAuth();
             $role = (int) $authenticated->role_id;
-            if ($role === 1 || $role === 4) {
+            if ($role === 5 || $role === 6) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Permission denied.', 403);
@@ -139,7 +139,7 @@ class Authentication
         try {
             $authenticated = self::CookieAuth();
             $role = (int) $authenticated->role_id;
-            if ($role === 2 || $role === 1 || $role === 3 || $role === 4 || $role === 5 || $role === 6) {
+            if ($role === 1 || $role === 2 || $role === 3 || $role === 4 || $role === 5 || $role === 6) {
                 return ['success' => true, 'user_data' => $authenticated];
             } else {
                 throw new AuthenticationException('Forbidden : Member access only.', 403);
