@@ -55,6 +55,7 @@ class Routes
         $this->Router->map('POST', '/login', [UsersController::class, 'Login']);
         $this->Router->map('GET', '/logout', [UsersController::class, 'Logout']);
         $this->Router->map('POST', '/register', [UsersController::class, 'Register']);
+        $this->Router->map('GET', '/redirect', [UsersController::class, 'Redirect']);
 
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'HomePage']);

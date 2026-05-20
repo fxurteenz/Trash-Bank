@@ -73,8 +73,9 @@ class FacultyModel
             $sql = "SELECT 
                     f.*, 
                     COALESCE(m_count.total_major, 0) AS major_count_total,
-                    COALESCE(mem_count.admin_count, 0) AS admin_count,
                     COALESCE(mem_count.user_count, 0) AS user_count,
+                    COALESCE(mem_count.professor_count, 0) AS professor_count,
+                    COALESCE(mem_count.employee_count, 0) AS employee_count,
                     COALESCE(mem_count.staff_count, 0) AS staff_count,
                     COALESCE(mem_count.total_member, 0) AS total_member
                 FROM 
@@ -88,9 +89,10 @@ class FacultyModel
                 -- Subquery 2: นับจำนวน Member แยกตาม Role
                 LEFT JOIN (
                     SELECT faculty_id,
-                           SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
-                           SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as user_count,
-                           SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as staff_count,
+                           SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as user_count,
+                           SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                           SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                           SUM(CASE WHEN role_id = 5 THEN 1 ELSE 0 END) as staff_count,
                            COUNT(member_id) as total_member
                     FROM member
                     GROUP BY faculty_id
@@ -151,8 +153,9 @@ class FacultyModel
             $sql = "SELECT 
                     f.*, 
                     COALESCE(m_count.total_major, 0) AS major_count_total,
-                    COALESCE(mem_count.admin_count, 0) AS admin_count,
                     COALESCE(mem_count.user_count, 0) AS user_count,
+                    COALESCE(mem_count.professor_count, 0) AS professor_count,
+                    COALESCE(mem_count.employee_count, 0) AS employee_count,
                     COALESCE(mem_count.staff_count, 0) AS staff_count,
                     COALESCE(mem_count.total_member, 0) AS total_member
                 FROM faculty f
@@ -163,10 +166,11 @@ class FacultyModel
                 ) AS m_count ON f.faculty_id = m_count.faculty_id
                 LEFT JOIN (
                     SELECT faculty_id,
-                           SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
-                           SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as user_count,
-                           SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as staff_count,
-                           COUNT(member_id) as total_member
+                        SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as user_count,
+                        SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                        SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                        SUM(CASE WHEN role_id = 5 THEN 1 ELSE 0 END) as staff_count,
+                        COUNT(member_id) as total_member
                     FROM member
                     GROUP BY faculty_id
                 ) AS mem_count ON f.faculty_id = mem_count.faculty_id

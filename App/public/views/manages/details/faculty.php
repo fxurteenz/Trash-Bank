@@ -326,9 +326,9 @@ $faculty_id = $faculty_id ?? "null";
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">สมาชิกทั้งหมด
                         </th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">นักศึกษา</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">อาจารย์</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">บุคลากร</th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">เจ้าหน้าที่คณะ
-                        </th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ผู้ดูแลระบบ
                         </th>
                     </tr>
                 </thead>
@@ -336,11 +336,13 @@ $faculty_id = $faculty_id ?? "null";
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-xl font-bold " x-text="faculty.total_member || '0'">
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.user_count || '0'">
+                          <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.user_count || '0'">
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.professor_count || '0'">
+                        </td>
+                          <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.employee_count || '0'">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.staff_count || '0'">
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.admin_count || '0'">
                         </td>
                     </tr>
                 </tbody>
