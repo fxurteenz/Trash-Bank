@@ -89,7 +89,7 @@
             // --- Faculty Logic ---
             async loadFaculties() {
                 try {
-                    const response = await fetch('/api/faculties');
+                    const response = await fetch('/api/faculties?show_branch=true');
                     const result = await response.json();
                     if (result.success || Array.isArray(result.data)) {
                         this.allFaculties = result.data || [];

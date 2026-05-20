@@ -466,16 +466,15 @@
                         <label for="create_acc_center_branch" class="text-gray-700 font-medium">
                             ศูนย์ <span class="text-red-500">*</span>
                         </label>
-                        <select id="create_acc_center_branch" x-model="createUserForm.center_branch_id"
+                        <select id="create_acc_center_branch" x-model="createUserForm.faculty_id"
                             class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.create.center_branch_id}">
+                            :class="{'border-red-500': errors.create.faculty_id}">
                             <option value="">เลือกศูนย์</option>
-                            <template x-for="branch in centerBranches" :key="branch.center_branch_id">
-                                <option :value="branch.center_branch_id" x-text="branch.center_branch_name"></option>
+                            <template x-for="branch in centerBranches" :key="branch.faculty_id">
+                                <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
                             </template>
                         </select>
-                        <span x-show="errors.create.center_branch_id"
-                            class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
+                        <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
                     </div>
 
                     <div class="flex flex-col space-y-1">
@@ -562,7 +561,7 @@
                         </select>
                         <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                     </div>
-                    
+
                     <div class="flex flex-col space-y-1"
                         x-show="editUserForm.role_id == '2' || editUserForm.role_id == '5' || editUserForm.role_id == '3'"
                         x-cloak>
@@ -601,15 +600,15 @@
                         <label for="edit_acc_center_branch" class="text-gray-700 font-medium">
                             ศูนย์ <span class="text-red-500">*</span>
                         </label>
-                        <select id="edit_acc_center_branch" x-model="editUserForm.center_branch_id"
+                        <select id="edit_acc_center_branch" x-model="editUserForm.faculty_id"
                             class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.edit.center_branch_id}">
+                            :class="{'border-red-500': errors.edit.faculty_id}">
                             <option value="">เลือกศูนย์</option>
-                            <template x-for="branch in centerBranches" :key="branch.center_branch_id">
-                                <option :value="branch.center_branch_id" x-text="branch.center_branch_name"></option>
+                            <template x-for="branch in centerBranches" :key="branch.faculty_id">
+                                <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
                             </template>
                         </select>
-                        <span x-show="errors.edit.center_branch_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
+                        <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
                     </div>
 
                     <div class="flex flex-col space-y-1">
@@ -691,7 +690,6 @@
                 member_email: "",
                 faculty_id: "",
                 major_id: "",
-                center_branch_id: "",
                 role_id: "",
             },
 
@@ -703,7 +701,6 @@
                 member_password: "",
                 faculty_id: "",
                 major_id: "",
-                center_branch_id: "",
                 role_id: "",
             },
 
@@ -773,7 +770,7 @@
 
             async fetchCenterBranches() {
                 try {
-                    const res = await fetch("/api/branches");
+                    const res = await fetch("/api/faculties?only_branch=true");
                     const result = await res.json();
                     if (result.success || result.data) {
                         this.centerBranches = result.data;
@@ -848,22 +845,14 @@
                 const form = formType === 'create' ? this.createUserForm : this.editUserForm;
                 const roleId = form.role_id ? form.role_id.toString() : "";
 
-                // เคลียร์คณะและสาขา หากบทบาทไม่ใช่ นักศึกษา(2) อาจารย์(5) หรือ เจ้าหน้าที่จุดฝาก(3)
-                if (!['2', '3', '5'].includes(roleId)) {
-                    form.faculty_id = "";
-                    form.major_id = "";
-                    if (formType === 'create') this.createMajors = [];
-                    if (formType === 'edit') this.editMajors = [];
-                }
+                form.faculty_id = "";
+                form.major_id = "";
+                if (formType === 'create') this.createMajors = [];
+                if (formType === 'edit') this.editMajors = [];
 
                 // เคลียร์รหัสประจำตัว หากบทบาทไม่ใช่ นักศึกษา(2) หรือ อาจารย์(5)
                 if (!['2', '5'].includes(roleId)) {
                     form.member_personal_id = "";
-                }
-
-                // เคลียร์ศูนย์ หากบทบาทไม่ใช่ ผู้ดูแลระบบ(1) หรือ เจ้าหน้าที่ศูนย์ใหญ่(4)
-                if (!['1', '4'].includes(roleId)) {
-                    form.center_branch_id = "";
                 }
             },
 
@@ -911,7 +900,6 @@
                     member_password: "",
                     faculty_id: "",
                     major_id: "",
-                    center_branch_id: "",
                     role_id: "",
                 };
                 this.createMajors = [];
@@ -928,7 +916,6 @@
                     member_email: user.member_email ?? null,
                     faculty_id: user.faculty_id ?? "",
                     major_id: user.major_id ?? "",
-                    center_branch_id: user.center_branch_id ?? "",
                     role_id: parseInt(user.role_id),
                 };
                 this.errors.edit = {};
@@ -958,8 +945,8 @@
                     errors.role_id = true;
                     isValid = false;
                 } else if (form.role_id == '1' || form.role_id == '4') {
-                    if (!form.center_branch_id) {
-                        errors.center_branch_id = true;
+                    if (!form.faculty_id) {
+                        errors.faculty_id = true;
                         isValid = false;
                     }
                 }

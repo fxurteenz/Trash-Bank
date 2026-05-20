@@ -176,14 +176,7 @@ class WasteTransactionController extends RouterBase
     {
         try {
             $operaterData = Authentication::OperateAuth();
-            $roleId = $operaterData['user_data']->role_id;
-            $branchId = $operaterData['user_data']->center_branch_id;
-            $result = null;
-            if (($roleId == 1 || $roleId == 4) && !empty($branchId)) {
-                $result = self::$WasteTransactionModel->CreateWasteTransactionFromBranch(self::$Data, $operaterData);
-            } else {
-                $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
-            }
+            $result = self::$WasteTransactionModel->CreateWasteTransaction(self::$Data, $operaterData);
 
             header('Content-Type: application/json');
             http_response_code(201);

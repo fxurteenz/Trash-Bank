@@ -28,6 +28,21 @@ class FacultyModel
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 
+            // ตรวจสอบค่าพารามิเตอร์ boolean
+            $showBranch = filter_var($query['show_branch'] ?? false, FILTER_VALIDATE_BOOLEAN);
+            $onlyBranch = filter_var($query['only_branch'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
+            // ป้องกันการส่งพารามิเตอร์ที่ทำงานขัดแย้งกัน
+            if ($showBranch && $onlyBranch) {
+                throw new Exception("INVALID PARAMETER", 400);
+            }
+
+            if ($onlyBranch) {
+                $whereClauses[] = "f.isCenterBranch = 1";
+            } elseif (!$showBranch) {
+                $whereClauses[] = "f.isCenterBranch = 0";
+            }
+
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sortDirection = 'DESC';
