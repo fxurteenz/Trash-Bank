@@ -24,7 +24,7 @@ class CenterBranchModel
             $params = [];
 
             if (!empty($query['search'])) {
-                $whereClauses[] = "(cb.center_branch_name LIKE :search OR cb.center_branch_id LIKE :search)";
+                $whereClauses[] = "(cb.faculty_name LIKE :search OR cb.faculty_id LIKE :search)";
                 $params[':search'] = "%" . $query['search'] . "%";
             }
 
@@ -35,15 +35,15 @@ class CenterBranchModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = " ORDER BY cb.center_branch_id " . $sortDirection;
+            $orderBySql = " ORDER BY cb.faculty_id " . $sortDirection;
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
                     case 'name':
-                        $orderBySql = " ORDER BY cb.center_branch_name " . $sortDirection;
+                        $orderBySql = " ORDER BY cb.faculty_name " . $sortDirection;
                         break;
                     case 'point':
-                        $orderBySql = " ORDER BY cb.center_branch_point " . $sortDirection;
+                        $orderBySql = " ORDER BY cb.faculty_point " . $sortDirection;
                         break;
                     case 'member':
                         $orderBySql = " ORDER BY total_member " . $sortDirection;
@@ -57,15 +57,15 @@ class CenterBranchModel
                     COALESCE(mem_count.admin_count, 0) AS admin_count,
                     COALESCE(mem_count.operater_count, 0) AS operater_count
                 FROM 
-                    center_branch cb
+                    faculty cb
                 LEFT JOIN (
-                    SELECT center_branch_id,
+                    SELECT faculty_id,
                            SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
                            SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as operater_count,
                            COUNT(member_id) as total_member
                     FROM member
-                    GROUP BY center_branch_id
-                ) AS mem_count ON cb.center_branch_id = mem_count.center_branch_id
+                    GROUP BY faculty_id
+                ) AS mem_count ON cb.faculty_id = mem_count.faculty_id
                 {$whereSql}
                 {$orderBySql}";
 
@@ -94,13 +94,13 @@ class CenterBranchModel
 
             // ส่วนนับจำนวนทั้งหมดสำหรับ Pagination
             if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS all_center_branch FROM center_branch cb {$whereSql}";
+                $sqlCount = "SELECT COUNT(*) AS all_faculty FROM faculty cb {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
                 foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
                 }
                 $stmtCount->execute();
-                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_center_branch'];
+                $total = $stmtCount->fetch(PDO::FETCH_ASSOC)['all_faculty'];
             } else {
                 $total = count($data);
             }
@@ -121,18 +121,18 @@ class CenterBranchModel
                     COALESCE(mem_count.admin_count, 0) AS admin_count,
                     COALESCE(mem_count.operater_count, 0) AS operater_count,
                     COALESCE(mem_count.total_member, 0) AS total_member
-                FROM center_branch cb
+                FROM faculty cb
                 LEFT JOIN (
-                    SELECT center_branch_id,
+                    SELECT faculty_id,
                            SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as admin_count,
                            SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as operater_count,
                            COUNT(member_id) as total_member
                     FROM member
-                    GROUP BY center_branch_id
-                ) AS mem_count ON cb.center_branch_id = mem_count.center_branch_id
-                WHERE cb.center_branch_id = :center_branch_id";
+                    GROUP BY faculty_id
+                ) AS mem_count ON cb.faculty_id = mem_count.faculty_id
+                WHERE cb.faculty_id = :faculty_id";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->bindValue(':center_branch_id', $id, PDO::PARAM_INT);
+            $stmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -151,12 +151,12 @@ class CenterBranchModel
                 throw new Exception('Invalid data format', 400);
             }
 
-            if (empty($data['center_branch_name'])) {
+            if (empty($data['faculty_name'])) {
                 throw new Exception('branch name not provided', 400);
             }
 
             $data["created_at"] = date('Y-m-d H:i:s');
-
+            $data["isCenterBranch"] = "1";
             $setClauses = [];
             $updateData = [];
             foreach ($data as $column => $value) {
@@ -169,7 +169,7 @@ class CenterBranchModel
 
             $sql =
                 "INSERT INTO 
-                    center_branch
+                    faculty
                 SET
                     {$setClauseString}
                 ";
@@ -207,15 +207,15 @@ class CenterBranchModel
 
             $sql =
                 "UPDATE 
-                    center_branch
+                    faculty
                 SET 
                     {$setClauseString}
                 WHERE
-                    center_branch_id = :center_branch_id
+                    faculty_id = :faculty_id
                 ";
 
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute(array_merge($updateData, ['center_branch_id' => $bid]));
+            $stmt->execute(array_merge($updateData, ['faculty_id' => $bid]));
 
             $result = $stmt->rowCount();
             return $result;
@@ -230,11 +230,11 @@ class CenterBranchModel
 
     public function DeleteBranch(array $data): int
     {
-        if (empty($data['center_branch_ids'] ?? []) || !is_array($data['center_branch_ids'])) {
-            throw new Exception('Bad Request: center_branch_ids is required and must be an array', 400);
+        if (empty($data['faculty_ids'] ?? []) || !is_array($data['faculty_ids'])) {
+            throw new Exception('Bad Request: faculty_ids is required and must be an array', 400);
         }
 
-        $ids = array_filter($data['center_branch_ids']);
+        $ids = array_filter($data['faculty_ids']);
 
         if (empty($ids)) {
             return 0;
@@ -246,9 +246,9 @@ class CenterBranchModel
 
             $placeholders = str_repeat('?,', count($ids) - 1) . '?';
             $sql = "DELETE FROM 
-                        center_branch 
+                        faculty 
                     WHERE 
-                        center_branch_id 
+                        faculty_id 
                     IN ($placeholders)";
 
             $stmt = $this->Conn->prepare($sql);

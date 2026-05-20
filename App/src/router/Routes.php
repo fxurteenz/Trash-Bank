@@ -105,6 +105,11 @@ class Routes
             ['GET', '/manage/faculty', [AdminPagesController::class, 'ManageFaculty']],
             ['GET', '/manage/faculty/detail/[i:fid]', [AdminPagesController::class, 'ManageFacultyDetail']],
 
+            ['GET', '/manage/branch', [AdminPagesController::class, 'ManageBranch']],
+            ['GET', '/manage/branch/detail/[i:bid]', [AdminPagesController::class, 'ManageBranchDetail']],
+
+
+
             ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
             ["GET", "/manage/waste_type/detail/[i:wcid]", [AdminPagesController::class, "ManageWasteCategoryDetail"]],
 
@@ -254,11 +259,7 @@ class Routes
         ]);
         /* /api/branchs*/
         $this->addPrefixedRoutes('/api/branches', [
-            ['GET', '', [CenterBranchController::class, 'GetAll']],
-            ['GET', '/[i:bid]', [CenterBranchController::class, 'Get']],
             ['POST', '', [CenterBranchController::class, 'Create']],
-            ['POST', '/update/[i:bid]', [CenterBranchController::class, 'Update']],
-            ['POST', '/delete', [CenterBranchController::class, 'Delete']],
         ]);
         /* /api/dashboard */
         $this->addPrefixedRoutes("/api/dashboards", [

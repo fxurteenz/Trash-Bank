@@ -95,6 +95,41 @@ class AdminPagesController extends RouterBase
         }
     }
 
+    public function ManageBranch()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/branch', [
+                'pages' => "manageBranch",
+                'title' => 'จัดการคณะ/สาขา',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ManageBranchDetail($faculty_id)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('manages/details/branch', [
+                'pages' => "manageBranch",
+                'title' => 'จัดการข้อมูลหน่วยย่อย',
+                'faculty_id' => !empty($faculty_id) ? (int) $faculty_id : null,
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
     public function ManageWasteType()
     {
         try {

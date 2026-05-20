@@ -238,6 +238,24 @@
                         <span class="text-sm font-medium">คณะ/สาขา</span>
                     </a>
 
+                    <a href="/admin/manage/branch"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
+                            <path d="M0 0h48v48H0z" fill="none" />
+                            <g fill="none">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="4"
+                                    d="M6 23c0-1.5 1.999-5.5 7.061-6.571C18.18 15.346 22.848 10.857 24 9m18 14c.012-1.5-2-5.5-7.062-6.571C29.821 15.346 25.152 10.857 24 9" />
+                                <circle r="4" fill="currentColor" transform="matrix(0 1 1 0 24 9)" />
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="4" d="M24 9v14M5 33h6m-6 8h6m26-8h6m-6 8h6m-22-8h6m-6 8h6" />
+                            </g>
+                        </svg>
+
+                        <span class="text-sm font-medium">หน่วยย่อย</span>
+                    </a>
+
                     <a href="/admin/manage/waste_type"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
