@@ -133,7 +133,8 @@ class Routes
             ["GET", "/history/clear_waste", [AdminPagesController::class, "ClearWasteHistory"]],
 
             // stock
-            ["GET", "/stock/waste", [AdminPagesController::class, "WasteStock"]],
+            ["GET", "/stock/centerwaste", [AdminPagesController::class, "WasteStock"]],
+            ["GET", "/stock/branchwaste", [AdminPagesController::class, "BranchWasteStock"]],
             ["GET", "/stock/reward", [AdminPagesController::class, "RewardStock"]],
 
             // report

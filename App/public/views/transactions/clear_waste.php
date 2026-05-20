@@ -530,18 +530,10 @@
                 style="display: none;">
                 <h2 class="text-xl font-bold text-slate-900 mb-3">ระบุขยะที่ต้องการเคลียร์</h2>
                 <div class="grid grid-cols-12 gap-3">
-                    <div class="col-span-4">
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนักเคลียร์ (กก.)</label>
-                        <input x-ref="weightInput" x-model="itemForm.weight"
-                            @keydown.enter="$refs.wasteCodeInput.focus()"
-                            @keydown.tab.prevent="$refs.wasteCodeInput.focus()" type="number" step="0.0001"
-                            placeholder="0.0000"
-                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
-                    </div>
                     <div class="col-span-5">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
-                            @keydown.tab.prevent="addClearanceItem()" @keydown.enter="addClearanceItem()"
+                            @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="$refs.weightInput.focus()"
                             @input="searchStockItem()" type="text" placeholder="พิมพ์รหัสขยะที่มีในคลัง"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition"
                             list="stockItemList" autocomplete="off">
@@ -556,6 +548,13 @@
                             x-text="selectedStockItem ? `${selectedStockItem.waste_category_name} : ${selectedStockItem.waste_type_name} (มีในคลัง ${Number(selectedStockItem.stock_weight).toFixed(4)} กก.)`:  'ระบุรหัสชนิดขยะเพื่อตรวจสอบสต็อก'">
                         </p>
                     </div>
+                    <div class="col-span-4">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนักเคลียร์ (กก.)</label>
+                        <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="addClearanceItem()"
+                            @keydown.tab.prevent="addClearanceItem()" type="number" step="0.001" placeholder="0.000"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition">
+                    </div>
+
                     <div class="col-span-3 flex items-center">
                         <button @click="addClearanceItem()"
                             class="w-full px-4 py-2 mb-[2px] bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
@@ -606,9 +605,9 @@
                                         <!-- <div class="text-xs text-slate-500" x-text="item.waste_category_name"></div> -->
                                     </td>
                                     <td class="px-4 py-3 text-right font-bold text-amber-700"
-                                        x-text="Number(item.stock_weight).toFixed(4)"></td>
+                                        x-text="Number(item.stock_weight).toFixed(3)"></td>
                                     <td class="px-4 py-3 text-right font-bold text-emerald-600"
-                                        x-text="parseFloat(item.clearance_weight) > 0 ? Number(item.clearance_weight).toFixed(4) : '-'">
+                                        x-text="parseFloat(item.clearance_weight) > 0 ? Number(item.clearance_weight).toFixed(3) : '-'">
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <button x-show="parseFloat(item.clearance_weight) > 0"

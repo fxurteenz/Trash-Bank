@@ -245,6 +245,21 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+    public function BranchWasteStock()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('/manages/waste_stock', [
+                'pages' => "manageWasteStock",
+                'title' => 'คลังขยะ',
+                'user' => $user["user_data"]
+            ], self::$AdminTemplate);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
     public function RewardStock()
     {
         try {
