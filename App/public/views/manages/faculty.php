@@ -6,19 +6,30 @@
                 <h1 class="text-2xl font-bold text-slate-900">จัดการคณะ</h1>
                 <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบข้อมูลคณะ</p>
             </div>
-            <div @click="openCreateFacultyDialog" :class="facultyDialogShow && 'bg-emerald-300'"
-                class="group cursor-pointer flex items-center py-2 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
-                <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
-                    <svg class="stroke-emerald-600 fill-none group-active:stroke-emerald-300 group-active:duration-0 duration-300"
-                        viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-width="1.5"
-                            d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z">
-                        </path>
-                        <path stroke-width="1.5" d="M8 12H16"></path>
-                        <path stroke-width="1.5" d="M12 16V8"></path>
+            <div class="flex items-center gap-2">
+                <button @click="window.open('/admin/report/faculties', '_blank')"
+                    class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
+                    <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                     </svg>
+                    <span class="font-medium text-sm">พิมพ์รายงาน</span>
                 </button>
-                <span class="font-medium text-sm ">เพิ่มคณะ</span>
+                <div @click="openCreateFacultyDialog" :class="facultyDialogShow && 'bg-emerald-300'"
+                    class="group cursor-pointer flex items-center py-2 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
+                    <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
+                        <svg class="stroke-emerald-600 fill-none group-active:stroke-emerald-300 group-active:duration-0 duration-300"
+                            viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-width="1.5"
+                                d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z">
+                            </path>
+                            <path stroke-width="1.5" d="M8 12H16"></path>
+                            <path stroke-width="1.5" d="M12 16V8"></path>
+                        </svg>
+                    </button>
+                    <span class="font-medium text-sm ">เพิ่มคณะ</span>
+                </div>
             </div>
         </div>
 
@@ -75,11 +86,11 @@
                                 </div>
                             </td>
                             <td class="py-2 px-2 text-center whitespace-nowrap text-sm text-gray-900"
-                                x-text="`${faculty.faculty_point || '0'}`"></td>
+                                x-text="Number(parseInt(faculty.faculty_point) || 0).toLocaleString()"></td>
                             <td class="py-2 px-1 text-center whitespace-nowrap text-sm text-gray-900"
                                 x-text="`${faculty.major_count_total || '0'}`"></td>
                             <td class="py-2 px-1 text-center whitespace-nowrap text-sm text-gray-900"
-                                x-text="`${faculty.total_member || '0'}`"></td>
+                                x-text="Number(parseInt(faculty.total_member) || 0).toLocaleString()"></td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
                                 <div x-show="editingFacultyId !== faculty.faculty_id"
                                     class="flex justify-center items-center gap-2">

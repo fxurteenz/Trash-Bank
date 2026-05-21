@@ -518,4 +518,37 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function ReportAllFaculties()
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('/waste_center/reports/faculties', [
+                'pages' => "report all faculties",
+                'title' => "รายงานรายชื่อคณะ",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ReportFacultyDetails($fid)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('/waste_center/reports/details/faculty', [
+                'pages' => "report all faculties",
+                'title' => "รายงานรายละเอียดคณะ",
+                'fid' => !empty($fid) ? (int) $fid : null,
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

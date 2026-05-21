@@ -8,12 +8,23 @@
                     x-text="`${key}: ${value}`"></span>
             </template>
         </div>
-        <p class="text-sm text-gray-600 mb-4" x-text="`ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH')}`"></p>
 
-        <button @click="window.print()"
-            class="absolute right-0 top-0 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded print:hidden">
-            พิมพ์รายงาน
-        </button>
+        <div class="absolute right-0 top-0 flex flex-col items-end gap-2">
+            <button @click="window.print()"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded print:hidden">
+                พิมพ์รายงาน
+            </button>
+            <p class="text-sm text-gray-600" x-text="`ข้อมูล ณ วันที่: ${new Date().toLocaleDateString('th-TH')}`"></p>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <p class="text-sm font-semibold text-gray-700" x-text="`จำนวนผู้ใช้งานรวม: ${members.length} คน`"></p>
+        <div class="flex flex-wrap gap-2 mt-2" x-show="members.length > 0">
+            <template x-for="(count, role) in countsByRole" :key="role">
+                <span class="inline-block text-xs" x-text="`${role}: ${count} คน`"></span>
+            </template>
+        </div>
     </div>
 
     <!-- Table -->
@@ -23,8 +34,8 @@
                 <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase">ลำดับ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ชื่อ-นามสกุล</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">เบอร์โทรศัพท์</th>
-                <th x-show="!activeFilters['บทบาท'] || multipleRoles"
-                    class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">บทบาท</th>
+                <th x-show="!activeFilters['ประเภทผู้ใช้้'] || multipleRoles"
+                    class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ประเภทผู้ใช้</th>
                 <th x-show="!activeFilters['คณะ']"
                     class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">คณะ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">สาขา</th>
@@ -38,7 +49,7 @@
                     <td class="px-4 py-2 border text-center text-xs" x-text="index + 1"></td>
                     <td class="px-4 py-2 border text-xs" x-text="member.member_name || 'ไม่ระบุ'"></td>
                     <td class="px-4 py-2 border text-xs" x-text="member.member_phone || 'ไม่ระบุ'"></td>
-                    <td x-show="!activeFilters['บทบาท'] || multipleRoles" class="px-4 py-2 border text-xs"
+                    <td x-show="!activeFilters['ประเภทผู้ใช้'] || multipleRoles" class="px-4 py-2 border text-xs"
                         x-text="member.role_name_th || 'ไม่ระบุ'"></td>
                     <td x-show="!activeFilters['คณะ']" class="px-4 py-2 border text-xs"
                         x-text="member.faculty_name || '-'"></td>
@@ -51,7 +62,7 @@
             </template>
             <template x-if="members.length === 0">
                 <tr>
-                    <td :colspan="8 - (activeFilters['บทบาท'] && !multipleRoles ? 1 : 0) - (activeFilters['คณะ'] ? 1 : 0)"
+                    <td :colspan="8 - (activeFilters['ประเภทผู้ใช้'] && !multipleRoles ? 1 : 0) - (activeFilters['คณะ'] ? 1 : 0)"
                         class="px-4 py-8 text-center text-gray-500 border">ไม่พบข้อมูล</td>
                 </tr>
             </template>
@@ -65,6 +76,15 @@
             members: [],
             multipleRoles: false,
             activeFilters: {},
+
+            get countsByRole() {
+                const counts = {};
+                this.members.forEach(member => {
+                    const role = member.role_name_th || 'ไม่ระบุ';
+                    counts[role] = (counts[role] || 0) + 1;
+                });
+                return counts;
+            },
 
             async initData() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -104,7 +124,7 @@
                     } catch (e) { console.error(e); }
                 }
 
-                // หากมีรหัสบทบาท แต่ไม่มีชื่อบทบาท ให้ดึงจาก API
+                // หากมีรหัสประเภทผู้ใช้้ แต่ไม่มีชื่อประเภทผู้ใช้้ ให้ดึงจาก API
                 if (role && !roleName) {
                     try {
                         const res = await fetch('/api/members/count');
@@ -123,7 +143,7 @@
                 if (faculty) this.activeFilters['คณะ'] = facultyName || faculty;
                 if (major) this.activeFilters['สาขา'] = majorName || major;
                 if (role) {
-                    this.activeFilters['บทบาท'] = roleName || role;
+                    this.activeFilters['ประเภทผู้ใช้'] = roleName || role;
                     this.multipleRoles = role.split(',').length > 1;
                 }
                 if (search) this.activeFilters['คำค้นหา'] = search;
