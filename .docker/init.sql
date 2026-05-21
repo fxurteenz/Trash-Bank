@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: May 16, 2026 at 03:27 PM
+-- Generation Time: May 20, 2026 at 06:17 PM
 -- Server version: 12.1.2-MariaDB-ubu2404
 -- PHP Version: 8.3.26
 
@@ -39,47 +39,6 @@ CREATE TABLE `badge` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `center_branch`
---
-
-CREATE TABLE `center_branch` (
-  `center_branch_id` int(3) UNSIGNED ZEROFILL NOT NULL,
-  `center_branch_name` varchar(45) NOT NULL,
-  `center_branch_point` int(8) DEFAULT 10000,
-  `center_branch_isDelete` tinyint(4) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-
---
--- Dumping data for table `center_branch`
---
-
-INSERT INTO `center_branch` (`center_branch_id`, `center_branch_name`, `center_branch_point`, `center_branch_isDelete`) VALUES
-(001, 'ศูนย์1', 9985, 0);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `center_branch_waste_stock`
---
-
-CREATE TABLE `center_branch_waste_stock` (
-  `center_branch_id` int(3) NOT NULL,
-  `waste_type_id` int(3) NOT NULL,
-  `stock_weight` decimal(8,3) NOT NULL,
-  `updated_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `center_branch_waste_stock`
---
-
-INSERT INTO `center_branch_waste_stock` (`center_branch_id`, `waste_type_id`, `stock_weight`, `updated_at`) VALUES
-(1, 1, 1.000, '2026-05-16 21:42:46'),
-(1, 5, 1.000, '2026-05-16 21:42:46');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `center_waste_stock`
 --
 
@@ -95,7 +54,7 @@ CREATE TABLE `center_waste_stock` (
 
 INSERT INTO `center_waste_stock` (`waste_type_id`, `stock_weight`, `updated_at`) VALUES
 (001, 1522.123, '2026-05-02 17:11:47'),
-(004, 72.456, '2026-05-02 15:49:46'),
+(004, 172.456, '2026-05-20 13:44:34'),
 (005, NULL, '2026-05-02 14:21:45'),
 (006, 48.346, '2026-05-02 15:52:58'),
 (007, 4.123, '2026-05-02 14:21:45'),
@@ -191,23 +150,26 @@ CREATE TABLE `faculty` (
   `faculty_code` varchar(20) DEFAULT NULL COMMENT 'เช่น ENG, SCI',
   `created_at` datetime DEFAULT NULL,
   `faculty_point` int(11) NOT NULL DEFAULT 10000,
-  `updated_at` datetime DEFAULT NULL
+  `updated_at` datetime DEFAULT NULL,
+  `isCenterBranch` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `faculty`
 --
 
-INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `faculty_code`, `created_at`, `faculty_point`, `updated_at`) VALUES
-(001, 'วิทยาศาสตร์', 'SCI', '2025-12-27 20:26:14', 9981, '2026-05-13 11:24:39'),
-(002, 'ครุศาสตร์', 'FE', '2025-12-28 02:12:44', 10000, '2025-12-28 02:12:44'),
-(004, 'เทคโนโลยีอุตสาหกรรม', 'FIT', '2025-12-28 21:33:43', 10000, NULL),
-(006, 'มนุษยศาสตร์และสังคมศาสตร์', 'FHSS', '2026-01-16 03:01:32', 10000, '2026-01-16 10:03:05'),
-(007, 'วิทยาการจัดการ', 'FMS', '2026-01-16 03:01:46', 10000, '2026-01-16 10:03:11'),
-(008, 'พยาบาลศาสตร์', 'MED', '2026-01-16 03:02:12', 10000, '2026-01-16 10:03:38'),
-(009, 'บัณฑิตวิทยาลัย', 'GRAD', '2026-01-16 03:02:23', 10000, '2026-01-16 09:59:49'),
-(010, 'เทคโนโลยีการเกษตร', 'TA', '2026-04-22 22:34:58', 10000, '2026-04-28 00:50:36'),
-(021, 'โรงเรียนสาธิตมหาวิทยาลัยราชภัฏบุรีรัมย์', 'BruDS', '2026-05-08 21:27:40', 10000, '2026-05-08 21:31:31');
+INSERT INTO `faculty` (`faculty_id`, `faculty_name`, `faculty_code`, `created_at`, `faculty_point`, `updated_at`, `isCenterBranch`) VALUES
+(001, 'วิทยาศาสตร์', 'SCI', '2025-12-27 20:26:14', 10000, '2026-05-13 11:24:39', 0),
+(002, 'ครุศาสตร์', 'FE', '2025-12-28 02:12:44', 10000, '2025-12-28 02:12:44', 0),
+(004, 'เทคโนโลยีอุตสาหกรรม', 'FIT', '2025-12-28 21:33:43', 10000, NULL, 0),
+(006, 'มนุษยศาสตร์และสังคมศาสตร์', 'FHSS', '2026-01-16 03:01:32', 10000, '2026-01-16 10:03:05', 0),
+(007, 'วิทยาการจัดการ', 'FMS', '2026-01-16 03:01:46', 10000, '2026-01-16 10:03:11', 0),
+(008, 'พยาบาลศาสตร์', 'MED', '2026-01-16 03:02:12', 10000, '2026-01-16 10:03:38', 0),
+(009, 'บัณฑิตวิทยาลัย', 'GRAD', '2026-01-16 03:02:23', 10000, '2026-01-16 09:59:49', 0),
+(010, 'เทคโนโลยีการเกษตร', 'TA', '2026-04-22 22:34:58', 10000, '2026-04-28 00:50:36', 0),
+(021, 'โรงเรียนสาธิตมหาวิทยาลัยราชภัฏบุรีรัมย์', 'BruDS', '2026-05-08 21:27:40', 10000, '2026-05-08 21:31:31', 0),
+(022, 'ศูนย์1', NULL, NULL, 10000, '2026-05-20 16:00:31', 1),
+(024, 'ศูนย์2', NULL, '2026-05-20 15:10:07', 10000, '2026-05-20 16:01:41', 1);
 
 -- --------------------------------------------------------
 
@@ -228,20 +190,22 @@ CREATE TABLE `faculty_waste_stock` (
 
 INSERT INTO `faculty_waste_stock` (`faculty_id`, `waste_type_id`, `stock_weight`, `updated_at`) VALUES
 (1, 1, 0.000, '2026-05-02 17:11:47'),
-(1, 4, 1.000, '2026-05-16 21:51:42'),
+(1, 4, 0.000, '2026-05-16 21:51:42'),
 (1, 5, 0.000, '2026-05-02 14:21:45'),
-(1, 6, 0.350, '2026-05-02 15:52:58'),
-(1, 7, 2.000, '2026-05-16 21:51:42'),
+(1, 6, 0.000, '2026-05-02 15:52:58'),
+(1, 7, 0.000, '2026-05-16 21:51:42'),
 (1, 8, 0.000, '2026-05-02 14:21:45'),
-(1, 11, 10.000, '2026-05-02 17:34:09'),
+(1, 11, 0.000, '2026-05-02 17:34:09'),
 (2, 1, 0.000, '2026-05-02 16:02:56'),
-(2, 5, 10.000, '2026-04-22 00:54:07'),
-(4, 1, 12.000, '2026-05-02 13:50:26'),
-(4, 4, 23.000, '2026-05-02 13:50:26'),
-(6, 1, 10.000, '2026-05-07 22:48:07'),
-(6, 4, 5.000, '2026-05-07 22:48:07'),
-(6, 5, 20.000, '2026-05-07 22:48:07'),
-(6, 6, 10.000, '2026-05-07 22:48:07');
+(2, 5, 0.000, '2026-04-22 00:54:07'),
+(4, 1, 0.000, '2026-05-02 13:50:26'),
+(4, 4, 0.000, '2026-05-02 13:50:26'),
+(6, 1, 0.000, '2026-05-07 22:48:07'),
+(6, 4, 0.000, '2026-05-07 22:48:07'),
+(6, 5, 0.000, '2026-05-07 22:48:07'),
+(6, 6, 0.000, '2026-05-07 22:48:07'),
+(22, 4, 0.000, '2026-05-20 13:44:34'),
+(22, 11, 0.000, '2026-05-20 13:53:38');
 
 -- --------------------------------------------------------
 
@@ -329,7 +293,6 @@ CREATE TABLE `member` (
   `faculty_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `major_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `role_id` int(2) UNSIGNED ZEROFILL NOT NULL,
-  `center_branch_id` int(3) UNSIGNED ZEROFILL DEFAULT NULL,
   `member_waste_point` int(11) DEFAULT 10 COMMENT 'แต้มขยะ',
   `member_goodness_point` int(11) DEFAULT 0 COMMENT 'แต้มความดี',
   `created_at` datetime DEFAULT NULL,
@@ -340,26 +303,28 @@ CREATE TABLE `member` (
 -- Dumping data for table `member`
 --
 
-INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `center_branch_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
-(000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, NULL, NULL, 01, 001, 0, 0, NULL, NULL),
-(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 001, 004, 05, NULL, 1480, 400, '2025-12-28 01:07:57', NULL),
-(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 02, NULL, 14551, 0, '2025-12-28 13:37:56', NULL),
-(000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 02, NULL, 411, 0, '2025-12-30 13:11:06', NULL),
-(000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, NULL, NULL, 04, 001, 0, 0, '2026-01-02 23:02:14', NULL),
-(000045, NULL, 'จิ๋ว', '0789123456', '$2y$12$zSGJkg5RXGqkIjo.EJODduSVuV2gkaRQ9olLv3WBX0vPsKMMZX0yG', NULL, 004, NULL, 02, NULL, 1746, 0, '2026-01-08 01:06:23', NULL),
-(000046, NULL, 'เจ้าหน้าที่คณะวิทย์', '0912345678', '$2y$12$efplvrv7noSANjwrFtRBg.RPKUNPDnFqnmRjPn66lUj35QwQtKI22', NULL, 001, NULL, 03, NULL, 0, 0, '2026-01-08 23:07:10', NULL),
-(000047, NULL, 'ภูมิศักดิ์', '0234567891', '$2y$12$hRwAXnBqAyG400lihC8Im.3xd3pBcSjhQdT/28/kSbmvCLukcPkee', NULL, 001, 007, 02, NULL, 1118, 0, '2026-01-16 11:06:48', NULL),
-(000049, NULL, 'BRU Go Green Admin', '06142514', '$2y$12$.OzR5xLPatJOEDcaQ6HUg.tef/9w.Z8xWfZMUPFECr7xbG9FXwEIy', NULL, NULL, NULL, 01, NULL, 0, 0, '2026-04-22 15:38:31', NULL),
-(000050, '3319900096772', 'วรินทร์พิพัชร วัชรพงษ์เกษม', '0800599986', '$2y$12$GxjciICXU8jOKXDl6jkJpOeBK6egcNhGVO7xC4qGbBJPPFGayxWCy', 'benz.wp@gmail.com', 001, 004, 02, NULL, 10, 0, '2026-04-25 14:12:40', NULL),
-(000078, NULL, 'นักศึกษา มนุษย์ศาสตร์', '0222222222', '$2y$12$lEJN9oZyIG.gKd//QVHpEe05ssAAqeLBBRCcV0kkG6EOmkbsU81LG', NULL, 006, NULL, 02, NULL, 10, 0, '2026-04-25 18:21:34', NULL),
-(000079, NULL, 'นักศึกษา วิทยาการจัดการ', '0111111111', '$2y$12$uHGEqbuDDquUsHkSPYFVrOtonU6RgmmO6ypDRC5tlVTL6EipyItDm', NULL, 007, NULL, 02, NULL, 10, 0, '2026-04-25 19:41:50', NULL),
-(000080, '0000000000000', 'นักศึกษา พยาบาล', '03333333', '$2y$12$q5ZPPFOK.qmWsuSkku295uUEpoY779qGvpjCrh68ZE24tIRxNWDMy', NULL, 008, NULL, 02, NULL, 10, 0, '2026-04-25 19:45:59', NULL),
-(000093, NULL, 'ภัทรสวันต์ ศรีทัด', '0444444444', '$2y$12$ZZiP5pOe7uO0mm.QppQuN.bvnIBldwPDvNVVFs.VwxeO0hZTtnB1K', 'ben.wp@gmail.com', 001, 004, 02, NULL, 110, 0, '2026-05-01 21:07:33', NULL),
-(000095, NULL, 'admin@sci', '1212312121', '$2y$12$gP1YwyaRo1LQTAlqvLuIeerb.TtHGWACVirRFns0J/k2Ec0.Mx4b2', 'admin.sci@gogreen.com', 001, NULL, 01, NULL, 0, 0, '2026-05-05 16:29:22', NULL),
-(000097, NULL, 'วรินทร์พิพัชร  วัชรพงษ์เกษม', '080059997', '$2y$12$SclSJCoYMk8bzwQYlyNVV.Xqwx7d03tGx9QuEKk4O/f3JIKnaPxra', 'benz.wp7@gmail.com', 001, 004, 05, NULL, 10, 0, '2026-05-08 16:19:38', NULL),
-(000098, NULL, 'อาจารย์เบนซ์ ทดสอบ', '080059988', '$2y$12$YBlDJpnHPnJiwvLwKNX7Zu1N5pFZLWorZteFZydvckGyB73N1Ovoe', 'benz.wp8@gmail.com', NULL, NULL, 06, NULL, 10, 0, '2026-05-08 16:21:54', NULL),
-(000099, NULL, 'ทดสอบ benz 0800599988', '0800599988', '$2y$12$68EtBTgqjg8VrigRrelvBe/nhdBpM.Taq9tiSHWlYdZKSopkTaxiK', '0800599988@gmail.com', NULL, NULL, 06, NULL, 10, 0, '2026-05-08 17:35:41', NULL),
-(000100, NULL, 'ทดสอบ อสมัครสมาชิกอาจารย์', '0112233445', '$2y$12$spzOKMHxuhDo0qDuwIb2veMx8S35YH5D6Gnup5/DckxAVlGy6/Slq', NULL, 007, NULL, 05, NULL, 10, 0, '2026-05-13 11:27:52', NULL);
+INSERT INTO `member` (`member_id`, `member_personal_id`, `member_name`, `member_phone`, `member_password`, `member_email`, `faculty_id`, `major_id`, `role_id`, `member_waste_point`, `member_goodness_point`, `created_at`, `updated_at`) VALUES
+(000001, '1309902669455', 'admin', '0816047264', '$2y$12$eHf3/jMRxH9BAfjZHN.G8.yozUERW747FNpQkJACrJakx9Zr9PwqC', NULL, 022, NULL, 06, 0, 0, NULL, NULL),
+(000005, NULL, 'เปียกปอน', '0123456789', '$2y$12$V75oElQbotgJ/wJ7i6gTgewN1DRFwDRW8mmVHsNjbq1fPTKcQsmT.', NULL, 004, 004, 01, 1480, 400, '2025-12-28 01:07:57', NULL),
+(000042, NULL, 'user@fe', '0567891234', '$2y$12$nrQy/iIn.5dvhMW6x4aa3ep5HF7CUuj7cZwvifiMFRCF9jFu1mR7a', NULL, 002, 005, 01, 15751, 0, '2025-12-28 13:37:56', NULL),
+(000043, NULL, 'กิตติ', '0678912345', '$2y$12$PchGjKE4WfeOEXxng41KfuPWW11ossaoIF/fOfFu9lWiJHxpYWN1y', NULL, 001, NULL, 01, 411, 0, '2025-12-30 13:11:06', NULL),
+(000044, NULL, 'ศูนย์ใหญ่', '0634122301', '$2y$12$ojRsEtSNEO52vpAfsVkdCO7Jf2HaMse.Dh1./s.dAqGC.Ja.wqNjW', NULL, 022, NULL, 05, 0, 0, '2026-01-02 23:02:14', NULL),
+(000045, NULL, 'จิ๋ว', '0789123456', '$2y$12$zSGJkg5RXGqkIjo.EJODduSVuV2gkaRQ9olLv3WBX0vPsKMMZX0yG', NULL, 004, NULL, 01, 1746, 0, '2026-01-08 01:06:23', NULL),
+(000046, NULL, 'เจ้าหน้าที่คณะวิทย์', '0912345678', '$2y$12$efplvrv7noSANjwrFtRBg.RPKUNPDnFqnmRjPn66lUj35QwQtKI22', NULL, 001, NULL, 04, 0, 0, '2026-01-08 23:07:10', NULL),
+(000047, NULL, 'ภูมิศักดิ์', '0234567891', '$2y$12$hRwAXnBqAyG400lihC8Im.3xd3pBcSjhQdT/28/kSbmvCLukcPkee', NULL, 001, 007, 01, 1118, 0, '2026-01-16 11:06:48', NULL),
+(000049, NULL, 'BRU Go Green Admin', '06142514', '$2y$12$.OzR5xLPatJOEDcaQ6HUg.tef/9w.Z8xWfZMUPFECr7xbG9FXwEIy', NULL, 022, NULL, 06, 0, 0, '2026-04-22 15:38:31', NULL),
+(000050, '3319900096772', 'วรินทร์พิพัชร วัชรพงษ์เกษม', '0800599986', '$2y$12$GxjciICXU8jOKXDl6jkJpOeBK6egcNhGVO7xC4qGbBJPPFGayxWCy', 'benz.wp@gmail.com', 001, 004, 02, 10, 0, '2026-04-25 14:12:40', NULL),
+(000078, NULL, 'นักศึกษา มนุษย์ศาสตร์', '0222222222', '$2y$12$lEJN9oZyIG.gKd//QVHpEe05ssAAqeLBBRCcV0kkG6EOmkbsU81LG', NULL, 006, NULL, 01, 10, 0, '2026-04-25 18:21:34', NULL),
+(000079, NULL, 'นักศึกษา วิทยาการจัดการ', '0111111111', '$2y$12$uHGEqbuDDquUsHkSPYFVrOtonU6RgmmO6ypDRC5tlVTL6EipyItDm', NULL, 007, NULL, 01, 10, 0, '2026-04-25 19:41:50', NULL),
+(000080, '0000000000000', 'นักศึกษา พยาบาล', '03333333', '$2y$12$q5ZPPFOK.qmWsuSkku295uUEpoY779qGvpjCrh68ZE24tIRxNWDMy', NULL, 008, NULL, 01, 10, 0, '2026-04-25 19:45:59', NULL),
+(000093, NULL, 'ภัทรสวันต์ ศรีทัด', '0444444444', '$2y$12$ZZiP5pOe7uO0mm.QppQuN.bvnIBldwPDvNVVFs.VwxeO0hZTtnB1K', 'ben.wp@gmail.com', 001, 004, 01, 110, 0, '2026-05-01 21:07:33', NULL),
+(000095, NULL, 'admin@sci', '1212312121', '$2y$12$gP1YwyaRo1LQTAlqvLuIeerb.TtHGWACVirRFns0J/k2Ec0.Mx4b2', 'admin.sci@gogreen.com', 024, NULL, 06, 0, 0, '2026-05-05 16:29:22', NULL),
+(000097, NULL, 'วรินทร์พิพัชร  วัชรพงษ์เกษม', '080059997', '$2y$12$SclSJCoYMk8bzwQYlyNVV.Xqwx7d03tGx9QuEKk4O/f3JIKnaPxra', 'benz.wp7@gmail.com', 001, 004, 02, 10, 0, '2026-05-08 16:19:38', NULL),
+(000098, NULL, 'อาจารย์เบนซ์ ทดสอบ', '080059988', '$2y$12$YBlDJpnHPnJiwvLwKNX7Zu1N5pFZLWorZteFZydvckGyB73N1Ovoe', 'benz.wp8@gmail.com', NULL, NULL, 03, 10, 0, '2026-05-08 16:21:54', NULL),
+(000099, NULL, 'ทดสอบ benz 0800599988', '0800599988', '$2y$12$68EtBTgqjg8VrigRrelvBe/nhdBpM.Taq9tiSHWlYdZKSopkTaxiK', '0800599988@gmail.com', NULL, NULL, 03, 10, 0, '2026-05-08 17:35:41', NULL),
+(000100, NULL, 'ทดสอบ อสมัครสมาชิกอาจารย์', '0112233445', '$2y$12$spzOKMHxuhDo0qDuwIb2veMx8S35YH5D6Gnup5/DckxAVlGy6/Slq', NULL, 007, NULL, 02, 10, 0, '2026-05-13 11:27:52', NULL),
+(000105, NULL, 'เจ้าหน้าที่หน่วยย่อย', '087651234', '$2y$12$F2l/tyqI7Kjmu27rPvO1Lu8SeaeZlKeFFGOb0ZYm/4dhmfsYar3vu', NULL, 024, NULL, 05, 0, 0, '2026-05-20 14:37:07', NULL),
+(000106, NULL, 'เจ้าหน้าที่โรงเรียนสาธิต', '0981234567', '$2y$12$jd5Rx1.kyDnwotUrdkedrefwViCGri1xliVzZeH.6PpmUnP7kxVN2', NULL, 021, NULL, 04, 0, 0, '2026-05-20 16:10:21', NULL);
 
 -- --------------------------------------------------------
 
@@ -394,12 +359,12 @@ CREATE TABLE `role` (
 --
 
 INSERT INTO `role` (`role_id`, `role_name`, `role_name_th`) VALUES
-(01, 'admin', 'ผู้ดูแลระบบ'),
-(02, 'member', 'สมาชิก'),
-(03, 'staff', 'เจ้าหน้าที่คณะ'),
-(04, 'center', 'เจ้าหน้าที่ศูนย์'),
-(05, 'lecturer/professor', 'อาจารย์/ศาสตราจารย์'),
-(06, 'employee', 'บุคลากร');
+(01, 'member', 'นักศึกษา'),
+(02, 'lecturer/professor', 'อาจารย์/ศาสตราจารย์'),
+(03, 'employee', 'บุคลากร'),
+(04, 'staff', 'เจ้าหน้าที่คณะ'),
+(05, 'center', 'เจ้าหน้าที่ศูนย์'),
+(06, 'admin', 'ผู้ดูแลระบบ');
 
 -- --------------------------------------------------------
 
@@ -456,6 +421,13 @@ CREATE TABLE `waste_clearance` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `waste_clearance`
+--
+
+INSERT INTO `waste_clearance` (`waste_clearance_id`, `faculty_id`, `center_staff_id`, `waste_clearance_total_weight`, `waste_clearance_total_point`, `waste_clearance_note`, `created_at`) VALUES
+(000001, 022, 1, 100.000, 1200, NULL, '2026-05-20 13:44:34');
+
 -- --------------------------------------------------------
 
 --
@@ -471,6 +443,13 @@ CREATE TABLE `waste_clearance_detail` (
   `waste_clearance_detail_rate` decimal(10,2) NOT NULL,
   `waste_clearance_detail_point` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `waste_clearance_detail`
+--
+
+INSERT INTO `waste_clearance_detail` (`waste_clearance_detail_id`, `waste_clearance_id`, `waste_category_id`, `waste_type_id`, `waste_clearance_detail_weight`, `waste_clearance_detail_rate`, `waste_clearance_detail_point`) VALUES
+(000001, 000001, 000003, 004, 100.000, 2.00, 1200);
 
 -- --------------------------------------------------------
 
@@ -528,7 +507,9 @@ CREATE TABLE `waste_transaction` (
 INSERT INTO `waste_transaction` (`waste_transaction_id`, `member_id`, `faculty_id`, `center_branch_id`, `staff_id`, `waste_transaction_total_weight`, `waste_transaction_total_point`, `waste_transaction_total_co2e`, `waste_transaction_note`, `created_at`) VALUES
 (000001, 000078, 006, NULL, 000001, 45.000, 270, 33.10, NULL, '2026-05-07 22:48:07'),
 (000004, 000045, NULL, 001, 000044, 2.000, 15, 1.18, NULL, '2026-05-16 21:42:46'),
-(000005, 000042, 001, NULL, 000046, 3.000, 19, 3.70, NULL, '2026-05-16 21:51:42');
+(000005, 000042, 001, NULL, 000046, 3.000, 19, 3.70, NULL, '2026-05-16 21:51:42'),
+(000006, 000042, 022, NULL, 000001, 100.000, 1000, 314.00, NULL, '2026-05-20 13:30:07'),
+(000007, 000042, 022, NULL, 000001, 10.000, 200, 8.00, NULL, '2026-05-20 13:53:38');
 
 -- --------------------------------------------------------
 
@@ -559,7 +540,9 @@ INSERT INTO `waste_transaction_detail` (`waste_transaction_detail_id`, `waste_tr
 (000007, 000004, 003, 001, 1.000, 2.00, 10, 0.90),
 (000008, 000004, 004, 005, 1.000, 1.00, 5, 0.28),
 (000009, 000005, 003, 004, 1.000, 2.00, 10, 3.14),
-(000010, 000005, 004, 007, 2.000, 0.90, 9, 0.56);
+(000010, 000005, 004, 007, 2.000, 0.90, 9, 0.56),
+(000011, 000006, 003, 004, 100.000, 2.00, 1000, 314.00),
+(000012, 000007, 003, 011, 10.000, 4.00, 200, 8.00);
 
 -- --------------------------------------------------------
 
@@ -601,19 +584,6 @@ INSERT INTO `waste_type` (`waste_type_id`, `waste_type_name`, `waste_type_price`
 --
 ALTER TABLE `badge`
   ADD PRIMARY KEY (`badge_id`);
-
---
--- Indexes for table `center_branch`
---
-ALTER TABLE `center_branch`
-  ADD PRIMARY KEY (`center_branch_id`),
-  ADD UNIQUE KEY `center_branch_name_UNIQUE` (`center_branch_name`);
-
---
--- Indexes for table `center_branch_waste_stock`
---
-ALTER TABLE `center_branch_waste_stock`
-  ADD PRIMARY KEY (`center_branch_id`,`waste_type_id`);
 
 --
 -- Indexes for table `center_waste_stock`
@@ -773,12 +743,6 @@ ALTER TABLE `badge`
   MODIFY `badge_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `center_branch`
---
-ALTER TABLE `center_branch`
-  MODIFY `center_branch_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
 -- AUTO_INCREMENT for table `donation`
 --
 ALTER TABLE `donation`
@@ -806,7 +770,7 @@ ALTER TABLE `donation_item_category`
 -- AUTO_INCREMENT for table `faculty`
 --
 ALTER TABLE `faculty`
-  MODIFY `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `faculty_id` int(3) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `major`
@@ -818,7 +782,7 @@ ALTER TABLE `major`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `member_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=101;
+  MODIFY `member_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `member_item`
@@ -830,7 +794,7 @@ ALTER TABLE `member_item`
 -- AUTO_INCREMENT for table `role`
 --
 ALTER TABLE `role`
-  MODIFY `role_id` int(2) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `role_id` int(2) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `system_log`
@@ -848,13 +812,13 @@ ALTER TABLE `waste_category`
 -- AUTO_INCREMENT for table `waste_clearance`
 --
 ALTER TABLE `waste_clearance`
-  MODIFY `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_clearance_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `waste_clearance_detail`
 --
 ALTER TABLE `waste_clearance_detail`
-  MODIFY `waste_clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT;
+  MODIFY `waste_clearance_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `waste_sale`
@@ -872,13 +836,13 @@ ALTER TABLE `waste_sale_detail`
 -- AUTO_INCREMENT for table `waste_transaction`
 --
 ALTER TABLE `waste_transaction`
-  MODIFY `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `waste_transaction_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `waste_transaction_detail`
 --
 ALTER TABLE `waste_transaction_detail`
-  MODIFY `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `waste_transaction_detail_id` int(6) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `waste_type`
@@ -893,9 +857,9 @@ ALTER TABLE `waste_type`
 --
 -- Constraints for table `major`
 --
-ALTER TABLE `major`
-  ADD CONSTRAINT `1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`) ON UPDATE CASCADE;
-COMMIT;
+-- ALTER TABLE `major`
+--   ADD CONSTRAINT `1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty` (`faculty_id`) ON UPDATE CASCADE;
+-- COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
