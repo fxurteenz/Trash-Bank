@@ -13,27 +13,28 @@ $faculty_id = $faculty_id ?? "null";
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </button>
-        <h1 class="text-2xl font-bold text-slate-900" x-text="`รายละเอียดคณะ ${faculty.faculty_name || ''}`">
+            <h1 class="text-2xl font-bold text-slate-900" x-text="`รายละเอียดคณะ ${faculty.faculty_name || ''}`">
             </h1>
         </div>
-    <div class="flex items-center gap-2">
-        <button @click="window.open(`/admin/report/faculty/${facultyId}`, '_blank')"
-            class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition font-medium flex items-center gap-2 shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            พิมพ์รายงาน
-        </button>
-        <button @click="openEditFacultyDialog()"
-            class="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg hover:bg-amber-200 transition font-medium flex items-center gap-2 shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                    d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-            </svg>
-            แก้ไขข้อมูลคณะ
-        </button>
-    </div>
+        <div class="flex items-center gap-2">
+            <button @click="window.open(`/admin/report/faculty/${facultyId}`, '_blank')"
+                class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition font-medium flex items-center gap-2 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                พิมพ์รายงาน
+            </button>
+            <button @click="openEditFacultyDialog()"
+                class="bg-amber-100 text-amber-700 px-4 py-2 rounded-lg hover:bg-amber-200 transition font-medium flex items-center gap-2 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                แก้ไขข้อมูลคณะ
+            </button>
+        </div>
     </div>
 
     <!-- Faculty Info Card -->
@@ -344,15 +345,20 @@ $faculty_id = $faculty_id ?? "null";
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold " x-text="faculty.total_member || '0'">
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold "
+                            x-text="summaryMember.total_member || '0'">
                         </td>
-                          <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.user_count || '0'">
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
+                            x-text="summaryMember.member_count || '0'">
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.professor_count || '0'">
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
+                            x-text="summaryMember.professor_count || '0'">
                         </td>
-                          <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.employee_count || '0'">
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
+                            x-text="summaryMember.employee_count || '0'">
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold" x-text="faculty.staff_count || '0'">
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
+                            x-text="summaryMember.staff_count || '0'">
                         </td>
                     </tr>
                 </tbody>
@@ -594,10 +600,12 @@ $faculty_id = $faculty_id ?? "null";
                     <select x-model="createUserForm.role_id"
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white">
                         <option value="">เลือกบทบาท</option>
-                        <option value="2">นักศึกษา</option>
-                        <option value="4">อาจารย์</option>
-                        <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
-                        <option value="1">ผู้ดูแลระบบ</option>
+                        <option value="1">นักศึกษา</option>
+                        <option value="2">อาจารย์</option>
+                        <option value="3">บุคลากร</option>
+                        <option value="4">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
+                        <option value="5">เจ้าหน้าที่ศูนย์</option>
+                        <option value="6">ผู้ดูแลระบบ</option>
                     </select>
                     <span x-show="errors.create.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                 </div>
@@ -655,10 +663,12 @@ $faculty_id = $faculty_id ?? "null";
                     <select x-model="editUserForm.role_id"
                         class="w-full border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white">
                         <option value="">เลือกบทบาท</option>
-                        <option value="2">นักศึกษา</option>
-                        <option value="4">อาจารย์</option>
-                        <option value="3">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
-                        <option value="1">ผู้ดูแลระบบ</option>
+                        <option value="1">นักศึกษา</option>
+                        <option value="2">อาจารย์</option>
+                        <option value="3">บุคลากร</option>
+                        <option value="4">เจ้าหน้าที่จุดฝาก/เจ้าหน้าที่คณะ</option>
+                        <option value="5">เจ้าหน้าที่ศูนย์</option>
+                        <option value="6">ผู้ดูแลระบบ</option>
                     </select>
                     <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
                 </div>
@@ -697,6 +707,7 @@ $faculty_id = $faculty_id ?? "null";
             statTab: 'today',
 
             members: [],
+            summaryMember: {},
             memberPage: 1,
             memberLimit: 10,
             memberTotalPages: 1,
@@ -744,9 +755,9 @@ $faculty_id = $faculty_id ?? "null";
                 }
 
                 await Promise.all([
-                    this.fetchFaculty(),
                     this.fetchMembers(),
-                    this.fetchDashboard()
+                    this.fetchDashboard(),
+                    this.fetchMajors()
                 ]);
             },
 
@@ -757,22 +768,23 @@ $faculty_id = $faculty_id ?? "null";
                     if (result.success) {
                         this.summary = result.data.summary || {};
                         this.summaryToday = result.data.summary_today || {};
+                        // this.majors = result.data.faculty.majors || [];
+                        this.faculty = result.data.faculty;
                     }
                 } catch (e) {
                     console.error('Failed to fetch dashboard:', e);
                 }
             },
 
-            async fetchFaculty() {
+            async fetchMajors() {
                 try {
-                    const res = await fetch(`/api/faculties/${this.facultyId}`);
+                    const res = await fetch(`/api/majors?faculty=${this.facultyId}`);
                     const result = await res.json();
                     if (result.success) {
-                        this.faculty = result.data;
-                        this.majors = result.data.majors || [];
-                    } else throw new Error(result.message);
+                        this.majors = result.data || [];
+                    }
                 } catch (e) {
-                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลคณะได้', 'error');
+                    console.error('Failed to fetch dashboard:', e);
                 }
             },
 
@@ -791,7 +803,8 @@ $faculty_id = $faculty_id ?? "null";
                     const result = await res.json();
 
                     if (result.success || result.data) {
-                        this.members = result.data || result.result?.data || [];
+                        this.members = result.data || [];
+                        this.summaryMember = result.summary || {};
                         const total = result.total || result.result?.total || 0;
                         this.memberTotalPages = Math.ceil(total / this.memberLimit) || 1;
                     }
@@ -835,7 +848,7 @@ $faculty_id = $faculty_id ?? "null";
                     if (result.success) {
                         Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลคณะแล้ว', timer: 1500, showConfirmButton: false });
                         this.facultyDialogShow = false;
-                        this.fetchFaculty();
+                        this.fetchDashboard();
                     } else throw new Error(result.message);
                 } catch (e) {
                     console.log(this.facultyForm);
@@ -875,7 +888,7 @@ $faculty_id = $faculty_id ?? "null";
                     if (result.success) {
                         Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'เพิ่มข้อมูลสาขาแล้ว', timer: 1500, showConfirmButton: false });
                         this.majorDialogShow = false;
-                        this.fetchFaculty();
+                        this.fetchMajors();
                     } else throw new Error(result.message);
                 } catch (e) {
                     Swal.fire('ข้อผิดพลาด', e.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
@@ -897,7 +910,7 @@ $faculty_id = $faculty_id ?? "null";
                     if (result.success) {
                         Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'แก้ไขข้อมูลเรียบร้อย', showConfirmButton: false, timer: 1500 });
                         this.editingMajorId = null;
-                        this.fetchFaculty();
+                        this.fetchMajors();
                     } else throw new Error(result.message);
                 } catch (e) {
                     Swal.fire('ข้อผิดพลาด', e.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
@@ -922,7 +935,7 @@ $faculty_id = $faculty_id ?? "null";
                         const delResult = await res.json();
                         if (delResult.success) {
                             Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1500 });
-                            this.fetchFaculty();
+                            this.fetchDashboard();
                         } else throw new Error(delResult.message);
                     } catch (e) {
                         Swal.fire('ข้อผิดพลาด', e.message || 'ไม่สามารถลบข้อมูลได้', 'error');
@@ -1005,7 +1018,7 @@ $faculty_id = $faculty_id ?? "null";
                         Swal.fire({ icon: "success", title: "เพิ่มสำเร็จ", text: `เพิ่มผู้ใช้งานเรียบร้อย`, timer: 2000, showConfirmButton: false });
                         this.createUserDialogShow = false;
                         this.fetchMembers();
-                        this.fetchFaculty();
+                        // this.fetchDashboard();
                     } else throw new Error(response.message || "Something went wrong");
                 } catch (error) {
                     Swal.fire('ข้อผิดพลาด', error.message || 'ไม่สามารถเพิ่มผู้ใช้งานได้', 'error');
@@ -1029,7 +1042,7 @@ $faculty_id = $faculty_id ?? "null";
                         this.editingMemberId = null;
                         this.editMemberDialogShow = false;
                         this.fetchMembers();
-                        this.fetchFaculty();
+                        // this.fetchDashboard();
                     } else throw new Error(response.message || "Something went wrong");
                 } catch (error) {
                     Swal.fire('ข้อผิดพลาด', error.message || 'ไม่สามารถแก้ไขข้อมูลได้', 'error');
@@ -1059,7 +1072,7 @@ $faculty_id = $faculty_id ?? "null";
                         if (delResult.success) {
                             Swal.fire({ icon: "success", title: "ลบสำเร็จ", timer: 2000, showConfirmButton: false });
                             this.fetchMembers();
-                            this.fetchFaculty();
+                            // this.fetchDashboard();
                         } else throw new Error(delResult.message);
                     } catch (error) {
                         Swal.fire("ผิดพลาด", error.message || "ลบรายชื่อไม่สำเร็จ", "error");

@@ -61,12 +61,12 @@ class MajorModel
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sql = "SELECT 
-                        m.*, 
-                        f.faculty_name
+                        m.*
+                        -- f.faculty_name
                     FROM 
                         major m
-                    LEFT JOIN 
-                        faculty f ON m.faculty_id = f.faculty_id
+                    -- LEFT JOIN 
+                    --     faculty f ON m.faculty_id = f.faculty_id
                     {$whereSql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);

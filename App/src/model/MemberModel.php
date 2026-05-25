@@ -109,7 +109,7 @@ class MemberModel
             $isPagination = isset($query['page']) && isset($query['limit']);
 
             if ($isPagination) {
-                $page = (int) $query['page'];
+                $page = max(1, (int) $query['page']);
                 $limit = (int) $query['limit'];
                 $offset = ($page - 1) * $limit;
                 $sql .= " LIMIT :limit OFFSET :offset";
@@ -140,6 +140,35 @@ class MemberModel
             } else {
                 $total = count($users);
             }
+
+            if (!empty($query["faculty"])) {
+                $summaryMember = "SELECT
+                                SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
+                                SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                                SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                                SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
+                                COUNT(member_id) as total_member
+                            FROM member m
+                            WHERE faculty_id = :faculty_id";
+                $smstmt = $this->Conn->prepare($summaryMember);
+                $smstmt->bindValue(':faculty_id', $query["faculty"], PDO::PARAM_INT);
+                $smstmt->execute();
+                $summary = $smstmt->fetch(PDO::FETCH_ASSOC);
+                return ["data" => $users, "total" => $total, "summary" => $summary ?? []];
+            } else {
+                $summaryMember = "SELECT
+                                SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
+                                SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                                SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                                SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
+                                COUNT(member_id) as total_member
+                            FROM member m";
+                $smstmt = $this->Conn->prepare($summaryMember);
+                $smstmt->execute();
+                $summary = $smstmt->fetch(PDO::FETCH_ASSOC);
+                return ["data" => $users, "total" => $total, "summary" => $summary ?? []];
+            }
+
             return ["data" => $users, "total" => $total];
         } catch (PDOException $e) {
             error_log($e->getMessage());

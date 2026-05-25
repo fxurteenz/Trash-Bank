@@ -151,6 +151,10 @@ class Routes
             ["GET", "/report/users", [AdminPagesController::class, "ReportUsers"]],
             ["GET", "/report/faculties", [AdminPagesController::class, "ReportAllFaculties"]],
             ["GET", "/report/faculty/[i:fid]", [AdminPagesController::class, "ReportFacultyDetails"]],
+            ["GET", "/report/branches", [AdminPagesController::class, "ReportAllBranches"]],
+            ["GET", "/report/faculties_branches", [AdminPagesController::class, "ReportFacultiesAndBranches"]],
+
+
         ]);
 
         /* API */

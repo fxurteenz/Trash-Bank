@@ -77,7 +77,7 @@ class MajorController extends RouterBase
 
             $response = [
                 'success' => TRUE,
-                'result' => $majors,
+                'data' => $majors,
                 'total' => $total,
                 'message' => 'successfully =_=_='
             ];

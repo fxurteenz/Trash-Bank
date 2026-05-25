@@ -47,6 +47,7 @@ class MemberController extends RouterBase
             $response = [
                 'success' => TRUE,
                 'data' => $result['data'],
+                'summary' => $result['summary'] ?? [],
                 'total' => $result['total'],
                 'message' => 'successfully =)'
             ];
@@ -179,7 +180,7 @@ class MemberController extends RouterBase
         try {
             Authentication::OperateAuth();
             $affectedRows = $this->MemberModel->DeleteMember($this->data);
-            
+
             header('Content-Type: application/json');
             http_response_code(200);
             echo json_encode([

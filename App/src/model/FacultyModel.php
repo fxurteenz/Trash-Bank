@@ -169,7 +169,7 @@ class FacultyModel
                         SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as user_count,
                         SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
                         SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
-                        SUM(CASE WHEN role_id = 5 THEN 1 ELSE 0 END) as staff_count,
+                        SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
                         COUNT(member_id) as total_member
                     FROM member
                     GROUP BY faculty_id
@@ -180,14 +180,14 @@ class FacultyModel
             $stmt->execute();
             $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($data) {
-                // ดึงรายการสาขาที่อยู่ในคณะนี้
-                $majorSql = "SELECT * FROM major WHERE faculty_id = :faculty_id";
-                $majorStmt = $this->Conn->prepare($majorSql);
-                $majorStmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
-                $majorStmt->execute();
-                $data['majors'] = $majorStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            }
+            // if ($data) {
+            //     // ดึงรายการสาขาที่อยู่ในคณะนี้
+            //     $majorSql = "SELECT * FROM major WHERE faculty_id = :faculty_id";
+            //     $majorStmt = $this->Conn->prepare($majorSql);
+            //     $majorStmt->bindValue(':faculty_id', $id, PDO::PARAM_INT);
+            //     $majorStmt->execute();
+            //     $data['majors'] = $majorStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            // }
 
             return $data ?: [];
         } catch (PDOException $e) {
