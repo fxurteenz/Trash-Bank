@@ -23,47 +23,68 @@ class DashboardDataModel
             }
             // summary statistic (waste_transaction)
             $summarySql = "SELECT 
-                            COUNT(w.waste_transaction_id) AS transaction_count,
-                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
-                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
-                       FROM waste_transaction w
-                       WHERE w.faculty_id = :faculty_id";
-
+                                COUNT(w.waste_transaction_id) AS transaction_count,
+                                COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                                COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
+                                COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                            FROM waste_transaction w
+                            WHERE w.faculty_id = :faculty_id";
             $stmt = $this->Conn->prepare($summarySql);
             $stmt->execute([":faculty_id" => $facultyId]);
             $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
             // summary today statistic (waste_transaction)
             $summaryTodaySql = "SELECT 
-                            COUNT(w.waste_transaction_id) AS transaction_count,
-                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
-                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
-                       FROM waste_transaction w
-                       WHERE w.faculty_id = :faculty_id AND DATE(w.created_at) = :today_date";
+                                    COUNT(w.waste_transaction_id) AS transaction_count,
+                                    COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                                    COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
+                                    COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                                FROM waste_transaction w
+                                WHERE w.faculty_id = :faculty_id AND DATE(w.created_at) = :today_date";
             $stmtToday = $this->Conn->prepare($summaryTodaySql);
             $stmtToday->execute([":faculty_id" => $facultyId, ":today_date" => date('Y-m-d')]);
             $summaryToday = $stmtToday->fetch(PDO::FETCH_ASSOC) ?: [];
 
-            $summaryMemberSql = "SELECT 
-                                    COUNT(m.member_id) AS member_count
-                                FROM member m
-                                WHERE m.faculty_id = :faculty_id AND m.role_id = 2";
-            $stmtToday = $this->Conn->prepare($summaryMemberSql);
-            $stmtToday->execute([":faculty_id" => $facultyId]);
-            $summaryMember = $stmtToday->fetch(PDO::FETCH_ASSOC) ?: [];
-            $summary['total_member'] = $summaryMember['member_count'];
-
             // faculty_detail
-            $facultySql = "SELECT * FROM faculty WHERE faculty_id = :faculty_id";
+            $facultySql = "SELECT
+                                f.*, 
+                                COALESCE(m_count.total_major, 0) AS major_count_total
+                                -- COALESCE(mem_count.member_count, 0) AS member_count,
+                                -- COALESCE(mem_count.professor_count, 0) AS professor_count,
+                                -- COALESCE(mem_count.employee_count, 0) AS employee_count,
+                                -- COALESCE(mem_count.staff_count, 0) AS staff_count,
+                                -- COALESCE(mem_count.total_member, 0) AS total_member
+                            FROM faculty f
+                            LEFT JOIN (
+                                SELECT faculty_id, COUNT(major_id) AS total_major
+                                FROM major
+                                GROUP BY faculty_id
+                            ) AS m_count ON f.faculty_id = m_count.faculty_id
+                            -- LEFT JOIN (
+                            --     SELECT faculty_id,
+                            --         SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
+                            --         SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                            --         SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                            --         SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
+                            --         COUNT(member_id) as total_member
+                            --     FROM member
+                            --     GROUP BY faculty_id
+                            -- ) AS mem_count ON f.faculty_id = mem_count.faculty_id
+                            WHERE f.faculty_id = :faculty_id";
             $fStmt = $this->Conn->prepare($facultySql);
             $fStmt->execute([':faculty_id' => $facultyId]);
             $faculty = $fStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
+            // $majorSql = "SELECT * FROM major WHERE faculty_id = :faculty_id";
+            // $majorStmt = $this->Conn->prepare($majorSql);
+            // $majorStmt->bindValue(':faculty_id', $facultyId, PDO::PARAM_INT);
+            // $majorStmt->execute();
+            // $faculty['majors'] = $majorStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
             return [
                 'faculty' => $faculty,
                 'summary' => $summary,
-                'summary_today' => $summaryToday
+                'summary_today' => $summaryToday,
             ];
 
         } catch (PDOException $th) {
