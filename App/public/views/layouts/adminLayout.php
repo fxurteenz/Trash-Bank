@@ -238,24 +238,6 @@
                         <span class="text-sm font-medium">คณะ/สาขา</span>
                     </a>
 
-                    <a href="/admin/manage/branch"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
-                            <path d="M0 0h48v48H0z" fill="none" />
-                            <g fill="none">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="4"
-                                    d="M6 23c0-1.5 1.999-5.5 7.061-6.571C18.18 15.346 22.848 10.857 24 9m18 14c.012-1.5-2-5.5-7.062-6.571C29.821 15.346 25.152 10.857 24 9" />
-                                <circle r="4" fill="currentColor" transform="matrix(0 1 1 0 24 9)" />
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="4" d="M24 9v14M5 33h6m-6 8h6m26-8h6m-6 8h6m-22-8h6m-6 8h6" />
-                            </g>
-                        </svg>
-
-                        <span class="text-sm font-medium">หน่วยย่อย</span>
-                    </a>
-
                     <a href="/admin/manage/waste_type"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
@@ -272,19 +254,13 @@
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <!-- 1. แฟ้ม (Folder) ถูกย่อและย้ายไปซ้ายบนเล็กน้อย -->
                             <g transform="translate(1, 2) scale(0.85)">
                                 <path
                                     d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
                             </g>
-
-                            <!-- 2. กลุ่มกล่องของขวัญ (Gift Box Group) ขยายขนาดและวางไว้ด้านหน้ามุมขวาล่าง -->
-                            <!-- กล่องสี่เหลี่ยม (ขนาด 8x8) -->
                             <rect x="15.5" y="14.5" width="8" height="8" rx="1" />
-                            <!-- ริบบิ้น (เส้นคาดกล่อง) -->
                             <path d="M19.5 14.5v8" />
                             <path d="M15.5 18.5h8" />
-                            <!-- โบว์ของขวัญ (2 ห่วงด้านบน) ขยายสัดส่วนโบว์เป็น 1:2 เพื่อให้ชัดขึ้น -->
                             <path d="M19.5 14.5c-0.8-1.6 -2.4-1.6 -2.4 0 Z" />
                             <path d="M19.5 14.5c0.8-1.6 2.4-1.6 2.4 0 Z" />
                         </svg>
@@ -328,6 +304,16 @@
 
                 <div class="mt-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">คลังขยะ</p>
+                    <a href="/admin/stock/branchwaste"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
+                            <path fill="currentColor"
+                                d="M7.5 0c4 0 7.5 3.5 7.5 7.5S11.5 15 7.5 15S0 11.5 0 7.5S3.5 0 7.5 0m0 1C4 1 1 4 1 7.5S4 14 7.5 14S14 11 14 7.5S11 1 7.5 1M2.84 6.98c.24.03 1.43.15 1.72.18c.29.04.17.89-.09.86c-.27-.02-1.44-.14-1.72-.18c-.29-.03-.16-.89.09-.86m7.48 0c.35-.04 1.32-.13 1.7-.16c.39-.04.4.87.06.9c-.35.04-1.28.12-1.64.16c-.37.03-.47-.85-.12-.9m-3.02.11c.09-.27.86-.03.76.28c-.09.32-.42 1.36-.52 1.63c-.1.28-.95.08-.84-.23c.12-.3.52-1.45.6-1.68m2.17 2.42c.29.11 1.37.52 1.61.62c.24.11-.05.93-.31.81c-.32-.11-1.32-.49-1.61-.62c-.3-.13.01-.91.31-.81m-4.77.08c.08.19.54 1.44.61 1.69c.08.25-.68.56-.8.29c-.11-.28-.44-1.34-.54-1.62c-.1-.27.66-.54.73-.36m2.11 1.37c.28.11 1.36.45 1.65.54c.28.09.04.92-.27.82s-1.36-.43-1.65-.53c-.28-.11-.01-.93.27-.83M13 5c-1 1-1.75 1-2.75 0c-1 1-1.75 1-2.75 0c-1 1-1.7 1-2.7 0C3.8 6 3 6 2 5c-.5 1-.5 2-.5 2.5c0 3 2.5 6 6 6s6-3 6-6c0-.5 0-1.5-.5-2.5"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">คลังหน่วยบริการ/ศูนย์ของคุณ</span>
+                    </a>
                     <a href="/admin/stock/centerwaste"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
@@ -338,26 +324,6 @@
                         </svg>
                         <span class="text-sm font-medium">คลังศูนย์รวบรวมขยะ</span>
                     </a>
-                    <a href="/admin/stock/branchwaste"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
-                            <path fill="currentColor"
-                                d="M7.5 0c4 0 7.5 3.5 7.5 7.5S11.5 15 7.5 15S0 11.5 0 7.5S3.5 0 7.5 0m0 1C4 1 1 4 1 7.5S4 14 7.5 14S14 11 14 7.5S11 1 7.5 1M2.84 6.98c.24.03 1.43.15 1.72.18c.29.04.17.89-.09.86c-.27-.02-1.44-.14-1.72-.18c-.29-.03-.16-.89.09-.86m7.48 0c.35-.04 1.32-.13 1.7-.16c.39-.04.4.87.06.9c-.35.04-1.28.12-1.64.16c-.37.03-.47-.85-.12-.9m-3.02.11c.09-.27.86-.03.76.28c-.09.32-.42 1.36-.52 1.63c-.1.28-.95.08-.84-.23c.12-.3.52-1.45.6-1.68m2.17 2.42c.29.11 1.37.52 1.61.62c.24.11-.05.93-.31.81c-.32-.11-1.32-.49-1.61-.62c-.3-.13.01-.91.31-.81m-4.77.08c.08.19.54 1.44.61 1.69c.08.25-.68.56-.8.29c-.11-.28-.44-1.34-.54-1.62c-.1-.27.66-.54.73-.36m2.11 1.37c.28.11 1.36.45 1.65.54c.28.09.04.92-.27.82s-1.36-.43-1.65-.53c-.28-.11-.01-.93.27-.83M13 5c-1 1-1.75 1-2.75 0c-1 1-1.75 1-2.75 0c-1 1-1.7 1-2.7 0C3.8 6 3 6 2 5c-.5 1-.5 2-.5 2.5c0 3 2.5 6 6 6s6-3 6-6c0-.5 0-1.5-.5-2.5"
-                                stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">คลังหน่วย/ศูนย์ของคุณ</span>
-                    </a>
-                    <!-- <a href="/admin/stock/reward"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                            <path fill="currentColor"
-                                d="M9 4v3.234L5.516 5.143L4.484 6.857L6.39 8H3v19h6v-2H5V10h8.027c.833-.62 1.857-1 2.973-1c.352 0 .682.042 1 .102V8h-3.389l1.905-1.143l-1.032-1.714L11 7.234V4zm7 7c-1.645 0-3 1.355-3 3c0 .352.075.684.188 1H11v12h18V15h-2.188A2.9 2.9 0 0 0 27 14c0-1.645-1.355-3-3-3c-1.75 0-2.938 1.328-3.719 2.438c-.105.147-.188.294-.281.439c-.094-.145-.176-.29-.281-.44C18.937 12.328 17.75 11 16 11m0 2c.625 0 1.438.671 2.063 1.563c.152.218.129.231.25.439H16c-.566 0-1-.434-1-1A.985.985 0 0 1 16 13m8 0c.566 0 1 .434 1 1s-.434 1-1 1h-2.313c.122-.207.098-.22.25-.438C22.563 13.672 23.375 13 24 13m-11 4h6v8h-6zm8 0h6v8h-6z"
-                                stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">ของรางวัลในคลัง</span>
-                    </a> -->
                 </div>
 
                 <div class="mt-6">
@@ -425,7 +391,7 @@
             class="fixed inset-0 z-10 bg-black opacity-50  lg:hidden"></div>
 
         <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'"
-            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]  transition-all duration-150 ease-in-out">
+            class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]">
             <?php include $viewPath; ?>
         </main>
 

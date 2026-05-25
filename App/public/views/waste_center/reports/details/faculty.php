@@ -118,11 +118,11 @@ $faculty_id = (int) $fid ?? "null";
 
             async fetchFaculty() {
                 try {
-                    const res = await fetch(`/api/faculties/${this.facultyId}`);
+                    const res = await fetch(`/api/dashboards/faculty/${this.facultyId}`);
                     const result = await res.json();
                     if (result.success) {
-                        this.faculty = result.data;
-                        this.majors = result.data.majors || [];
+                        this.majors = result.data.faculty.majors || [];
+                        this.faculty = result.data.faculty;
                     }
                 } catch (e) {
                     console.error('Failed to fetch faculty:', e);
