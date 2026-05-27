@@ -12,7 +12,7 @@ use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\WasteSaleController;
 use App\Controller\Api\FacultyController;
 
-use App\Controller\Api\ReportController;
+// use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Api\BadgeController;
@@ -153,6 +153,7 @@ class Routes
             ["GET", "/report/faculty/[i:fid]", [AdminPagesController::class, "ReportFacultyDetails"]],
             ["GET", "/report/branches", [AdminPagesController::class, "ReportAllBranches"]],
             ["GET", "/report/faculties_branches", [AdminPagesController::class, "ReportFacultiesAndBranches"]],
+            ["GET", "/report/stock/faculty/[i:fid]", [AdminPagesController::class, "ReportStock"]],
 
 
         ]);

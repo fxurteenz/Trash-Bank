@@ -15,7 +15,7 @@ class FacultyStockModel
         $this->Conn = (new Database())->connect();
     }
 
-    public function getFacultyStock($facultyId, $query = [])
+    public function getFacultyStock($facultyId, $query = []): array
     {
         if (empty($facultyId)) {
             throw new Exception("Faculty ID is required", 400);
@@ -24,6 +24,11 @@ class FacultyStockModel
             $where = " WHERE fws.faculty_id = :faculty_id AND fws.stock_weight > 0";
             $params = [];
             $params[':faculty_id'] = $facultyId;
+
+            $facultySql = "SELECT faculty_name,faculty_code FROM faculty WHERE faculty_id = :faculty_id";
+            $facultyStmt = $this->Conn->prepare($facultySql);
+            $facultyStmt->execute([':faculty_id' => $facultyId]);
+            $facultyResult = $facultyStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!empty($query['search'])) {
                 $where .= " AND (wt.waste_type_name LIKE :search OR fws.waste_type_id LIKE :search)";
@@ -78,7 +83,7 @@ class FacultyStockModel
                 $total = count($result);
             }
 
-            return ['data' => $result, 'total' => $total];
+            return ['data' => $result, 'total' => $total, 'faculty_detail' => $facultyResult];
 
         } catch (PDOException $e) {
             throw new Exception("Database error in getFacultyStock: " . $e->getMessage(), 500);

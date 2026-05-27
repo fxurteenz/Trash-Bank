@@ -583,4 +583,21 @@ class AdminPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function ReportStock($fid)
+    {
+        try {
+            $user = Authentication::AdminAuth();
+            $this->render('/waste_center/reports/faculty_stock', [
+                'pages' => "reportStock",
+                'title' => "รายงานคลังขยะ",
+                'user' => $user["user_data"],
+                'faculty_id' => !empty($fid) ? (int) $fid : null
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }

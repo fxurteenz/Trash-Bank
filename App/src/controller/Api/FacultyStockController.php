@@ -52,7 +52,8 @@ class FacultyStockController
             echo json_encode([
                 'success' => true,
                 'data' => $result['data'],
-                'total' => $result['total']
+                'total' => $result['total'],
+                'faculty_detail' => $result['faculty_detail']
             ]);
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 500);
