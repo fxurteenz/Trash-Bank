@@ -34,7 +34,7 @@ $faculty_id = (int) $fid ?? "null";
     </div>
 
     <!-- รายการสาขา -->
-    <h3 class="text-lg font-bold mb-2">รายการสาขา</h3>
+    <h3 class="text-lg font-bold mb-2">รายชื่อสาขา</h3>
     <table class="min-w-full bg-white border border-gray-200 mb-6">
         <thead class="bg-gray-100">
             <tr>
@@ -63,10 +63,10 @@ $faculty_id = (int) $fid ?? "null";
 
     <!-- รายการสมาชิก -->
     <h3 class="text-lg font-bold mb-2">รายชื่อสมาชิก</h3>
-    <table class="min-w-full bg-white border border-gray-200">
+    <table class="min-w-full bg-white border border-gray-200 mb-6">
         <thead class="bg-gray-100">
             <tr>
-                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
+               <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ชื่อสมาชิก</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">บทบาท</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">สาขา</th>
@@ -94,6 +94,32 @@ $faculty_id = (int) $fid ?? "null";
             </template>
         </tbody>
     </table>
+
+    <h3 class="text-lg font-bold mb-2">รายการขยะในคลัง</h3>
+    <table class="min-w-full bg-white border border-gray-200">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
+                <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">หมวดหมู่่</th>
+                <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ประเภท</th>
+                <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase text-right">น้ำหนัก (กก.)</th>
+        </thead>
+        <tbody>
+            <template x-for="(stock, index) in stocks" :key="stock.waste_type_id">
+                <tr>
+                    <td class="px-4 py-2 border text-center text-xs" x-text="index + 1"></td>
+                    <td class="px-4 py-2 border text-xs" x-text="stock.waste_category_name"></td>
+                    <td class="px-4 py-2 border text-xs" x-text="stock.waste_type_name"></td>
+                    <td class="px-4 py-2 border text-xs text-right" x-text="stock.stock_weight"></td>
+                </tr>
+            </template>
+            <template x-if="stocks.length === 0">
+                <tr>
+                    <td colspan="6" class="px-4 py-8 text-center text-gray-500 border">ไม่มีข้อมูลขยะในคลัง</td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
 </div>
 
 <script>
@@ -103,6 +129,7 @@ $faculty_id = (int) $fid ?? "null";
             faculty: {},
             majors: [],
             members: [],
+            stocks: [],
 
             async initData() {
                 if (!this.facultyId) {
@@ -111,7 +138,8 @@ $faculty_id = (int) $fid ?? "null";
                 }
                 await Promise.all([
                     this.fetchFaculty(),
-                    this.fetchMembers()
+                    this.fetchMembers(),
+                    this.fetchMajors()
                 ]);
                 setTimeout(() => { window.print(); }, 500);
             },
@@ -121,8 +149,8 @@ $faculty_id = (int) $fid ?? "null";
                     const res = await fetch(`/api/dashboards/faculty/${this.facultyId}`);
                     const result = await res.json();
                     if (result.success) {
-                        this.majors = result.data.faculty.majors || [];
                         this.faculty = result.data.faculty;
+                        this.stocks = result.data.stocks ||[];
                     }
                 } catch (e) {
                     console.error('Failed to fetch faculty:', e);
@@ -135,6 +163,17 @@ $faculty_id = (int) $fid ?? "null";
                     const result = await res.json();
                     if (result.success || result.data) {
                         this.members = result.data || result.result?.data || [];
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch members:', e);
+                }
+            },
+            async fetchMajors() {
+                try {
+                    const res = await fetch(`/api/majors?faculty=${this.facultyId}`);
+                    const result = await res.json();
+                    if (result.success || result.data) {
+                        this.majors = result.data || result.result?.data || [];
                     }
                 } catch (e) {
                     console.error('Failed to fetch members:', e);

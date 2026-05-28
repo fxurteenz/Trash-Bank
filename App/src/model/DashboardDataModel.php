@@ -71,7 +71,8 @@ class DashboardDataModel
                         LEFT JOIN 
                             waste_category wc ON wt.waste_category_id = wc.waste_category_id
                         WHERE 
-                            faculty_id = :faculty_id";
+                            faculty_id = :faculty_id
+                        ORDER BY wt.waste_category_id, wt.waste_type_id";
             $stockStmt = $this->Conn->prepare($stockSql);
             $stockStmt->execute([':faculty_id' => $facultyId]);
             $stock = $stockStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
