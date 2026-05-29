@@ -503,101 +503,118 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    public function ReportUsers()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/users', [
-                'pages' => "reports",
-                'title' => "รายงานสมาชิก",
-                'user' => $user["user_data"]
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportUsers()
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/users', [
+    //             'pages' => "reports",
+    //             'title' => "รายงานสมาชิก",
+    //             'user' => $user["user_data"]
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 
-    public function ReportAllFaculties()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/faculties', [
-                'pages' => "report all faculties",
-                'title' => "รายงานรายชื่อคณะ",
-                'user' => $user["user_data"]
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportAllFaculties()
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/faculties', [
+    //             'pages' => "report all faculties",
+    //             'title' => "รายงานรายชื่อคณะ",
+    //             'user' => $user["user_data"]
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 
-    public function ReportFacultyDetails($fid)
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/details/faculty', [
-                'pages' => "report all faculties",
-                'title' => "รายงานรายละเอียดคณะ",
-                'fid' => !empty($fid) ? (int) $fid : null,
-                'user' => $user["user_data"]
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportFacultyDetails($fid)
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/details/faculty', [
+    //             'pages' => "report all faculties",
+    //             'title' => "รายงานรายละเอียดคณะ",
+    //             'fid' => !empty($fid) ? (int) $fid : null,
+    //             'user' => $user["user_data"]
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 
-    public function ReportAllBranches()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/branches', [
-                'pages' => "reportAllBranches",
-                'title' => "รายงานรายชื่อหน่วยบริการ",
-                'user' => $user["user_data"]
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportAllBranches()
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/branches', [
+    //             'pages' => "reportAllBranches",
+    //             'title' => "รายงานรายชื่อหน่วยบริการ",
+    //             'user' => $user["user_data"]
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 
-    public function ReportFacultiesAndBranches()
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/faculties_and_branches', [
-                'pages' => "reportAllFacultiesAndBranches",
-                'title' => "รายงานรายชื่อคณะและหน่วยบริการ",
-                'user' => $user["user_data"]
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportFacultiesAndBranches()
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/faculties_and_branches', [
+    //             'pages' => "reportAllFacultiesAndBranches",
+    //             'title' => "รายงานรายชื่อคณะและหน่วยบริการ",
+    //             'user' => $user["user_data"]
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 
-    public function ReportStock($fid)
-    {
-        try {
-            $user = Authentication::AdminAuth();
-            $this->render('/waste_center/reports/faculty_stock', [
-                'pages' => "reportStock",
-                'title' => "รายงานคลังขยะ",
-                'user' => $user["user_data"],
-                'faculty_id' => !empty($fid) ? (int) $fid : null
-            ], self::$ReportLayout);
-        } catch (AuthenticationException $th) {
-            header('location: /');
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
+    // public function ReportFacultyStock($fid)
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/faculty_stock', [
+    //             'pages' => "reportStock",
+    //             'title' => "รายงานคลังขยะ",
+    //             'user' => $user["user_data"],
+    //             'faculty_id' => !empty($fid) ? (int) $fid : null
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
+
+    // public function ReportFacultyMajors()
+    // {
+    //     try {
+    //         $user = Authentication::AdminAuth();
+    //         $this->render('/waste_center/reports/faculty_stock', [
+    //             'pages' => "reportStock",
+    //             'title' => "รายงานคลังขยะ",
+    //             'user' => $user["user_data"],
+    //             'faculty_id' => !empty($fid) ? (int) $fid : null
+    //         ], self::$ReportLayout);
+    //     } catch (AuthenticationException $th) {
+    //         header('location: /');
+    //     } catch (Exception $e) {
+    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+    //     }
+    // }
 }

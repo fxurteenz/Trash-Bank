@@ -12,7 +12,6 @@ use App\Controller\Api\WasteTransactionController;
 use App\Controller\Api\WasteSaleController;
 use App\Controller\Api\FacultyController;
 
-// use App\Controller\Api\ReportController;
 use App\Controller\Api\WasteCategoryController;
 use App\Controller\Api\WasteTypeController;
 use App\Controller\Api\BadgeController;
@@ -28,6 +27,7 @@ use App\Controller\Pages\WasteCenterPagesController;
 use App\Controller\Pages\PagesController;
 use App\Controller\Pages\AdminPagesController;
 use App\Controller\Pages\UserPagesController;
+use App\Controller\Pages\ReportPagesController;
 
 class Routes
 {
@@ -147,17 +147,26 @@ class Routes
             ["GET", "/stock/reward", [AdminPagesController::class, "RewardStock"]],
 
             // report
-            ["GET", "/report", [AdminPagesController::class, "Report"]],
-            ["GET", "/report/users", [AdminPagesController::class, "ReportUsers"]],
-            ["GET", "/report/faculties", [AdminPagesController::class, "ReportAllFaculties"]],
-            ["GET", "/report/faculty/[i:fid]", [AdminPagesController::class, "ReportFacultyDetails"]],
-            ["GET", "/report/branches", [AdminPagesController::class, "ReportAllBranches"]],
-            ["GET", "/report/faculties_branches", [AdminPagesController::class, "ReportFacultiesAndBranches"]],
-            ["GET", "/report/stock/faculty/[i:fid]", [AdminPagesController::class, "ReportStock"]],
-
-
+            // ["GET", "/report", [AdminPagesController::class, "Report"]],
+            // ["GET", "/report/users", [AdminPagesController::class, "ReportUsers"]],
+            // ["GET", "/report/faculties", [AdminPagesController::class, "ReportAllFaculties"]],
+            // ["GET", "/report/faculty/[i:fid]", [AdminPagesController::class, "ReportFacultyDetails"]],
+            // ["GET", "/report/branches", [AdminPagesController::class, "ReportAllBranches"]],
+            // ["GET", "/report/faculties_branches", [AdminPagesController::class, "ReportFacultiesAndBranches"]],
+            // ["GET", "/report/stock/faculty/[i:fid]", [AdminPagesController::class, "ReportFacultyStock"]],
+            // ["GET", "/report/majors/faculty/[i:fid]", [AdminPagesController::class, "ReportMajors"]],
         ]);
-
+        /* REPORT PAGE */
+        $this->addPrefixedRoutes('/report', [
+            ["GET", "/", [ReportPagesController::class, "Report"]],
+            ["GET", "/users", [ReportPagesController::class, "ReportUsers"]],
+            ["GET", "/faculties", [ReportPagesController::class, "ReportAllFaculties"]],
+            ["GET", "/faculty/[i:fid]", [ReportPagesController::class, "ReportFacultyDetails"]],
+            ["GET", "/branches", [ReportPagesController::class, "ReportAllBranches"]],
+            ["GET", "/faculties_branches", [ReportPagesController::class, "ReportFacultiesAndBranches"]],
+            ["GET", "/stock/faculty/[i:fid]", [ReportPagesController::class, "ReportFacultyStock"]],
+            ["GET", "/majors", [ReportPagesController::class, "ReportMajors"]],
+        ]);
         /* API */
         /* api/members */
         $this->addPrefixedRoutes('/api/members', [
