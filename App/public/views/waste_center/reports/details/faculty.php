@@ -29,7 +29,7 @@ $faculty_id = (int) $fid ?? "null";
             <p class="text-sm font-semibold text-gray-700">จำนวนสาขา: <span class="font-normal"
                     x-text="Number(faculty.major_count_total || 0).toLocaleString()"></span></p>
             <p class="text-sm font-semibold text-gray-700">จำนวนสมาชิกรวม: <span class="font-normal"
-                    x-text="Number(faculty.total_member || 0).toLocaleString()"></span></p>
+                    x-text="Number(memberSummary.total_member || 0).toLocaleString()"></span></p>
         </div>
     </div>
 
@@ -41,7 +41,8 @@ $faculty_id = (int) $fid ?? "null";
                 <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ชื่อสาขา (TH)</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ชื่อสาขา (EN)</th>
-                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-32">รหัสย่อ</th>
+                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">รหัสย่อ</th>
+                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">สมาชิกในสาขา(คน)</th>
             </tr>
         </thead>
         <tbody>
@@ -51,6 +52,7 @@ $faculty_id = (int) $fid ?? "null";
                     <td class="px-4 py-2 border text-xs" x-text="major.major_name || '-'"></td>
                     <td class="px-4 py-2 border text-xs" x-text="major.major_name_en || '-'"></td>
                     <td class="px-4 py-2 border text-center text-xs" x-text="major.major_code || '-'"></td>
+                    <td class="px-4 py-2 border text-center text-xs" x-text="major.major_member_total || '0'"></td>
                 </tr>
             </template>
             <template x-if="majors.length === 0">
@@ -66,7 +68,7 @@ $faculty_id = (int) $fid ?? "null";
     <table class="min-w-full bg-white border border-gray-200 mb-6">
         <thead class="bg-gray-100">
             <tr>
-               <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
+                <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ชื่อสมาชิก</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">บทบาท</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">สาขา</th>
@@ -102,7 +104,8 @@ $faculty_id = (int) $fid ?? "null";
                 <th class="px-4 py-2 border text-center text-xs font-semibold text-gray-600 uppercase w-16">ลำดับ</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">หมวดหมู่่</th>
                 <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase">ประเภท</th>
-                <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase text-right">น้ำหนัก (กก.)</th>
+                <th class="px-4 py-2 border text-left text-xs font-semibold text-gray-600 uppercase text-right">น้ำหนัก
+                    (กก.)</th>
         </thead>
         <tbody>
             <template x-for="(stock, index) in stocks" :key="stock.waste_type_id">
@@ -118,6 +121,10 @@ $faculty_id = (int) $fid ?? "null";
                     <td colspan="6" class="px-4 py-8 text-center text-gray-500 border">ไม่มีข้อมูลขยะในคลัง</td>
                 </tr>
             </template>
+            <tr x-show="stocks.length > 0">
+                <td class="px-4 py-2 border text-right text-xs" colspan="3">รวมทั้งหมด</td>
+                <td class="px-4 py-2 border text-right text-xs" x-text="sumStock"></td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -130,6 +137,8 @@ $faculty_id = (int) $fid ?? "null";
             majors: [],
             members: [],
             stocks: [],
+            sumStock: 0.000,
+            memberSummary: {},
 
             async initData() {
                 if (!this.facultyId) {
@@ -150,7 +159,9 @@ $faculty_id = (int) $fid ?? "null";
                     const result = await res.json();
                     if (result.success) {
                         this.faculty = result.data.faculty;
-                        this.stocks = result.data.stocks ||[];
+                        this.stocks = result.data.stocks || [];
+                        let total = result.data.stocks.reduce((sum, stock) => sum + parseFloat(stock.stock_weight || 0), 0);
+                        this.sumStock = total.toFixed(3);
                     }
                 } catch (e) {
                     console.error('Failed to fetch faculty:', e);
@@ -159,10 +170,11 @@ $faculty_id = (int) $fid ?? "null";
 
             async fetchMembers() {
                 try {
-                    const res = await fetch(`/api/members?faculty=${this.facultyId}&limit=10000`);
+                    const res = await fetch(`/api/members?faculty=${this.facultyId}&limit=10000&page=1`);
                     const result = await res.json();
                     if (result.success || result.data) {
-                        this.members = result.data || result.result?.data || [];
+                        this.members = result.data || [];
+                        this.memberSummary = result.summary || {};
                     }
                 } catch (e) {
                     console.error('Failed to fetch members:', e);
@@ -173,7 +185,7 @@ $faculty_id = (int) $fid ?? "null";
                     const res = await fetch(`/api/majors?faculty=${this.facultyId}`);
                     const result = await res.json();
                     if (result.success || result.data) {
-                        this.majors = result.data || result.result?.data || [];
+                        this.majors = result.data || [];
                     }
                 } catch (e) {
                     console.error('Failed to fetch members:', e);
