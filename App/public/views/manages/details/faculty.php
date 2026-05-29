@@ -17,7 +17,7 @@ $faculty_id = $faculty_id ?? "null";
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <button @click="window.open(`/admin/report/faculty/${facultyId}`, '_blank')"
+            <button @click="window.open(`/report/faculty/${facultyId}`, '_blank','noopener')"
                 class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition font-medium flex items-center gap-2 shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -36,25 +36,6 @@ $faculty_id = $faculty_id ?? "null";
             </button>
         </div>
     </div>
-
-    <!-- Faculty Info Card -->
-    <!-- <div class="bg-white rounded-xl shadow-sm p-6 shadow">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-                <p class="text-sm text-gray-500 mb-1">ชื่อคณะ</p>
-                <p class="text-lg font-semibold text-gray-900" x-text="faculty.faculty_name || '-'"></p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500 mb-1">รหัสย่อ</p>
-                <p class="text-lg font-semibold text-gray-900" x-text="faculty.faculty_code || '-'"></p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500 mb-1">แต้มคงเหลือ</p>
-                <p class="text-lg font-bold text-emerald-600" x-text="faculty.faculty_point || '0'"></p>
-            </div>
-        </div>
-    </div> -->
-
     <!-- Dashboard Stats Card -->
     <div class="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-2 gap-4">
         <div class="flex bg-slate-100 p-1 rounded-lg shadow">
@@ -208,31 +189,45 @@ $faculty_id = $faculty_id ?? "null";
     <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-slate-900" x-text="`รายการสาขาในคณะ ${faculty.faculty_name}`"></h2>
-            <button @click="openCreateMajorDialog()"
-                class="bg-emerald-500 shadow cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-emerald-600 hover:scale-105 active:scale-95 transition font-medium flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                        clip-rule="evenodd" />
-                </svg>
-                เพิ่มสาขา
-            </button>
+            <div class="flex items-center gap-2">
+                <button @click="openCreateMajorDialog()"
+                    class="text-sm bg-emerald-500 shadow cursor-pointer text-white px-4 py-2 rounded hover:scale-105 active:scale-95 transition font-medium flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    เพิ่มสาขา
+                </button>
+                <button @click="openMajorListReport()"
+                    class="text-sm text-white hover:scale-105 cursor-pointer bg-blue-500 px-4 py-2 rounded font-semibold duration-200 flex gap-2 items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    พิมพ์
+                </button>
+            </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 mb-6">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ลำดับ
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อสาขา (TH)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             ชื่อสาขา (EN)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             รหัสย่อ</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            จำนวน(คน)</th>
+                        <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
                     </tr>
                 </thead>
@@ -268,6 +263,9 @@ $faculty_id = $faculty_id ?? "null";
                                         @keydown.enter="saveEditMajor()"
                                         class="w-full border border-gray-300 rounded p-1 text-sm bg-white focus:ring-amber-500 focus:border-amber-500 outline-none">
                                 </template>
+                            </td>
+                            <td class="px-2 py-1 whitespace-nowrap text-sm text-gray-500 w-8 text-right"
+                                x-text="Number(major.major_member_total || 0).toLocaleString()">
                             </td>
                             <td class="px-2 py-1 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                 <template x-if="editingMajorId !== major.major_id">
@@ -345,7 +343,7 @@ $faculty_id = $faculty_id ?? "null";
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold "
+                        <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
                             x-text="summaryMember.total_member || '0'">
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-xl font-bold"
@@ -366,22 +364,35 @@ $faculty_id = $faculty_id ?? "null";
         </div>
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-slate-900" x-text="`ผู้ใช้งานในคณะ ${faculty.faculty_name}`"></h2>
-            <button @click="openCreateMemberDialog()"
-                class="bg-emerald-500 shadow cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-emerald-600 hover:scale-105 active:scale-95 transition font-medium flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                        clip-rule="evenodd" />
-                </svg>
-                เพิ่มสมาชิก
-            </button>
+            <div class="flex items-center gap-2">
+                <button @click="openCreateMemberDialog()"
+                    class="text-sm bg-emerald-500 shadow cursor-pointer text-white px-4 py-2 rounded-lg hover:scale-105 active:scale-95 transition font-medium flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    เพิ่มสมาชิก
+                </button>
+                <button @click="openMemberReport()"
+                    class="text-sm text-white hover:scale-105 cursor-pointer bg-blue-500 px-4 py-2 rounded font-semibold duration-200 flex gap-2 items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    พิมพ์
+                </button>
+            </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white  border border-gray-200 ">
                 <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ลำดับ
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition select-none"
                             @click="sortMembers('name')">ชื่อ <span x-show="memberSortBy === 'name'"
@@ -408,7 +419,7 @@ $faculty_id = $faculty_id ?? "null";
                     <template x-for="(member, index) in members" :key="member.member_id">
                         <tr class="hover:bg-gray-50 transition cursor-pointer"
                             @click="window.open(`/${manager_role}/manage/members/detail/${member.member_id}`, '_blank')">
-                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500"
+                            <td class="px-2 py-1 whitespace-nowrap text-xs text-gray-500 text-center"
                                 x-text="(memberPage - 1) * memberLimit + index + 1"></td>
                             <td class="px-2 py-1 whitespace-nowrap text-xs font-medium text-gray-900">
                                 <span x-text="member.member_name"></span>
@@ -498,6 +509,59 @@ $faculty_id = $faculty_id ?? "null";
         </div>
     </div>
 
+    <!-- Waste Stocks List -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-slate-900" x-text="`รายการขยะในคณะ ${faculty.faculty_name}`"></h2>
+            <button @click="openFacultyWasteStockReport()"
+                class="text-sm text-white hover:scale-105 cursor-pointer bg-blue-500 px-4 py-2 rounded font-semibold duration-200 flex gap-2 items-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                    </path>
+                </svg>
+                พิมพ์
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 mb-6">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-2 py-3 text-center text-xs font-medium text-gray-500 tracking-wider">
+                            ลำดับ
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 tracking-wider">
+                            ประเภท
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 tracking-wider">
+                            น้ำหนัก
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <template x-for="(stock, index) in stocks" :key="stock.waste_type_id">
+                        <tr>
+                            <td class="px-2 py-2 text-sm text-gray-500 text-center" x-text="index + 1"></td>
+                            <td class="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900"
+                                x-text="`${stock.waste_category_name} : ${stock.waste_type_name}`">
+                            </td>
+                            <td class="px-2 py-2 whitespace-nowrap text-sm font-medium text-gray-900 text-center"
+                                x-text="stock.stock_weight">
+                            </td>
+                        </tr>
+                    </template>
+                    <template x-if="stocks.length === 0">
+                        <tr>
+                            <td colspan="5" class="px-2 py-8 text-center text-gray-500">ไม่มีขยะในคลัง</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Modals -->
     <!-- Edit Faculty Modal -->
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30" @click.self="facultyDialogShow = false"
@@ -521,7 +585,7 @@ $faculty_id = $faculty_id ?? "null";
                 <button @click="facultyDialogShow = false"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
                 <button @click="submitFacultyForm"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">บันทึก</button>
+                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg transition">บันทึก</button>
             </div>
         </div>
     </div>
@@ -553,7 +617,7 @@ $faculty_id = $faculty_id ?? "null";
                 <button @click="majorDialogShow = false"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
                 <button @click="submitMajorForm"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">เพิ่มสาขา</button>
+                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg transition">เพิ่มสาขา</button>
             </div>
         </div>
     </div>
@@ -624,7 +688,7 @@ $faculty_id = $faculty_id ?? "null";
                 <button @click="createUserDialogShow = false"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
                 <button @click="submitCreateMember"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">เพิ่มผู้ใช้งาน</button>
+                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg transition">เพิ่มผู้ใช้งาน</button>
             </div>
         </div>
     </div>
@@ -687,7 +751,7 @@ $faculty_id = $faculty_id ?? "null";
                 <button @click="cancelEditMember()"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">ยกเลิก</button>
                 <button @click="saveEditMember"
-                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">บันทึกข้อมูล</button>
+                    class="px-4 py-2 bg-emerald-500 text-white rounded-lg transition">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
@@ -701,6 +765,8 @@ $faculty_id = $faculty_id ?? "null";
             facultyId: <?= $faculty_id; ?>,
             faculty: {},
             majors: [],
+
+            stocks: [],
 
             summary: {},
             summaryToday: {},
@@ -768,7 +834,7 @@ $faculty_id = $faculty_id ?? "null";
                     if (result.success) {
                         this.summary = result.data.summary || {};
                         this.summaryToday = result.data.summary_today || {};
-                        // this.majors = result.data.faculty.majors || [];
+                        this.stocks = result.data.stocks || [];
                         this.faculty = result.data.faculty;
                     }
                 } catch (e) {
@@ -1090,7 +1156,28 @@ $faculty_id = $faculty_id ?? "null";
 
             openDonation(member) {
                 window.open(`/${this.manager_role}/transactions/donation?member_id=${member.member_id}`, '_blank');
+            },
+
+            openMemberReport() {
+                const params = new URLSearchParams();
+                params.append('faculty', this.faculty.faculty_id);
+                params.append('faculty_name', this.faculty.faculty_name);
+
+                window.open(`/report/users?${params.toString()}`, '_blank', 'noopener')
+            },
+
+            openMajorListReport() {
+                const params = new URLSearchParams();
+                params.append('f', this.faculty.faculty_id);
+                params.append('fname', this.faculty.faculty_name);
+
+                window.open(`/report/majors?${params.toString()}`, '_blank', 'noopener')
+            },
+
+            openFacultyWasteStockReport() {
+                window.open(`/report/stock/faculty/${this.faculty.faculty_id}`, '_blank', 'noopener')
             }
+
         }
     }
 </script>
