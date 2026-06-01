@@ -1,18 +1,29 @@
 <div class="flex flex-col w-full space-y-6" x-data="RewardCategoryDetail()" x-init="initData()">
-
-
+    <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center gap-4">
+            <button @click="window.history.back()"
+                class="text-gray-500 hover:text-gray-700 transition cursor-pointer hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-slate-900">ของรางวัลหมวดหมู่ : <span class="text-emerald-600"
+                    x-text="categoryName"></span></h1>
+        </div>
+    </div>
     <!-- Main Content -->
     <div class="bg-white shadow-sm rounded-lg p-6 flex flex-col min-h-[calc(100vh-14rem)]">
         <!-- Breadcrumb & Header -->
         <div class="flex flex-col mb-4">
-            <div class="flex items-center space-x-3 text-sm text-gray-500 mb-2">
+            <!-- <div class="flex items-center space-x-3 text-sm text-gray-500 mb-2">
                 <a href="/admin/manage/reward_category" class="hover:text-emerald-600 transition">หมวดหมู่รางวัล</a>
                 <span>/</span>
                 <span class="text-gray-800 font-medium" x-text="categoryName">กำลังโหลด...</span>
-            </div>
+            </div> -->
             <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">รายการของรางวัล: <span class="text-emerald-600"
-                        x-text="categoryName"></span></h2>
+                <h2 class="text-2xl font-bold text-gray-800">รายการของรางวัล</h2>
                 <button @click="window.location.href='/admin/manage/reward'"
                     class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full hover:bg-emerald-100 transition-colors font-medium">
                     จัดการของรางวัลทั้งหมด
@@ -35,7 +46,6 @@
                         <select x-model="bulkMoveCategoryId"
                             class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none bg-white min-w-[200px]">
                             <option value="none" disabled>-- เลือกหมวดหมู่ปลายทาง --</option>
-                            <option value="">[ ไม่จัดหมวดหมู่ ]</option>
                             <template x-for="cat in categories" :key="cat.donation_item_category_id">
                                 <option :value="cat.donation_item_category_id" x-text="cat.donation_item_category_name"
                                     x-show="cat.donation_item_category_id != categoryId"></option>

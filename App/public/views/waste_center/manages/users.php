@@ -1,4 +1,18 @@
 <div x-data="UserTable()" x-init="initData()" class="space-y-4 w-full">
+    <div class="flex justify-between items-center my-4">
+        <div class="flex items-center gap-4">
+            <button @click="window.history.back()"
+                class="text-gray-500 hover:text-gray-700 transition cursor-pointer hover:scale-105 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </button>
+            <h1 class="text-2xl font-bold text-slate-900">ผู้ใช้งาน</h1>
+        </div>
+    </div>
+
     <!-- Top Card -->
     <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-4 gap-2">
         <div @click="filterByRole('')"
@@ -172,7 +186,7 @@
             </div>
             <div class="flex justify-center items-center gap-2">
                 <button @click="resetFilters()"
-                    class="text-sm text-gray-500 hover:scale-105 cursor-pointer bg-sky-400 px-4 py-2 rounded text-white font-semibold duration-200">ล้างตัวกรอง</button>
+                    class="text-sm text-gray-500 hover:scale-105 cursor-pointer bg-sky-400 px-4 py-2 rounded text-white font-semibold duration-200">ล้าง</button>
                 <button @click="openReport()"
                     class="text-sm text-white hover:scale-105 cursor-pointer bg-blue-500 px-4 py-2 rounded font-semibold duration-200 flex gap-2 items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -181,11 +195,12 @@
                             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
                         </path>
                     </svg>
+                    พิมพ์
                 </button>
             </div>
         </div>
 
-        <div class="mt-4 overflow-x-auto">
+        <div class="mt-4 border-t border-gray-100 py-4  overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                 <thead class="bg-gray-50">
                     <tr>
@@ -944,7 +959,7 @@
                     params.append("order", this.filters.order);
                 }
 
-                window.open(`/admin/report/users?${params.toString()}`, '_blank');
+                window.open(`/report/users?${params.toString()}`, '_blank');
             },
 
             openCreateDialog() {

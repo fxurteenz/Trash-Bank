@@ -17,7 +17,7 @@ $faculty_id = (int) $faculty_id ?? "null";
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <button @click="window.open(`/admin/report/faculty/${facultyId}`, '_blank')"
+            <button @click="window.open(`/report/branch/${facultyId}`, '_blank','noopener')"
                 class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition font-medium flex items-center gap-2 shadow-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
@@ -38,7 +38,7 @@ $faculty_id = (int) $faculty_id ?? "null";
     </div>
 
     <!-- Dashboard Stats Card -->
-    <div class="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-2 gap-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center mb-2 gap-4">
         <div class="flex bg-slate-100 p-1 rounded-lg shadow">
             <button @click="statTab = 'today'"
                 :class="statTab === 'today' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'"

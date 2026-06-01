@@ -1,7 +1,7 @@
 <?php
 $faculty_id = $faculty_id ?? "null";
 ?>
-<div x-data="FacultyDetailManager()" x-init="initData()" class="space-y-6">
+<div x-data="FacultyDetailManager()" x-init="initData()" class="space-y-4">
     <!-- Top actions -->
     <div class="flex justify-between items-center">
         <div class="flex items-center gap-4">
@@ -37,7 +37,7 @@ $faculty_id = $faculty_id ?? "null";
         </div>
     </div>
     <!-- Dashboard Stats Card -->
-    <div class="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-2 gap-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center mb-2 gap-4">
         <div class="flex bg-slate-100 p-1 rounded-lg shadow">
             <button @click="statTab = 'today'"
                 :class="statTab === 'today' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-500 hover:text-slate-700'"

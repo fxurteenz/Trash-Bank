@@ -114,8 +114,8 @@ class Routes
 
 
 
-            ["GET", "/manage/waste_type", [AdminPagesController::class, "ManageWasteType"]],
-            ["GET", "/manage/waste_type/detail/[i:wcid]", [AdminPagesController::class, "ManageWasteCategoryDetail"]],
+            ["GET", "/manage/waste_category", [AdminPagesController::class, "ManageWasteCategory"]],
+            ["GET", "/manage/waste_category/[i:wcid]", [AdminPagesController::class, "ManageWasteType"]],
 
             ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],

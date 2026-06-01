@@ -1,35 +1,38 @@
 <div class="flex-cols space-y-2">
     <div x-data="FacultyMajor()" x-init="fetchAllFaculty()" class=" w-full">
-        <div class="flex justify-end mb-2">
-            <button @click="window.open('/admin/report/faculties_branches', '_blank')"
-                class="group cursor-pointer flex items-center py-2 px-3 border-2 border-indigo-500 rounded-full hover:bg-indigo-100 space-x-1 w-fit transition-colors font-medium text-indigo-700">
-                <svg class="w-5 h-5 stroke-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                    </path>
-                </svg>
-                <span class="font-medium text-sm">พิมพ์รายงานทั้งหมด</span>
-            </button>
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-4">
+                <button @click="window.history.back()"
+                    class="text-gray-500 hover:text-gray-700 transition cursor-pointer hover:scale-105 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </button>
+                <h1 class="text-2xl font-bold text-slate-900">คณะ/สาขา/หน่วยบริการ</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button @click="window.open('/report/faculties_branches', '_blank','noopener')"
+                    class="group cursor-pointer flex items-center py-2 px-3 border-2 border-indigo-500 rounded-full hover:bg-indigo-100 space-x-1 w-fit transition-colors font-medium text-indigo-700">
+                    <svg class="w-5 h-5 stroke-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                        </path>
+                    </svg>
+                    <span class="font-medium text-sm">พิมพ์รายงานทั้งหมด</span>
+                </button>
+            </div>
         </div>
         <div class="bg-white rounded-md shadow p-6 overflow-hidden h-full">
 
             <div class="flex justify-between mb-4">
                 <div class="">
-                    <h1 class="text-2xl font-bold text-slate-900">จัดการคณะ</h1>
-                    <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบข้อมูลคณะ</p>
+                    <h1 class="text-2xl font-bold text-slate-900">รายการคณะ</h1>
+                    <p class="text-slate-600 font-light text-sm">จัดการข้อมูลรายการคณะ</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button @click="window.open('/admin/report/faculties', '_blank')"
-                        class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
-                        <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
-                        <span class="font-medium text-sm">พิมพ์รายงาน</span>
-                    </button>
                     <div @click="openCreateFacultyDialog" :class="facultyDialogShow && 'bg-emerald-300'"
                         class="group cursor-pointer flex items-center py-2 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
                         <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
@@ -44,10 +47,20 @@
                         </button>
                         <span class="font-medium text-sm ">เพิ่มคณะ</span>
                     </div>
+                    <button @click="window.open('/report/faculties', '_blank','noopener')"
+                        class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
+                        <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        <span class="font-medium text-sm">พิมพ์รายงาน</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="mt-4 flex-1 overflow-auto relative">
+            <div class="mt-4 border-t border-gray-100 py-4 flex-1 overflow-auto relative">
                 <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50 sticky top-0 z-0 shadow-sm">
                         <tr>
@@ -217,20 +230,10 @@
 
             <div class="flex justify-between mb-4">
                 <div class="">
-                    <h1 class="text-2xl font-bold text-slate-900">จัดการหน่วยบริการ</h1>
-                    <p class="text-slate-600 font-light text-sm">เพิ่ม/แก้ไข/ลบข้อมูลหน่วยบริการ</p>
+                    <h1 class="text-2xl font-bold text-slate-900">รายการหน่วยบริการ</h1>
+                    <p class="text-slate-600 font-light text-sm">จัดการข้อมูลรายการหน่วยบริการ</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button @click="window.open('/admin/report/branches', '_blank')"
-                        class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
-                        <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                            </path>
-                        </svg>
-                        <span class="font-medium text-sm">พิมพ์รายงาน</span>
-                    </button>
                     <div @click="openCreateDialog" :class="DialogShow && 'bg-emerald-300'"
                         class="group cursor-pointer flex items-center py-2 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 w-fit transition-colors font-medium text-emerald-700">
                         <button class="group-hover:rotate-90 duration-300 focus:outline-none" title="Add New">
@@ -245,10 +248,20 @@
                         </button>
                         <span class="font-medium text-sm ">เพิ่มหน่วยบริการ</span>
                     </div>
+                    <button @click="window.open('/report/branches', '_blank','noopener')"
+                        class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
+                        <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                        </svg>
+                        <span class="font-medium text-sm">พิมพ์รายงาน</span>
+                    </button>
                 </div>
             </div>
 
-            <div class="mt-4 flex-1 overflow-auto relative">
+            <div class="mt-4 border-t border-gray-100 py-4 flex-1 overflow-auto relative">
                 <table class="min-w-full bg-white border border-gray-200 rounded-lg">
                     <thead class="bg-gray-50 sticky top-0 z-0 shadow-sm">
                         <tr>
