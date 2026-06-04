@@ -636,7 +636,7 @@
                             <span class="text-emerald-100 text-semibold">แต้มคณะคงเหลือ</span>
                             <div class="text-right">
                                 <span class="text-xl font-bold"
-                                    x-text="Number(currentMember.member_faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                                    x-text="Number(currentMember?.member_faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
                                 <span class="text-sm text-emerald-200">แต้ม</span>
                             </div>
                         </div>
