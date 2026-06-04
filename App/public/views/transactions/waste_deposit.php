@@ -88,7 +88,7 @@
                 this.selectedIndex = -1;
 
                 try {
-                    const response = await fetch(`/api/members?page=1&limit=10&role=2&search=${encodeURIComponent(this.memberSearch)}`);
+                    const response = await fetch(`/api/members?page=1&limit=10&role=1,2,3&search=${encodeURIComponent(this.memberSearch)}`);
                     const result = await response.json();
 
                     if (result.success) {
