@@ -1,118 +1,3 @@
-<style>
-    [x-cloak] {
-        display: none !important;
-    }
-</style>
-<script>
-    function DepositHistory() {
-        return {
-            rows: [],
-            start: '',
-            end: '',
-            memberSearch: '',
-            showModal: false,
-            detail: null,
-
-            // Pagination State
-            page: 1,
-            limit: 10,
-            total: 0,
-            last_page: 1,
-            from: 0,
-            to: 0,
-
-            async init() {
-                const t = new Date();
-                const m = new Date(t.getTime() - 30 * 24 * 60 * 60 * 1000);
-                this.start = m.toISOString().split('T')[0];
-                this.end = t.toISOString().split('T')[0];
-                await this.apply(1);
-            },
-
-            async apply(newPage = null) {
-                if (newPage) this.page = newPage;
-
-                const p = [];
-                p.push('scope=header');
-                p.push(`page=${this.page}`);
-                p.push(`limit=${this.limit}`);
-
-                if (this.start) p.push(`start_date=${this.start}`);
-                if (this.end) p.push(`end_date=${this.end}`);
-                if (this.memberSearch) p.push(`member_search=${encodeURIComponent(this.memberSearch)}`);
-
-                try {
-                    const r = await fetch('/api/waste_transactions?' + p.join('&'));
-                    const j = await r.json();
-
-                    if (j.success && j.result) {
-                        // รองรับ Pagination แบบ Laravel/Standard Structure
-                        // ถ้าระบบส่งมาเป็น array ตรงๆ (ยังไม่ได้ทำ pagination ฝั่ง server) โค้ดนี้จะรองรับแบบพื้นฐาน
-                        if (Array.isArray(j.result)) {
-                            this.rows = j.result;
-                            this.total = j.result.length;
-                            this.last_page = 1;
-                            this.from = 1;
-                            this.to = j.result.length;
-                        } else {
-                            // กรณี Server ส่ง Pagination Object มา (data, total, last_page, etc.)
-                            this.rows = j.result.data || [];
-                            this.total = j.result.total || 0;
-                            this.last_page = j.result.last_page || 1;
-                            this.from = j.result.from || 0;
-                            this.to = j.result.to || 0;
-                        }
-                    } else {
-                        this.rows = [];
-                        this.total = 0;
-                    }
-                } catch (e) {
-                    console.error("Error fetching transactions:", e);
-                    this.rows = [];
-                }
-            },
-
-            changePage(newPage) {
-                if (newPage >= 1 && newPage <= this.last_page) {
-                    this.apply(newPage);
-                }
-            },
-
-            clear() {
-                this.start = '';
-                this.end = '';
-                this.memberSearch = '';
-                this.apply(1);
-            },
-
-            async openDetail(id) {
-                this.detail = null;
-                this.showModal = true;
-
-                try {
-                    const r = await fetch('/api/waste_transactions/' + id);
-                    const j = await r.json();
-                    if (j.success) {
-                        this.detail = j.result;
-                    } else {
-                        alert('ไม่พบข้อมูล');
-                        this.showModal = false;
-                    }
-                } catch (e) {
-                    console.error("Error fetching detail:", e);
-                    alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
-                    this.showModal = false;
-                }
-            },
-
-            confirmDelete() {
-                if (confirm('ยืนยันลบรายการนี้หรือไม่?')) {
-                    // Call delete API here
-                }
-            }
-        }
-    }
-</script>
 <div x-data="DepositHistory()" x-init="init()" class="space-y-6">
     <div class="md:w-1/3 flex flex-col justify-between gap-4">
         <div>
@@ -128,7 +13,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500 flex justify-between">
             <p class="text-slate-600 text-sm">รายการ (หน้านี้)</p>
             <p class="text-xl font-bold text-blue-600" x-text="rows.length"></p>
@@ -151,7 +36,7 @@
                 x-text="(rows.length>0?(rows.reduce((s,x)=>s+Number(x.waste_transaction_total_weight||0),0)/rows.length).toFixed(2):0)">
             </p>
         </div>
-    </div>
+    </div> -->
 
     <div class="bg-white rounded-xl shadow-md p-4 card-hover flex flex-col md:flex-row justify-center gap-4 items-end">
         <div class="w-full md:w-auto flex-1">
@@ -178,13 +63,29 @@
     </div>
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
-        <div class="p-6 border-b border-slate-200">
+        <div class="p-6 border-b border-slate-200 flex justify-between items-center">
             <h2 class="text-xl font-bold text-slate-900">รายการฝาก</h2>
+
+            <!-- ปุ่มลบหลายรายการ -->
+            <button x-show="selectedIds.length > 0" @click="confirmDelete()" x-transition
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                ลบที่เลือก (<span x-text="selectedIds.length"></span>)
+            </button>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">
                 <thead class="bg-slate-100 border-b-2 border-slate-300">
                     <tr class="text-left text-sm font-bold text-slate-700">
+                        <th class="px-6 py-4 w-12 text-center">
+                            <input type="checkbox" x-model="selectAll"
+                                @change="selectedIds = selectAll ? rows.map(r => String(r.waste_transaction_id)) : []"
+                                class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+                        </th>
                         <th class="px-6 py-4 w-12">#</th>
                         <th class="px-6 py-4">วันที่</th>
                         <th class="px-6 py-4">ผู้ฝาก</th>
@@ -199,6 +100,11 @@
                     <template x-for="(r,i) in rows" :key="r.waste_transaction_id">
                         <tr class="hover:bg-slate-50 transition text-sm text-slate-700"
                             @click="openDetail(r.waste_transaction_id)" style="cursor:pointer;">
+                            <td class="px-6 py-4 text-center" @click.stop>
+                                <input type="checkbox" x-model="selectedIds" :value="String(r.waste_transaction_id)"
+                                    @change="selectAll = selectedIds.length === rows.length"
+                                    class="rounded text-blue-600 focus:ring-blue-500 cursor-pointer">
+                            </td>
                             <td class="px-6 py-4" x-text="(page - 1) * limit + i + 1"></td>
                             <td class="px-6 py-4" x-text="new Date(r.created_at).toLocaleDateString('th-TH')"></td>
                             <td class="px-6 py-4" x-text="r.member_name||'-'"></td>
@@ -209,16 +115,20 @@
                             <td class="px-6 py-4 text-right"
                                 x-text="Number(r.waste_transaction_total_point||0).toFixed(0)"></td>
                             <td class="px-6 py-4 text-center">
-                                <button @click.stop="openDetail(r.waste_transaction_id)"
-                                    class="text-blue-600 hover:text-blue-700 font-semibold mr-3">👁️ ดู</button>
-                                <button @click.stop="confirmDelete()"
-                                    class="text-red-600 hover:text-red-700 font-semibold">🗑️ ลบ</button>
+                                <button @click.stop="confirmDelete(r.waste_transaction_id)"
+                                    class="bg-gradient-to-br from-red-400 to-red-500 p-2 text-white hover:bg-gradient-to-br hover:from-red-600 hover:to-red-700 hover:scale-105 cursor-pointer rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
                             </td>
                         </tr>
                     </template>
                     <template x-if="rows.length===0">
                         <tr>
-                            <td colspan="8" class="px-6 py-8 text-center text-slate-500">
+                            <td colspan="9" class="px-6 py-8 text-center text-slate-500">
                                 <p class="text-lg">ไม่มีข้อมูล</p>
                             </td>
                         </tr>
@@ -309,10 +219,176 @@
                 </div>
             </template>
 
-            <div class="p-4 border-t text-right">
+            <div class="p-4 border-t flex justify-between items-center">
+                <button x-show="detail && detail.transaction"
+                    class="px-4 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100 font-medium flex items-center gap-2"
+                    @click="confirmDelete(detail.transaction.waste_transaction_id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    ลบรายการนี้
+                </button>
                 <button class="px-4 py-2 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium"
                     @click="showModal=false">ปิด</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function DepositHistory() {
+        return {
+            rows: [],
+            start: '',
+            end: '',
+            memberSearch: '',
+            selectedIds: [],
+            selectAll: false,
+            showModal: false,
+            detail: null,
+
+            // Pagination State
+            page: 1,
+            limit: 10,
+            total: 0,
+            last_page: 1,
+            from: 0,
+            to: 0,
+
+            async init() {
+                const t = new Date();
+                const m = new Date(t.getTime() - 30 * 24 * 60 * 60 * 1000);
+                this.start = m.toISOString().split('T')[0];
+                this.end = t.toISOString().split('T')[0];
+                await this.apply(1);
+            },
+
+            async apply(newPage = null) {
+                if (newPage) this.page = newPage;
+
+                const p = [];
+                p.push('scope=header');
+                p.push(`page=${this.page}`);
+                p.push(`limit=${this.limit}`);
+
+                if (this.start) p.push(`start_date=${this.start}`);
+                if (this.end) p.push(`end_date=${this.end}`);
+                if (this.memberSearch) p.push(`member_search=${encodeURIComponent(this.memberSearch)}`);
+
+                try {
+                    const r = await fetch('/api/waste_transactions?' + p.join('&'));
+                    const j = await r.json();
+
+                    if (j.success && j.result) {
+                        // รองรับ Pagination แบบ Laravel/Standard Structure
+                        // ถ้าระบบส่งมาเป็น array ตรงๆ (ยังไม่ได้ทำ pagination ฝั่ง server) โค้ดนี้จะรองรับแบบพื้นฐาน
+                        if (Array.isArray(j.result)) {
+                            this.rows = j.result;
+                            this.total = j.result.length;
+                            this.last_page = 1;
+                            this.from = 1;
+                            this.to = j.result.length;
+                        } else {
+                            // กรณี Server ส่ง Pagination Object มา (data, total, last_page, etc.)
+                            this.rows = j.result.data || [];
+                            this.total = j.result.total || 0;
+                            this.last_page = j.result.last_page || 1;
+                            this.from = j.result.from || 0;
+                            this.to = j.result.to || 0;
+                        }
+                    } else {
+                        this.rows = [];
+                        this.total = 0;
+                    }
+                } catch (e) {
+                    console.error("Error fetching transactions:", e);
+                    this.rows = [];
+                } finally {
+                    // ล้างค่าที่เลือกทุกครั้งที่มีการดึงข้อมูลใหม่
+                    this.selectedIds = [];
+                    this.selectAll = false;
+                }
+            },
+
+            changePage(newPage) {
+                if (newPage >= 1 && newPage <= this.last_page) {
+                    this.apply(newPage);
+                }
+            },
+
+            clear() {
+                this.start = '';
+                this.end = '';
+                this.memberSearch = '';
+                this.apply(1);
+            },
+
+            async openDetail(id) {
+                this.detail = null;
+                this.showModal = true;
+
+                try {
+                    const r = await fetch('/api/waste_transactions/' + id);
+                    const j = await r.json();
+                    if (j.success) {
+                        this.detail = j.result;
+                    } else {
+                        Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูล', 'error');
+                        this.showModal = false;
+                    }
+                } catch (e) {
+                    console.error("Error fetching detail:", e);
+                    Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
+                    this.showModal = false;
+                }
+            },
+
+            async confirmDelete(id = null) {
+                let idsToDelete = id ? [id] : this.selectedIds;
+
+                if (idsToDelete.length === 0) {
+                    Swal.fire('ข้อผิดพลาด', 'กรุณาเลือกรายการที่ต้องการลบ', 'warning');
+                    return;
+                }
+
+                const confirmResult = await Swal.fire({
+                    title: 'ยืนยันการลบ',
+                    text: `ยืนยันลบรายการที่เลือก (${idsToDelete.length} รายการ) หรือไม่?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ลบ',
+                    cancelButtonText: 'ยกเลิก'
+                });
+
+                if (confirmResult.isConfirmed) {
+                    try {
+                        const r = await fetch('/api/waste_transactions/delete', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                ids: idsToDelete
+                            })
+                        });
+                        const j = await r.json();
+                        if (j.success) {
+                            Swal.fire('สำเร็จ', 'ลบข้อมูลสำเร็จ', 'success');
+                            this.showModal = false;
+                            await this.apply(this.page);
+                        } else {
+                            Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาด: ' + (j.message || 'ไม่สามารถลบข้อมูลได้'), 'error');
+                        }
+                    } catch (error) {
+                        console.error("Error deleting:", error);
+                        Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+                    }
+                }
+            }
+        }
+    }
+</script>

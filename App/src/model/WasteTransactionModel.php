@@ -663,42 +663,41 @@ class WasteTransactionModel
         }
     }
 
-    public function DeleteWasteTransaction(array $data): int
+    public function DeleteWasteTransaction($data)
     {
-        // เปลี่ยน Key เป็น transaction_deposit_ids ให้สื่อความหมายตรงตาราง
-        if (empty($data['waste_transaction_ids'] ?? []) || !is_array($data['waste_transaction_ids'])) {
-            throw new Exception('Bad Request: waste_transaction_ids is required and must be an array', 400);
-        }
-
-        $ids = array_filter($data['waste_transaction_ids']);
-
-        if (empty($ids)) {
-            return 0;
-        }
-
         try {
+            if (empty($data['ids'])) {
+                throw new Exception('ID is required for deletion', 400);
+            }
+
+            if (!is_array($data['ids'])) {
+                $data['ids'] = explode(',', $data['ids']);
+            }
+            $data['ids'] = array_filter(array_map('trim', $data['ids']));
+
+            if (empty($data['ids'])) {
+                throw new Exception('ID is required for deletion', 400);
+            }
 
             $this->Conn->beginTransaction();
 
-            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM waste_transaction_detail WHERE waste_transaction_detail_id IN ($placeholders)";
+            $placeholders = str_repeat('?,', count($data['ids']) - 1) . '?';
 
-            $stmt = $this->Conn->prepare($sql);
+            $sqlWtd = "DELETE FROM waste_transaction_detail WHERE waste_transaction_id IN ($placeholders)";
+            $stmt = $this->Conn->prepare($sqlWtd);
+            $stmt->execute(array_values($data['ids']));
+            $rowCountWtd = $stmt->rowCount();
 
-            foreach ($ids as $index => $id) {
-                $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
-            }
-
-            $stmt->execute();
-            $rowCount = $stmt->rowCount();
+            $sqlWt = "DELETE FROM waste_transaction WHERE waste_transaction_id IN ($placeholders)";
+            $stmt = $this->Conn->prepare($sqlWt);
+            $stmt->execute(array_values($data['ids']));
+            $rowCountWt = $stmt->rowCount();
 
             $this->Conn->commit();
 
-            return $rowCount;
+            return ['rowCountWtd' => $rowCountWtd, 'rowCountWt' => $rowCountWt];
         } catch (PDOException $e) {
-            if ($this->Conn->inTransaction()) {
-                $this->Conn->rollBack();
-            }
+            $this->Conn->rollBack();
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
@@ -951,5 +950,5 @@ class WasteTransactionModel
         }
     }
 
+
 }
-// TODO: Modify delete transaction ตัดสต็อคคืน

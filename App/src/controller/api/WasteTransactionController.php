@@ -276,7 +276,7 @@ class WasteTransactionController extends RouterBase
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => "Successfully deleted $result items."
+                'message' => "Successfully deleted items."
             ]);
         } catch (AuthenticationException $e) {
             header('Content-Type: application/json');

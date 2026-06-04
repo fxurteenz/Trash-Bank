@@ -117,7 +117,7 @@ class Routes
             ["GET", "/manage/waste_category", [AdminPagesController::class, "ManageWasteCategory"]],
             ["GET", "/manage/waste_category/[i:wcid]", [AdminPagesController::class, "ManageWasteType"]],
 
-            ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
+            // ["GET", "/manage/waste_transaction", [AdminPagesController::class, "ManageWasteTransaction"]],
             ["GET", "/manage/badge", [AdminPagesController::class, "ManageBadges"]],
             ["GET", "/manage/point_group", [AdminPagesController::class, "ManagePointGroup"]],
 
@@ -226,7 +226,7 @@ class Routes
             ['GET', "/member/[i:id]", [WasteTransactionController::class, "GetAllByMember"]],
             ['POST', '', [WasteTransactionController::class, 'Create']],
             // ['POST', '/update/[*:id]', [WasteTransactionController::class, 'Update']],
-            ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
+            // ['POST', '/delete/[*:id]', [WasteTransactionController::class, 'DeleteById']],
             ['POST', '/delete', [WasteTransactionController::class, 'Delete']],
         ]);
         /* /api/clearances */
