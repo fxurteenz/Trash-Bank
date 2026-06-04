@@ -22,7 +22,7 @@ $wcid = $wcid ?? "null";
             <div class="">
                 <h1 class="text-2xl font-bold text-slate-900">รายการประเภทขยะ <span class="text-emerald-600"
                         x-text="categoryName || 'กำลังโหลด...'"></span></h1>
-                <p class="text-slate-600 font-light text-sm" >จัดการประเภทขยะ</p>
+                <p class="text-slate-600 font-light text-sm">จัดการประเภทขยะ</p>
             </div>
             <div class="flex items-center gap-2">
                 <div @click="openCreateDialog()"
@@ -114,7 +114,7 @@ $wcid = $wcid ?? "null";
                             </td>
                             <td class="py-2 px-2 whitespace-nowrap text-sm text-gray-900 text-right">
                                 <template x-if="editingTypeId !== type.waste_type_id">
-                                    <span x-text="Number(type.waste_type_price).toFixed(3)"></span>
+                                    <span x-text="Number(type.waste_type_price).toFixed(2)"></span>
                                 </template>
                                 <template x-if="editingTypeId === type.waste_type_id">
                                     <input type="number" step="0.01" min="0" x-model="editForm.waste_type_price"
