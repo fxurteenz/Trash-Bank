@@ -1,0 +1,21 @@
+meta {
+  name: faculty leaderboard
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{api_domain}}/leaders/faculty
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~month: 01
+  ~year: 2026
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

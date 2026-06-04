@@ -39,11 +39,14 @@ class WasteTypeModel
 
             $sql = "SELECT 
                     wt.*, 
+                    COALESCE(cws.stock_weight,0.000) AS stock_weight,
                     wc.waste_category_name
                 FROM 
                     waste_type wt
                 LEFT JOIN 
                     waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                LEFT JOIN
+                    center_waste_stock cws ON wt.waste_type_id = cws.waste_type_id
                 {$whereSql}";
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -128,7 +131,7 @@ class WasteTypeModel
             }
 
             $stmt = $this->Conn->prepare($sql);
-            
+
             foreach ($params as $key => $val) {
                 $stmt->bindValue($key, $val);
             }

@@ -76,8 +76,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -85,7 +83,7 @@ class WasteTransactionController extends RouterBase
     {
         try {
             Authentication::OperateAuth();
-            $result = self::$WasteTransactionModel->GetTransactionByIdWithDetails((int)$id);
+            $result = self::$WasteTransactionModel->GetTransactionByIdWithDetails((int) $id);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -108,8 +106,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -143,8 +139,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -175,8 +169,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -207,8 +199,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -272,8 +262,6 @@ class WasteTransactionController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -288,7 +276,7 @@ class WasteTransactionController extends RouterBase
             echo json_encode([
                 'success' => TRUE,
                 'result' => $result,
-                'message' => "Successfully deleted $result items."
+                'message' => "Successfully deleted items."
             ]);
         } catch (AuthenticationException $e) {
             header('Content-Type: application/json');
@@ -298,8 +286,6 @@ class WasteTransactionController extends RouterBase
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
         }
     }
 }

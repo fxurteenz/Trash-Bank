@@ -9,20 +9,21 @@ use App\Utils\AuthenticationException;
 class StaffPagesController extends RouterBase
 {
     private static $Layouts = "staffLayout";
+    private static $ReportLayout = "reportLayout";
 
     public function HomePage()
     {
         try {
             $user = Authentication::OperateAuth();
             $this->render('staff/dashboard', [
-                'user' => $user,
+                'user' => $user["user_data"],
                 'facultyId' => $user['user_data']->faculty_id,
                 'facultyName' => $user['user_data']->faculty_name,
                 'pages' => 'home',
                 'title' => 'หน้าหลัก'
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
+            $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -32,13 +33,14 @@ class StaffPagesController extends RouterBase
     public function WasteTransactionPage()
     {
         try {
-            Authentication::OperateAuth();
+            $user = Authentication::OperateAuth();
             $this->render('transactions/waste_deposit', [
                 'pages' => 'wasteTransaction',
                 'title' => 'ระบบฝากขยะ',
+                'user' => $user["user_data"]
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
+            $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -48,13 +50,14 @@ class StaffPagesController extends RouterBase
     public function WasteTransactionHistoryPage()
     {
         try {
-            Authentication::OperateAuth();
+            $user = Authentication::OperateAuth();
             $this->render('history/waste_transaction', [
                 'pages' => 'wasteTransactionHistory',
                 'title' => 'ประวัติการฝากขยะ',
+                'user' => $user["user_data"]
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
-            // $this->errorPage(403, '403');
+            $this->errorPage(403, '403');
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
@@ -69,7 +72,6 @@ class StaffPagesController extends RouterBase
                 'user' => $user["user_data"],
                 'pages' => 'memberManagement',
                 'title' => 'จัดการสมาชิก',
-                // 'script' => '../../js/ManageUsers.js',
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
@@ -108,6 +110,22 @@ class StaffPagesController extends RouterBase
             ], self::$Layouts);
         } catch (AuthenticationException $th) {
             // $this->errorPage(403, '403');
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ReportUsers()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('/waste_center/reports/users', [
+                'pages' => "reports",
+                'title' => "รายงานสมาชิก",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
             header('location: /');
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);

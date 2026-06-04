@@ -5,8 +5,10 @@
     <title><?= $title ?? '' ?></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/assets/output.css" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script defer src="/js/alpine-collapse.min.js"></script>
+    <script defer src="/js/alpine.min.js"></script>
+    <script type="text/javascript" src="/js/lucide.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
@@ -18,24 +20,23 @@
             font-family: "Open Sans", sans-serif;
         }
 
-        /* Shared user layout styling (only applied when footer==='user') */
+        /* KBank-style user layout */
         .user-mode {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #F4F5F7;
             display: flex;
             justify-content: center;
         }
 
         .user-page {
             width: 100%;
-            max-width: 430px;
-            /* comfortable phone width */
-            padding: 16px;
+            max-width: 460px;
+            padding: 0 0 16px;
             min-height: 100vh;
         }
 
         @media (min-width: 768px) {
             .user-page {
-                padding: 18px;
+                padding: 0 0 16px;
             }
         }
     </style>

@@ -64,8 +64,6 @@ class DonationController extends RouterBase
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
         }
     }
 
@@ -83,8 +81,6 @@ class DonationController extends RouterBase
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
         }
     }
 
@@ -103,16 +99,31 @@ class DonationController extends RouterBase
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
         }
     }
 
+    public function CreateItem()
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->CreateDonationItems(is_array($this->data) ? $this->data : []);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Donation created =]']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
     public function GetItems()
     {
         try {
             Authentication::OperateAuth();
-            $result = $this->DonationModel->GetDonationItem($this->queryString ?? []);
+            $result = $this->DonationModel->GetAllDonationItem($this->queryString ?? []);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -123,8 +134,80 @@ class DonationController extends RouterBase
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
+        }
+    }
+    public function GetAvailableItems()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->DonationModel->GetAvailableDonationItem($this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result["data"], 'total' => $result["total"], 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    public function GetCategorisedItems()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->DonationModel->GetCategorisedDonationItem($this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result["data"], 'total' => $result["total"], 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function GetUncategorisedItems()
+    {
+        try {
+            Authentication::CenterAuth();
+            $rows = $this->DonationModel->GetUncategorisedDonationItem($this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $rows['data'],
+                'total' => $rows['total'],
+                'message' => 'ok'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function UpdateItem($id)
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->UpdateDonationItem((int) $id, is_array($this->data) ? $this->data : []);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 
@@ -132,18 +215,131 @@ class DonationController extends RouterBase
     {
         try {
             Authentication::AdminAuth();
-            // Placeholder: deletion API not implemented per requirement
+            $result = $this->DonationModel->DeleteDonationItem(is_array($this->data) ? $this->data : []);
             header('Content-Type: application/json');
             http_response_code(200);
-            echo json_encode(['success' => true, 'message' => 'Delete route not implemented']);
+            echo json_encode(['success' => true, 'message' => 'ลบข้อมูลสำเร็จ', 'data' => $result]);
         } catch (AuthenticationException $e) {
             http_response_code($e->getCode() ?: 401);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
+        }
+    }
+
+    public function GetItemCategories()
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->DonationModel->GetDonationItemCategories($this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $result['data'],
+                'total' => $result['total'],
+                'message' => 'ok'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function GetItemByCategories($cid)
+    {
+        try {
+            Authentication::OperateAuth();
+            $result = $this->DonationModel->GetDonationItemByCategoryId($cid, $this->queryString ?? []);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'data' => $result['data'],
+                'total' => $result['total'],
+                'message' => 'ok'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function CreateItemCategory()
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->CreateDonationItemCategory(is_array($this->data) ? $this->data : []);
+
+            header('Content-Type: application/json');
+            http_response_code(201);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Donation created =]']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function UpdateItemCategory($id)
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->UpdateDonationItemCategory((int) $id, is_array($this->data) ? $this->data : []);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'ok']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function BulkUpdateItemCategory()
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->BulkUpdateDonationItemCategory(is_array($this->data) ? $this->data : []);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Bulk update successful']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function ToggleItemAvailable()
+    {
+        try {
+            Authentication::CenterAuth();
+            $row = $this->DonationModel->ToggleDonationItemAvailable(is_array($this->data) ? $this->data : []);
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $row, 'message' => 'Toggle successful']);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }

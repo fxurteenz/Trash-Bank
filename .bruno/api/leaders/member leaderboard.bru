@@ -1,0 +1,22 @@
+meta {
+  name: member leaderboard
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{api_domain}}/leaders/member?faculty_id=1
+  body: none
+  auth: inherit
+}
+
+params:query {
+  faculty_id: 1
+  ~month: 01
+  ~year: 2026
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

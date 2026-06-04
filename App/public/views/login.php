@@ -90,7 +90,7 @@
                 <div class="flex flex-col justify-center items-center">
                     <div class="flex items-center gap-3 mb-4">
                         <div>
-                            <img class="h-10" src="assets/images/ธนาคารขยะFullLogo.png" alt="">
+                            <img class="h-10" src="assets/images/waste_bankFullLogo.png" alt="">
                             <!-- <h1 class="font-bold text-lg text-white">BRU Waste Bank</h1> -->
                         </div>
                         <div>
@@ -164,22 +164,7 @@
                     timer: 1500,
                     showConfirmButton: false,
                 });
-
-                const userRole = parseInt(result.data.user_data.role_id);
-                console.log(result);
-
-                if (userRole === 1 || userRole === "1") {
-                    window.location.href = "/admin";
-                } else if (userRole === 3 || userRole === "3") {
-                    window.location.href = "/staff";
-                } else if (userRole === 4 || userRole === "4") {
-                    window.location.href = "/waste_center";
-                } else if (userRole === 2 || userRole === "2") {
-                    window.location.href = "/user";
-                } else {
-                    // console.log(result);
-                    throw new Error("Hacker ? ", 500);
-                }
+                window.location.reload();
             } else {
                 throw new Error(result.message || result, 500);
             }

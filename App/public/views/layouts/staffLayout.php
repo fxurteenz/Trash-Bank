@@ -5,30 +5,57 @@
     <title><?= $title ?? 'Trash Bank' ?></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="/assets/output.css" rel="stylesheet">
-    <script src="/js/alpine.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
+    <script defer src="/js/alpine-collapse.min.js"></script>
+    <script defer src="/js/alpine.min.js"></script>
+    <script type="text/javascript" src="/js/lucide.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Noto+Serif+Thai:wght@100..900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
-        * {
-            font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+        .bg-alabuster {
+            background-color: #FAFAFA;
         }
 
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #d1fae5;
-            --secondary: #3b82f6;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
+        .bg-smoke {
+            background-color: #F5F5F5;
+        }
+
+        html,
+        body {
+            font-family: "Sarabun", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        button,
+        label,
+        a {
+            font-family: "Noto Sans Thai", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: "Sarabun", sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #f0fdf7 100%);
+            /* background-image: linear-gradient(135deg, #f8fafc 20%, #FBF6F6 100%); */
+            background-color: #FAFAFA;
         }
 
-        /* ... styles อื่นๆ คงเดิม ... */
+        aside,
+        header {
+            background-color: #ffffff;
+        }
 
         [x-cloak] {
             display: none !important;
@@ -36,7 +63,7 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-b from-green-100 to-slate-50 min-h-screen bg-fixed">
+<body class="min-h-screen bg-fixed">
 
     <div x-data="{ sidebarOpen: window.innerWidth > 1024, profileMenuOpen: false }"
         @resize.window="sidebarOpen = window.innerWidth > 1024" class="min-h-screen flex flex-col">
@@ -52,13 +79,7 @@
                     </svg>
                 </button>
                 <a href="/admin" class="flex items-center gap-2 group">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
-                        ♻️</div>
-                    <div class="hidden sm:block">
-                        <h1 class="text-xl font-bold text-emerald-700">Trash Bank</h1>
-                        <p class="text-xs text-slate-500">Admin Dashboard</p>
-                    </div>
+                    <img src="/assets/images/waste_bankFullLogo.png" class="h-10" alt="BRU Waste Bank">
                 </a>
             </div>
 
@@ -68,12 +89,15 @@
 
             <div class="relative" @click.away="profileMenuOpen = false">
                 <button @click="profileMenuOpen = !profileMenuOpen"
-                    class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-lg transition-colors">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff"
-                        class="w-8 h-8 rounded-full">
+                    class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                    <i data-lucide="circle-user-round" class="w-6 h-6"></i>
                     <div class="hidden sm:block text-left">
-                        <p class="text-sm font-medium text-slate-900">เจ้าหน้าที่คณะ</p>
-                        <p class="text-xs text-slate-500"></p>
+                        <p class="text-md font-medium text-slate-900">
+                            <?= $user->member_name ?? 'เพิ่มชื่อผู้ใช่งาน' ?>
+                        </p>
+                        <p class="text-xs text-slate-500">
+                            คณะ <?php echo $user->faculty_name ?? "แก้ไขชื่อคณะ"; ?>
+                        </p>
                     </div>
                     <svg class="w-4 h-4 text-slate-400 transition-transform duration-200"
                         :class="{'rotate-180': profileMenuOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,18 +112,34 @@
                     x-transition:leave-start="transform opacity-100 scale-100"
                     x-transition:leave-end="transform opacity-0 scale-95"
                     class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white border border-slate-200 py-2">
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">⚙️ ตั้งค่า</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">👤 โปรไฟล์</a>
+                    <a href="#"
+                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between px-3"><i
+                            data-lucide="settings"></i> ตั้งค่า</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between"><i
+                            data-lucide="user"></i> โปรไฟล์</a>
                     <hr class="my-1">
-                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">🚪 ออกจากระบบ</a>
+                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex justify-between">
+                        <i data-lucide="log-out"></i>ออกจากระบบ
+                    </a>
                 </div>
             </div>
         </header>
 
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed top-16 bottom-0 left-0 z-20 w-64 bg-white border-r border-slate-200 transform transition-transform duration-150 ease-in-out overflow-y-auto">
-
+            class="fixed top-16 bottom-0 left-0 z-30 w-64 border-r border-slate-200 transform transition-transform duration-150 ease-in-out overflow-y-auto">
+            <div class="border-b-2 border-slate-400 w-full p-2 text-center">
+                <p class="text-sm text-slate-500">
+                    เจ้าหน้าที่จุดฝากประจำคณะ
+                </p>
+                <p class="text-sm text-slate-600">
+                    <?php echo $user->faculty_name; ?>
+                </p>
+                <h3 class="text-slate-600 text-lg flex items-center gap-2 justify-center">
+                    <i data-lucide="square-user-round"></i> <?php echo $user->member_name ?? "ตั้งชื่อผู้ใช้งาน"; ?>
+                </h3>
+            </div>
             <nav class="p-4 space-y-2">
+
                 <div class="mb-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">เมนู</p>
                 </div>
@@ -308,7 +348,7 @@
         </aside>
 
         <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false" x-transition:opacity
-            class="fixed inset-0 z-10 bg-black opacity-50  lg:hidden"></div>
+            class="fixed inset-0 z-20 bg-black opacity-50  lg:hidden"></div>
 
         <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-0'"
             class="flex-1 px-8 py-4 mt-16 min-h-[calc(100vh-4rem)] transition-all duration-150 ease-in-out">
@@ -319,6 +359,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
     <script type="module" src="<?= $module ?? "" ?>"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>

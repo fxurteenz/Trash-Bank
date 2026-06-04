@@ -85,7 +85,7 @@ class WasteSaleModel
                         if ($inStock['less']) {
                             self::DecreaseCenterWasteStock($this->Conn, $item['waste_type_id'], $inStock['stock_weight']);
                         } else {
-                            self::DecreaseCenterWasteStock($this->Conn, $item['waste_type_id'], $item['weight']);
+                            self::DecreaseCenterWasteStock($this->Conn, $item['waste_type_id'], $weight);
                         }
                     }
                 }

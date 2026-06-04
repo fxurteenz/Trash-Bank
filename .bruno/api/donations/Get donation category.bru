@@ -1,0 +1,16 @@
+meta {
+  name: Get donation category
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{api_domain}}/donations/items/category
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -33,7 +33,14 @@
             // --- Init ---
             async init() {
                 await this.loadWasteTypes();
-                this.focusMemberInput();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get('member_id');
+                if (memberId) {
+                    await this.fetchMemberById(memberId);
+                } else {
+                    this.focusMemberInput();
+                }
             },
 
             get formatPoints() {
@@ -51,6 +58,22 @@
                 });
             },
 
+            async fetchMemberById(id) {
+                try {
+                    const response = await fetch(`/api/members/profile/${id}`);
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.selectMember(result.data);
+                    } else {
+                        this.showNotification('ไม่พบข้อมูลสมาชิกจาก URL', 'error');
+                        this.focusMemberInput();
+                    }
+                } catch (error) {
+                    console.error('Error fetching member by ID:', error);
+                    this.focusMemberInput();
+                }
+            },
+
             // --- Member Logic ---
             async searchMember(force = false) {
                 if (!this.memberSearch.trim()) {
@@ -65,7 +88,7 @@
                 this.selectedIndex = -1;
 
                 try {
-                    const response = await fetch(`/api/members?page=1&limit=10&role=2&search=${encodeURIComponent(this.memberSearch)}`);
+                    const response = await fetch(`/api/members?page=1&limit=10&role=1,2,3&search=${encodeURIComponent(this.memberSearch)}`);
                     const result = await response.json();
 
                     if (result.success) {
@@ -167,23 +190,53 @@
             searchWasteType() {
                 const search = this.itemForm.wasteCode.toLowerCase();
                 this.filteredWasteTypes = this.wasteTypes.filter(type =>
+                    type.waste_type_id.toString().padStart(3, '0').includes(search) ||
                     type.waste_type_id.toString().includes(search) ||
                     type.waste_type_name.toLowerCase().includes(search)
                 );
 
                 const exactMatch = this.wasteTypes.find(type =>
+                    type.waste_type_id.toString().padStart(3, '0') === this.itemForm.wasteCode ||
                     type.waste_type_id.toString() === this.itemForm.wasteCode
                 );
                 this.selectedWasteType = exactMatch || null;
             },
 
             handleWasteCodeEnter() {
+                if (!this.selectedWasteType && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.wasteTypes.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedWasteType = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
                 if (this.selectedWasteType) {
                     this.$refs.weightInput.focus();
+                } else {
+                    this.showNotification('ไม่พบชนิดขยะที่ระบุ', 'warning');
                 }
             },
 
             addItem() {
+                if (!this.selectedWasteType && this.itemForm.wasteCode) {
+                    const search = this.itemForm.wasteCode.toLowerCase().trim();
+                    const match = this.wasteTypes.find(type =>
+                        type.waste_type_id.toString().padStart(3, '0').includes(search) ||
+                        type.waste_type_id.toString().includes(search) ||
+                        type.waste_type_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedWasteType = match;
+                        this.itemForm.wasteCode = match.waste_type_id.toString().padStart(3, '0');
+                    }
+                }
+
                 if (!this.itemForm.wasteCode || !this.selectedWasteType) {
                     this.showNotification('กรุณาเลือกชนิดขยะ', 'error');
                     this.$refs.wasteCodeInput.focus();
@@ -231,6 +284,7 @@
                         waste_type_id: this.selectedWasteType.waste_type_id,
                         waste_type_name: this.selectedWasteType.waste_type_name,
                         waste_type_price: this.selectedWasteType.waste_type_price,
+                        waste_category_name: this.selectedWasteType.waste_category_name,
                         weight: weightToAdd
                     });
                     this.showNotification('เพิ่มรายการใหม่แล้ว', 'success');
@@ -369,29 +423,20 @@
                 </h1>
                 <p class="text-slate-600 text-sm">บันทึกการฝากขยะ - ค้นหาสมาชิกและลงรายการ</p>
             </div>
-            <!-- <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-4 text-white">
-                <div class="flex items-center justify-between">
-                    <p class="text-emerald-100 text-xs font-medium uppercase tracking-wider mb-1">แต้มสะสมของคณะ</p>
-                    <h2 class="text-3xl font-bold flex items-center gap-2">
-                        9,999
-                        <span class="text-sm font-normal text-emerald-100 mt-2">แต้ม</span>
-                    </h2>
-                </div>
-            </div> -->
         </div>
 
-        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
+        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center"
             x-bind:class="{ 'p-6': !currentMember, 'p-0': currentMember}">
-            <div x-show="!currentMember" class="w-full">
+            <div x-show="!currentMember" class="w-full items-center">
                 <h2 class="text-xl font-bold text-slate-900 mb-2">ค้นหาสมาชิก</h2>
-                <div class="relative" @click.away="showDropdown = false">
+                <div class="relative flex-1" @click.away="showDropdown = false">
                     <div class="relative">
                         <input x-ref="memberInput" x-model="memberSearch" @input.debounce.300ms="searchMember(false)"
                             @focus="showDropdown = true" @keydown.enter.prevent="handleEnterKey()"
                             @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
                             @keydown.tab.prevent="moveSelection(1)" @keydown.arrow-up.prevent="moveSelection(-1)"
                             type="text" placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก..."
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition text-lg"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition"
                             autocomplete="off">
                     </div>
                     <div x-show="showDropdown && (searchResults.length > 0 || isSearching)"
@@ -421,10 +466,6 @@
                             class="p-4 text-center text-slate-500">ไม่พบข้อมูล</div>
                     </div>
                 </div>
-                <!-- <p class="text-xs text-slate-500 mt-2">
-                    กด <kbd class="bg-slate-100 px-1 rounded border">Enter</kbd>
-                    เพื่อเลือก
-                </p> -->
             </div>
 
             <div x-show="currentMember" class="w-full h-full">
@@ -468,19 +509,20 @@
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full overflow-hidden">
 
-            <div class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
+            <div x-show="currentMember" style="display: none;"
+                class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
                 <h2 class="text-xl font-bold text-slate-900 mb-3">เพิ่มรายการขยะ</h2>
                 <div class="grid grid-cols-12 gap-3">
                     <div class="col-span-5">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">รหัสชนิดขยะ</label>
                         <input x-ref="wasteCodeInput" x-model="itemForm.wasteCode"
-                            @keydown.tab.prevent="$refs.weightInput.focus()" @keydown.enter="handleWasteCodeEnter()"
+                            @keydown.tab.prevent="handleWasteCodeEnter()" @keydown.enter="handleWasteCodeEnter()"
                             @input="searchWasteType()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
                             list="wasteTypeList" autocomplete="off">
                         <datalist id="wasteTypeList">
                             <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
-                                <option :value="type.waste_type_id"
+                                <option :value="type.waste_type_id.toString().padStart(3, '0')"
                                     :label="`${type.waste_category_name} : ${type.waste_type_name}`"></option>
                             </template>
                         </datalist>
@@ -513,32 +555,44 @@
                         x-text="items.length + ' รายการ'"></span>
                 </h2>
 
-                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
-                    <template x-for="(item, index) in items" :key="index">
-                        <div
-                            class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 rounded-lg transition group border border-slate-100">
-                            <div class="flex items-center gap-3">
-                                <span
-                                    class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 text-xs font-bold text-slate-500"
-                                    x-text="index + 1"></span>
-                                <div>
-                                    <p class="font-semibold text-slate-900 text-sm" x-text="item.waste_type_name"></p>
-                                    <p class="text-xs text-slate-500" x-text="item.waste_type_id"></p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="text-lg font-bold text-slate-700"
-                                    x-text="item.weight.toFixed(2) + ' กก.'"></span>
-                                <button @click="removeItem(index)"
-                                    class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors opacity-0 group-hover:opacity-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                                        <path fill="currentColor"
-                                            d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+                    <table x-show="items.length > 0" class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 rounded-tl-lg text-center w-12">#</th>
+                                <th scope="col" class="px-4 py-3">รหัสขยะ</th>
+                                <th scope="col" class="px-4 py-3">ชนิดขยะ</th>
+                                <th scope="col" class="px-4 py-3 text-right">น้ำหนัก (กก.)</th>
+                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-16">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(item, index) in items" :key="index">
+                                <tr class="border-b last:border-b-0 transition-colors bg-white hover:bg-slate-50 group">
+                                    <td class="px-4 py-3 text-slate-500 text-center font-medium" x-text="index + 1">
+                                    </td>
+                                    <td class="px-4 py-3 font-medium text-slate-900"
+                                        x-text="item.waste_type_id.toString().padStart(3, '0')"></td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-semibold text-slate-800" x-text="item.waste_type_name"></div>
+                                        <div class="text-[10px] text-slate-500" x-text="item.waste_category_name"></div>
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-bold text-slate-700"
+                                        x-text="parseFloat(item.weight).toFixed(2)"></td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button @click="removeItem(index)"
+                                            class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors hover:text-red-600 cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
 
                     <div x-show="items.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
@@ -577,11 +631,22 @@
                         </svg>
                         สรุปรายการ
                     </h3>
-                    <div class="space-y-3">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center" x-show="currentMember" style="display: none;">
+                            <span class="text-emerald-100 text-semibold">แต้มคณะคงเหลือ</span>
+                            <div class="text-right">
+                                <span class="text-xl font-bold"
+                                    x-text="Number(currentMember?.member_faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                                <span class="text-sm text-emerald-200">แต้ม</span>
+                            </div>
+                        </div>
+                        <div class="h-px bg-emerald-400 opacity-50" x-show="currentMember" style="display: none;"></div>
+
                         <div class="flex justify-between items-center">
                             <span class="text-emerald-100 text-lg">จำนวนรายการ</span>
                             <span class="text-2xl font-bold" x-text="items.length"></span>
                         </div>
+
                         <div class="flex justify-between items-center">
                             <span class="text-emerald-100 text-lg">น้ำหนักรวม</span>
                             <div class="text-right">

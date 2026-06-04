@@ -32,31 +32,39 @@
 
             donation: {
                 item_name: '',
-                item_qty: '',
-                item_value: '',
-                description: '',
-                donation_item_redeem_point: ''
+                item_amount: '',
+                item_value: ''
             },
+            items: [],
+            todayDonations: 0,
 
-            pointGroups: [],
             isSaving: false,
 
             async init() {
-                this.$nextTick(() => {
-                    if (this.$refs.searchInput) this.$refs.searchInput.focus();
-                });
-                this.fetchPointGroups();
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get('member_id');
+                if (memberId) {
+                    await this.fetchMemberById(memberId);
+                } else {
+                    this.$nextTick(() => {
+                        if (this.$refs.searchInput) this.$refs.searchInput.focus();
+                    });
+                }
             },
 
-            async fetchPointGroups() {
+            async fetchMemberById(id) {
                 try {
-                    const res = await fetch('/api/point_groups');
-                    const data = await res.json();
-                    if (data.success) {
-                        this.pointGroups = data.data;
+                    const response = await fetch(`/api/members/profile/${id}`);
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.selectDonor(result.data);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลสมาชิกจาก URL', timer: 1500, showConfirmButton: false });
+                        this.$nextTick(() => { if (this.$refs.searchInput) this.$refs.searchInput.focus(); });
                     }
-                } catch (err) {
-                    console.error('Error fetching point groups:', err);
+                } catch (error) {
+                    console.error('Error fetching member:', error);
+                    this.$nextTick(() => { if (this.$refs.searchInput) this.$refs.searchInput.focus(); });
                 }
             },
 
@@ -123,17 +131,54 @@
 
             // --- Donation Logic ---
 
+            addItem() {
+                const amount = parseInt(this.donation.item_amount);
+                const value = parseFloat(this.donation.item_value);
+
+                if (!this.donation.item_name.trim()) {
+                    Swal.fire('แจ้งเตือน', 'กรุณาระบุชื่อสิ่งของ', 'warning');
+                    if (this.$refs.itemNameInput) this.$refs.itemNameInput.focus();
+                    return;
+                }
+                if (!amount || amount <= 0 || isNaN(amount)) {
+                    Swal.fire('แจ้งเตือน', 'กรุณาระบุจำนวนให้ถูกต้อง (ขั้นต่ำ 1)', 'warning');
+                    if (this.$refs.amountInput) this.$refs.amountInput.focus();
+                    return;
+                }
+                if (isNaN(value) || value <= 0) {
+                    Swal.fire('แจ้งเตือน', 'กรุณาระบุมูลค่าให้ถูกต้อง (ขั้นต่ำ > 0)', 'warning');
+                    if (this.$refs.valueInput) this.$refs.valueInput.focus();
+                    return;
+                }
+
+                this.items.push({
+                    name: this.donation.item_name.trim(),
+                    amount: amount,
+                    value: value
+                });
+
+                this.donation.item_name = '';
+                this.donation.item_amount = '';
+                this.donation.item_value = '';
+
+                if (this.$refs.itemNameInput) this.$refs.itemNameInput.focus();
+            },
+
+            removeItem(index) {
+                this.items.splice(index, 1);
+            },
+
+            totalAmount() {
+                return this.items.reduce((sum, item) => sum + item.amount, 0);
+            },
+
             calculateTotal() {
-                const qty = parseFloat(this.donation.item_qty) || 0;
-                const price = parseFloat(this.donation.item_value) || 0;
-                return qty * price;
+                return this.items.reduce((sum, item) => sum + (item.amount * item.value), 0);
             },
 
             canSave() {
                 return this.currentDonor &&
-                    this.donation.item_name.trim() !== '' &&
-                    this.donation.item_qty > 0 &&
-                    this.donation.item_value !== '' &&
+                    this.items.length > 0 &&
                     !this.isSaving;
             },
 
@@ -144,11 +189,7 @@
 
                 const payload = {
                     member_id: this.currentDonor.member_id,
-                    donation_item_name: this.donation.item_name,
-                    donation_item_qty: parseInt(this.donation.item_qty),
-                    donation_item_value: parseFloat(this.donation.item_value), // ราคาต่อหน่วย
-                    donation_description: this.donation.description,
-                    donation_item_redeem_point: this.donation.donation_item_redeem_point ? parseInt(this.donation.donation_item_redeem_point) : null
+                    items: this.items
                 };
 
                 try {
@@ -164,10 +205,11 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'บันทึกสำเร็จ',
-                            text: `รับ ${payload.donation_item_name} เข้าคลังเรียบร้อย`,
+                            text: `รับเข้าคลัง ${this.items.length} รายการเรียบร้อย`,
                             timer: 2000,
                             showConfirmButton: false
                         });
+                        this.todayDonations += 1;
                         this.resetForm();
                     } else {
                         throw new Error(result.message || 'Unknown error');
@@ -180,10 +222,30 @@
                 }
             },
 
+            cancelAll() {
+                if (this.items.length === 0) return;
+                Swal.fire({
+                    title: 'ต้องการยกเลิกทั้งหมด?',
+                    text: "รายการที่เพิ่มไว้จะถูกลบออกทั้งหมด",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ใช่, ลบทั้งหมด',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.items = [];
+                        this.donation = { item_name: '', item_amount: '', item_value: '' };
+                    }
+                });
+            },
+
             resetForm() {
                 this.currentDonor = null;
                 this.searchQuery = '';
-                this.donation = { item_name: '', item_qty: '', item_value: '', description: '', donation_item_redeem_point: '' };
+                this.donation = { item_name: '', item_amount: '', item_value: '' };
+                this.items = [];
                 this.resetDonor(); // Focus กลับไปช่องค้นหา
             }
         };
@@ -207,18 +269,18 @@
                 <p class="text-slate-600 text-sm">บันทึกการรับบริจาค - ใช้เบอร์โทรหรือรหัสประจำตัว</p>
             </div>
 
-            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-4 text-white">
+            <!-- <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl shadow-lg p-4 text-white">
                 <div class="flex items-center justify-between">
                     <p class="text-purple-100 text-xs font-medium uppercase tracking-wider mb-1">ยอดบริจาควันนี้</p>
                     <h2 class="text-3xl font-bold flex items-center gap-2">
-                        0
-                        <span class="text-sm font-normal text-purple-100 mt-2">รายการ</span>
+                        <span x-text="todayDonations">0</span>
+                        <span class="text-sm font-normal text-purple-100 mt-2">ครั้ง</span>
                     </h2>
                 </div>
-            </div>
+            </div> -->
         </div>
 
-        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
+        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center"
             x-bind:class="{ 'p-6': !currentDonor, 'p-0': currentDonor}">
 
             <div x-show="!currentDonor" class="w-full">
@@ -302,55 +364,92 @@
     <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-1">
 
         <div class="lg:col-span-2 flex flex-col gap-4 h-full">
-            <div x-show="currentDonor"
-                class="flex-1 min-h-0 bg-white rounded-xl shadow-md p-6 card-hover overflow-y-auto custom-scrollbar">
-                <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <span>📝 รายละเอียดของที่รับ</span>
+            <div x-show="currentDonor" style="display: none;"
+                class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
+                <h2 class="text-xl font-bold text-slate-900 mb-3">📝 เพิ่มรายการสิ่งของ</h2>
+                <div class="grid grid-cols-12 gap-3">
+                    <div class="col-span-5">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อสิ่งของ *</label>
+                        <input x-ref="itemNameInput" x-model="donation.item_name"
+                            @keydown.enter="$refs.amountInput.focus()" type="text"
+                            placeholder="เช่น ขวดแก้ว, กระดาษลัง, เสื้อยืด"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวน *</label>
+                        <input x-ref="amountInput" x-model.number="donation.item_amount"
+                            @keydown.enter="$refs.valueInput.focus()" type="number" min="1" placeholder="1"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">มูลค่า/ชิ้น (฿) *</label>
+                        <div class="flex gap-2">
+                            <input x-ref="valueInput" x-model.number="donation.item_value" @keydown.enter="addItem()"
+                                type="number" min="0" step="0.01" placeholder="0.00"
+                                class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                            <button @click="addItem()"
+                                class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors whitespace-nowrap">
+                                เพิ่ม
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentDonor" style="display: none;"
+                class="flex-1 min-h-0 bg-white rounded-xl shadow-xl p-6 flex flex-col"
+                x-init="$watch('items', value => { $nextTick(() => { const container = $refs.listContainer; if (container) container.scrollTop = container.scrollHeight; }); })">
+
+                <h2 class="text-xl font-bold text-slate-900 mb-2 shrink-0 flex items-center justify-between">
+                    <span>รายการที่รับบริจาค</span>
+                    <span class="bg-purple-100 text-purple-700 text-sm px-2 py-1 rounded-md"
+                        x-text="items.length + ' รายการ'"></span>
                 </h2>
 
-                <div class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">ชื่อสิ่งของ * (inventory
-                            key)</label>
-                        <input type="text" x-model="donation.item_name" placeholder="เช่น ขวดแก้ว, กระดาษลัง, เสื้อยืด"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">จำนวน *</label>
-                            <input type="number" x-model.number="donation.item_qty" min="1" placeholder="ระบุจำนวน"
-                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">มูลค่าต่อชิ้น/หน่วย (บาท)
-                                *</label>
-                            <input type="number" x-model.number="donation.item_value" min="0" step="0.01"
-                                placeholder="0.00"
-                                class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
-                            <p class="text-xs text-slate-500 mt-1">ใช้คำนวณมูลค่ารวมในสต็อก</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="redeem_point"
-                            class="block text-sm font-semibold text-slate-700 mb-2">แต้มที่ใช้แลก</label>
-                        <select id="redeem_point" x-model="donation.donation_item_redeem_point"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
-                            <option value="">-- ไม่กำหนด --</option>
-                            <template x-for="group in pointGroups" :key="group.donation_item_point_id">
-                                <option :value="group.donation_item_point_id" x-text="`${group.redeem_point} แต้ม`">
-                                </option>
+                <div x-ref="listContainer" class="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+                    <table x-show="items.length > 0" class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 rounded-tl-lg text-center w-12">#</th>
+                                <th scope="col" class="px-4 py-3">ชื่อสิ่งของ</th>
+                                <th scope="col" class="px-4 py-3 text-right">จำนวน</th>
+                                <th scope="col" class="px-4 py-3 text-right">มูลค่า/ชิ้น (฿)</th>
+                                <th scope="col" class="px-4 py-3 text-right">รวม (฿)</th>
+                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-16">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(item, index) in items" :key="index">
+                                <tr class="border-b last:border-b-0 transition-colors bg-white hover:bg-slate-50 group">
+                                    <td class="px-4 py-3 text-slate-500 text-center font-medium" x-text="index + 1">
+                                    </td>
+                                    <td class="px-4 py-3 font-semibold text-slate-800" x-text="item.name"></td>
+                                    <td class="px-4 py-3 text-right font-bold text-slate-700" x-text="item.amount"></td>
+                                    <td class="px-4 py-3 text-right text-slate-600"
+                                        x-text="parseFloat(item.value).toFixed(2)"></td>
+                                    <td class="px-4 py-3 text-right font-bold text-purple-600"
+                                        x-text="(item.amount * item.value).toFixed(2)"></td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button @click="removeItem(index)"
+                                            class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors hover:text-red-600 cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                viewBox="0 0 24 24">
+                                                <path fill="currentColor"
+                                                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
                             </template>
-                        </select>
-                        <p class="text-xs text-slate-500 mt-1">เลือกกลุ่มแต้มหากของชิ้นนี้สามารถใช้แลกได้</p>
-                    </div>
+                        </tbody>
+                    </table>
 
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">รายละเอียดเพิ่มเติม /
-                            หมายเหตุ</label>
-                        <textarea x-model="donation.description" rows="3" placeholder="สภาพของ, แหล่งที่มา (ถ้ามี)"
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"></textarea>
+                    <div x-show="items.length === 0"
+                        class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mb-2" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                        </svg>
+                        <p class="text-sm">เพิ่มรายการจากฟอร์มด้านบน</p>
                     </div>
                 </div>
             </div>
@@ -387,47 +486,46 @@
 
                     <div class="space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-purple-100">รายการ</span>
-                            <span class="text-lg font-bold truncate max-w-[150px]"
-                                x-text="donation.item_name || '-'"></span>
-                        </div>
-                        <div class="h-px bg-purple-400 opacity-50"></div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-purple-100">จำนวน</span>
-                            <span class="text-xl font-bold"
-                                x-text="donation.item_qty ? `${donation.item_qty} หน่วย` : '-'"></span>
-                        </div>
-                        <div class="h-px bg-purple-400 opacity-50"></div>
-
-                        <div class="flex justify-between items-center">
-                            <span class="text-purple-100">ราคา/หน่วย</span>
-                            <span class="text-xl font-bold"
-                                x-text="donation.item_value ? `฿${parseFloat(donation.item_value).toFixed(2)}` : '-'"></span>
+                            <span class="text-purple-100 text-lg">จำนวนสิ่งของรวม</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-bold" x-text="totalAmount()"></span>
+                                <span class="text-sm text-purple-200">ชิ้น</span>
+                            </div>
                         </div>
 
-                        <div class="bg-purple-700/50 backdrop-blur-sm rounded-xl p-4 mt-4">
-                            <p class="text-purple-100 text-sm mb-1">มูลค่ารวม / แต้มความดี</p>
-                            <p class="text-3xl font-bold" x-text="`฿${calculateTotal().toFixed(2)}`"></p>
+                        <div class="bg-purple-700/50 backdrop-blur-sm rounded-xl p-4 mt-4 space-y-2">
+                            <div class="flex justify-between items-center text-purple-100">
+                                <span class="text-sm">มูลค่ารวม</span>
+                                <span class="text-xl font-bold text-white"
+                                    x-text="`฿${calculateTotal().toFixed(2)}`"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-purple-100">
+                                <span class="text-sm">แต้มความดีที่จะได้รับ</span>
+                                <span class="text-3xl font-bold text-amber-300"
+                                    x-text="`${(calculateTotal() * 10).toLocaleString()}`"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="space-y-3">
                     <button @click="saveDonation()" :disabled="!canSave()"
-                        :class="canSave() ? 'bg-white hover:bg-slate-50 text-purple-600' : 'bg-purple-800/50 opacity-50 cursor-not-allowed text-purple-200'"
-                        class="w-full px-6 py-4 rounded-xl font-bold text-lg transition-all flex justify-center items-center gap-2 shadow-lg">
-                        <span x-show="isSaving" class="animate-spin text-lg">⏳</span>
-                        <span>บันทึกรับของเข้าคลัง</span>
+                        :class="!canSave() ? 'bg-purple-800/50 cursor-not-allowed text-purple-200' : 'bg-white hover:bg-purple-50 text-purple-700 shadow-lg transform hover:-translate-y-0.5'"
+                        class="w-full px-6 py-4 rounded-xl font-bold text-xl transition-all duration-200 flex items-center justify-center gap-2">
+                        <span x-show="!isSaving">บันทึกทั้งหมดเข้าคลัง</span>
+                        <span x-show="isSaving" class="flex items-center gap-2">⏳ กำลังบันทึก...</span>
                     </button>
 
-                    <button @click="resetForm()"
-                        class="w-full px-6 py-3 bg-red-500/20 hover:bg-red-500/30 text-white rounded-xl font-semibold transition-colors border border-white/10">
-                        เริ่มใหม่
+                    <button @click="cancelAll()" :disabled="items.length === 0"
+                        class="w-full px-6 py-3 bg-red-500/20 hover:bg-red-500/30 text-white rounded-xl font-semibold transition-colors border border-white/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        ยกเลิกทั้งหมด
                     </button>
-                    <p class="text-center text-purple-200 text-xs mt-2 opacity-70">ตรวจสอบความถูกต้องก่อนบันทึก</p>
+                    <p class="text-center text-purple-200 text-xs mt-2 opacity-70">กด <kbd
+                            class="bg-purple-800/50 px-2 py-1 rounded text-white border border-purple-600/50">Ctrl+Enter</kbd>
+                        เพื่อบันทึก</p>
                 </div>
             </div>
         </div>
     </div>
+    <div @keydown.ctrl.enter.window="saveDonation()"></div>
 </div>

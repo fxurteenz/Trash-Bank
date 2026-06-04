@@ -5,16 +5,16 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/majors
+  url: {{api_domain}}/majors?faculty=1
   body: none
   auth: inherit
 }
 
 params:query {
+  faculty: 1
   ~name: ว
   ~page: 1
   ~limit: 2
-  ~faculty: 
 }
 
 settings {

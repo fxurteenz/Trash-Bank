@@ -3,6 +3,8 @@ namespace App\Controller\Api;
 
 use App\Router\RouterBase;
 use App\Model\UsersModel;
+use App\Utils\Authentication;
+use App\Utils\AuthenticationException;
 use Exception;
 
 class UsersController extends RouterBase
@@ -39,7 +41,7 @@ class UsersController extends RouterBase
     public function Login()
     {
         try {
-            [$data, $cookieToken] = $this->UsersModel->UsersLogin(data: $this->data);
+            [$user, $cookieToken] = $this->UsersModel->UsersLogin(data: $this->data);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -47,17 +49,16 @@ class UsersController extends RouterBase
                 'success' => TRUE,
                 'data' => [
                     "token" => $cookieToken,
-                    "user_data" => $data
+                    "user_data" => $user
                 ],
                 'message' => 'login successfully =)'
             ]);
-            return;
         } catch (Exception $e) {
             http_response_code($e->getCode() ?: 400);
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'data' => $this->data
+                // 'data' => $this->data
             ]);
         }
     }
@@ -102,5 +103,4 @@ class UsersController extends RouterBase
             exit;
         }
     }
-
 }

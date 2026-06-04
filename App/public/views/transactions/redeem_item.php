@@ -36,14 +36,14 @@
             items: [],
             filteredItems: [],
             itemSearch: '',
-            selectedItem: null,
-            redeemQty: 1,
+            selectedItems: [],
             isSubmitting: false,
+            directItemForm: { code: '', qty: 1 },
+            selectedDirectItem: null,
 
             // --- Computed Helpers ---
             totalPoints() {
-                if (!this.selectedItem) return 0;
-                return this.selectedItem.redeem_point * this.redeemQty;
+                return this.selectedItems.reduce((sum, item) => sum + (item.donation_item_redeem_point * item.qty), 0);
             },
             remainingPoints() {
                 if (!this.currentMember) return 0;
@@ -56,13 +56,20 @@
             // --- Init ---
             async init() {
                 await this.loadItems();
-                this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const memberId = urlParams.get('member_id');
+                if (memberId) {
+                    await this.fetchMemberById(memberId);
+                } else {
+                    this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+                }
             },
 
             // --- Load Data ---
             async loadItems() {
                 try {
-                    const response = await fetch('/api/donations/items?limit=1000');
+                    const response = await fetch('/api/donations/items/available');
                     const result = await response.json();
                     if (result.success) {
                         this.items = result.data.filter(item => item.donation_item_amount > 0);
@@ -81,6 +88,22 @@
                     this.filteredItems = this.items.filter(i =>
                         i.donation_item_name.toLowerCase().includes(search)
                     );
+                }
+            },
+
+            async fetchMemberById(id) {
+                try {
+                    const response = await fetch(`/api/members/profile/${id}`);
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.selectMember(result.data);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูลสมาชิกจาก URL', timer: 1500, showConfirmButton: false });
+                        this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
+                    }
+                } catch (error) {
+                    console.error('Error fetching member:', error);
+                    this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
                 }
             },
 
@@ -115,16 +138,14 @@
                 this.showDropdown = false;
                 this.memberSearch = '';
                 this.searchResults = [];
-                this.selectedItem = null;
-                this.redeemQty = 1;
+                this.selectedItems = [];
             },
 
             resetMember() {
                 this.currentMember = null;
                 this.memberSearch = '';
                 this.searchResults = [];
-                this.selectedItem = null;
-                this.redeemQty = 1;
+                this.selectedItems = [];
                 this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
             },
 
@@ -150,27 +171,144 @@
                     this.$refs.memberInput.focus();
                     return;
                 }
-                this.selectedItem = item;
-                this.redeemQty = 1;
-            },
 
-            increaseQty() {
-                if (this.redeemQty < this.selectedItem.donation_item_amount) {
-                    this.redeemQty++;
+                const existing = this.selectedItems.find(i => i.donation_item_id === item.donation_item_id);
+                if (existing) {
+                    if (existing.qty < item.donation_item_amount) {
+                        existing.qty++;
+                    } else {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'สต็อกของรางวัลชิ้นนี้ไม่เพียงพอ', showConfirmButton: false, timer: 1500 });
+                    }
+                } else {
+                    if (item.donation_item_amount > 0) {
+                        this.selectedItems.push({
+                            ...item,
+                            qty: 1
+                        });
+                    }
                 }
             },
 
-            decreaseQty() {
-                if (this.redeemQty > 1) {
-                    this.redeemQty--;
+            increaseQty(index) {
+                if (this.selectedItems[index].qty < this.selectedItems[index].donation_item_amount) {
+                    this.selectedItems[index].qty++;
                 }
+            },
+
+            decreaseQty(index) {
+                if (this.selectedItems[index].qty > 1) {
+                    this.selectedItems[index].qty--;
+                }
+            },
+
+            removeItem(index) {
+                this.selectedItems.splice(index, 1);
+            },
+
+            removeItemById(id) {
+                const index = this.selectedItems.findIndex(i => i.donation_item_id === id);
+                if (index !== -1) {
+                    this.selectedItems.splice(index, 1);
+                }
+            },
+
+            searchDirectItem() {
+                const search = this.directItemForm.code.toLowerCase();
+                const exactMatch = this.items.find(type =>
+                    type.donation_item_id.toString().padStart(3, '0') === search ||
+                    type.donation_item_id.toString() === search
+                );
+                this.selectedDirectItem = exactMatch || null;
+            },
+
+            handleItemCodeEnter() {
+                if (!this.selectedDirectItem && this.directItemForm.code) {
+                    const search = this.directItemForm.code.toLowerCase().trim();
+                    const match = this.items.find(type =>
+                        type.donation_item_id.toString().padStart(3, '0').includes(search) ||
+                        type.donation_item_id.toString().includes(search) ||
+                        type.donation_item_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedDirectItem = match;
+                        this.directItemForm.code = match.donation_item_id.toString().padStart(3, '0');
+                    }
+                }
+
+                if (this.selectedDirectItem) {
+                    this.$refs.qtyInput.focus();
+                } else {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'ไม่พบของบริจาคที่ระบุ', showConfirmButton: false, timer: 1500 });
+                }
+            },
+
+            addDirectItem() {
+                if (!this.currentMember) {
+                    Swal.fire({ icon: 'warning', title: 'กรุณาเลือกสมาชิกก่อน', timer: 1500, showConfirmButton: false });
+                    this.$refs.memberInput.focus();
+                    return;
+                }
+
+                if (!this.selectedDirectItem && this.directItemForm.code) {
+                    const search = this.directItemForm.code.toLowerCase().trim();
+                    const match = this.items.find(type =>
+                        type.donation_item_id.toString().padStart(3, '0').includes(search) ||
+                        type.donation_item_id.toString().includes(search) ||
+                        type.donation_item_name.toLowerCase().includes(search)
+                    );
+                    if (match) {
+                        this.selectedDirectItem = match;
+                        this.directItemForm.code = match.donation_item_id.toString().padStart(3, '0');
+                    }
+                }
+
+                if (!this.directItemForm.code || !this.selectedDirectItem) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'กรุณาเลือกรหัสของบริจาค', showConfirmButton: false, timer: 1500 });
+                    this.$refs.itemCodeInput.focus();
+                    return;
+                }
+
+                const qtyToAdd = parseInt(this.directItemForm.qty);
+                if (!qtyToAdd || isNaN(qtyToAdd) || qtyToAdd <= 0) {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'กรุณากรอกจำนวนให้ถูกต้อง', showConfirmButton: false, timer: 1500 });
+                    this.$refs.qtyInput.focus();
+                    return;
+                }
+
+                const existing = this.selectedItems.find(i => i.donation_item_id === this.selectedDirectItem.donation_item_id);
+                if (existing) {
+                    if (existing.qty + qtyToAdd <= this.selectedDirectItem.donation_item_amount) {
+                        existing.qty += qtyToAdd;
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'เพิ่มจำนวนแล้ว', showConfirmButton: false, timer: 1500 });
+                    } else {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'สต็อกของรางวัลชิ้นนี้ไม่เพียงพอ', showConfirmButton: false, timer: 1500 });
+                    }
+                } else {
+                    if (qtyToAdd <= this.selectedDirectItem.donation_item_amount) {
+                        this.selectedItems.push({
+                            ...this.selectedDirectItem,
+                            qty: qtyToAdd
+                        });
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'เพิ่มรายการใหม่แล้ว', showConfirmButton: false, timer: 1500 });
+                    } else {
+                        Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'สต็อกของรางวัลชิ้นนี้ไม่เพียงพอ', showConfirmButton: false, timer: 1500 });
+                    }
+                }
+
+                this.clearDirectItemForm();
+                this.$refs.itemCodeInput.focus();
+            },
+
+            clearDirectItemForm() {
+                this.directItemForm.code = '';
+                this.directItemForm.qty = 1;
+                this.selectedDirectItem = null;
             },
 
             // --- Transaction ---
             canSave() {
                 return this.currentMember &&
-                    this.selectedItem &&
-                    this.redeemQty > 0 &&
+                    this.selectedItems.length > 0 &&
                     this.hasEnoughPoints() &&
                     !this.isSubmitting;
             },
@@ -178,7 +316,8 @@
             async saveRedemption() {
                 if (!this.canSave()) return;
 
-                const confirmMsg = `ยืนยันการแลก: ${this.selectedItem.donation_item_name} x${this.redeemQty}`;
+                const totalQty = this.selectedItems.reduce((sum, item) => sum + item.qty, 0);
+                const confirmMsg = `ยืนยันการแลกของรางวัล ${this.selectedItems.length} รายการ (รวม ${totalQty} ชิ้น) ใช่หรือไม่?`;
                 const result = await Swal.fire({
                     title: 'ยืนยันการแลกของ?',
                     text: confirmMsg,
@@ -196,8 +335,10 @@
                 try {
                     const data = {
                         member_id: this.currentMember.member_id,
-                        donation_item_id: this.selectedItem.donation_item_id,
-                        member_item_qty: this.redeemQty,
+                        items: this.selectedItems.map(item => ({
+                            donation_item_id: item.donation_item_id,
+                            member_item_qty: item.qty
+                        }))
                     };
 
                     const response = await fetch('/api/member_items/redeem', {
@@ -232,10 +373,10 @@
                 this.currentMember = null;
                 this.memberSearch = '';
                 this.searchResults = [];
-                this.selectedItem = null;
-                this.redeemQty = 1;
+                this.selectedItems = [];
                 this.itemSearch = '';
                 this.filteredItems = [...this.items];
+                this.clearDirectItemForm();
                 this.loadItems();
                 this.$nextTick(() => { if (this.$refs.memberInput) this.$refs.memberInput.focus(); });
             },
@@ -261,7 +402,7 @@
             </div>
         </div>
 
-        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
+        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center"
             x-bind:class="{ 'p-6': !currentMember, 'p-0': currentMember}">
 
             <div x-show="!currentMember" class="w-full">
@@ -347,8 +488,47 @@
 
     <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-3 gap-6 pb-1">
 
-        <div class="lg:col-span-2 flex flex-col gap-4 h-full">
-            <div x-show="currentMember"
+        <div class="lg:col-span-2 flex flex-col gap-4 h-full overflow-hidden">
+
+            <div x-show="currentMember" style="display: none;"
+                class="flex-none bg-white rounded-xl shadow-md p-6 card-hover z-10">
+                <h2 class="text-xl font-bold text-slate-900 mb-3">ระบุของบริจาค</h2>
+                <div class="grid grid-cols-12 gap-3">
+                    <div class="col-span-6">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">รหัส/ชื่อของบริจาค</label>
+                        <input x-ref="itemCodeInput" x-model="directItemForm.code"
+                            @keydown.tab.prevent="handleItemCodeEnter()" @keydown.enter="handleItemCodeEnter()"
+                            @input="searchDirectItem()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+                            list="itemTypeList" autocomplete="off">
+                        <datalist id="itemTypeList">
+                            <template x-for="type in items" :key="type.donation_item_id">
+                                <option :value="type.donation_item_id.toString().padStart(3, '0')"
+                                    :label="`${type.donation_item_name} (คงเหลือ: ${type.donation_item_amount} ชิ้น)`">
+                                </option>
+                            </template>
+                        </datalist>
+                        <p class="text-[10px] text-purple-600 mt-1 font-medium truncate"
+                            x-text="selectedDirectItem ? `${selectedDirectItem?.donation_item_name} (คงเหลือ: ${selectedDirectItem?.donation_item_amount} ชิ้น)`:  'ระบุรหัสของบริจาคเพื่อตรวจสอบสต็อก'">
+                        </p>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">จำนวน (ชิ้น)</label>
+                        <input x-ref="qtyInput" x-model.number="directItemForm.qty" @keydown.enter="addDirectItem()"
+                            @keydown.tab.prevent="addDirectItem(); $refs.itemCodeInput.focus()" type="number" step="1"
+                            min="1" placeholder="1"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                    </div>
+                    <div class="col-span-3 flex items-center">
+                        <button @click="addDirectItem()"
+                            class="w-full px-4 py-2 mb-[2px] bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
+                            เพิ่ม
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentMember" style="display: none;"
                 class="flex-1 min-h-0 bg-white rounded-xl shadow-md p-6 card-hover flex flex-col">
                 <div class="flex items-center justify-between mb-4 shrink-0">
                     <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -365,33 +545,63 @@
                 </div>
 
                 <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <template x-for="item in filteredItems" :key="item.donation_item_id">
-                            <div @click="selectItem(item)"
-                                :class="selectedItem?.donation_item_id === item.donation_item_id ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:shadow-md border-slate-200 bg-white'"
-                                class="border-2 rounded-xl p-3 cursor-pointer transition-all flex items-start gap-3 h-24">
-                                <div
-                                    class="flex-shrink-0 w-16 h-16 bg-slate-100 rounded-lg overflow-hidden border border-slate-100">
-                                    <img src="/assets/images/rewards/default.png" :alt="item.donation_item_name"
-                                        class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex-1 min-w-0 flex flex-col justify-between h-full">
-                                    <div>
-                                        <h3 class="font-bold text-slate-800 truncate text-sm"
-                                            x-text="item.donation_item_name"></h3>
-                                        <p class="text-xs text-slate-500">
-                                            คงเหลือ: <span x-text="item.donation_item_amount"></span> ชิ้น
-                                        </p>
-                                    </div>
-                                    <div class="flex items-end justify-between">
-                                        <div class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded">
-                                            <span x-text="item.redeem_point"></span> แต้ม/ชิ้น
+                    <table x-show="filteredItems.length > 0" class="w-full text-sm text-left text-slate-600 relative">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 rounded-tl-lg w-16">รูปภาพ</th>
+                                <th scope="col" class="px-4 py-3">ชื่อของรางวัล</th>
+                                <th scope="col" class="px-4 py-3 text-right">คงเหลือ (ชิ้น)</th>
+                                <th scope="col" class="px-4 py-3 text-right">ใช้แต้ม/ชิ้น</th>
+                                <th scope="col" class="px-4 py-3 text-center rounded-tr-lg w-24">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="item in filteredItems" :key="item.donation_item_id">
+                                <tr class="border-b last:border-b-0 transition-colors group"
+                                    :class="selectedItems.find(i => i.donation_item_id === item.donation_item_id) ? 'bg-purple-50 hover:bg-purple-100' : 'bg-white hover:bg-slate-50'">
+                                    <td class="px-4 py-2">
+                                        <div
+                                            class="w-10 h-10 bg-slate-100 rounded overflow-hidden border border-slate-200">
+                                            <template x-if="item.donation_item_image">
+                                                <img :src="'/assets/images/donation_items/' + item.donation_item_image"
+                                                    class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!item.donation_item_image">
+                                                <img src="/assets/images/donation_items/placeholder.png"
+                                                    class="w-full h-full object-cover opacity-50">
+                                            </template>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="font-bold text-slate-800 line-clamp-2 leading-tight"
+                                            x-text="item.donation_item_name"></div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5"
+                                            x-text="'รหัส: ' + item.donation_item_id.toString().padStart(3, '0')"></div>
+                                    </td>
+                                    <td class="px-4 py-3 text-right font-medium text-slate-700"
+                                        x-text="item.donation_item_amount"></td>
+                                    <td class="px-4 py-3 text-right">
+                                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded"
+                                            x-text="item.donation_item_redeem_point + ' แต้ม'"></span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button
+                                            x-show="!selectedItems.find(i => i.donation_item_id === item.donation_item_id)"
+                                            @click.stop="selectItem(item)"
+                                            class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
+                                            เพิ่ม
+                                        </button>
+                                        <button
+                                            x-show="selectedItems.find(i => i.donation_item_id === item.donation_item_id)"
+                                            @click.stop="removeItemById(item.donation_item_id)" x-cloak
+                                            class="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
+                                            นำออก
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
 
                     <div x-show="filteredItems.length === 0"
                         class="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
@@ -421,11 +631,6 @@
         </div>
 
         <div class="h-full rounded-xl shadow-md relative">
-            <!-- <div x-show="!selectedItem"
-                class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 z-10 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 m-6">
-                <span class="text-4xl mb-3">👈</span>
-                <p class="text-sm">เลือกของจากรายการด้านซ้าย</p>
-            </div> -->
 
             <div
                 class="h-full bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white flex flex-col justify-between overflow-y-auto custom-scrollbar">
@@ -440,28 +645,48 @@
                         สรุปรายการ
                     </h3>
 
-                    <div class="space-y-4" x-show="selectedItem">
-                        <div>
-                            <span class="text-purple-100 text-sm">รายการ</span>
-                            <p class="text-xl font-bold truncate" x-text="selectedItem?.donation_item_name"></p>
-                        </div>
-
-                        <div>
-                            <span class="text-purple-100 text-sm">จำนวน</span>
-                            <div class="flex items-center gap-3 mt-1">
-                                <button @click="decreaseQty()"
-                                    class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white font-bold flex items-center justify-center transition">-</button>
-                                <span class="text-2xl font-bold w-12 text-center" x-text="redeemQty"></span>
-                                <button @click="increaseQty()"
-                                    class="w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 text-white font-bold flex items-center justify-center transition">+</button>
-                            </div>
+                    <div class="space-y-4" x-show="selectedItems.length > 0">
+                        <div
+                            class="bg-white rounded-xl p-4 mt-2 backdrop-blur-sm max-h-60 overflow-y-auto custom-scrollbar">
+                            <ul class="space-y-3 text-sm">
+                                <template x-for="(item, index) in selectedItems" :key="index">
+                                    <li
+                                        class="flex flex-col gap-2 pb-3 last:border-0 last:pb-0 border-b border-gray-300">
+                                        <div class="flex justify-between items-start">
+                                            <span class="text-purple-700 font-semibold pr-2 line-clamp-2"
+                                                x-text="item.donation_item_name"></span>
+                                            <button @click="removeItem(index)"
+                                                class="text-rose-500 hover:text-rose-400 cursor-pointer transition-colors shrink-0">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <div class="flex items-center gap-2 bg-purple-100 rounded">
+                                                <button @click="decreaseQty(index)"
+                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">-</button>
+                                                <span class="text-purple-700 font-bold w-8 text-center"
+                                                    x-text="item.qty"></span>
+                                                <button @click="increaseQty(index)"
+                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">+</button>
+                                            </div>
+                                            <span class="text-purple-700 font-bold"
+                                                x-text="(item.donation_item_redeem_point * item.qty) + ' แต้ม'"></span>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
                         </div>
 
                         <div class="h-px bg-purple-400 opacity-50 my-2"></div>
 
-                        <div class="bg-black/20 rounded-xl p-4 mt-2 backdrop-blur-sm space-y-2">
+                        <div class="bg-black/20 rounded-xl p-4 mt-2 backdrop-blur-sm space-y-2"
+                            x-show="selectedItems.length > 0">
                             <div class="flex justify-between items-center text-sm text-purple-200">
-                                <span>แต้มที่ต้องใช้</span>
+                                <span>แต้มที่ต้องใช้รวม</span>
                                 <span x-text="totalPoints()"></span>
                             </div>
                             <div class="flex justify-between items-center text-sm text-purple-200">

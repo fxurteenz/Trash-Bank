@@ -52,7 +52,7 @@ class MajorModel
                 $whereClauses[] = "m.major_name LIKE :major_name";
                 $params[':major_name'] = "%" . $query['name'] . "%";
             }
-            
+
             if (!empty($query['faculty'])) {
                 $whereClauses[] = "m.faculty_id = :faculty_id";
                 $params[':faculty_id'] = $query['faculty'];
@@ -61,12 +61,19 @@ class MajorModel
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
             $sql = "SELECT 
-                        m.*, 
-                        f.faculty_name
+                        m.*,
+                        COALESCE(member_count.total_member, 0) AS major_member_total
                     FROM 
                         major m
-                    LEFT JOIN 
-                        faculty f ON m.faculty_id = f.faculty_id
+                    LEFT JOIN (
+                        SELECT 
+                            major_id, 
+                            COUNT(member_id) AS total_member
+                        FROM 
+                            member
+                        GROUP BY 
+                            major_id
+                    ) AS member_count ON m.major_id = member_count.major_id
                     {$whereSql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
@@ -94,9 +101,9 @@ class MajorModel
             $majors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if ($isPagination) {
-                $sqlCount = "SELECT COUNT(*) AS allMajor FROM major m{$whereSql}";
+                $sqlCount = "SELECT COUNT(*) AS allMajor FROM major m {$whereSql}";
                 $stmtCount = $this->Conn->prepare($sqlCount);
-                 foreach ($params as $key => $val) {
+                foreach ($params as $key => $val) {
                     $stmtCount->bindValue($key, $val);
                 }
                 $stmtCount->execute();
@@ -187,7 +194,7 @@ class MajorModel
                     $insertData[$field] = $data[$field];
                 }
             }
-            
+
             if (empty($columns)) {
                 throw new Exception('No valid data to insert', 400);
             }
@@ -218,7 +225,7 @@ class MajorModel
             if ((empty($data) && !is_array($data)) || empty($id)) {
                 throw new Exception('Bad Request', 400);
             }
-            
+
             $data['updated_at'] = date('Y-m-d H:i:s');
 
             $setClauses = [];

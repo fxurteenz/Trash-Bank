@@ -1,0 +1,33 @@
+meta {
+  name: UpdateDonationItem
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{api_domain}}/donations/items/update/003
+  body: multipartForm
+  auth: inherit
+}
+
+body:json {
+  {
+    "donation_item_name":"asd",
+    "donation_item_category_id":1,
+    "donation_item_redeem_point":null,
+    "donation_item_amount":"5"
+  }
+}
+
+body:multipart-form {
+  donation_item_image: @file(/Users/mac/Downloads/มาม่า.jpg)
+  ~donation_item_name: มาม่ารสต้มยำกุ้ง
+  ~donation_item_category_id: 
+  ~donation_item_redeem_point: 
+  ~donation_item_amount: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

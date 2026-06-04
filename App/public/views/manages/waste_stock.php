@@ -1,11 +1,12 @@
 <?php
-$facultyId = $user->faculty_id;
+$facultyId = (int) $user->faculty_id;
+$facultyName = $user->faculty_name;
 ?>
 <div x-data="WasteStockTable()" x-init="fetchStock()" class="space-y-4 w-full">
 
     <div class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h2 class="text-xl font-bold">คลังขยะ</h2>
+            <h2 class="text-xl font-bold" x-text="`คลังขยะ ${facultyName}`"></h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
@@ -42,13 +43,17 @@ $facultyId = $user->faculty_id;
                 <tbody class="divide-y divide-gray-200">
                     <template x-for="stock in stocks" :key="stock.waste_type_id">
                         <tr class="hover:bg-emerald-50 cursor-pointer transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="stock.waste_type_id"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="stock.waste_type_name"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="stock.waste_category_name"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right" x-text="parseFloat(stock.stock_weight).toFixed(2)"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="stock.waste_type_id">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                                x-text="stock.waste_type_name"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                x-text="stock.waste_category_name"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right"
+                                x-text="parseFloat(stock.stock_weight).toFixed(3)"></td>
                         </tr>
                     </template>
-                     <template x-if="stocks.length === 0">
+                    <template x-if="stocks.length === 0">
                         <tr>
                             <td colspan="4" class="text-center py-4">ไม่พบข้อมูล</td>
                         </tr>
@@ -58,9 +63,10 @@ $facultyId = $user->faculty_id;
         </div>
 
         <div class="flex items-center justify-between mt-4 text-xs">
-             <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
                 <span class="text-gray-600">แสดง</span>
-                <select x-model="limit" @change="handleFilterChange()" class="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
+                <select x-model="limit" @change="handleFilterChange()"
+                    class="px-2 py-1 bg-gray-100 border border-gray-300 rounded">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -69,8 +75,8 @@ $facultyId = $user->faculty_id;
                 <span class="text-gray-600" x-text="`จากทั้งหมด ${total} รายการ`"></span>
             </div>
             <div class="flex items-center space-x-2">
-                <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50" :disabled="page <= 1"
-                    @click="page--; fetchStock()">
+                <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    :disabled="page <= 1" @click="page--; fetchStock()">
                     ก่อนหน้า
                 </button>
                 <template x-for="p in totalPages">
@@ -92,6 +98,7 @@ $facultyId = $user->faculty_id;
     function WasteStockTable() {
         return {
             facultyId: <?php echo $facultyId; ?>,
+            facultyName: "<?php echo $facultyName; ?>",
             stocks: [],
             page: 1,
             limit: 10,

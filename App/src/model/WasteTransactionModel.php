@@ -488,17 +488,6 @@ class WasteTransactionModel
         }
     }
 
-    public function GetWasteDepositSummary()
-    {
-        try {
-            
-        } catch (PDOException $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
     public function CreateWasteTransaction(array $data, $staffData): array
     {
         try {
@@ -510,7 +499,6 @@ class WasteTransactionModel
                 // error_log("ERROR : waste_type is missing");
                 throw new Exception('กรุณาลองอีกครั้ง, ระบุข้อมูลผู้ทำการฝาก', 400);
             }
-
             // Prepare items
             $items = [];
             if (isset($data['items']) && is_array($data['items'])) {
@@ -524,12 +512,13 @@ class WasteTransactionModel
                 throw new Exception('กรุณาลองอีกครั้ง, ไม่พบรายการขยะ', 400);
             }
 
+
             /* Start SQL Transaction */
             $this->Conn->beginTransaction();
 
             $user = self::GetDepositorAccount($this->Conn, $data["depositor_member"]);
 
-            if (empty($user["member_id"]) || empty($user["faculty_id"])) {
+            if (empty($user["member_id"])) {
                 throw new Exception("ERROR : Check faculty's user", 400);
             }
 
@@ -564,7 +553,7 @@ class WasteTransactionModel
                 ];
             }
 
-            self::CheckFacultyPoint($this->Conn, $user["faculty_id"], $totalPoints);
+            self::CheckFacultyPoint($this->Conn, $staffData["user_data"]->faculty_id, $totalPoints);
 
             // 1. Insert Header (waste_transaction)
             $headerSql = "INSERT INTO waste_transaction SET 
@@ -579,7 +568,7 @@ class WasteTransactionModel
             $stmtHeader = $this->Conn->prepare($headerSql);
             $stmtHeader->execute([
                 ':mid' => $user["member_id"],
-                ':fid' => $user["faculty_id"],
+                ':fid' => $staffData["user_data"]->faculty_id,
                 ':staffid' => $staffData["user_data"]->member_id,
                 ':tw' => $totalWeight,
                 ':tp' => $totalPoints,
@@ -611,11 +600,11 @@ class WasteTransactionModel
                 ]);
 
                 // Update faculty stock for each item
-                self::UpdateFacultyWasteStock($this->Conn, $user["faculty_id"], $d['waste_type_id'], $d['weight']);
+                self::UpdateFacultyWasteStock($this->Conn, $staffData["user_data"]->faculty_id, $d['waste_type_id'], $d['weight']);
             }
 
             $updatedUser = self::UpdateMemberPoint($this->Conn, $user["member_id"], $totalPoints);
-            $updatedFaculty = self::UpdateFacultyPoint($this->Conn, $user["faculty_id"], $totalPoints);
+            $updatedFaculty = self::UpdateFacultyPoint($this->Conn, $staffData["user_data"]->faculty_id, $totalPoints);
 
             $this->Conn->commit();
 
@@ -630,7 +619,7 @@ class WasteTransactionModel
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
             }
-            error_log("ERROR PDO : " . $e->getMessage());
+            // error_log("ERROR PDO : " . $e->getMessage());
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
@@ -674,42 +663,41 @@ class WasteTransactionModel
         }
     }
 
-    public function DeleteWasteTransaction(array $data): int
+    public function DeleteWasteTransaction($data)
     {
-        // เปลี่ยน Key เป็น transaction_deposit_ids ให้สื่อความหมายตรงตาราง
-        if (empty($data['waste_transaction_ids'] ?? []) || !is_array($data['waste_transaction_ids'])) {
-            throw new Exception('Bad Request: waste_transaction_ids is required and must be an array', 400);
-        }
-
-        $ids = array_filter($data['waste_transaction_ids']);
-
-        if (empty($ids)) {
-            return 0;
-        }
-
         try {
+            if (empty($data['ids'])) {
+                throw new Exception('ID is required for deletion', 400);
+            }
+
+            if (!is_array($data['ids'])) {
+                $data['ids'] = explode(',', $data['ids']);
+            }
+            $data['ids'] = array_filter(array_map('trim', $data['ids']));
+
+            if (empty($data['ids'])) {
+                throw new Exception('ID is required for deletion', 400);
+            }
 
             $this->Conn->beginTransaction();
 
-            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-            $sql = "DELETE FROM waste_transaction_detail WHERE waste_transaction_detail_id IN ($placeholders)";
+            $placeholders = str_repeat('?,', count($data['ids']) - 1) . '?';
 
-            $stmt = $this->Conn->prepare($sql);
+            $sqlWtd = "DELETE FROM waste_transaction_detail WHERE waste_transaction_id IN ($placeholders)";
+            $stmt = $this->Conn->prepare($sqlWtd);
+            $stmt->execute(array_values($data['ids']));
+            $rowCountWtd = $stmt->rowCount();
 
-            foreach ($ids as $index => $id) {
-                $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
-            }
-
-            $stmt->execute();
-            $rowCount = $stmt->rowCount();
+            $sqlWt = "DELETE FROM waste_transaction WHERE waste_transaction_id IN ($placeholders)";
+            $stmt = $this->Conn->prepare($sqlWt);
+            $stmt->execute(array_values($data['ids']));
+            $rowCountWt = $stmt->rowCount();
 
             $this->Conn->commit();
 
-            return $rowCount;
+            return ['rowCountWtd' => $rowCountWtd, 'rowCountWt' => $rowCountWt];
         } catch (PDOException $e) {
-            if ($this->Conn->inTransaction()) {
-                $this->Conn->rollBack();
-            }
+            $this->Conn->rollBack();
             throw new Exception("Database error: " . $e->getMessage(), 500);
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
@@ -791,6 +779,32 @@ class WasteTransactionModel
         } catch (PDOException $e) {
             throw new Exception("Error while checking faculty point : " . $e->getMessage(), 500);
 
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    private static function CheckBranchPoint($conn, $branchId, $point)
+    {
+        try {
+            $sql = "SELECT center_branch_point FROM center_branch WHERE center_branch_id = :center_branch_id";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute(["center_branch_id" => $branchId]);
+            $branch = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$branch) {
+                throw new Exception("ไม่พบศูนย์นี้ในระบบ : " . htmlspecialchars($branchId), 404);
+            }
+
+            if ($branch['center_branch_point'] < $point) {
+                throw new Exception("แต้มไม่เพียงพอทำรายการนี้ ต้องใช้ " . htmlspecialchars($point) . " แต้ม", 400);
+            }
+
+            return $branch['center_branch_point'];
+        } catch (PDOException $e) {
+            throw new Exception("Error while checking faculty point : " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
@@ -813,6 +827,31 @@ class WasteTransactionModel
         } catch (PDOException $e) {
             // Re-throw to be caught by the main function's transaction handler
             throw new Exception("Error while updating faculty stock : " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    private static function UpdateBranchWasteStock($conn, $branchId, $wasteTypeId, $weight)
+    {
+        try {
+            $sql = "INSERT INTO center_branch_waste_stock (center_branch_id, waste_type_id, stock_weight, updated_at) 
+                    VALUES (:center_branch_id, :waste_type_id, :weight, :now)
+                    ON DUPLICATE KEY UPDATE 
+                    stock_weight = stock_weight + VALUES(stock_weight), 
+                    updated_at = VALUES(updated_at)";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([
+                ':center_branch_id' => $branchId,
+                ':waste_type_id' => $wasteTypeId,
+                ':weight' => $weight,
+                ':now' => date('Y-m-d H:i:s')
+            ]);
+        } catch (PDOException $e) {
+            // Re-throw to be caught by the main function's transaction handler
+            throw new Exception("Error while updating faculty stock : " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
@@ -836,6 +875,33 @@ class WasteTransactionModel
         } catch (PDOException $e) {
             // Re-throw to be caught by the main function's transaction handler
             throw new Exception("Error while updating faculty point : " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    private static function UpdateBranchPoint($conn, $branchId, $point)
+    {
+        try {
+            $sql = "UPDATE center_branch SET center_branch_point = center_branch_point - :point WHERE center_branch_id = :center_branch_id";
+
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(":center_branch_id", $branchId, PDO::PARAM_INT);
+            $stmt->bindValue(":point", $point, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $sql = "SELECT center_branch_point FROM center_branch WHERE center_branch_id = :center_branch_id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue(":center_branch_id", $branchId, PDO::PARAM_INT);
+            $stmt->execute();
+            $updatedFaculty = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            return $updatedFaculty;
+        } catch (PDOException $e) {
+            // Re-throw to be caught by the main function's transaction handler
+            throw new Exception("Error while updating faculty point : " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
 
@@ -884,5 +950,5 @@ class WasteTransactionModel
         }
     }
 
+
 }
-// TODO: Modify delete transaction ตัดสต็อคคืน

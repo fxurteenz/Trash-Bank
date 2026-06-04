@@ -34,11 +34,14 @@ class UsersModel
                 'SELECT 
                     m.*,
                     r.role_name,
-                    r.role_name_th
+                    r.role_name_th,
+                    f.faculty_name
                 FROM 
                     member m
                 LEFT JOIN 
                     role r ON m.role_id = r.role_id
+                LEFT JOIN 
+                    faculty f ON m.faculty_id = f.faculty_id
                 WHERE 
                     member_email = :identifier OR
                     member_personal_id = :identifier OR
@@ -96,6 +99,18 @@ class UsersModel
                 throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกเบอร์โทรศัพท์', 422);
             }
 
+            if (empty($data['member_type'])) {
+                throw new Exception('ตรวจสอบข้อมูล, กรุณาระบุประเภทสมาชิก', 422);
+            }
+
+            if (empty($data['member_name'])) {
+                throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกชื่อ-สกุล', 422);
+            }
+
+            if (($data['member_type'] === 'student' || $data['member_type'] === 'teacher') && empty($data['faculty_id'])) {
+                throw new Exception('ตรวจสอบข้อมูล, กรุณาระบุคณะ', 422);
+            }
+
             $encodedPassword = password_hash(
                 $data['member_password'],
                 PASSWORD_DEFAULT,
@@ -103,8 +118,18 @@ class UsersModel
             );
 
             $data['member_password'] = $encodedPassword;
-            $data['role_id'] = 2;
             $data['created_at'] = date('Y-m-d H:i:s');
+
+            if ($data['member_type'] === 'student') {
+                $data['role_id'] = 2;
+            } elseif ($data['member_type'] === 'staff') {
+                $data['role_id'] = 6;
+            } elseif ($data['member_type'] === 'teacher') {
+                $data['role_id'] = 5;
+            } else {
+                throw new Exception('ประเภทสมาชิกไม่ถูกต้อง', 400);
+            }
+            unset($data['member_type']);
 
             $setClauses = [];
             $updateData = [];

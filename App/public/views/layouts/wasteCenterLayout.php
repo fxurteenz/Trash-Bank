@@ -1,6 +1,3 @@
-<?php
-$UserName = $user["user_data"]->member_name;
-?>
 <!DOCTYPE html>
 <html lang="th" class="h-full w-full scroll-smooth">
 
@@ -9,27 +6,56 @@ $UserName = $user["user_data"]->member_name;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/assets/output.css" rel="stylesheet">
-    <script src="/js/alpine.min.js" defer></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <link href="/assets/output.css" rel="stylesheet"> -->
+    <script defer src="/js/alpine-collapse.min.js"></script>
+    <script defer src="/js/alpine.min.js"></script>
+    <script type="text/javascript" src="/js/lucide.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Noto+Serif+Thai:wght@100..900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
 
-        * {
-            font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+        .bg-alabuster {
+            background-color: #FAFAFA;
         }
 
-        :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #d1fae5;
-            --secondary: #3b82f6;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --success: #10b981;
+        .bg-smoke {
+            background-color: #F5F5F5;
+        }
+
+        html,
+        body {
+            font-family: "Sarabun", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        button,
+        label,
+        a {
+            font-family: "Noto Sans Thai", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: "Sarabun", sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #f8fafc 0%, #f0fdf7 100%);
+            /* background-image: linear-gradient(135deg, #f8fafc 20%, #FBF6F6 100%); */
+            background-color: #FAFAFA;
+        }
+
+        aside,
+        header {
+            background-color: #ffffff;
         }
 
         [x-cloak] {
@@ -38,7 +64,7 @@ $UserName = $user["user_data"]->member_name;
     </style>
 </head>
 
-<body class="bg-gradient-to-b from-green-100 to-slate-50 min-h-screen bg-fixed">
+<body class="min-h-screen bg-fixed">
 
     <div x-data="{ sidebarOpen: window.innerWidth > 1024, profileMenuOpen: false }"
         @resize.window="sidebarOpen = window.innerWidth > 1024" class="min-h-screen flex flex-col">
@@ -53,19 +79,8 @@ $UserName = $user["user_data"]->member_name;
                             d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                <a href="/waste_center" class="flex items-center gap-2 group">
-                    <div
-                        class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="m10.95 2.054l-.005-.007l-.013.01C5.912 2.59 2 6.837 2 12c0 2.312.785 4.441 2.103 6.135v.002h.002a10 10 0 0 0 6.92 3.816c.047-.476.163-.974.337-1.477a8.48 8.48 0 0 1-5.631-2.736v-.001c.055-.24.08-.518.1-.76l.009-.118c.018-.22.035-.432.063-.646c.07-.527.19-.879.377-1.078c.24-.257.486-.3 1.001-.391l.093-.017c.264-.046.617-.117.957-.302c.363-.198.67-.5.901-.945c.233-.448.216-.91.152-1.275a7 7 0 0 0-.23-.863l-.046-.148c-.205-.668-.23-.993-.061-1.25c.184-.28.436-.344 1.092-.514l.085-.021c.666-.172 1.568-.46 2.09-1.573c.566-1.205.247-2.564-.1-3.486a9 9 0 0 0-.373-.85Q11.92 3.5 12 3.5a8.46 8.46 0 0 1 4.535 1.31c-.192.255-.449.591-.736.95c-.63.787-1.34 1.597-1.824 1.96a1.4 1.4 0 0 0-.486.648a1.46 1.46 0 0 0-.055.734c.07.416.291.806.487 1.104c.163.249.355.5.516.712l.11.143q.14.185.227.317q.043.065.064.104l.02.039q.059.165.133.54l.022.106c.444-.198.925-.35 1.44-.445a5 5 0 0 0-.188-.72c-.11-.297-.349-.616-.521-.844l-.13-.17a11 11 0 0 1-.439-.605c-.155-.236-.23-.399-.255-.498c.65-.502 1.448-1.436 2.05-2.187c.296-.37.56-.715.757-.979a8.48 8.48 0 0 1 2.76 5.818c.58.046 1.08.122 1.51.211C21.863 6.342 17.439 2 12 2q-.532 0-1.05.054M4.436 15.881a8.503 8.503 0 0 1 5.796-12.197q.05.084.116.203c.139.25.313.597.462.993c.315.835.442 1.691.147 2.32c-.225.478-.545.613-1.108.758l-.162.04c-.532.129-1.371.331-1.893 1.123c-.601.912-.305 1.911-.12 2.515l.06.192c.08.255.14.45.172.636c.038.217.01.297-.004.325c-.1.193-.2.272-.288.32c-.11.06-.254.1-.502.143q-.06.012-.13.022c-.463.076-1.199.197-1.798.84c-.486.52-.663 1.21-.748 1.767m7.571 6.324c.06-.965.495-2.142 1.233-3.251c.239-.406.534-.817.886-1.218a8.9 8.9 0 0 1 4.496-2.75a.5.5 0 0 0-.243-.971a9.9 9.9 0 0 0-5.005 3.061c-.267.305-.51.622-.726.943A3.6 3.6 0 0 1 12.5 17c0-.917.467-1.913 1.207-2.703a5.33 5.33 0 0 1 3.195-1.634c2.8-.37 4.538-.06 5.563.227a.75.75 0 0 1 .211 1.348c-.057.038-.149.13-.26.34a5 5 0 0 0-.32.825c-.087.284-.17.591-.26.925l-.058.212c-.111.41-.234.85-.382 1.286c-.292.862-.704 1.782-1.397 2.488c-.719.733-1.695 1.19-2.999 1.19c-1.329 0-2.257-.539-2.85-1.159c-.404.74-.614 1.437-.646 1.951a.75.75 0 0 1-1.497-.091"
-                                stroke-width="0.2" stroke="currentColor" />
-                        </svg>
-                    </div>
-                    <div class="hidden sm:block">
-                        <h1 class="text-xl font-bold text-emerald-700">BRU Waste Bank</h1>
-                        <p class="text-xs text-slate-500">Waste Center Dashboard</p>
-                    </div>
+                <a href="/admin" class="flex items-center gap-2 group">
+                    <img src="/assets/images/waste_bankFullLogo.png" class="h-10" alt="BRU Waste Bank">
                 </a>
             </div>
 
@@ -75,12 +90,15 @@ $UserName = $user["user_data"]->member_name;
 
             <div class="relative" @click.away="profileMenuOpen = false">
                 <button @click="profileMenuOpen = !profileMenuOpen"
-                    class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-lg transition-colors">
-                    <img src="https://ui-avatars.com/api/?name=Admin&background=10b981&color=fff"
-                        class="w-8 h-8 rounded-full">
+                    class="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer">
+                    <i data-lucide="circle-user-round" class="w-6 h-6"></i>
                     <div class="hidden sm:block text-left">
-                        <p class="text-sm font-medium text-slate-900"><?= $UserName ?? 'ไม่มีชื่อ' ?></p>
-                        <p class="text-xs text-slate-500"></p>
+                        <p class="text-md font-medium text-slate-900">
+                            <?= $user->member_name ?? 'เพิ่มชื่อผู้ใช่งาน' ?>
+                        </p>
+                        <p class="text-xs text-slate-500">
+                            <?php echo $user->role_name_th ?? "เจ้าหน้าที่ศูนย์"; ?>
+                        </p>
                     </div>
                     <svg class="w-4 h-4 text-slate-400 transition-transform duration-200"
                         :class="{'rotate-180': profileMenuOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,17 +113,30 @@ $UserName = $user["user_data"]->member_name;
                     x-transition:leave-start="transform opacity-100 scale-100"
                     x-transition:leave-end="transform opacity-0 scale-95"
                     class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white border border-slate-200 py-2">
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">⚙️ ตั้งค่า</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">👤 โปรไฟล์</a>
+                    <a href="#"
+                        class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between px-3"><i
+                            data-lucide="settings"></i> ตั้งค่า</a>
+                    <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between"><i
+                            data-lucide="user"></i> โปรไฟล์</a>
                     <hr class="my-1">
-                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">🚪 ออกจากระบบ</a>
+                    <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex justify-between">
+                        <i data-lucide="log-out"></i>ออกจากระบบ
+                    </a>
                 </div>
             </div>
         </header>
 
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
             class="fixed top-16 bottom-0 left-0 z-20 w-64 bg-white border-r border-slate-200 transform transition-transform duration-150 ease-in-out overflow-y-auto">
-
+            <div class="border-b-2 border-slate-400 w-full p-2 text-center">
+                <p class="text-sm text-slate-500">
+                    เจ้าหน้าที่ศูนย์ธนาคารขยะ
+                </p>
+                <h3 class="text-slate-600 text-lg flex items-center gap-2 justify-center">
+                    <i data-lucide="square-user-round"></i>
+                    <?php echo $user->member_name ?? "ตั้งชื่อผู้ใช้งาน"; ?>
+                </h3>
+            </div>
             <nav class="p-4 space-y-2">
                 <div class="mb-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">เมนู</p>
@@ -181,17 +212,29 @@ $UserName = $user["user_data"]->member_name;
                         <span class="text-sm font-medium">แลกของ</span>
                     </a>
 
-                    <!-- <a href="/waste_center/transactions/redeem_reward"
+                </div>
+                <div class="mt-6">
+                    <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">คลังขยะ</p>
+                    <a href="/waste_center/stock/centerwaste"
                         class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
                             <path fill="currentColor"
-                                d="M12.984 15a1 1 0 0 0 1.848.53l2.688-2.687a1 1 0 0 0-1.415-1.414l-1.12 1.12V5a1 1 0 0 0-2 0zm-1.969-6a1 1 0 0 0-1.848-.53L6.48 11.157a1 1 0 1 0 1.414 1.414l1.121-1.12V19a1 1 0 1 0 2 0z"
+                                d="M7.5 0c4 0 7.5 3.5 7.5 7.5S11.5 15 7.5 15S0 11.5 0 7.5S3.5 0 7.5 0m0 1C4 1 1 4 1 7.5S4 14 7.5 14S14 11 14 7.5S11 1 7.5 1M2.84 6.98c.24.03 1.43.15 1.72.18c.29.04.17.89-.09.86c-.27-.02-1.44-.14-1.72-.18c-.29-.03-.16-.89.09-.86m7.48 0c.35-.04 1.32-.13 1.7-.16c.39-.04.4.87.06.9c-.35.04-1.28.12-1.64.16c-.37.03-.47-.85-.12-.9m-3.02.11c.09-.27.86-.03.76.28c-.09.32-.42 1.36-.52 1.63c-.1.28-.95.08-.84-.23c.12-.3.52-1.45.6-1.68m2.17 2.42c.29.11 1.37.52 1.61.62c.24.11-.05.93-.31.81c-.32-.11-1.32-.49-1.61-.62c-.3-.13.01-.91.31-.81m-4.77.08c.08.19.54 1.44.61 1.69c.08.25-.68.56-.8.29c-.11-.28-.44-1.34-.54-1.62c-.1-.27.66-.54.73-.36m2.11 1.37c.28.11 1.36.45 1.65.54c.28.09.04.92-.27.82s-1.36-.43-1.65-.53c-.28-.11-.01-.93.27-.83M13 5c-1 1-1.75 1-2.75 0c-1 1-1.75 1-2.75 0c-1 1-1.7 1-2.7 0C3.8 6 3 6 2 5c-.5 1-.5 2-.5 2.5c0 3 2.5 6 6 6s6-3 6-6c0-.5 0-1.5-.5-2.5"
                                 stroke-width="0.5" stroke="currentColor" />
                         </svg>
-                        <span class="text-sm font-medium">แลกของรางวัล</span>
-                    </a> -->
-
+                        <span class="text-sm font-medium">คลังศูนย์รวบรวมขยะ</span>
+                    </a>
+                    <a href="/waste_center/stock/branchwaste"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
+                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
+                            <path fill="currentColor"
+                                d="M7.5 0c4 0 7.5 3.5 7.5 7.5S11.5 15 7.5 15S0 11.5 0 7.5S3.5 0 7.5 0m0 1C4 1 1 4 1 7.5S4 14 7.5 14S14 11 14 7.5S11 1 7.5 1M2.84 6.98c.24.03 1.43.15 1.72.18c.29.04.17.89-.09.86c-.27-.02-1.44-.14-1.72-.18c-.29-.03-.16-.89.09-.86m7.48 0c.35-.04 1.32-.13 1.7-.16c.39-.04.4.87.06.9c-.35.04-1.28.12-1.64.16c-.37.03-.47-.85-.12-.9m-3.02.11c.09-.27.86-.03.76.28c-.09.32-.42 1.36-.52 1.63c-.1.28-.95.08-.84-.23c.12-.3.52-1.45.6-1.68m2.17 2.42c.29.11 1.37.52 1.61.62c.24.11-.05.93-.31.81c-.32-.11-1.32-.49-1.61-.62c-.3-.13.01-.91.31-.81m-4.77.08c.08.19.54 1.44.61 1.69c.08.25-.68.56-.8.29c-.11-.28-.44-1.34-.54-1.62c-.1-.27.66-.54.73-.36m2.11 1.37c.28.11 1.36.45 1.65.54c.28.09.04.92-.27.82s-1.36-.43-1.65-.53c-.28-.11-.01-.93.27-.83M13 5c-1 1-1.75 1-2.75 0c-1 1-1.75 1-2.75 0c-1 1-1.7 1-2.7 0C3.8 6 3 6 2 5c-.5 1-.5 2-.5 2.5c0 3 2.5 6 6 6s6-3 6-6c0-.5 0-1.5-.5-2.5"
+                                stroke-width="0.5" stroke="currentColor" />
+                        </svg>
+                        <span class="text-sm font-medium">คลังหน่วย/ศูนย์ของคุณ</span>
+                    </a>
                 </div>
 
                 <div class="mt-6">
@@ -241,16 +284,6 @@ $UserName = $user["user_data"]->member_name;
                         <span class="text-sm font-medium">ประวัติการรับสิ่งของ</span>
                     </a>
 
-                    <!-- <a href="/waste_center/history/redeem_reward"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="M12.984 15a1 1 0 0 0 1.848.53l2.688-2.687a1 1 0 0 0-1.415-1.414l-1.12 1.12V5a1 1 0 0 0-2 0zm-1.969-6a1 1 0 0 0-1.848-.53L6.48 11.157a1 1 0 1 0 1.414 1.414l1.121-1.12V19a1 1 0 1 0 2 0z"
-                                stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">ประวัติการแลกของรางวัล</span>
-                    </a> -->
                 </div>
 
                 <div class="mt-6">
@@ -266,39 +299,6 @@ $UserName = $user["user_data"]->member_name;
                         </svg>
                         <span class="text-sm font-medium">ผู้ใช้งาน</span>
                     </a>
-
-                    <!-- <a href="/admin/manage/faculty"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="30" height="24" viewBox="0 0 640 512">
-                            <path fill="currentColor"
-                                d="m335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6L47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80a40 40 0 1 1 0-80m-176 96a40 40 0 1 1 0 80a40 40 0 1 1 0-80m312 40a40 40 0 1 1 80 0a40 40 0 1 1-80 0M226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32h-48c-17.7 0-32-14.3-32-32v-38.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32h-48c-17.7 0-32-14.3-32-32v-38.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32h-48c-17.7 0-32-14.3-32-32v-54.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"
-                                stroke-width="13" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">คณะ/สาขา</span>
-                    </a>
-
-                    <a href="/admin/manage/waste_type"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor"
-                                d="M21.03 3L18 20.31c-.17.96-1 1.69-2 1.69H8c-1 0-1.83-.73-2-1.69L2.97 3zM5.36 5L8 20h8l2.64-15zM9 18v-4h4v4zm4-4.82L9.82 10L13 6.82L16.18 10z"
-                                stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">หมวดหมู่ขยะ</span>
-                    </a>
-
-                    <a href="/admin/manage/rewards"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 transition-colors group">
-                        <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                            <path fill="currentColor" fill-rule="evenodd"
-                                d="M12 2.75a6.25 6.25 0 1 0 0 12.5a6.25 6.25 0 0 0 0-12.5M4.25 9a7.75 7.75 0 1 1 15.025 2.677l2.288 2.368c.257.267.471.489.631.674c.158.182.32.39.415.632c.334.845.066 1.845-.739 2.337c-.23.142-.494.2-.72.238c-.232.04-.526.07-.873.107l-.024.002c-.459.049-.546.064-.605.087a.68.68 0 0 0-.397.417c-.026.07-.041.173-.088.644l-.002.022c-.036.361-.066.664-.103.902c-.036.23-.09.494-.223.725c-.47.822-1.459 1.13-2.317.767c-.241-.102-.446-.273-.62-.435c-.18-.166-.393-.388-.65-.655l-.02-.02L12 17.09l-3.232 3.405l-.015.015c-.257.267-.471.489-.65.655c-.175.162-.38.333-.62.435c-.86.363-1.848.055-2.318-.767c-.132-.231-.187-.494-.223-.726c-.037-.237-.067-.54-.102-.9l-.003-.023c-.046-.471-.062-.573-.087-.644a.68.68 0 0 0-.397-.417c-.06-.023-.147-.038-.606-.087l-.023-.002c-.347-.037-.641-.068-.873-.107c-.226-.037-.49-.096-.721-.238c-.804-.492-1.072-1.492-.739-2.337c.096-.242.257-.45.415-.632c.16-.185.374-.407.632-.674l2.287-2.368A7.7 7.7 0 0 1 4.25 9m1.178 4.109l-1.896 1.963c-.276.286-.462.478-.592.629a1.2 1.2 0 0 0-.154.2c-.09.23 0 .424.119.503c.009.003.06.02.194.043c.18.03.43.057.806.097l.075.008c.34.035.641.067.91.17c.599.23 1.057.71 1.272 1.312c.096.269.126.573.16.927l.008.075c.038.389.064.649.094.84c.026.162.046.214.047.217c.08.135.244.201.425.125c0 0 .05-.027.186-.154c.145-.134.33-.325.605-.61l.002-.002l2.72-2.866a7.76 7.76 0 0 1-4.981-3.477m8.163 3.478a7.76 7.76 0 0 0 4.982-3.478l1.896 1.963c.276.286.461.478.591.629c.123.14.151.195.154.2c.09.23 0 .424-.118.503c-.01.003-.06.02-.194.043c-.181.03-.43.057-.807.097l-.075.008c-.339.035-.641.067-.91.17c-.598.23-1.057.71-1.272 1.312c-.096.269-.126.573-.16.927l-.008.075c-.038.389-.064.649-.094.84c-.025.162-.046.214-.046.217c-.08.135-.245.202-.427.125h.002s-.05-.027-.187-.154a17 17 0 0 1-.605-.61l-.002-.002zm-1.59-9.553q-.087.15-.2.354l-.098.176l-.022.04c-.079.144-.209.382-.426.547c-.221.168-.488.226-.643.26l-.043.009l-.191.043c-.176.04-.318.072-.44.103c.079.097.182.219.316.376l.13.152l.03.034c.108.125.283.325.363.585c.08.256.052.52.035.686l-.005.047l-.02.203a23 23 0 0 0-.041.46c.104-.046.222-.1.363-.165l.179-.082l.04-.02c.144-.067.394-.184.672-.184c.279 0 .528.117.672.185l.04.019l.18.082c.14.065.258.12.363.165l-.042-.46l-.02-.203l-.005-.047c-.017-.167-.044-.43.035-.686c.08-.26.255-.46.363-.585l.03-.034l.13-.152c.134-.157.237-.279.317-.376c-.122-.03-.265-.063-.44-.103l-.191-.043l-.043-.01c-.156-.033-.422-.091-.644-.26c-.217-.164-.347-.402-.425-.545l-.023-.041l-.098-.176q-.112-.204-.199-.354M11.013 5.8c.172-.225.485-.55.986-.55c.502 0 .815.325.987.55c.164.214.33.511.5.816l.022.041l.099.177l.056.1l.099.023l.19.043l.048.01c.328.075.653.148.903.247c.277.109.65.32.795.785c.142.455-.037.841-.193 1.09c-.145.23-.364.486-.59.749l-.03.035l-.13.153l-.082.097l.012.135l.02.203l.004.046c.035.352.068.692.055.964c-.012.286-.08.718-.468 1.011c-.4.304-.84.238-1.12.157c-.258-.073-.562-.214-.87-.355l-.043-.02l-.179-.083l-.085-.039l-.085.04l-.178.082l-.044.02c-.307.141-.612.282-.87.355c-.28.08-.72.147-1.12-.157c-.387-.293-.455-.725-.468-1.01c-.012-.273.02-.613.055-.965l.005-.046l.02-.203l.012-.135l-.083-.097l-.13-.153l-.03-.035c-.225-.263-.445-.52-.59-.75c-.156-.248-.334-.634-.193-1.09c.145-.463.519-.675.795-.784c.25-.099.576-.172.904-.246l.046-.01l.191-.044l.1-.023l.056-.1l.098-.177l.023-.041c.17-.305.335-.602.5-.816"
-                                clip-rule="evenodd" stroke-width="0.5" stroke="currentColor" />
-                        </svg>
-                        <span class="text-sm font-medium">ของรางวัล</span>
-                    </a> -->
 
                 </div>
             </nav>
@@ -316,6 +316,9 @@ $UserName = $user["user_data"]->member_name;
     <script src="/js/swal.min.js"></script>
     <script type="text/javascript" src="<?= $script ?? "" ?>"></script>
     <script type="module" src="<?= $module ?? "" ?>"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>

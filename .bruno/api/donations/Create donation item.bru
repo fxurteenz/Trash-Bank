@@ -1,0 +1,33 @@
+meta {
+  name: Create donation item
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{api_domain}}/donations/items
+  body: multipartForm
+  auth: inherit
+}
+
+body:json {
+  {
+    "donation_item_name":"asd",
+    "donation_item_category_id":1,
+    "donation_item_redeem_point":null,
+    "donation_item_amount":"5"
+  }
+}
+
+body:multipart-form {
+  donation_item_name: 
+  donation_item_category_id: 
+  donation_item_redeem_point: 
+  donation_item_amount: 
+  donation_item_image: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

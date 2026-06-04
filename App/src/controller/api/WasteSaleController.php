@@ -75,8 +75,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -92,8 +90,8 @@ class WasteSaleController extends RouterBase
             $data = $rows['data'] ?? [];
             $summary = [
                 'count' => count($data),
-                'total_weight' => array_sum(array_map(fn($r) => (float)($r['waste_sale_total_weight'] ?? 0), $data)),
-                'total_price' => array_sum(array_map(fn($r) => (float)($r['waste_sale_total_price'] ?? 0), $data))
+                'total_weight' => array_sum(array_map(fn($r) => (float) ($r['waste_sale_total_weight'] ?? 0), $data)),
+                'total_price' => array_sum(array_map(fn($r) => (float) ($r['waste_sale_total_price'] ?? 0), $data))
             ];
 
             header('Content-Type: application/json');
@@ -119,8 +117,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -156,8 +152,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -167,7 +161,6 @@ class WasteSaleController extends RouterBase
     public function Create()
     {
         try {
-            Authentication::OperateAuth();
             $user = Authentication::OperateAuth();
             $result = self::$WasteSaleModel->CreateWasteSale(self::$Data, $user['user_data']->member_id ?? null);
 
@@ -194,8 +187,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -238,8 +229,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -275,8 +264,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -312,8 +299,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 
@@ -350,8 +335,6 @@ class WasteSaleController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
         }
     }
 }

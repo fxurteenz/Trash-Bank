@@ -1,0 +1,22 @@
+meta {
+  name: Create
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{api_domain}}/branches
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "center_branch_name": "ศูนย์2"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
