@@ -166,6 +166,10 @@ class Routes
             ["GET", "/faculties_branches", [ReportPagesController::class, "ReportFacultiesAndBranches"]],
             ["GET", "/stock/faculty/[i:fid]", [ReportPagesController::class, "ReportFacultyStock"]],
             ["GET", "/majors", [ReportPagesController::class, "ReportMajors"]],
+            ["GET", "/reward_categories", [ReportPagesController::class, "ReportRewardCategories"]],
+            ["GET", "/waste_categories", [ReportPagesController::class, "ReportWasteCategories"]],
+
+
         ]);
         /* API */
         /* api/members */

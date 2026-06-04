@@ -37,7 +37,7 @@
                     </button>
                     <span class="font-medium text-sm">เพิ่มหมวดหมู่</span>
                 </div>
-                <button @click="window.open('', '_blank','noopener')"
+                <button @click="window.open('/report/reward_categories', '_blank','noopener')"
                     class="group cursor-pointer flex items-center py-2 px-3 border-2 border-blue-500 rounded-full hover:bg-blue-100 space-x-1 w-fit transition-colors font-medium text-blue-700">
                     <svg class="w-5 h-5 stroke-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">

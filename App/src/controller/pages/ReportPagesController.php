@@ -124,4 +124,37 @@ class ReportPagesController extends RouterBase
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function ReportRewardCategories()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('/waste_center/reports/reward_categories', [
+                'pages' => "reportRewardCategories",
+                'title' => "รายงานหมวดหมู่ของรางวัล",
+                'user' => $user["user_data"]
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function ReportWasteCategories()
+    {
+        try {
+            $user = Authentication::OperateAuth();
+            $this->render('/waste_center/reports/waste_categories', [
+                'pages' => "reportWasteCategories",
+                'title' => "รายงานหมวดหมู่ขยะ",
+                'user' => $user["user_data"],
+            ], self::$ReportLayout);
+        } catch (AuthenticationException $th) {
+            header('location: /');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+    
 }
