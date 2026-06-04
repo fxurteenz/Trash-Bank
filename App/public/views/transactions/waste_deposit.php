@@ -425,7 +425,7 @@
             </div>
         </div>
 
-        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
+        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center"
             x-bind:class="{ 'p-6': !currentMember, 'p-0': currentMember}">
             <div x-show="!currentMember" class="w-full items-center">
                 <h2 class="text-xl font-bold text-slate-900 mb-2">ค้นหาสมาชิก</h2>

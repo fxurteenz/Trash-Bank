@@ -450,7 +450,7 @@
             </div> -->
         </div>
 
-        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center transition-all duration-300"
+        <div class="md:w-2/3 bg-white rounded-xl shadow-md card-hover relative flex flex-col justify-center"
             x-bind:class="{ 'p-6': !currentFaculty, 'p-0': currentFaculty}">
 
             <div x-show="!currentFaculty" class="w-full">
