@@ -143,7 +143,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                     <label class="flex items-center space-x-2 text-xs cursor-pointer hover:bg-gray-50 p-1 rounded">
                         <input type="checkbox" class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
                             :value="'5'" x-model="filters.role" @change="handleFilterChange()">
-                        <span>อาจารย์/ศาสตราจารย์</span>
+                        <span>อาจารย์</span>
                     </label>
                     <label class="flex items-center space-x-2 text-xs cursor-pointer hover:bg-gray-50 p-1 rounded">
                         <input type="checkbox" class="rounded text-emerald-500 focus:ring-emerald-500 cursor-pointer"
@@ -430,7 +430,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             }
                             ?>
                             <option value="2">นักศึกษา</option>
-                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="5">อาจารย์</option>
                             <option value="6">บุคลากร</option>
                         </select>
                         <span x-show="errors.create.role_id" class="text-red-500 text-xs">
@@ -517,7 +517,7 @@ $faculty_id = (int) $user->faculty_id ?? "null";
                             }
                             ?>
                             <option value="2">นักศึกษา</option>
-                            <option value="5">อาจารย์/ศาสตราจารย์</option>
+                            <option value="5">อาจารย์</option>
                             <option value="6">บุคลากร</option>
                         </select>
                         <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>

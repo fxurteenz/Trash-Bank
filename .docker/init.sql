@@ -360,7 +360,7 @@ CREATE TABLE `role` (
 
 INSERT INTO `role` (`role_id`, `role_name`, `role_name_th`) VALUES
 (01, 'member', 'นักศึกษา'),
-(02, 'lecturer/professor', 'อาจารย์/ศาสตราจารย์'),
+(02, 'lecturer/professor', 'อาจารย์'),
 (03, 'employee', 'บุคลากร'),
 (04, 'staff', 'เจ้าหน้าที่คณะ'),
 (05, 'center', 'เจ้าหน้าที่ศูนย์'),

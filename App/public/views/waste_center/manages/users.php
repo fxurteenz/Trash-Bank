@@ -441,7 +441,7 @@
                             :class="{'border-red-500': errors.create.role_id}">
                             <option value="">เลือกบทบาท</option>
                             <option value="1">นักศึกษา</option>
-                            <option value="2">อาจารย์/ศาสตราจารย์</option>
+                            <option value="2">อาจารย์</option>
                             <option value="3">บุคลากร</option>
                             <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
                             <?php
@@ -578,7 +578,7 @@
                             :class="{'border-red-500': errors.edit.role_id}">
                             <option value="">เลือกบทบาท</option>
                             <option value="1">นักศึกษา</option>
-                            <option value="2">อาจารย์/ศาสตราจารย์</option>
+                            <option value="2">อาจารย์</option>
                             <option value="3">บุคลากร</option>
                             <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
                             <?php
