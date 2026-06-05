@@ -98,6 +98,9 @@ class UsersModel
             if (empty($data['member_phone'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกเบอร์โทรศัพท์', 422);
             }
+            if (!preg_match('/^\d{10}$/', $data['member_phone'])) {
+                throw new Exception('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 422);
+            }
 
             if (empty($data['member_type'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณาระบุประเภทสมาชิก', 422);
@@ -106,9 +109,20 @@ class UsersModel
             if (empty($data['member_name'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกชื่อ-สกุล', 422);
             }
+            if (!preg_match('/^[a-zA-Zก-๏\s]+$/u', $data['member_name'])) {
+                throw new Exception('ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น', 422);
+            }
+
+            if (isset($data['member_email']) && !empty($data['member_email']) && !filter_var($data['member_email'], FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('รูปแบบอีเมลไม่ถูกต้อง', 422);
+            }
 
             if (($data['member_type'] === 'student' || $data['member_type'] === 'teacher') && empty($data['faculty_id'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณาระบุคณะ', 422);
+            }
+
+            if ($data['member_type'] === 'student' && isset($data['member_personal_id']) && !empty($data['member_personal_id']) && !preg_match('/^\d{12}$/', $data['member_personal_id'])) {
+                throw new Exception('รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก', 422);
             }
 
             $encodedPassword = password_hash(
@@ -121,11 +135,11 @@ class UsersModel
             $data['created_at'] = date('Y-m-d H:i:s');
 
             if ($data['member_type'] === 'student') {
-                $data['role_id'] = 2;
+                $data['role_id'] = 1;
             } elseif ($data['member_type'] === 'staff') {
-                $data['role_id'] = 6;
+                $data['role_id'] = 3;
             } elseif ($data['member_type'] === 'teacher') {
-                $data['role_id'] = 5;
+                $data['role_id'] = 2;
             } else {
                 throw new Exception('ประเภทสมาชิกไม่ถูกต้อง', 400);
             }

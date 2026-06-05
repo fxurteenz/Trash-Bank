@@ -54,7 +54,9 @@
             </div>
             <input x-show="isEditing" type="text" x-model="editData.member_name"
                 class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
-                style="display: none;">
+                :class="{'border-red-500': errors.member_name}" style="display: none;">
+            <span x-show="isEditing && errors.member_name" class="text-red-500 text-xs mt-1" x-text="errors.member_name"
+                style="display: none;"></span>
         </div>
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
             <div class="text-[12px] text-[#9CA3AF] font-[600]">เบอร์โทรศัพท์</div>
@@ -62,17 +64,21 @@
                 x-text="profile?.member_phone || '-'"></div>
             <input x-show="isEditing" type="tel" x-model="editData.member_phone"
                 class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
-                style="display: none;">
+                :class="{'border-red-500': errors.member_phone}" style="display: none;">
+            <span x-show="isEditing && errors.member_phone" class="text-red-500 text-xs mt-1"
+                x-text="errors.member_phone" style="display: none;"></span>
         </div>
 
-        <?php if (((int) $user->role_id) === 2): ?>
+        <?php if (((int) $user->role_id) === 1): ?>
             <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
                 <div class="text-[12px] text-[#9CA3AF] font-">รหัสประจำตัว / รหัสนักศึกษา</div>
                 <div x-show="!isEditing" class="text-[14px] font- text-[#1A1A2E]"
                     x-text="profile?.member_personal_id || ' - '"></div>
                 <input x-show="isEditing" type="text" x-model="editData.member_personal_id"
                     class="text-[14px] font- text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
-                    style="display: none;">
+                    :class="{'border-red-500': errors.member_personal_id}" style="display: none;">
+                <span x-show="isEditing && errors.member_personal_id" class="text-red-500 text-xs mt-1"
+                    x-text="errors.member_personal_id" style="display: none;"></span>
             </div>
         <?php endif; ?>
 
@@ -82,7 +88,9 @@
                 x-text="profile?.member_email || '-'"></div>
             <input x-show="isEditing" type="email" x-model="editData.member_email"
                 class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
-                style="display: none;">
+                :class="{'border-red-500': errors.member_email}" style="display: none;">
+            <span x-show="isEditing && errors.member_email" class="text-red-500 text-xs mt-1"
+                x-text="errors.member_email" style="display: none;"></span>
         </div>
     </div>
 
@@ -114,10 +122,11 @@
             isSaving: false,
             profile: {},
             editData: {},
+            errors: {},
 
             async init() {
                 try {
-                    const memberId = <?php echo $user->member_id ?? 'null'; ?>;
+                    const memberId = <?php echo (int) $user->member_id ?? 'null'; ?>;
                     if (!memberId) {
                         window.location.href = '/login';
                         return;
@@ -142,13 +151,44 @@
                     member_personal_id: this.profile.member_personal_id || '',
                     member_email: this.profile.member_email || ''
                 };
+                this.errors = {};
                 this.isEditing = true;
             },
             cancelEdit() {
                 this.isEditing = false;
+                this.errors = {};
             },
             async saveProfile() {
                 if (this.isSaving) return;
+
+                this.errors = {};
+
+                if (this.editData.member_name && !/^[a-zA-Zก-๏\s]+$/u.test(this.editData.member_name)) {
+                    this.errors.member_name = 'ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น';
+                }
+
+                if (this.editData.member_phone && !/^\d{10}$/.test(this.editData.member_phone)) {
+                    this.errors.member_phone = 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก';
+                }
+
+                if (this.editData.member_email && this.editData.member_email.length > 0 && !/^\S+@\S+\.\S+$/.test(this.editData.member_email)) {
+                    this.errors.member_email = 'รูปแบบอีเมลไม่ถูกต้อง';
+                }
+
+                if (this.profile.role_id === 1 && this.editData.member_personal_id && !/^\d{12}$/.test(this.editData.member_personal_id)) {
+                    this.errors.member_personal_id = 'รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก';
+                }
+
+                if (Object.keys(this.errors).length > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อมูลไม่ถูกต้อง',
+                        text: 'กรุณาตรวจสอบข้อมูลที่กรอกอีกครั้ง',
+                        confirmButtonColor: '#1B8B4B'
+                    });
+                    return;
+                }
+
                 try {
                     this.isSaving = true;
                     const res = await fetch(`/api/members/update/profile/${this.profile.member_id}`, {
@@ -159,16 +199,33 @@
                     const data = await res.json();
 
                     if (data.success) {
-                        this.profile = { ...this.profile, ...this.editData };
                         this.isEditing = false;
+
+                        await this.init(); // บังคับให้ดึงข้อมูลใหม่ทั้งหมดจากเซิร์ฟเวอร์
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'บันทึกข้อมูลสำเร็จ',
+                            timer: 1500,
+                            showConfirmButton: false,
+                        });
                     } else {
-                        alert(data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'บันทึกไม่สำเร็จ',
+                            text: data.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล',
+                        });
                     }
                 } catch (error) {
                     console.error('Failed to save profile data:', error);
-                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์',
+                    });
                 } finally {
                     this.isSaving = false;
+
                 }
             },
             formatDate(dateString) {

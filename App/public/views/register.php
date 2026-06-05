@@ -1,4 +1,184 @@
-<div class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+<script>
+    function registrationForm() {
+        return {
+            isMenuOpen: false,
+            step: 1,
+            member_type: '', // เก็บประเภทของสมาชิก ('student' หรือ 'staff')
+            formData: {
+                member_phone: '',
+                member_password: '',
+                member_personal_id: '',
+                member_email: '',
+                member_name: '',
+                faculty_id: '',
+                major_id: '',
+            },
+            faculties: [],
+            majors: [],
+            errors: {},
+
+            init() {
+                this.fetchFaculties();
+            },
+
+            nextStep() {
+                if (this.step === 1) {
+                    if (!this.member_type) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'กรุณาเลือกประเภทสมาชิก',
+                            text: 'โปรดระบุว่าคุณเป็นนักศึกษาหรือบุคลากร',
+                            confirmButtonColor: '#059669'
+                        });
+                        return;
+                    }
+                    this.step++;
+                } else if (this.step === 2) {
+                    if (this.validateStep2()) {
+                        this.step++;
+                    }
+                }
+            },
+
+            prevStep() {
+                if (this.step > 1) {
+                    this.step--;
+                }
+            },
+
+            async fetchFaculties() {
+                try {
+                    const response = await fetch('/api/faculties');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.faculties = result.data;
+                    }
+                } catch (error) {
+                    console.error('Could not fetch faculties:', error);
+                }
+            },
+
+            async fetchMajors() {
+                this.majors = [];
+                this.formData.major_id = '';
+                if (!this.formData.faculty_id) {
+                    return;
+                }
+                try {
+                    const response = await fetch(`/api/majors/faculty/${this.formData.faculty_id}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.majors = result.result;
+                    }
+                } catch (error) {
+                    console.error('Could not fetch majors:', error);
+                }
+            },
+
+            getSubmitButtonText() {
+                const hasName = this.formData.member_name && this.formData.member_name.trim() !== '';
+
+                const hasRequired = (this.member_type === 'student' || this.member_type === 'teacher')
+                    ? (this.formData.faculty_id && this.formData.faculty_id.toString().trim() !== '')
+                    : true;
+
+                if (!hasName || !hasRequired) {
+                    return 'กรุณากรอกข้อมูลให้ครบถ้วน';
+                }
+                return 'ยืนยันการสมัคร';
+            },
+
+            validateStep2() {
+                this.errors = {};
+                if (!this.formData.member_phone) {
+                    this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
+                } else if (!/^\d{10}$/.test(this.formData.member_phone)) {
+                    this.errors.member_phone = 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก';
+                }
+                if (!this.formData.member_password) {
+                    this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
+                } else if (this.formData.member_password.length < 8) {
+                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
+                }
+                return Object.keys(this.errors).length === 0;
+            },
+
+            async submitRegistration() {
+                this.errors = {};
+
+                if (!this.formData.member_name || this.formData.member_name.trim() === '') {
+                    this.errors.member_name = 'กรุณากรอกชื่อ-สกุล';
+                } else if (!/^[a-zA-Zก-๏\s]+$/u.test(this.formData.member_name)) {
+                    this.errors.member_name = 'ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น';
+                }
+
+                if ((this.member_type === 'student' || this.member_type === 'teacher') && (!this.formData.faculty_id || this.formData.faculty_id.toString().trim() === '')) {
+                    this.errors.faculty_id = 'กรุณาเลือกคณะ';
+                }
+
+                if (this.formData.member_email && !/^\S+@\S+\.\S+$/.test(this.formData.member_email)) {
+                    this.errors.member_email = 'รูปแบบอีเมลไม่ถูกต้อง';
+                }
+
+                if (this.member_type === 'student' && this.formData.member_personal_id && !/^\d{12}$/.test(this.formData.member_personal_id)) {
+                    this.errors.member_personal_id = 'รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก';
+                }
+
+                if (Object.keys(this.errors).length > 0) {
+                    return;
+                }
+
+                // หากผู้ใช้เป็นบุคลากร ให้เคลียร์ค่าของนักศึกษาที่อาจค้างอยู่เพื่อความชัวร์ (Optional)
+                if (this.member_type === 'staff') {
+                    this.formData.member_personal_id = '';
+                    this.formData.faculty_id = '';
+                    this.formData.major_id = '';
+                }
+
+                const payload = { ...this.formData, member_type: this.member_type };
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'สมัครสมาชิกสำเร็จ!',
+                            text: 'กำลังนำท่านไปยังหน้าเข้าสู่ระบบ',
+                            timer: 2000,
+                            showConfirmButton: false,
+                        });
+                        window.location.href = '/login';
+                    } else {
+                        throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
+                    }
+                } catch (error) {
+                    console.error('Registration failed:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'สมัครสมาชิกไม่สำเร็จ',
+                        html: "<p class='mb-2'>" + error.message + "</p><hr><p class='mt-1 text-xs font-light'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
+                        confirmButtonColor: '#009966',
+                        confirmButtonText: 'ลองใหม่'
+                    });
+                }
+            }
+        }
+    }
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('registrationForm', registrationForm);
+    });
+</script>
+<div x-data="registrationForm()" x-init="init()" class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
 
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +223,7 @@
         </div>
     </nav>
 
-    <div x-data="registrationForm()" x-init="init()" class="flex-1 flex justify-center items-center px-4 py-8">
+    <div class="flex-1 flex justify-center items-center px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-8 w-96 max-w-full">
             <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
 
@@ -216,7 +396,10 @@
                             <label for="email" class="text-gray-700 font-medium text-lg">อีเมล</label>
                             <input
                                 class="border border-gray-300 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
-                                type="email" id="email" x-model="formData.member_email" placeholder="example@email.com">
+                                :class="{'border-red-500': errors.member_email}" type="email" id="email"
+                                x-model="formData.member_email" placeholder="example@email.com">
+                            <span x-show="errors.member_email" class="text-red-500 text-xs" x-text="errors.member_email"
+                                style="display: none;"></span>
                         </div>
 
                         <template x-if="member_type === 'student' || member_type === 'teacher'">
@@ -225,10 +408,12 @@
                                     <div class="flex flex-col space-y-1">
                                         <label for="personal_id"
                                             class="text-gray-700 font-medium text-lg">รหัสประจำตัวนักศึกษา</label>
-                                        <input
+                                        <input :class="{'border-red-500': errors.member_personal_id}"
                                             class="border border-gray-300 rounded-md p-2 focus:ring-sky-500 focus:ring-2 focus:border-sky-400"
                                             type="text" id="personal_id" x-model="formData.member_personal_id"
                                             placeholder="รหัสนักศึกษา">
+                                        <span x-show="errors.member_personal_id" class="text-red-500 text-xs"
+                                            x-text="errors.member_personal_id" style="display: none;"></span>
                                     </div>
                                 </template>
 
@@ -324,185 +509,3 @@
         </div>
     </footer>
 </div>
-
-<script>
-    function registrationForm() {
-        return {
-            step: 1,
-            member_type: '', // เก็บประเภทของสมาชิก ('student' หรือ 'staff')
-            formData: {
-                member_phone: '',
-                member_password: '',
-                member_personal_id: '',
-                member_email: '',
-                member_name: '',
-                faculty_id: '',
-                major_id: '',
-            },
-            faculties: [],
-            majors: [],
-            errors: {},
-
-            init() {
-                this.fetchFaculties();
-            },
-
-            nextStep() {
-                if (this.step === 1) {
-                    if (!this.member_type) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'กรุณาเลือกประเภทสมาชิก',
-                            text: 'โปรดระบุว่าคุณเป็นนักศึกษาหรือบุคลากร',
-                            confirmButtonColor: '#059669'
-                        });
-                        return;
-                    }
-                    this.step++;
-                } else if (this.step === 2) {
-                    if (this.validateStep2()) {
-                        this.step++;
-                    }
-                }
-            },
-
-            prevStep() {
-                if (this.step > 1) {
-                    this.step--;
-                }
-            },
-
-            async fetchFaculties() {
-                try {
-                    const response = await fetch('/api/faculties');
-                    const result = await response.json();
-                    if (result.success) {
-                        this.faculties = result.data;
-                    }
-                } catch (error) {
-                    console.error('Could not fetch faculties:', error);
-                }
-            },
-
-            async fetchMajors() {
-                this.majors = [];
-                this.formData.major_id = '';
-                if (!this.formData.faculty_id) {
-                    return;
-                }
-                try {
-                    const response = await fetch(`/api/majors/faculty/${this.formData.faculty_id}`);
-                    const result = await response.json();
-                    if (result.success) {
-                        this.majors = result.result;
-                    }
-                } catch (error) {
-                    console.error('Could not fetch majors:', error);
-                }
-            },
-
-            getSubmitButtonText() {
-                const hasName = this.formData.member_name && this.formData.member_name.trim() !== '';
-
-                const hasRequired = (this.member_type === 'student' || this.member_type === 'teacher')
-                    ? (this.formData.faculty_id && this.formData.faculty_id.toString().trim() !== '')
-                    : true;
-
-                if (!hasName || !hasRequired) {
-                    return 'กรุณากรอกข้อมูลให้ครบถ้วน';
-                }
-                return 'ยืนยันการสมัคร';
-            },
-
-            validateStep2() {
-                this.errors = {};
-                if (!this.formData.member_phone) {
-                    this.errors.member_phone = 'กรุณากรอกเบอร์โทรศัพท์';
-                } else if (this.formData.member_phone.length < 10) {
-                    this.errors.member_phone = 'เบอร์โทรศัพท์ต้องมีอย่างน้อย 10 ตัวอักษร';
-                }
-                if (!this.formData.member_password) {
-                    this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
-                } else if (this.formData.member_password.length < 8) {
-                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
-                }
-                return Object.keys(this.errors).length === 0;
-            },
-
-            async submitRegistration() {
-                if (!this.formData.member_name || this.formData.member_name.trim() === '') {
-                    this.errors.member_name = 'กรุณากรอกชื่อ-สกุล';
-                    // Swal.fire({
-                    //     icon: 'warning',
-                    //     title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                    //     text: 'โปรดระบุ ชื่อ-สกุล ของท่าน',
-                    //     confirmButtonColor: '#059669'
-                    // });
-                    return;
-                }
-                delete this.errors.member_name;
-
-                if (this.member_type === 'student' || this.member_type === 'teacher') {
-                    if (!this.formData.faculty_id || this.formData.faculty_id.toString().trim() === '') {
-                        this.errors.faculty_id = 'กรุณาเลือกคณะ';
-                        // Swal.fire({
-                        //     icon: 'warning',
-                        //     title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                        //     text: 'โปรดระบุ คณะ ของท่าน',
-                        //     confirmButtonColor: '#059669'
-                        // });
-                        return;
-                    }
-                    delete this.errors.faculty_id;
-                }
-
-                // หากผู้ใช้เป็นบุคลากร ให้เคลียร์ค่าของนักศึกษาที่อาจค้างอยู่เพื่อความชัวร์ (Optional)
-                if (this.member_type === 'staff') {
-                    this.formData.member_personal_id = '';
-                    this.formData.faculty_id = '';
-                    this.formData.major_id = '';
-                }
-
-                const payload = { ...this.formData, member_type: this.member_type };
-
-                try {
-                    const response = await fetch('/register', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        await Swal.fire({
-                            icon: 'success',
-                            title: 'สมัครสมาชิกสำเร็จ!',
-                            text: 'กำลังนำท่านไปยังหน้าเข้าสู่ระบบ',
-                            timer: 2000,
-                            showConfirmButton: false,
-                        });
-                        window.location.href = '/login';
-                    } else {
-                        throw new Error(result.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก');
-                    }
-                } catch (error) {
-                    console.error('Registration failed:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'สมัครสมาชิกไม่สำเร็จ',
-                        html: "<p class='mb-2'>" + error.message + "</p><hr><p class='mt-1 text-xs font-light'>หากพบปัญหาในการใช้งาน สามารถติดต่อศูนย์ฯด้วยตนเอง เพื่อดำเนินการแก้ไข</p>",
-                        confirmButtonColor: '#009966',
-                        confirmButtonText: 'ลองใหม่'
-                    });
-                }
-            }
-        }
-    }
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('registrationForm', registrationForm);
-    });
-</script>

@@ -249,6 +249,27 @@ class MemberModel
                 throw new Exception('Bad Request =(', 400);
             }
 
+            if (isset($data['member_name']) && !empty($data['member_name']) && !preg_match('/^[a-zA-Zก-๏\s]+$/u', $data['member_name'])) {
+                throw new Exception('ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น', 422);
+            }
+            if (isset($data['member_phone']) && !empty($data['member_phone']) && !preg_match('/^\d{10}$/', $data['member_phone'])) {
+                throw new Exception('เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 422);
+            }
+            if (isset($data['member_email']) && !empty($data['member_email']) && !filter_var($data['member_email'], FILTER_VALIDATE_EMAIL)) {
+                throw new Exception('รูปแบบอีเมลไม่ถูกต้อง', 422);
+            }
+
+            $stmtUser = $this->Conn->prepare("SELECT role_id FROM member WHERE member_id = :uid");
+            $stmtUser->execute([':uid' => $uid]);
+            $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && $user['role_id'] == 1) {
+                if (isset($data['member_personal_id']) && !empty($data['member_personal_id']) && !preg_match('/^\d{12}$/', $data['member_personal_id'])) {
+                    throw new Exception('รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก', 422);
+                }
+            }
+
+
             if (!empty($data['new_password']) && !empty($data['old_password'])) {
                 // $encodedPassword = password_hash(
                 //     $data['password'],
