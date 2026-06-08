@@ -98,6 +98,7 @@ class Routes
             // ['GET', '/collection', [UserPagesController::class, 'Collection']],
             // ['GET', '/quests', [UserPagesController::class, 'Quests']],
             ['GET', '/profile', [UserPagesController::class, 'Profile']],
+            ['GET', '/barcode', [UserPagesController::class, 'Barcode']],
         ]);
 
         $this->addPrefixedRoutes('/admin', [

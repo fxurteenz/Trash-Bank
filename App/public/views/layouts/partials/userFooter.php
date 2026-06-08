@@ -32,7 +32,22 @@ $dotClasses = "after:content-[''] after:absolute after:-bottom-[2px] after:left-
             <div class="text-[10px] font-[700] tracking-[0.1px]">บัญชี</div>
         </a>
         <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px] rounded-[10px] transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500"
-            href="/user/profile" aria-label="Home">
+            href="/user/barcode" aria-label="barcode">
+            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <g fill="none" stroke="currentColor" stroke-linecap="round">
+                        <path stroke-width="2"
+                            d="M2.992 4.983v13.934m6.97-13.934v13.934m5.976-13.934v13.934m2.987-13.934v13.934" />
+                        <path d="M5.48 4.483v14.934M7.47 4.483v14.934M21.413 4.483v14.934M13.446 4.483v14.934" />
+                    </g>
+                </svg>
+
+            </div>
+            <div class="text-[10px] font-[700] tracking-[0.1px]">บาร์โค้ด</div>
+        </a>
+        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px] rounded-[10px] transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500"
+            href="/user/profile" aria-label="profile">
             <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.6">
@@ -44,5 +59,6 @@ $dotClasses = "after:content-[''] after:absolute after:-bottom-[2px] after:left-
             </div>
             <div class="text-[10px] font-[700] tracking-[0.1px]">โปรไฟล์</div>
         </a>
+
     </div>
 </nav>

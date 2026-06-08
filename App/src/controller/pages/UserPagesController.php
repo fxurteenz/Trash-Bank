@@ -93,4 +93,18 @@ class UserPagesController extends RouterBase
             'footer' => 'user'
         ], self::$UserTemplate);
     }
+
+    public function Barcode()
+    {
+        $user = Authentication::MemberAuth(); // Uncomment when authentication is ready
+
+        $this->render('user/barcode', [
+            'pages' => 'userBarcode',
+            'title' => 'บาร์โค้ด',
+            'user' => $user['user_data'],
+            'activeTab' => 'barcode',
+            'footer' => 'user'
+        ], self::$UserTemplate);
+    }
+
 }
