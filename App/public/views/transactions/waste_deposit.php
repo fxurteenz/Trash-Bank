@@ -112,11 +112,37 @@
                 }
             },
 
-            handleEnterKey() {
+            async handleEnterKey() {
                 if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
                     this.selectMember(this.searchResults[this.selectedIndex]);
-                } else if (this.memberSearch.trim()) {
-                    this.searchMember(true);
+                    return;
+                }
+
+                if (this.memberSearch.trim()) {
+                    this.isSearching = true;
+                    try {
+                        const response = await fetch(`/api/members?page=1&limit=10&role=1,2,3&search=${encodeURIComponent(this.memberSearch)}`);
+                        const result = await response.json();
+
+                        if (result.success && result.data && result.data.length > 0) {
+                            const exactMatch = result.data.find(m => m.member_phone === this.memberSearch.trim() || m.member_id.toString() === this.memberSearch.trim());
+                            if (exactMatch) {
+                                this.selectMember(exactMatch);
+                            } else if (result.data.length === 1) {
+                                this.selectMember(result.data[0]);
+                            } else {
+                                this.searchResults = result.data;
+                                this.showDropdown = true;
+                                this.selectedIndex = 0;
+                            }
+                        } else {
+                            this.showNotification('ไม่พบสมาชิก', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error searching member:', error);
+                    } finally {
+                        this.isSearching = false;
+                    }
                 }
             },
 

@@ -158,9 +158,37 @@
                 });
             },
 
-            handleEnterKey() {
+            async handleEnterKey() {
                 if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
                     this.selectMember(this.searchResults[this.selectedIndex]);
+                    return;
+                }
+
+                if (this.memberSearch.trim()) {
+                    this.isSearching = true;
+                    try {
+                        const response = await fetch(`/api/members?search=${encodeURIComponent(this.memberSearch)}&limit=10`);
+                        const result = await response.json();
+
+                        if (result.success && result.data && result.data.length > 0) {
+                            const exactMatch = result.data.find(m => m.member_phone === this.memberSearch.trim() || m.member_id.toString() === this.memberSearch.trim());
+                            if (exactMatch) {
+                                this.selectMember(exactMatch);
+                            } else if (result.data.length === 1) {
+                                this.selectMember(result.data[0]);
+                            } else {
+                                this.searchResults = result.data;
+                                this.showDropdown = true;
+                                this.selectedIndex = 0;
+                            }
+                        } else {
+                            Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'ไม่พบสมาชิก', showConfirmButton: false, timer: 1500 });
+                        }
+                    } catch (error) {
+                        console.error('Error searching member:', error);
+                    } finally {
+                        this.isSearching = false;
+                    }
                 }
             },
 
