@@ -172,7 +172,9 @@
                     return;
                 }
 
-                const weightVal = parseFloat(this.itemForm.weight);
+                const rawWeight = String(this.itemForm.weight);
+                const weightMatch = rawWeight.match(/^-?\d+(?:\.\d{0,3})?/);
+                const weightVal = weightMatch ? parseFloat(weightMatch[0]) : 0;
                 const priceVal = parseFloat(this.itemForm.price);
 
                 if (!weightVal || weightVal <= 0) {

@@ -111,7 +111,7 @@
                             <td class="px-6 py-4" x-text="r.staff_name||'-'"></td>
                             <td class="px-6 py-4" x-text="r.faculty_name||'-'"></td>
                             <td class="px-6 py-4 text-right"
-                                x-text="Number(r.waste_transaction_total_weight||0).toFixed(2)"></td>
+                                x-text="Number(r.waste_transaction_total_weight||0).toFixed(3)"></td>
                             <td class="px-6 py-4 text-right"
                                 x-text="Number(r.waste_transaction_total_point||0).toFixed(0)"></td>
                             <td class="px-6 py-4 text-center">

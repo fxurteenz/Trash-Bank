@@ -212,7 +212,9 @@
             },
 
             addClearanceItem() {
-                const weightToAdd = parseFloat(this.itemForm.weight);
+                const rawWeight = String(this.itemForm.weight);
+                const weightMatch = rawWeight.match(/^-?\d+(?:\.\d{0,3})?/);
+                const weightToAdd = weightMatch ? parseFloat(weightMatch[0]) : 0;
                 if (!weightToAdd || isNaN(weightToAdd) || weightToAdd <= 0) {
                     this.showNotification('กรุณากรอกน้ำหนักให้ถูกต้อง (มากกว่า 0)', 'error');
                     this.$refs.weightInput.focus();
@@ -244,7 +246,7 @@
 
                 const stockWeight = parseFloat(this.items[itemIndex].stock_weight);
                 const currentClearance = parseFloat(this.items[itemIndex].clearance_weight || 0);
-                const newClearance = currentClearance + weightToAdd;
+                const newClearance = parseFloat((currentClearance + weightToAdd).toFixed(3));
 
                 if (newClearance > stockWeight) {
                     this.showNotification(`คำเตือน: น้ำหนักเคลียร์ (${newClearance} กก.) มากกว่าที่มีในคลัง (${stockWeight} กก.)`, 'warning');

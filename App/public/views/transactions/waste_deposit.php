@@ -270,7 +270,9 @@
                 }
 
                 // (เรายอมให้กรอกค่าติดลบได้ แต่ห้ามเป็นค่าว่างหรือ 0 เฉยๆ ในตอนแรกถ้าไม่มีรายการ)
-                const weightToAdd = parseFloat(this.itemForm.weight);
+                const rawWeight = String(this.itemForm.weight);
+                const weightMatch = rawWeight.match(/^-?\d+(?:\.\d{0,3})?/);
+                const weightToAdd = weightMatch ? parseFloat(weightMatch[0]) : 0;
                 if (!weightToAdd || isNaN(weightToAdd)) {
                     this.showNotification('กรุณากรอกน้ำหนัก', 'error');
                     this.$refs.weightInput.focus();
@@ -283,7 +285,7 @@
 
                 if (existingIndex !== -1) {
                     const currentWeight = parseFloat(this.items[existingIndex].weight);
-                    const newWeight = currentWeight + weightToAdd;
+                    const newWeight = parseFloat((currentWeight + weightToAdd).toFixed(3));
 
                     if (newWeight <= 0) {
                         // ถ้าผลลัพธ์ <= 0 ให้ลบรายการออก
