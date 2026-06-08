@@ -152,11 +152,11 @@
 
                 await this.loadFacultyStock(faculty.faculty_id);
 
-                this.$nextTick(() => {
-                    if (this.$refs.weightInput) {
-                        this.$refs.weightInput.focus();
+                setTimeout(() => {
+                    if (this.$refs.wasteCodeInput) {
+                        this.$refs.wasteCodeInput.focus();
                     }
-                });
+                }, 100);
             },
 
             resetFaculty() {
@@ -443,7 +443,7 @@
                 <div class="flex items-center justify-between">
                     <p class="text-amber-100 text-xs font-medium uppercase tracking-wider mb-1">ยอดเคลียร์วันนี้</p>
                     <h2 class="text-3xl font-bold flex items-center gap-2">
-                        <span x-text="todayStats.weight.toFixed(4)">0</span>
+                            <span x-text="todayStats.weight.toFixed(3)">0</span>
                         <span class="text-sm font-normal text-amber-100 mt-2">กก.</span>
                     </h2>
                 </div>
@@ -540,12 +540,12 @@
                         <datalist id="stockItemList">
                             <template x-for="item in items" :key="item.waste_type_id">
                                 <option :value="item.waste_type_id.toString().padStart(3, '0')"
-                                    :label="`${item.waste_category_name} : ${item.waste_type_name} (คลัง: ${Number(item.stock_weight).toFixed(4)} กก.)`">
+                                    :label="`${item.waste_category_name} : ${item.waste_type_name} (คลัง: ${Number(item.stock_weight).toFixed(3)} กก.)`">
                                 </option>
                             </template>
                         </datalist>
                         <p class="text-[10px] text-amber-600 mt-1 font-medium truncate"
-                            x-text="selectedStockItem ? `${selectedStockItem.waste_category_name} : ${selectedStockItem.waste_type_name} (มีในคลัง ${Number(selectedStockItem.stock_weight).toFixed(4)} กก.)`:  'ระบุรหัสชนิดขยะเพื่อตรวจสอบสต็อก'">
+                            x-text="selectedStockItem ? `${selectedStockItem.waste_category_name} : ${selectedStockItem.waste_type_name} (มีในคลัง ${Number(selectedStockItem.stock_weight).toFixed(3)} กก.)`:  'ระบุรหัสชนิดขยะเพื่อตรวจสอบสต็อก'">
                         </p>
                     </div>
                     <div class="col-span-4">
@@ -670,7 +670,7 @@
                         <div class="flex justify-between items-center">
                             <span class="text-amber-100 text-lg">น้ำหนักรวม</span>
                             <div class="text-right">
-                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(4)"></span>
+                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(3)"></span>
                                 <span class="text-sm text-amber-200">กก.</span>
                             </div>
                         </div>

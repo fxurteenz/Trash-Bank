@@ -139,6 +139,10 @@
                 this.memberSearch = '';
                 this.searchResults = [];
                 this.selectedItems = [];
+
+                setTimeout(() => {
+                    if (this.$refs.itemCodeInput) this.$refs.itemCodeInput.focus();
+                }, 100);
             },
 
             resetMember() {

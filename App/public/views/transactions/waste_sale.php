@@ -75,11 +75,11 @@
                 this.buyerConfirmed = true;
                 this.showNotification(`ผู้ซื้อ: ${this.buyerName}`, 'success');
                 await this.loadCenterStock();
-                this.$nextTick(() => {
+                setTimeout(() => {
                     if (this.$refs.wasteCodeInput) {
                         this.$refs.wasteCodeInput.focus();
                     }
-                });
+                }, 100);
             },
 
             resetBuyer() {
@@ -193,7 +193,7 @@
                 const alreadyAdded = this.items.filter(i => i.waste_type_id == this.selectedWasteType.waste_type_id).reduce((sum, i) => sum + parseFloat(i.weight), 0);
 
                 if ((weightVal + alreadyAdded) > availableStock) {
-                    this.showNotification(`คำเตือน: น้ำหนักขายรวม (${(weightVal + alreadyAdded).toFixed(2)} กก.) มากกว่าที่มีในคลัง (${availableStock.toFixed(2)} กก.)`, 'warning');
+                    this.showNotification(`คำเตือน: น้ำหนักขายรวม (${(weightVal + alreadyAdded).toFixed(3)} กก.) มากกว่าที่มีในคลัง (${availableStock.toFixed(3)} กก.)`, 'warning');
                 }
 
                 // Add Item
@@ -447,19 +447,20 @@
                         <datalist id="wasteTypeList">
                             <template x-for="type in filteredWasteTypes" :key="type.waste_type_id">
                                 <option :value="type.waste_type_id.toString().padStart(3, '0')"
-                                    :label="`${type.waste_category_name} : ${type.waste_type_name} (คลัง: ${type.stock_weight.toFixed(2)} กก.)`">
+                                    :label="`${type.waste_category_name} : ${type.waste_type_name} (คลัง: ${type.stock_weight.toFixed(3)} กก.)`">
                                 </option>
                             </template>
                         </datalist>
                         <p class="text-[10px] text-blue-600 mt-1 font-medium truncate"
-                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name} (มีในคลัง ${selectedWasteType?.stock_weight.toFixed(2)} กก.)`:  'ระบุรหัสชนิดขยะที่มีในคลัง'">
+                            x-text="selectedWasteType ? `${selectedWasteType?.waste_category_name} : ${selectedWasteType?.waste_type_name} (มีในคลัง ${selectedWasteType?.stock_weight.toFixed(3)} กก.)`:  'ระบุรหัสชนิดขยะที่มีในคลัง'">
                         </p>
                     </div>
 
                     <div class="col-span-3">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนัก (กก.)</label>
                         <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="$refs.priceInput.focus()"
-                            @keydown.tab.prevent="$refs.priceInput.focus()" type="number" step="0.01" placeholder="0.00"
+                            @keydown.tab.prevent="$refs.priceInput.focus()" type="number" step="0.001"
+                            placeholder="0.000"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
                     </div>
 
@@ -511,9 +512,9 @@
                                                 x-text="stock.waste_category_name"></div>
                                         </td>
                                         <td class="px-4 py-3 text-right font-bold text-emerald-600"
-                                            x-text="parseFloat(stock.stock_weight).toFixed(2)"></td>
+                                            x-text="parseFloat(stock.stock_weight).toFixed(3)"></td>
                                         <td class="px-4 py-3 text-right font-bold text-blue-600"
-                                            x-text="getItemSellWeight(stock.waste_type_id) > 0 ? parseFloat(getItemSellWeight(stock.waste_type_id)).toFixed(2) : '-'">
+                                            x-text="getItemSellWeight(stock.waste_type_id) > 0 ? parseFloat(getItemSellWeight(stock.waste_type_id)).toFixed(3) : '-'">
                                         </td>
                                         <td class="px-4 py-3 text-right font-bold text-amber-600"
                                             x-text="getItemSellPrice(stock.waste_type_id) > 0 ? parseFloat(getItemSellPrice(stock.waste_type_id)).toFixed(2) : '-'">
@@ -574,7 +575,7 @@
                                         <span class="text-white truncate pr-2" x-text="item.waste_type_name"></span>
                                         <div class="text-right whitespace-nowrap flex items-center">
                                             <span class="text-blue-200 font-bold"
-                                                x-text="parseFloat(item.weight).toFixed(2) + ' กก.'"></span>
+                                                x-text="parseFloat(item.weight).toFixed(3) + ' กก.'"></span>
                                             <span class="text-white/50 mx-1">|</span>
                                             <span class="text-amber-300 font-bold"
                                                 x-text="parseFloat(item.price).toFixed(2) + ' ฿'"></span>
@@ -597,7 +598,7 @@
 
                         <div class="flex justify-between items-center">
                             <span class="text-blue-100 text-lg">น้ำหนักรวม</span>
-                            <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2) + ' กก.'"></span>
+                            <span class="text-2xl font-bold" x-text="totalWeight.toFixed(3) + ' กก.'"></span>
                         </div>
                         <div class="bg-black/20 rounded-xl p-4 mt-4 backdrop-blur-sm">
                             <p class="text-blue-100 text-sm mb-1">ยอดเงินรวมสุทธิ</p>

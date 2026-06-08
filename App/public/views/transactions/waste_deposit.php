@@ -180,11 +180,11 @@
 
                 this.showNotification('เลือกสมาชิก: ' + (member.member_name || 'ไม่ระบุชื่อ'), 'success');
 
-                this.$nextTick(() => {
+                setTimeout(() => {
                     if (this.$refs.wasteCodeInput) {
                         this.$refs.wasteCodeInput.focus();
                     }
-                });
+                }, 100);
             },
 
             resetMember() {
@@ -293,7 +293,7 @@
                         // ถ้ายังมีค่าบวก ให้อัปเดตค่าใหม่
                         this.items[existingIndex].weight = newWeight;
                         const action = weightToAdd > 0 ? 'เพิ่ม' : 'ลด';
-                        this.showNotification(`${action}น้ำหนักเป็น ${newWeight.toFixed(2)} กก.`, 'success');
+                        this.showNotification(`${action}น้ำหนักเป็น ${newWeight.toFixed(3)} กก.`, 'success');
                     }
 
                 } else {
@@ -559,8 +559,8 @@
                     <div class="col-span-4">
                         <label class="block text-xs font-semibold text-slate-700 mb-1">น้ำหนัก (กก.)</label>
                         <input x-ref="weightInput" x-model="itemForm.weight" @keydown.enter="addItem()"
-                            @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()" type="number" step="0.01"
-                            placeholder="0.00"
+                            @keydown.tab.prevent="addItem(); $refs.wasteCodeInput.focus()" type="number" step="0.001"
+                            placeholder="0.000"
                             class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
                     </div>
                     <div class="col-span-3 flex items-center">
@@ -604,7 +604,7 @@
                                         <div class="text-[10px] text-slate-500" x-text="item.waste_category_name"></div>
                                     </td>
                                     <td class="px-4 py-3 text-right font-bold text-slate-700"
-                                        x-text="parseFloat(item.weight).toFixed(2)"></td>
+                                        x-text="parseFloat(item.weight).toFixed(3)"></td>
                                     <td class="px-4 py-3 text-center">
                                         <button @click="removeItem(index)"
                                             class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors hover:text-red-600 cursor-pointer">
@@ -676,7 +676,7 @@
                         <div class="flex justify-between items-center">
                             <span class="text-emerald-100 text-lg">น้ำหนักรวม</span>
                             <div class="text-right">
-                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(2)"></span>
+                                <span class="text-2xl font-bold" x-text="totalWeight.toFixed(3)"></span>
                                 <span class="text-sm text-emerald-200">กก.</span>
                             </div>
                         </div>

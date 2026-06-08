@@ -97,6 +97,10 @@
                 this.searchQuery = '';
                 this.searchResults = [];
                 this.selectedIndex = -1;
+
+                setTimeout(() => {
+                    if (this.$refs.itemNameInput) this.$refs.itemNameInput.focus();
+                }, 100);
             },
 
             moveSelection(step) {
