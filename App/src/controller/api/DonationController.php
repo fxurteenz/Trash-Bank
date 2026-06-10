@@ -139,7 +139,7 @@ class DonationController extends RouterBase
     public function GetAvailableItems()
     {
         try {
-            Authentication::OperateAuth();
+            // Authentication::OperateAuth();
             $result = $this->DonationModel->GetAvailableDonationItem($this->queryString ?? []);
 
             header('Content-Type: application/json');
