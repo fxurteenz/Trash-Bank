@@ -16,7 +16,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('admin/adminDashboard', [
-                'pages' => 'dashboard',
+                'page' => 'dashboard',
                 'title' => 'ผู้ดูแลระบบ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -33,7 +33,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('waste_center/manages/users', [
-                'pages' => "manageUsers",
+                'page' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -49,7 +49,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('waste_center/details/user_detail', [
-                'pages' => "manageUsers",
+                'page' => "manageUsers",
                 'title' => 'จัดการผู้ใช้งาน',
                 'member_id' => !empty($member_id) ? (int) $member_id : null,
                 'user' => $user["user_data"]
@@ -66,7 +66,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/faculty', [
-                'pages' => "manageFaculty",
+                'page' => "manageFaculty",
                 'title' => 'จัดการคณะ/สาขา',
                 'script' => '../../js/ManageFaculty.js',
                 'user' => $user["user_data"]
@@ -83,7 +83,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/details/faculty', [
-                'pages' => "manageFaculty",
+                'page' => "manageFaculty",
                 'title' => 'จัดการข้อมูลคณะ',
                 'faculty_id' => !empty($faculty_id) ? (int) $faculty_id : null,
                 'user' => $user["user_data"]
@@ -101,7 +101,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/branch', [
-                'pages' => "manageBranch",
+                'page' => "manageBranch",
                 'title' => 'จัดการคณะ/สาขา',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -118,7 +118,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/details/branch', [
-                'pages' => "manageBranch",
+                'page' => "manageBranch",
                 'title' => 'จัดการข้อมูลหน่วยย่อย',
                 'faculty_id' => !empty($faculty_id) ? (int) $faculty_id : null,
                 'user' => $user["user_data"]
@@ -136,7 +136,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/waste_category', [
-                'pages' => "manageWasteType",
+                'page' => "manageWasteType",
                 'title' => 'จัดการหมวดหมู่ขยะ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -153,7 +153,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/waste_type', [
-                'pages' => "manageWasteType",
+                'page' => "manageWasteType",
                 'title' => 'จัดการหมวดหมู่ขยะ',
                 'wcid' => !empty($wcid) ? $wcid : null,
                 'user' => $user["user_data"]
@@ -171,7 +171,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/waste_transaction', [
-                'pages' => "manageWasteTransaction",
+                'page' => "manageWasteTransaction",
                 'title' => 'ประวัติการดำเนินการ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -188,7 +188,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('maintenance', [
-                'pages' => "manageBadges",
+                'page' => "manageBadges",
                 'title' => 'จัดการเหรียญตรา',
                 'script' => '../../js/ManageBadges.js',
                 'user' => $user["user_data"]
@@ -205,7 +205,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/rewards', [
-                'pages' => "manageBadges",
+                'page' => "manageBadges",
                 'title' => 'จัดการของรางวัล',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -221,7 +221,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/reward_categories', [
-                'pages' => "manageRewardCategories",
+                'page' => "manageRewardCategories",
                 'title' => 'จัดการหมวดหมู่ของรางวัล',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -237,7 +237,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/details/reward_category', [
-                'pages' => "manageRewardCategories",
+                'page' => "manageRewardCategories",
                 'title' => 'รายการของรางวัลในหมวดหมู่',
                 'cid' => !empty($cid) ? (int) $cid : null,
                 'user' => $user["user_data"]
@@ -254,7 +254,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('manages/point_group', [
-                'pages' => "managePointGroup",
+                'page' => "managePointGroup",
                 'title' => 'จัดการกลุ่มแต้ม',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -271,7 +271,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('waste_center/manages/waste_stock', [
-                'pages' => "manageWasteStock",
+                'page' => "manageWasteStock",
                 'title' => 'คลังขยะ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -286,7 +286,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('/manages/waste_stock', [
-                'pages' => "manageWasteStock",
+                'page' => "manageWasteStock",
                 'title' => 'คลังขยะ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -301,7 +301,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('maintenance', [
-                'pages' => "manageWasteStock",
+                'page' => "manageWasteStock",
                 'title' => 'คลังของรางวัล',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -318,7 +318,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('transactions/waste_deposit', [
-                'pages' => "wasteTransaction",
+                'page' => "wasteTransaction",
                 'title' => 'ระบบฝากขยะ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -335,7 +335,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('transactions/clear_waste', [
-                'pages' => "clearWasteTransaction",
+                'page' => "wasteClearance",
                 'title' => 'ระบบเคลียร์ยอดฝากขยะ',
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -352,7 +352,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('transactions/waste_sale', [
-                'pages' => "saleWasteTransaction",
+                'page' => "wasteSale",
                 'title' => 'ระบบบันทึกการจำหน่ายออก',
                 'user' => $user["user_data"]
 
@@ -370,7 +370,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('transactions/donation_pos', [
-                'pages' => "donationTransaction",
+                'page' => "donationTransaction",
                 'title' => 'บันทึกการรับของบริจาค',
                 'user' => $user["user_data"]
 
@@ -387,7 +387,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('transactions/redeem_item', [
-                'pages' => "redeemItemTransaction",
+                'page' => "redeemItemTransaction",
                 'title' => 'แลกของรางวัล',
                 'user' => $user["user_data"]
 
@@ -405,7 +405,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('history/donation', [
-                'pages' => "DonationHistory",
+                'page' => "DonationHistory",
                 'title' => 'ประวัติการบริจาคสิ่งของ',
                 'user' => $user["user_data"]
 
@@ -423,7 +423,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('history/waste_sale_headers', [
-                'pages' => "wasteSaleHistory",
+                'page' => "wasteSaleHistory",
                 'title' => 'ประวัติการขายขยะ',
                 'user' => $user["user_data"]
 
@@ -440,7 +440,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('history/clear_waste', [
-                'pages' => "clearWasteHistory",
+                'page' => "clearWasteHistory",
                 'title' => 'ประวัติการเคลียร์ยอด',
                 'user' => $user["user_data"]
 
@@ -457,7 +457,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('history/waste_transaction', [
-                'pages' => "wasteTransactionHistory",
+                'page' => "wasteTransactionHistory",
                 'title' => 'ประวัติการฝากขยะ',
                 'user' => $user["user_data"]
 
@@ -474,7 +474,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('maintenance', [
-                'pages' => "DonationHistory",
+                'page' => "DonationHistory",
                 'title' => 'ประวัติการแลกของรางวัล',
                 'user' => $user["user_data"]
 
@@ -492,7 +492,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('maintenance', [
-                'pages' => "reports",
+                'page' => "reports",
                 'title' => "รายงาน",
                 'user' => $user["user_data"]
             ], self::$AdminTemplate);
@@ -503,118 +503,4 @@ class AdminPagesController extends RouterBase
         }
     }
 
-    // public function ReportUsers()
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/users', [
-    //             'pages' => "reports",
-    //             'title' => "รายงานสมาชิก",
-    //             'user' => $user["user_data"]
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportAllFaculties()
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/faculties', [
-    //             'pages' => "report all faculties",
-    //             'title' => "รายงานรายชื่อคณะ",
-    //             'user' => $user["user_data"]
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportFacultyDetails($fid)
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/details/faculty', [
-    //             'pages' => "report all faculties",
-    //             'title' => "รายงานรายละเอียดคณะ",
-    //             'fid' => !empty($fid) ? (int) $fid : null,
-    //             'user' => $user["user_data"]
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportAllBranches()
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/branches', [
-    //             'pages' => "reportAllBranches",
-    //             'title' => "รายงานรายชื่อหน่วยบริการ",
-    //             'user' => $user["user_data"]
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportFacultiesAndBranches()
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/faculties_and_branches', [
-    //             'pages' => "reportAllFacultiesAndBranches",
-    //             'title' => "รายงานรายชื่อคณะและหน่วยบริการ",
-    //             'user' => $user["user_data"]
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportFacultyStock($fid)
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/faculty_stock', [
-    //             'pages' => "reportStock",
-    //             'title' => "รายงานคลังขยะ",
-    //             'user' => $user["user_data"],
-    //             'faculty_id' => !empty($fid) ? (int) $fid : null
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
-
-    // public function ReportFacultyMajors()
-    // {
-    //     try {
-    //         $user = Authentication::AdminAuth();
-    //         $this->render('/waste_center/reports/faculty_stock', [
-    //             'pages' => "reportStock",
-    //             'title' => "รายงานคลังขยะ",
-    //             'user' => $user["user_data"],
-    //             'faculty_id' => !empty($fid) ? (int) $fid : null
-    //         ], self::$ReportLayout);
-    //     } catch (AuthenticationException $th) {
-    //         header('location: /');
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-    //     }
-    // }
 }
