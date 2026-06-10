@@ -116,7 +116,7 @@
                 this.isSearching = true;
                 this.showDropdown = true;
                 try {
-                    const response = await fetch(`/api/members?search=${encodeURIComponent(this.memberSearch)}&limit=10`);
+                    const response = await fetch(`/api/members?page=1&limit=10&role=1,2,3&search=${encodeURIComponent(this.memberSearch)}`);
                     const result = await response.json();
                     if (result.success) {
                         // Assuming the API returns member_waste_point
@@ -357,7 +357,7 @@
                     showCancelButton: true,
                     confirmButtonText: 'ยืนยัน',
                     cancelButtonText: 'ยกเลิก',
-                    confirmButtonColor: '#9333ea' // purple-600
+                    confirmButtonColor: '#db2777' // pink-600
                 });
 
                 if (!result.isConfirmed) return;
@@ -430,7 +430,7 @@
                     </svg>
                     <span>ระบบแลกของ</span>
                 </h1>
-                <p class="text-slate-600 text-sm">บันทึกการแลกของบริจาคจากสมาชิก</p>
+                <p class="text-slate-600 text-sm">บันทึกการแลกของรางวัลของสมาชิก</p>
             </div>
         </div>
 
@@ -446,7 +446,7 @@
                             @keydown.escape="showDropdown = false" @keydown.arrow-down.prevent="moveSelection(1)"
                             @keydown.arrow-up.prevent="moveSelection(-1)" type="text"
                             placeholder="กรอกเบอร์โทร หรือ ชื่อสมาชิก..."
-                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-lg"
+                            class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition text-lg"
                             autocomplete="off">
                     </div>
 
@@ -459,11 +459,11 @@
                         <ul x-show="!isSearching && searchResults.length > 0">
                             <template x-for="(member, index) in searchResults" :key="member.member_id">
                                 <li @click="selectMember(member)" :id="'member-item-' + index"
-                                    :class="{ 'bg-purple-100 ring-1 ring-inset ring-purple-300': index === selectedIndex, 'hover:bg-purple-50': index !== selectedIndex }"
+                                    :class="{ 'bg-pink-100 ring-1 ring-inset ring-pink-300': index === selectedIndex, 'hover:bg-pink-50': index !== selectedIndex }"
                                     class="px-4 py-3 cursor-pointer border-b border-slate-100 last:border-0 transition-colors group">
                                     <div class="flex justify-between items-center">
                                         <div>
-                                            <p class="font-bold text-slate-800 group-hover:text-purple-700"
+                                            <p class="font-bold text-slate-800 group-hover:text-pink-700"
                                                 x-text="member.member_name || 'ไม่ระบุชื่อ'"></p>
                                             <p class="text-xs text-slate-500">
                                                 <span x-text="member.faculty_name"></span>
@@ -486,7 +486,7 @@
 
             <div x-show="currentMember" class="w-full h-full">
                 <div
-                    class="relative bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-300 rounded-lg p-4 h-full flex flex-col justify-center">
+                    class="relative bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-300 rounded-lg p-4 h-full flex flex-col justify-center">
 
                     <button @click="resetMember()"
                         class="absolute top-2 right-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors p-1 z-10">
@@ -499,7 +499,7 @@
 
                     <div class="flex items-end justify-between pr-6">
                         <div>
-                            <p class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1">สมาชิก</p>
+                            <p class="text-xs font-bold text-pink-700 uppercase tracking-wider mb-1">สมาชิก</p>
                             <h2 class="text-2xl font-bold text-slate-900 mb-1" x-text="currentMember?.member_name"></h2>
                             <div class="flex gap-3 text-sm text-slate-600">
                                 <span><span x-text="currentMember?.member_phone"></span></span>
@@ -508,7 +508,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1">แต้มขยะ</p>
+                            <p class="text-xs font-bold text-pink-700 uppercase tracking-wider mb-1">แต้มขยะ</p>
                             <p class="text-3xl font-bold text-slate-800"
                                 x-text="currentMember?.member_waste_point || 0"></p>
                         </div>
@@ -531,7 +531,7 @@
                         <input x-ref="itemCodeInput" x-model="directItemForm.code"
                             @keydown.tab.prevent="handleItemCodeEnter()" @keydown.enter="handleItemCodeEnter()"
                             @input="searchDirectItem()" type="text" placeholder="พิมพ์รหัส/ชื่อ"
-                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition"
                             list="itemTypeList" autocomplete="off">
                         <datalist id="itemTypeList">
                             <template x-for="type in items" :key="type.donation_item_id">
@@ -540,7 +540,7 @@
                                 </option>
                             </template>
                         </datalist>
-                        <p class="text-[10px] text-purple-600 mt-1 font-medium truncate"
+                        <p class="text-[10px] text-pink-600 mt-1 font-medium truncate"
                             x-text="selectedDirectItem ? `${selectedDirectItem?.donation_item_name} (คงเหลือ: ${selectedDirectItem?.donation_item_amount} ชิ้น)`:  'ระบุรหัสของบริจาคเพื่อตรวจสอบสต็อก'">
                         </p>
                     </div>
@@ -549,11 +549,11 @@
                         <input x-ref="qtyInput" x-model.number="directItemForm.qty" @keydown.enter="addDirectItem()"
                             @keydown.tab.prevent="addDirectItem(); $refs.itemCodeInput.focus()" type="number" step="1"
                             min="1" placeholder="1"
-                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition">
+                            class="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition">
                     </div>
                     <div class="col-span-3 flex items-center">
                         <button @click="addDirectItem()"
-                            class="w-full px-4 py-2 mb-[2px] bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
+                            class="w-full px-4 py-2 mb-[2px] bg-pink-600 hover:bg-pink-700 text-white rounded-lg font-semibold transition-colors h-[42px]">
                             เพิ่ม
                         </button>
                     </div>
@@ -573,7 +573,7 @@
                     </h2>
                     <input type="text" x-model="itemSearch" @input.debounce.300ms="filterItems()"
                         placeholder=" ค้นหาของบริจาค..."
-                        class="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm w-64">
+                        class="px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition text-sm w-64">
                 </div>
 
                 <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
@@ -590,7 +590,7 @@
                         <tbody>
                             <template x-for="item in filteredItems" :key="item.donation_item_id">
                                 <tr class="border-b last:border-b-0 transition-colors group"
-                                    :class="selectedItems.find(i => i.donation_item_id === item.donation_item_id) ? 'bg-purple-50 hover:bg-purple-100' : 'bg-white hover:bg-slate-50'">
+                                    :class="selectedItems.find(i => i.donation_item_id === item.donation_item_id) ? 'bg-pink-50 hover:bg-pink-100' : 'bg-white hover:bg-slate-50'">
                                     <td class="px-4 py-2">
                                         <div
                                             class="w-10 h-10 bg-slate-100 rounded overflow-hidden border border-slate-200">
@@ -613,14 +613,14 @@
                                     <td class="px-4 py-3 text-right font-medium text-slate-700"
                                         x-text="item.donation_item_amount"></td>
                                     <td class="px-4 py-3 text-right">
-                                        <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2 py-1 rounded"
+                                        <span class="bg-pink-100 text-pink-700 text-xs font-bold px-2 py-1 rounded"
                                             x-text="item.donation_item_redeem_point + ' แต้ม'"></span>
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <button
                                             x-show="!selectedItems.find(i => i.donation_item_id === item.donation_item_id)"
                                             @click.stop="selectItem(item)"
-                                            class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
+                                            class="px-3 py-1.5 bg-pink-600 hover:bg-pink-700 text-white text-xs font-bold rounded shadow-sm transition-colors w-full">
                                             เพิ่ม
                                         </button>
                                         <button
@@ -665,7 +665,7 @@
         <div class="h-full rounded-xl shadow-md relative">
 
             <div
-                class="h-full bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white flex flex-col justify-between overflow-y-auto custom-scrollbar">
+                class="h-full bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-6 text-white flex flex-col justify-between overflow-y-auto custom-scrollbar">
 
                 <div>
                     <h3 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-amber-400 pb-2">
@@ -685,7 +685,7 @@
                                     <li
                                         class="flex flex-col gap-2 pb-3 last:border-0 last:pb-0 border-b border-gray-300">
                                         <div class="flex justify-between items-start">
-                                            <span class="text-purple-700 font-semibold pr-2 line-clamp-2"
+                                            <span class="text-pink-700 font-semibold pr-2 line-clamp-2"
                                                 x-text="item.donation_item_name"></span>
                                             <button @click="removeItem(index)"
                                                 class="text-rose-500 hover:text-rose-400 cursor-pointer transition-colors shrink-0">
@@ -697,15 +697,15 @@
                                             </button>
                                         </div>
                                         <div class="flex justify-between items-center">
-                                            <div class="flex items-center gap-2 bg-purple-100 rounded">
+                                            <div class="flex items-center gap-2 bg-pink-100 rounded">
                                                 <button @click="decreaseQty(index)"
-                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">-</button>
-                                                <span class="text-purple-700 font-bold w-8 text-center"
+                                                    class="w-7 h-7 rounded bg-pink-500 hover:bg-pink-400 cursor-pointer text-white font-bold flex items-center justify-center transition">-</button>
+                                                <span class="text-pink-700 font-bold w-8 text-center"
                                                     x-text="item.qty"></span>
                                                 <button @click="increaseQty(index)"
-                                                    class="w-7 h-7 rounded bg-purple-500 hover:bg-purple-400 cursor-pointer text-white font-bold flex items-center justify-center transition">+</button>
+                                                    class="w-7 h-7 rounded bg-pink-500 hover:bg-pink-400 cursor-pointer text-white font-bold flex items-center justify-center transition">+</button>
                                             </div>
-                                            <span class="text-purple-700 font-bold"
+                                            <span class="text-pink-700 font-bold"
                                                 x-text="(item.donation_item_redeem_point * item.qty) + ' แต้ม'"></span>
                                         </div>
                                     </li>
@@ -713,15 +713,15 @@
                             </ul>
                         </div>
 
-                        <div class="h-px bg-purple-400 opacity-50 my-2"></div>
+                        <div class="h-px bg-pink-400 opacity-50 my-2"></div>
 
                         <div class="bg-black/20 rounded-xl p-4 mt-2 backdrop-blur-sm space-y-2"
                             x-show="selectedItems.length > 0">
-                            <div class="flex justify-between items-center text-sm text-purple-200">
+                            <div class="flex justify-between items-center text-sm text-pink-200">
                                 <span>แต้มที่ต้องใช้รวม</span>
                                 <span x-text="totalPoints()"></span>
                             </div>
-                            <div class="flex justify-between items-center text-sm text-purple-200">
+                            <div class="flex justify-between items-center text-sm text-pink-200">
                                 <span>แต้มที่มี</span>
                                 <span x-text="currentMember?.member_waste_point || 0"></span>
                             </div>
@@ -739,7 +739,7 @@
 
                 <div class="mt-6 space-y-3">
                     <button @click="saveRedemption()" :disabled="!canSave() || isSubmitting"
-                        :class="!canSave() || isSubmitting ? 'bg-purple-800/50 cursor-not-allowed text-purple-200' : 'bg-white hover:bg-purple-50 text-purple-700 shadow-lg transform hover:-translate-y-0.5'"
+                        :class="!canSave() || isSubmitting ? 'bg-pink-800/50 cursor-not-allowed text-pink-200' : 'bg-white hover:bg-pink-50 text-pink-700 shadow-lg transform hover:-translate-y-0.5'"
                         class="w-full px-6 py-4 rounded-xl font-bold text-xl transition-all duration-200 flex items-center justify-center gap-2">
                         <span x-show="!isSubmitting">ยืนยันการแลก</span>
                         <span x-show="isSubmitting" class="flex items-center gap-2">⏳ กำลังบันทึก...</span>
