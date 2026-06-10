@@ -196,29 +196,6 @@
                         เข้าสู่ระบบ
                     </a>
                 </div>
-
-                <div class="md:hidden flex items-center">
-                    <button @click="isMenuOpen = !isMenuOpen" class="text-gray-600">
-                        <i x-show="!isMenuOpen" data-lucide="menu" class="w-6 h-6"></i>
-                        <i x-show="isMenuOpen" x-cloak data-lucide="x" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div x-show="isMenuOpen" x-collapse x-cloak
-            class="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3 shadow-lg absolute w-full">
-            <a href="/about"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">รู้จักโครงการ</a>
-            <a href="/how-it-works"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">การทำงาน</a>
-            <a href="/rewards"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</a>
-            <a href="/leaderboard"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">อันดับคณะ</a>
-            <div class="pt-2">
-                <a href="/register"
-                    class="block text-center w-full bg-white border-2 border-green-600 text-green-600 px-4 py-3 rounded-xl font-semibold">สมัครสมาชิก</a>
             </div>
         </div>
     </nav>
