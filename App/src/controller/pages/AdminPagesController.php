@@ -49,7 +49,7 @@ class AdminPagesController extends RouterBase
         try {
             $user = Authentication::AdminAuth();
             $this->render('waste_center/details/user_detail', [
-                'page' => "manageUsers",
+                'page' => "manageUserDetail",
                 'title' => 'จัดการผู้ใช้งาน',
                 'member_id' => !empty($member_id) ? (int) $member_id : null,
                 'user' => $user["user_data"]
