@@ -15,6 +15,8 @@
                         class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">รู้จักโครงการ</button>
                     <button @click="scrollTo('how-it-works')"
                         class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">การทำงาน</button>
+                    <button @click="scrollTo('video-guide')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">วิดีโอแนะนำ</button>
                     <button @click="scrollTo('rewards')"
                         class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ของรางวัล</button>
                     <button @click="scrollTo('leaderboard')"
@@ -40,6 +42,8 @@
                 class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">รู้จักโครงการ</button>
             <button @click="scrollTo('how-it-works')"
                 class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">การทำงาน</button>
+            <button @click="scrollTo('video-guide')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">วิดีโอแนะนำ</button>
             <button @click="scrollTo('rewards')"
                 class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</button>
             <button @click="scrollTo('leaderboard')"
@@ -181,6 +185,29 @@
         </div>
     </section>
 
+    <section id="video-guide"
+        class="scroll-mt-20 bg-gray-50 min-h-[calc(80vh)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+        <div class="max-w-7xl mx-20 px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
+                    <i data-lucide="square-play" class="w-8 h-8 text-red-600"></i>
+                </div>
+                <!-- <h2 class="text-3xl font-bold text-gray-900 mb-4">วิดีโอแนะนำระบบ</h2> -->
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    วิดิโอแนะนำกิจกรรม BRU Go Green
+                </p>
+            </div>
+            <div class="max-w-4xl mx-auto">
+                <div class="aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/s-OtnUQglrs?si=mltqiwJ43FM2pud1"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="scroll-mt-20 py-6 md:py-12 bg-gray-900 text-white relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
             <div
@@ -262,7 +289,7 @@
                         ใช้แต้มขยะที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
                     </p>
                 </div>
-                
+
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -276,17 +303,16 @@
                         </div>
                         <div class="flex-grow">
                             <h3 class="font-bold text-lg text-gray-900 mb-1" x-text="reward.donation_item_name"></h3>
-                            <p class="text-sm text-gray-500 mb-6 h-10"></p>
                         </div>
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-50">
-                            <div class="flex items-center gap-1.5 font-bold text-green-600">
-                                <i data-lucide="award" class="w-5 h-5"></i> <span
+                        <div class="flex items-center justify-center pt-4 border-t border-gray-50">
+                            <div class="flex items-center gap-1.5 font-bold text-green-600 text-center">
+                                <span
                                     x-text="`${parseInt(reward.donation_item_redeem_point).toLocaleString()} แต้ม`"></span>
                             </div>
-                            <a href="/login"
+                            <!-- <a href="/login"
                                 class="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg group-hover:bg-green-600 group-hover:text-white transition-colors">
                                 แลกรางวัล
-                            </a>
+                            </a> -->
                         </div>
                     </div>
                 </template>
@@ -439,7 +465,7 @@
 
             async fetchLeaderboard() {
                 try {
-                    const response = await fetch('/api/leaders/faculty?limit=5');
+                    const response = await fetch('/api/leaders/faculty?limit=9&page=1');
                     const result = await response.json();
                     if (result.success && result.data) {
                         this.leaderboard = result.data.map((item, index) => ({
