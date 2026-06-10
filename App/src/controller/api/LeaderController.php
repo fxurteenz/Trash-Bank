@@ -42,7 +42,8 @@ class LeaderController
     {
         try {
             // use user auth
-            $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
+            // $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
+            $result = self::$LeaderModel->LeadingFacultyDeposit(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);

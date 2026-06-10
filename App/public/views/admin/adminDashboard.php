@@ -22,7 +22,7 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Waste Volume -->
-        <div @click="window.location.href = '/admin/report'"
+        <div 
             class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Carbon Reduction -->
-        <div @click="window.location.href = '/admin/report'"
+        <div 
             class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -73,7 +73,7 @@
         </div>
 
         <!-- User Transactions -->
-        <div @click="window.location.href = '/history/waste_transation'"
+        <div @click="window.location.href = '/admin/history/waste_transaction'"
             class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -92,7 +92,7 @@
                 <div>
                     <p class="text-4xl font-bold"
                         x-text="Number(currentSummary?.transaction_count || 0).toLocaleString()"></p>
-                    <p class="text-sm text-purple-100 mt-1">ครั้ง</p>
+                    <p class="text-sm text-purple-100 mt-1">คน</p>
 
                 </div>
             </div>
@@ -101,7 +101,7 @@
         </div>
 
         <!-- Growth -->
-        <div @click="window.location.href = '/admin/report'"
+        <div 
             class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -117,7 +117,7 @@
                 </div>
                 <div>
                     <p class="text-4xl font-bold" x-text="Number(dashboardData.total_member || 0).toLocaleString()"></p>
-                    <p class="text-sm text-orange-100 mt-1">คน</p>
+                    <p class="text-sm text-orange-100 mt-1">ครั้ง</p>
                 </div>
             </div>
             <p class="text-orange-100 text-sm mb-1">ผู้ใช้งานระบบทั้งหมด</p>

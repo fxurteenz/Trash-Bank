@@ -133,7 +133,7 @@ class DashboardDataModel
                                     COUNT(m.member_id) AS member_count
                                 FROM 
                                     member m
-                                WHERE m.role_id IN (2, 4)";
+                                WHERE m.role_id IN (1,2,3)";
             $stmtMember = $this->Conn->prepare($summaryMemberSql);
             $stmtMember->execute();
             $summaryMember = $stmtMember->fetch(PDO::FETCH_ASSOC) ?: [];
