@@ -1,4 +1,10 @@
 <div x-data="userDetail()">
+    <div class="flex justify-between items-center my-4">
+        <div class="flex items-center gap-4">
+
+            <h1 class="text-2xl font-bold text-slate-900" x-text="`ข้อมูลผู้ใช้ :  ${profile?.member_name}`"></h1>
+        </div>
+    </div>
     <div class="w-full grid grid-cols-3 gap-2 mb-4">
         <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl shadow-lg p-4 text-white">
             <div class="flex items-center justify-between">
@@ -142,12 +148,12 @@
                             <p class="text-base font-semibold" x-text="profile.member_phone"></p>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-4">
-                            <p class="text-sm text-gray-500">สาขา</p>
-                            <p class="text-base font-semibold" x-text="profile.major_name"></p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-4">
                             <p class="text-sm text-gray-500">คณะ</p>
                             <p class="text-base font-semibold" x-text="profile.faculty_name"></p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <p class="text-sm text-gray-500">สาขา</p>
+                            <p class="text-base font-semibold" x-text="profile.major_name"></p>
                         </div>
                     </div>
                 </div>
@@ -216,6 +222,7 @@
                 </ul>
             </div>
         </div>
+        
     </div>
 
     <!-- Edit Member Modal -->
