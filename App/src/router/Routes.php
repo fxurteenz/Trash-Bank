@@ -173,6 +173,8 @@ class Routes
 
         ]);
         /* API */
+        /* api/ */
+        
         /* api/members */
         $this->addPrefixedRoutes('/api/members', [
             ['GET', '', [MemberController::class, 'GetAll']],

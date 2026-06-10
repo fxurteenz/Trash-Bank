@@ -1,4 +1,4 @@
-<div x-data="wasteBankApp()" x-init="$nextTick(() => { lucide.createIcons() })" class="min-h-screen">
+<div x-data="wasteBankApp()" x-init=" $nextTick(() => { lucide.createIcons() })" class="min-h-screen">
 
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -259,36 +259,34 @@
                         <i data-lucide="gift" class="text-rose-500 w-8 h-8"></i> รายการของรางวัล
                     </h2>
                     <p class="text-gray-600 max-w-2xl text-lg">
-                        ใช้แต้มขยะและแต้มความดีที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
+                        ใช้แต้มขยะที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
                     </p>
                 </div>
-                <div
-                    class="mt-6 md:mt-0 bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
-                    <div class="text-right">
-                        <p class="text-xs text-gray-500 font-medium">การคำนวณแต้ม</p>
-                        <p class="font-bold text-gray-900 text-sm">แต้ม = (ราคา/กก. × น้ำหนัก) / 2 × 10</p>
-                    </div>
-                </div>
+                
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <template x-for="(reward, index) in rewards" :key="index">
+                <template x-for="reward in rewards" :key="reward.donation_item_id">
                     <div
-                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group">
-                        <div class="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform"
-                            x-text="reward.icon">
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group flex flex-col">
+                        <div
+                            class="w-full h-40 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform overflow-hidden">
+                            <img :src="reward.donation_item_image ? `assets/images/donation_items/${reward.donation_item_image}` : 'https://placehold.co/400x400/e2e8f0/a0aec0?text=BRU'"
+                                :alt="reward.donation_item_name" class="w-full h-full object-cover">
                         </div>
-                        <h3 class="font-bold text-lg text-gray-900 mb-1" x-text="reward.name"></h3>
-                        <p class="text-sm text-gray-500 mb-6 h-10" x-text="reward.desc"></p>
+                        <div class="flex-grow">
+                            <h3 class="font-bold text-lg text-gray-900 mb-1" x-text="reward.donation_item_name"></h3>
+                            <p class="text-sm text-gray-500 mb-6 h-10"></p>
+                        </div>
                         <div class="flex items-center justify-between pt-4 border-t border-gray-50">
                             <div class="flex items-center gap-1.5 font-bold text-green-600">
                                 <i data-lucide="award" class="w-5 h-5"></i> <span
-                                    x-text="reward.points + ' แต้ม'"></span>
+                                    x-text="`${parseInt(reward.donation_item_redeem_point).toLocaleString()} แต้ม`"></span>
                             </div>
-                            <button
+                            <a href="/login"
                                 class="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg group-hover:bg-green-600 group-hover:text-white transition-colors">
                                 แลกรางวัล
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </template>
@@ -397,29 +395,66 @@
         Alpine.data('wasteBankApp', () => ({
             isMenuOpen: false,
             stats: [
-                { label: 'ปริมาณขยะที่รวบรวมได้ (กก.)', value: '15,420', icon: 'recycle', iconColor: 'text-green-500' },
-                { label: 'คาร์บอนที่ลดได้ (kgCO₂e)', value: '45,200', icon: 'leaf', iconColor: 'text-emerald-500' },
-                { label: 'สมาชิกเข้าร่วม (คน)', value: '2,845', icon: 'users', iconColor: 'text-blue-500' },
-                { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '1.2M', icon: 'award', iconColor: 'text-yellow-500' },
+                { label: 'ปริมาณขยะที่รวบรวมได้ (กก.)', value: '0', icon: 'recycle', iconColor: 'text-green-500' },
+                { label: 'คาร์บอนที่ลดได้ (kgCO₂e)', value: '0', icon: 'leaf', iconColor: 'text-emerald-500' },
+                { label: 'สมาชิกเข้าร่วม (คน)', value: '0', icon: 'users', iconColor: 'text-blue-500' },
+                { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '0', icon: 'award', iconColor: 'text-yellow-500' },
             ],
-            rewards: [
-                { name: 'มาม่า', points: 70, desc: 'ระดับคุณภาพชีวิตในชีวิตประจำวัน', icon: '🍜' },
-                { name: 'มาม่าคัพ', points: 140, desc: 'อิ่มอร่อยสะดวกทุกที่', icon: '🍲' },
-                { name: 'ปลากระป๋อง', points: 200, desc: 'โปรตีนเน้นๆ', icon: '🥫' },
-                { name: 'กระถางรีไซเคิลเล็ก', points: 100, desc: 'สอดคล้อง Circular Economy', icon: '🪴' },
-                { name: 'แก้วน้ำพกพา', points: 300, desc: 'ช่วยลดการใช้แก้วพลาสติก', icon: '🥤' },
-                { name: 'ชุดปลูกต้นไม้เล็ก', points: 300, desc: 'เพิ่มพื้นที่สีเขียวบนโต๊ะ', icon: '🌱' },
-                { name: 'ถุงผ้า BRU', points: 300, desc: 'ถุงผ้าโลโก้มหาวิทยาลัย', icon: '🛍️' },
-                { name: 'ต้นไม้ประดับ', points: 350, desc: 'ช่วยลด CO₂ ~10-20 kg/ปี', icon: '🌳' },
-                { name: 'ถุงผ้าพรีเมียม', points: 500, desc: 'คุณภาพสูง ทนทาน', icon: '👜' },
-            ],
-            leaderboard: [
-                { rank: 1, faculty: 'คณะวิทยาศาสตร์', points: '125,400', weight: '3,200 กก.', carbon: '9,600' },
-                { rank: 2, faculty: 'คณะเทคโนโลยีการเกษตร', points: '110,200', weight: '2,850 กก.', carbon: '8,550' },
-                { rank: 3, faculty: 'คณะครุศาสตร์', points: '98,500', weight: '2,400 กก.', carbon: '7,200' },
-                { rank: 4, faculty: 'คณะวิทยาการจัดการ', points: '85,000', weight: '2,100 กก.', carbon: '6,300' },
-                { rank: 5, faculty: 'คณะมนุษยศาสตร์ฯ', points: '72,300', weight: '1,800 กก.', carbon: '5,400' },
-            ],
+            rewards: [],
+            leaderboard: [],
+
+            init() {
+                this.fetchStats();
+                this.fetchRewards();
+                this.fetchLeaderboard();
+            },
+
+            async fetchStats() {
+                try {
+                    const response = await fetch('/api/statistics');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        const data = result.data;
+                        this.stats[0].value = parseFloat(data.total_weight || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        this.stats[1].value = parseFloat(data.total_co2e || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                        this.stats[2].value = parseInt(data.member_count || 0).toLocaleString();
+                        this.stats[3].value = parseInt(data.total_point || 0).toLocaleString();
+                    }
+                } catch (error) {
+                    console.error('Error fetching stats:', error);
+                }
+            },
+
+            async fetchRewards() {
+                try {
+                    const response = await fetch('/api/donations/items/available?limit=8');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.rewards = result.data;
+                    }
+                } catch (error) {
+                    console.error('Error fetching rewards:', error);
+                }
+            },
+
+            async fetchLeaderboard() {
+                try {
+                    const response = await fetch('/api/leaders/faculty?limit=5');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.leaderboard = result.data.map((item, index) => ({
+                            rank: index + 1,
+                            faculty: item.faculty_name,
+                            points: parseInt(item.total_point).toLocaleString(),
+                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
+                            carbon: parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error fetching leaderboard:', error);
+                }
+            },
+
             scrollTo(id) {
                 const el = document.getElementById(id);
                 if (el) {

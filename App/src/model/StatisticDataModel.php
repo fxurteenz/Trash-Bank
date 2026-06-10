@@ -91,7 +91,7 @@ class StatisticDataModel
             $sqlMember = "SELECT 
                         COALESCE(count(DISTINCT m.member_id), 0) AS member_count
                         FROM member m
-                        WHERE m.role_id = 2";
+                        WHERE m.role_id IN (1,2,3)";
             $stmtMember = $this->Conn->prepare($sqlMember);
             $stmtMember->execute();
             $memberTotal = $stmtMember->fetch(PDO::FETCH_ASSOC);
