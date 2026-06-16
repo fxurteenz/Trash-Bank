@@ -1014,7 +1014,7 @@
                 if (!form.role_id) {
                     errors.role_id = true;
                     isValid = false;
-                } else if (form.role_id == '1' || form.role_id == '2' || form.role_id == '3' || form.role_id == '4') {
+                } else if (form.role_id == '1' || form.role_id == '2' || form.role_id == '4') {
                     if (!form.faculty_id) {
                         errors.faculty_id = true;
                         isValid = false;
