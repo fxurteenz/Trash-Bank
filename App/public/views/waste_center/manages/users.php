@@ -547,7 +547,7 @@
                     </div>
 
                     <div class="flex flex-col space-y-1">
-                        <label for="create_acc_mail">อีเมล์</label>
+                        <label for="create_acc_mail">อีเมล</label>
                         <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
                             type="text" id="create_acc_mail" x-model="createUserForm.member_email" placeholder="อีเมล">
                     </div>
