@@ -967,10 +967,15 @@ $faculty_id = $faculty_id ?? "null";
                     return;
                 }
                 try {
+                    const payload = {
+                        major_name: this.editMajorForm.major_name,
+                        major_name_en: this.editMajorForm.major_name_en,
+                        major_code: this.editMajorForm.major_code
+                    };
                     const res = await fetch(`/api/majors/update/${this.editMajorForm.major_id}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(this.editMajorForm)
+                        body: JSON.stringify(payload)
                     });
                     const result = await res.json();
                     if (result.success) {
