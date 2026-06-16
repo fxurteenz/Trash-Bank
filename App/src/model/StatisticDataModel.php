@@ -89,7 +89,11 @@ class StatisticDataModel
             $stmtTotal->execute($params);
             $transactionTotal = $stmtTotal->fetch(PDO::FETCH_ASSOC);
             $sqlMember = "SELECT 
-                        COALESCE(count(DISTINCT m.member_id), 0) AS member_count
+                            COALESCE(count(DISTINCT m.member_id), 0) AS member_count,
+                            SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as user_count,
+                            SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                            SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                            SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) + SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as professor_employee_count
                         FROM member m
                         WHERE m.role_id IN (1,2,3)";
             $stmtMember = $this->Conn->prepare($sqlMember);

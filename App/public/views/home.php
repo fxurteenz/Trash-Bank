@@ -187,7 +187,7 @@
 
     <section id="video-guide"
         class="scroll-mt-20 bg-gray-50 min-h-[calc(80vh)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
-        <div class="max-w-7xl mx-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 md:mb-12">
                 <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
                     <i data-lucide="square-play" class="w-8 h-8 text-red-600"></i>
@@ -197,8 +197,8 @@
                     วิดิโอแนะนำกิจกรรม BRU Go Green
                 </p>
             </div>
-            <div class="max-w-4xl mx-auto">
-                <div class="aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
+            <div class="max-w-7xl mx-auto w-full">
+                <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
                     <iframe class="w-full h-full" src="https://www.youtube.com/embed/s-OtnUQglrs?si=mltqiwJ43FM2pud1"
                         title="YouTube video player" frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -421,9 +421,9 @@
         Alpine.data('wasteBankApp', () => ({
             isMenuOpen: false,
             stats: [
-                { label: 'ปริมาณขยะที่รวบรวมได้ (กก.)', value: '0', icon: 'recycle', iconColor: 'text-green-500' },
-                { label: 'คาร์บอนที่ลดได้ (kgCO₂e)', value: '0', icon: 'leaf', iconColor: 'text-emerald-500' },
-                { label: 'สมาชิกเข้าร่วม (คน)', value: '0', icon: 'users', iconColor: 'text-blue-500' },
+                { label: 'สมาชิกที่เข้าร่วม (คน.)', value: '0', icon: 'users', iconColor: 'text-green-500' },
+                { label: 'นักศึกษา (คน.)', value: '0', icon: 'graduation-cap', iconColor: 'text-green-500' },
+                { label: 'อาจารย์/บุคลากร (คน.)', value: '0', icon: 'id-card-lanyard', iconColor: 'text-green-500' },
                 { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '0', icon: 'award', iconColor: 'text-yellow-500' },
             ],
             rewards: [],
@@ -441,9 +441,9 @@
                     const result = await response.json();
                     if (result.success && result.data) {
                         const data = result.data;
-                        this.stats[0].value = parseFloat(data.total_weight || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                        this.stats[1].value = parseFloat(data.total_co2e || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                        this.stats[2].value = parseInt(data.member_count || 0).toLocaleString();
+                        this.stats[0].value = parseFloat(data.member_count || 0).toLocaleString();
+                        this.stats[1].value = parseFloat(data.user_count || 0).toLocaleString();
+                        this.stats[2].value = parseFloat(data.professor_employee_count || 0).toLocaleString();
                         this.stats[3].value = parseInt(data.total_point || 0).toLocaleString();
                     }
                 } catch (error) {
