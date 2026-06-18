@@ -327,56 +327,215 @@
                 <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
                     <i data-lucide="trophy" class="w-8 h-8 text-yellow-600"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">กระดานผู้นำระดับคณะ</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
-                    การแข่งขันเชิงสร้างสรรค์ เพื่อค้นหาสุดยอดคณะที่มีส่วนร่วมในการจัดการขยะและลดคาร์บอนได้มากที่สุด
+                <h2 class="text-3xl font-bold text-gray-900 mb-4"
+                    x-text="leaderboardType === 'faculty' ? 'กระดานผู้นำระดับคณะ' : (leaderboardType === 'major' ? 'กระดานผู้นำระดับสาขา' : 'กระดานผู้นำระดับบุคคล')">
+                    กระดานผู้นำระดับคณะ</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+                    การแข่งขันเชิงสร้างสรรค์
+                    เพื่อค้นหาสุดยอดคณะและบุคคลที่มีส่วนร่วมในการจัดการขยะและลดคาร์บอนได้มากที่สุด
                 </p>
+
+                <!-- Toggle Switch -->
+                <div class="flex justify-center">
+                    <div class="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
+                        <button
+                            @click="leaderboardType = 'faculty'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="{'bg-white shadow text-gray-900': leaderboardType === 'faculty', 'text-gray-500 hover:text-gray-700': leaderboardType !== 'faculty'}"
+                            class="px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="building-2" class="w-4 h-4"></i> ระดับคณะ
+                        </button>
+                        <button
+                            @click="leaderboardType = 'major'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="{'bg-white shadow text-gray-900': leaderboardType === 'major', 'text-gray-500 hover:text-gray-700': leaderboardType !== 'major'}"
+                            class="px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="book-open" class="w-4 h-4"></i> ระดับสาขา
+                        </button>
+                        <button
+                            @click="leaderboardType = 'member'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="{'bg-white shadow text-gray-900': leaderboardType === 'member', 'text-gray-500 hover:text-gray-700': leaderboardType !== 'member'}"
+                            class="px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="user" class="w-4 h-4"></i> ระดับบุคคล
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 text-gray-500 text-sm font-semibold uppercase tracking-wider">
-                                <th class="py-5 px-6">อันดับ</th>
-                                <th class="py-5 px-6">คณะ</th>
-                                <th class="py-5 px-6 text-right">แต้มสะสมรวม</th>
-                                <th class="py-5 px-6 text-right hidden sm:table-cell">ปริมาณขยะ</th>
-                                <th class="py-5 px-6 text-right hidden md:table-cell">คาร์บอนที่ลดได้ (CO₂e)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <template x-for="item in leaderboard" :key="item.rank">
-                                <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="py-5 px-6">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
-                                            :class="{
-                             'bg-yellow-100 text-yellow-700': item.rank === 1,
-                             'bg-gray-100 text-gray-600': item.rank === 2,
-                             'bg-orange-100 text-orange-700': item.rank === 3,
-                             'bg-gray-50 text-gray-400': item.rank > 3
-                           }" x-text="item.rank">
-                                        </div>
-                                    </td>
-                                    <td class="py-5 px-6 font-bold text-gray-900" x-text="item.faculty"></td>
-                                    <td class="py-5 px-6 text-right font-bold text-green-600" x-text="item.points">
-                                    </td>
-                                    <td class="py-5 px-6 text-right text-gray-500 hidden sm:table-cell"
-                                        x-text="item.weight"></td>
-                                    <td class="py-5 px-6 text-right text-emerald-600 font-medium hidden md:table-cell">
-                                        <span class="flex items-center justify-end gap-1"><i data-lucide="leaf"
-                                                class="w-4 h-4"></i> <span x-text="item.carbon"></span></span>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
-                    <button
-                        class="text-green-600 font-semibold text-sm hover:underline flex items-center justify-center gap-1 mx-auto">
-                        ดูอันดับทั้งหมด <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                    </button>
+            <div class="relative group">
+                <!-- Left Arrow -->
+                <button
+                    @click="leaderboardType = leaderboardType === 'member' ? 'major' : 'faculty'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                    class="absolute left-0 ml-0 md:-ml-6 top-1/2 -translate-y-1/2 bg-white border border-gray-200 text-gray-800 p-2 md:p-3 rounded-full shadow-lg hover:bg-gray-50 z-20 transition-all duration-300"
+                    :class="leaderboardType === 'faculty' ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 cursor-pointer scale-100'">
+                    <i data-lucide="chevron-left" class="w-6 h-6 text-green-600"></i>
+                </button>
+
+                <!-- Right Arrow -->
+                <button
+                    @click="leaderboardType = leaderboardType === 'faculty' ? 'major' : 'member'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                    class="absolute right-0 mr-0 md:-mr-6 top-1/2 -translate-y-1/2 bg-white border border-gray-200 text-gray-800 p-2 md:p-3 rounded-full shadow-lg hover:bg-gray-50 z-20 transition-all duration-300"
+                    :class="leaderboardType === 'member' ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 cursor-pointer scale-100'">
+                    <i data-lucide="chevron-right" class="w-6 h-6 text-green-600"></i>
+                </button>
+
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden relative">
+                    <!-- Carousel Track -->
+                    <div class="flex transition-transform duration-500 ease-out"
+                        :style="`transform: translateX(-${['faculty', 'major', 'member'].indexOf(leaderboardType) * 100}%)`">
+
+                        <!-- Faculty Table Slide -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-gray-50 text-gray-500 text-sm font-semibold uppercase tracking-wider">
+                                            <th class="py-5 px-6">อันดับ</th>
+                                            <th class="py-5 px-6">คณะ</th>
+                                            <th class="py-5 px-6 text-right">แต้มสะสมรวม</th>
+                                            <th class="py-5 px-6 text-right hidden sm:table-cell">ปริมาณขยะ</th>
+                                            <th class="py-5 px-6 text-right hidden md:table-cell">คาร์บอนที่ลดได้ (CO₂e)
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <template x-for="item in facultyLeaderboard" :key="'fac-'+item.rank">
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="py-5 px-6">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                                        :class="{
+                                         'bg-yellow-100 text-yellow-700': item.rank === 1,
+                                         'bg-gray-100 text-gray-600': item.rank === 2,
+                                         'bg-orange-100 text-orange-700': item.rank === 3,
+                                         'bg-gray-50 text-gray-400': item.rank > 3
+                                       }" x-text="item.rank">
+                                                    </div>
+                                                </td>
+                                                <td class="py-5 px-6 font-bold text-gray-900" x-text="item.name"></td>
+                                                <td class="py-5 px-6 text-right font-bold text-green-600"
+                                                    x-text="item.points"></td>
+                                                <td class="py-5 px-6 text-right text-gray-500 hidden sm:table-cell"
+                                                    x-text="item.weight"></td>
+                                                <td
+                                                    class="py-5 px-6 text-right text-emerald-600 font-medium hidden md:table-cell">
+                                                    <span class="flex items-center justify-end gap-1"><i
+                                                            data-lucide="leaf" class="w-4 h-4"></i> <span
+                                                            x-text="item.carbon"></span></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Major Table Slide -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-gray-50 text-gray-500 text-sm font-semibold uppercase tracking-wider">
+                                            <th class="py-5 px-6">อันดับ</th>
+                                            <th class="py-5 px-6">สาขา</th>
+                                            <th class="py-5 px-6 text-right">แต้มสะสมรวม</th>
+                                            <th class="py-5 px-6 text-right hidden sm:table-cell">ปริมาณขยะ</th>
+                                            <th class="py-5 px-6 text-right hidden md:table-cell">คาร์บอนที่ลดได้ (CO₂e)
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <template x-for="item in majorLeaderboard" :key="'maj-'+item.rank">
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="py-5 px-6">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                                        :class="{
+                                         'bg-yellow-100 text-yellow-700': item.rank === 1,
+                                         'bg-gray-100 text-gray-600': item.rank === 2,
+                                         'bg-orange-100 text-orange-700': item.rank === 3,
+                                         'bg-gray-50 text-gray-400': item.rank > 3
+                                       }" x-text="item.rank">
+                                                    </div>
+                                                </td>
+                                                <td class="py-5 px-6 font-bold text-gray-900" x-text="item.name"></td>
+                                                <td class="py-5 px-6 text-right font-bold text-green-600"
+                                                    x-text="item.points"></td>
+                                                <td class="py-5 px-6 text-right text-gray-500 hidden sm:table-cell"
+                                                    x-text="item.weight"></td>
+                                                <td
+                                                    class="py-5 px-6 text-right text-emerald-600 font-medium hidden md:table-cell">
+                                                    <span class="flex items-center justify-end gap-1"><i
+                                                            data-lucide="leaf" class="w-4 h-4"></i> <span
+                                                            x-text="item.carbon"></span></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Member Table Slide -->
+                        <div class="w-full flex-shrink-0">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr
+                                            class="bg-gray-50 text-gray-500 text-sm font-semibold uppercase tracking-wider">
+                                            <th class="py-5 px-6">อันดับ</th>
+                                            <th class="py-5 px-6">ชื่อ-สกุล</th>
+                                            <th class="py-5 px-6 text-right">แต้มสะสมรวม</th>
+                                            <th class="py-5 px-6 text-right hidden sm:table-cell">ปริมาณขยะ</th>
+                                            <th class="py-5 px-6 text-right hidden md:table-cell">คาร์บอนที่ลดได้ (CO₂e)
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <template x-for="item in memberLeaderboard" :key="'mem-'+item.rank">
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="py-5 px-6">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                                        :class="{
+                                         'bg-yellow-100 text-yellow-700': item.rank === 1,
+                                         'bg-gray-100 text-gray-600': item.rank === 2,
+                                         'bg-orange-100 text-orange-700': item.rank === 3,
+                                         'bg-gray-50 text-gray-400': item.rank > 3
+                                       }" x-text="item.rank">
+                                                    </div>
+                                                </td>
+                                                <td class="py-5 px-6 font-bold text-gray-900" x-text="item.name"></td>
+                                                <td class="py-5 px-6 text-right font-bold text-green-600"
+                                                    x-text="item.points"></td>
+                                                <td class="py-5 px-6 text-right text-gray-500 hidden sm:table-cell"
+                                                    x-text="item.weight"></td>
+                                                <td
+                                                    class="py-5 px-6 text-right text-emerald-600 font-medium hidden md:table-cell">
+                                                    <span class="flex items-center justify-end gap-1"><i
+                                                            data-lucide="leaf" class="w-4 h-4"></i> <span
+                                                            x-text="item.carbon"></span></span>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carousel Indicators (Dots) -->
+                    <div class="bg-gray-50 p-4 text-center border-t border-gray-100 flex justify-center gap-2">
+                        <button
+                            @click="leaderboardType = 'faculty'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="leaderboardType === 'faculty' ? 'w-8 bg-green-500' : 'w-2 bg-gray-300 hover:bg-gray-400'"
+                            class="h-2 rounded-full transition-all duration-300 cursor-pointer"></button>
+                        <button
+                            @click="leaderboardType = 'major'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="leaderboardType === 'major' ? 'w-8 bg-green-500' : 'w-2 bg-gray-300 hover:bg-gray-400'"
+                            class="h-2 rounded-full transition-all duration-300 cursor-pointer"></button>
+                        <button
+                            @click="leaderboardType = 'member'; setTimeout(() => { if(window.lucide) lucide.createIcons(); }, 100);"
+                            :class="leaderboardType === 'member' ? 'w-8 bg-green-500' : 'w-2 bg-gray-300 hover:bg-gray-400'"
+                            class="h-2 rounded-full transition-all duration-300 cursor-pointer"></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -427,12 +586,17 @@
                 { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '0', icon: 'award', iconColor: 'text-yellow-500' },
             ],
             rewards: [],
-            leaderboard: [],
+            leaderboardType: 'faculty',
+            facultyLeaderboard: [],
+            majorLeaderboard: [],
+            memberLeaderboard: [],
 
             init() {
                 this.fetchStats();
                 this.fetchRewards();
-                this.fetchLeaderboard();
+                this.fetchFacultyLeaderboard();
+                this.fetchMajorLeaderboard();
+                this.fetchMemberLeaderboard();
             },
 
             async fetchStats() {
@@ -463,18 +627,57 @@
                 }
             },
 
-            async fetchLeaderboard() {
+            async fetchFacultyLeaderboard() {
                 try {
-                    const response = await fetch('/api/leaders/faculty?limit=9&page=1');
+                    const response = await fetch('/api/leaders/faculty?limit=10&page=1');
                     const result = await response.json();
                     if (result.success && result.data) {
-                        this.leaderboard = result.data.map((item, index) => ({
+                        this.facultyLeaderboard = result.data.map((item, index) => ({
                             rank: index + 1,
-                            faculty: item.faculty_name,
+                            name: item.faculty_name,
                             points: parseInt(item.total_point).toLocaleString(),
                             weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
                             carbon: parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })
                         }));
+                        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
+                    }
+                } catch (error) {
+                    console.error('Error fetching faculty leaderboard:', error);
+                }
+            },
+
+            async fetchMajorLeaderboard() {
+                try {
+                    const response = await fetch('/api/leaders/major?limit=10&page=1');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.majorLeaderboard = result.data.map((item, index) => ({
+                            rank: index + 1,
+                            name: item.major_name,
+                            points: parseInt(item.total_point).toLocaleString(),
+                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
+                            carbon: parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })
+                        }));
+                        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
+                    }
+                } catch (error) {
+                    console.error('Error fetching major leaderboard:', error);
+                }
+            },
+
+            async fetchMemberLeaderboard() {
+                try {
+                    const response = await fetch('/api/leaders/member?limit=10&page=1');
+                    const result = await response.json();
+                    if (result.success && result.result) {
+                        this.memberLeaderboard = result.result.map((item, index) => ({
+                            rank: index + 1,
+                            name: item.member_name || item.name || 'ไม่ระบุชื่อ',
+                            points: parseInt(item.total_point).toLocaleString(),
+                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
+                            carbon: parseFloat(item.total_co2).toLocaleString('en-US', { maximumFractionDigits: 2 })
+                        }));
+                        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
                     }
                 } catch (error) {
                     console.error('Error fetching leaderboard:', error);
