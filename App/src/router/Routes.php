@@ -318,7 +318,9 @@ class Routes
         /* /api/leaders */
         $this->addPrefixedRoutes("/api/leaders", [
             ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
-            ['GET', "/member", [LeaderController::class, "GetMemberLeader"]]
+            ['GET', "/member", [LeaderController::class, "GetMemberLeader"]],
+            ['GET', "/major", [LeaderController::class, "GetMajorLeader"]]
+
         ]);
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [

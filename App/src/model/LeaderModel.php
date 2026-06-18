@@ -315,4 +315,99 @@ class LeaderModel
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
+
+    public function LeadingMajorDeposit($query): array
+    {
+        try {
+            $month = $query['month'] ?? null;
+            $year = $query['year'] ?? null;
+            $sort = $query['sort'] ?? 'point';
+            $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
+            $orderBy = 'total_point';
+
+            switch ($sort) {
+                case 'carbon':
+                    $orderBy = 'total_co2e';
+                    break;
+                case 'point':
+                    $orderBy = 'total_point';
+                    break;
+                case 'weight':
+                    $orderBy = 'total_weight';
+                    break;
+                case 'name':
+                    $orderBy = 'mj.major_name';
+                    break;
+            }
+
+            $whereConditions = [];
+            if ($month) {
+                $whereConditions[] = "MONTH(w.created_at) = :month";
+            }
+            if ($year) {
+                $whereConditions[] = "YEAR(w.created_at) = :year";
+            }
+            $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
+
+            $sql = "SELECT
+                        mj.major_id,
+                        mj.major_name,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM
+                        major mj
+                    LEFT JOIN (
+                        SELECT 
+                            m.major_id,
+                            w.waste_transaction_total_weight,
+                            w.waste_transaction_total_point,
+                            w.waste_transaction_total_co2e
+                        FROM waste_transaction w
+                        JOIN member m ON w.member_id = m.member_id
+                        {$whereClause}
+                    ) w ON mj.major_id = w.major_id
+                    GROUP BY
+                        mj.major_id
+                    ORDER BY
+                    {$orderBy} {$orderDirection}";
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            if ($month) {
+                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
+            }
+            if ($year) {
+                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // นับจำนวนสาขาทั้งหมดสำหรับ Pagination
+            $countSql = "SELECT COUNT(major_id) FROM major";
+            $countStmt = $this->Conn->prepare($countSql);
+            $countStmt->execute();
+            $totalRecords = (int) $countStmt->fetchColumn();
+
+            return ['stats' => $stats, 'total' => $totalRecords];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }
