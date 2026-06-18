@@ -91,6 +91,55 @@ class StatisticDataController
         }
     }
 
+    public function GetFacultyStats()
+    {
+        try {
+            header('Content-Type: application/json');
+            $result = self::$StatisticDataModel->GetFacultyStats(self::$queryString);
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function GetMajorStats()
+    {
+        try {
+            header('Content-Type: application/json');
+            $result = self::$StatisticDataModel->GetMajorStats(self::$queryString);
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result,
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }
-
-

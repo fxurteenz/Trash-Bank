@@ -174,7 +174,7 @@ class Routes
         ]);
         /* API */
         /* api/ */
-        
+
         /* api/members */
         $this->addPrefixedRoutes('/api/members', [
             ['GET', '', [MemberController::class, 'GetAll']],
@@ -311,6 +311,8 @@ class Routes
         $this->addPrefixedRoutes('/api/statistics', [
             ['GET', '', [StatisticDataController::class, 'GetHomePageData']],
             ['GET', '/member/[i:mid]', [StatisticDataController::class, 'GetMemberStats']],
+            ['GET', '/faculty', [StatisticDataController::class, 'GetFacultyStats']],
+            ['GET', '/major', [StatisticDataController::class, 'GetMajorStats']],
 
         ]);
         /* /api/leaders */

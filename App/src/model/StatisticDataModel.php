@@ -100,7 +100,10 @@ class StatisticDataModel
             $stmtMember->execute();
             $memberTotal = $stmtMember->fetch(PDO::FETCH_ASSOC);
             $total = $transactionTotal + $memberTotal;
-
+            $facultyStats = $this->GetFacultyStats($query);
+            $majorStats = $this->GetMajorStats($query);
+            $total['faculty_stats'] = $facultyStats;
+            $total['major_stats'] = $majorStats;    
             return $total;
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);
@@ -159,4 +162,60 @@ class StatisticDataModel
         }
     }
 
+    public function GetFacultyStats(array $query = []): array
+    {
+        try {
+            [$whereSql, $params] = $this->buildDateFilters($query);
+
+            $sql = "SELECT 
+                        w.faculty_id,
+                        f.faculty_name,
+                        COUNT(w.waste_transaction_id) AS total_transactions,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM waste_transaction w
+                    LEFT JOIN faculty f ON w.faculty_id = f.faculty_id
+                    {$whereSql}
+                    GROUP BY w.faculty_id, f.faculty_name
+                    ORDER BY total_weight DESC";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetMajorStats(array $query = []): array
+    {
+        try {
+            [$whereSql, $params] = $this->buildDateFilters($query);
+
+            $sql = "SELECT 
+                        m.major_id,
+                        mj.major_name,
+                        COUNT(w.waste_transaction_id) AS total_transactions,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM waste_transaction w
+                    JOIN member m ON w.member_id = m.member_id
+                    LEFT JOIN major mj ON m.major_id = mj.major_id
+                    {$whereSql}
+                    GROUP BY m.major_id, mj.major_name
+                    ORDER BY total_weight DESC";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
 }
