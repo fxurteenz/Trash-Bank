@@ -515,7 +515,7 @@
                         <div class="text-right">
                             <p class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-1">แต้มคณะคงเหลือ</p>
                             <p class="text-3xl font-bold text-slate-800"
-                                x-text="Number(currentFaculty?.faculty_point || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                                x-text="Number(currentFaculty?.faculty_point || 0).toLocaleString()">
                             </p>
                         </div>
                     </div>
