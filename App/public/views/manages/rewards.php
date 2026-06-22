@@ -12,7 +12,6 @@
             </h1>
         </div>
     </div>
-    <!-- Header Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
         <div class="bg-white shadow-sm rounded-lg p-6">
             <div class="flex items-center justify-between">
@@ -61,8 +60,6 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-
     <div class="bg-white shadow-sm rounded-lg p-6 flex flex-col min-h-[calc(100vh-6rem)]">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">รายการของรางวัล</h2>
@@ -76,7 +73,6 @@
             </button>
         </div>
 
-        <!-- Filters -->
         <div class="mb-4 flex gap-4 shrink-0">
             <input type="text" x-model="filters.search" @input.debounce.500ms="fetchRewards()"
                 placeholder="ค้นหาชื่อรางวัล..."
@@ -101,6 +97,8 @@
                             </th>
                             <th class="px-2 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
                                 คะแนนที่ใช้</th>
+                            <th class="px-2 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
+                                คะแนนหลังลด(โปรโมชั่น)</th>
                             <th class="px-2 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
                                 จำนวนคงเหลือ</th>
                             <th class="px-2 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
@@ -200,7 +198,16 @@
                                     <div x-show="editingRewardId === reward.donation_item_id" x-cloak>
                                         <input type="number" min="0" x-model="editForm.donation_item_redeem_point"
                                             class="w-20 border border-gray-300 rounded p-1 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                                            placeholder="แต้มที่ใช้แลกของรางวัล">
+                                            placeholder="แต้ม">
+                                    </div>
+                                </td>
+                                <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div x-show="editingRewardId !== reward.donation_item_id"
+                                        x-text="reward.donation_item_discount_point || '0'"></div>
+                                    <div x-show="editingRewardId === reward.donation_item_id" x-cloak>
+                                        <input type="number" min="0" x-model="editForm.donation_item_discount_point"
+                                            class="w-20 border border-gray-300 rounded p-1 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            placeholder="คะแนนหลังลด">
                                     </div>
                                 </td>
                                 <td class="px-2 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -275,14 +282,13 @@
                         </template>
                         <template x-if="rewards.length === 0">
                             <tr>
-                                <td colspan="8" class="px-2 py-4 text-center text-gray-500">ไม่มีข้อมูล</td>
+                                <td colspan="9" class="px-2 py-4 text-center text-gray-500">ไม่มีข้อมูล</td>
                             </tr>
                         </template>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination -->
             <div class="flex items-center justify-between mt-4 shrink-0">
                 <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
                     :disabled="page <= 1" @click="page--; fetchRewardsList()">
@@ -301,7 +307,6 @@
 
     </div>
 
-    <!-- Create/Edit Dialog -->
     <div x-show="dialogShow" x-cloak @click.self="dialogShow = false"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div class="bg-white shadow-sm rounded-lg p-6 w-96 max-w-full relative">
@@ -336,13 +341,22 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        แต้มที่ใช้แลก
-                        <span class="text-red-500">*</span></label>
-                    <input type="number" min="0" x-model="form.donation_item_redeem_point"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="แต้มที่ใช้แลก">
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            แต้มที่ใช้แลก
+                            <span class="text-red-500">*</span></label>
+                        <input type="number" min="0" x-model="form.donation_item_redeem_point"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="แต้มที่ใช้แลก">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            ส่วนลด (คะแนน)</label>
+                        <input type="number" min="0" x-model="form.donation_item_discount_point"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="ส่วนลด">
+                    </div>
                 </div>
 
                 <div>
@@ -413,6 +427,7 @@
                 donation_item_name: '',
                 donation_item_category_id: '1',
                 donation_item_redeem_point: '',
+                donation_item_discount_point: 0,
                 donation_item_amount: 0,
                 donation_item_available: 0,
                 donation_item_image: null
@@ -422,6 +437,7 @@
                 donation_item_name: '',
                 donation_item_category_id: '1',
                 donation_item_redeem_point: '',
+                donation_item_discount_point: 0,
                 donation_item_amount: 0,
                 donation_item_available: 1,
             },
@@ -511,6 +527,7 @@
                     donation_item_name: '',
                     donation_item_category_id: '1',
                     donation_item_redeem_point: null,
+                    donation_item_discount_point: 0,
                     donation_item_amount: 0,
                     donation_item_available: 0,
                     donation_item_image: null
@@ -527,6 +544,7 @@
                     donation_item_name: reward.donation_item_name,
                     donation_item_category_id: reward.donation_item_category_id || '1',
                     donation_item_redeem_point: reward.donation_item_redeem_point,
+                    donation_item_discount_point: reward.donation_item_discount_point || 0,
                     donation_item_amount: reward.donation_item_amount,
                     donation_item_available: reward.donation_item_available,
                 };
@@ -604,6 +622,7 @@
                     const formData = new FormData();
                     formData.append('donation_item_name', this.form.donation_item_name);
                     formData.append('donation_item_redeem_point', this.form.donation_item_redeem_point);
+                    formData.append('donation_item_discount_point', this.form.donation_item_discount_point || 0);
                     formData.append('donation_item_amount', this.form.donation_item_amount);
                     if (this.form.donation_item_category_id) {
                         formData.append('donation_item_category_id', this.form.donation_item_category_id);
@@ -651,6 +670,7 @@
                     const formData = new FormData();
                     formData.append('donation_item_name', this.editForm.donation_item_name);
                     formData.append('donation_item_redeem_point', this.editForm.donation_item_redeem_point);
+                    formData.append('donation_item_discount_point', this.editForm.donation_item_discount_point || 0);
                     formData.append('donation_item_amount', this.editForm.donation_item_amount);
                     if (this.editForm.donation_item_category_id) {
                         formData.append('donation_item_category_id', this.editForm.donation_item_category_id);

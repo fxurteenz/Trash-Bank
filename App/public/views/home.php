@@ -304,15 +304,27 @@
                         <div class="flex-grow">
                             <h3 class="font-bold text-lg text-gray-900 mb-1" x-text="reward.donation_item_name"></h3>
                         </div>
+
                         <div class="flex items-center justify-center pt-4 border-t border-gray-50">
-                            <div class="flex items-center gap-1.5 font-bold text-green-600 text-center">
-                                <span
-                                    x-text="`${parseInt(reward.donation_item_redeem_point).toLocaleString()} แต้ม`"></span>
-                            </div>
-                            <!-- <a href="/login"
-                                class="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg group-hover:bg-green-600 group-hover:text-white transition-colors">
-                                แลกรางวัล
-                            </a> -->
+
+                            <template
+                                x-if="reward.donation_item_discount_point && reward.donation_item_discount_point > 0">
+                                <div class="flex items-baseline gap-2">
+                                    <span class="font-bold text-gray-400 line-through"
+                                        x-text="parseInt(reward.donation_item_redeem_point).toLocaleString()"></span>
+                                    <span class="font-bold text-green-600 text-xl"
+                                        x-text="`${parseInt(reward.donation_item_discount_point).toLocaleString()} แต้ม`"></span>
+                                </div>
+                            </template>
+
+                            <template
+                                x-if="!reward.donation_item_discount_point || reward.donation_item_discount_point == 0">
+                                <div class="font-bold text-green-600 text-center text-xl">
+                                    <span
+                                        x-text="`${parseInt(reward.donation_item_redeem_point).toLocaleString()} แต้ม`"></span>
+                                </div>
+                            </template>
+
                         </div>
                     </div>
                 </template>
