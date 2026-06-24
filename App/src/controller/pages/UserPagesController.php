@@ -13,9 +13,9 @@ class UserPagesController extends RouterBase
     public function Dashboard()
     {
         try {
-            $user = Authentication::MemberAuth(); // Uncomment when authentication is ready
+            $user = Authentication::MemberAuth();
             $this->render('user/userDashboard', [
-                'pages' => 'userDashboard',
+                'pages' => 'Dashboard',
                 'title' => 'แดชบอร์ดผู้ใช้',
                 'user' => $user['user_data'],
                 // 'script' => '../../js/UserDashboard.js
@@ -33,13 +33,13 @@ class UserPagesController extends RouterBase
     public function Profile()
     {
         try {
-            $user = Authentication::MemberAuth(); // Uncomment when authentication is ready
+            $user = Authentication::MemberAuth();
             $this->render('user/profile', [
-                'pages' => 'userDashboard',
+                'pages' => 'Profile',
                 'title' => 'แดชบอร์ดผู้ใช้',
                 'user' => $user['user_data'],
                 // 'script' => '../../js/UserDashboard.js',
-                'activeTab' => 'dashboard',
+                'activeTab' => "profile",
                 'footer' => 'user'
             ], self::$UserTemplate);
         } catch (AuthenticationException $th) {
@@ -50,54 +50,9 @@ class UserPagesController extends RouterBase
         }
     }
 
-    public function Shop()
-    {
-        $this->render('user/shop', [
-            'pages' => 'userShop',
-            'title' => 'ร้านค้า',
-            // 'script' => '../../js/UserDashboard.js',
-            'activeTab' => 'shop',
-            'footer' => 'user'
-        ], self::$UserTemplate);
-    }
-
-    public function Equipment()
-    {
-        $this->render('user/equipment', [
-            'pages' => 'userEquipment',
-            'title' => 'อุปกรณ์',
-            // 'script' => '../../js/UserDashboard.js',
-            'activeTab' => 'equipment',
-            'footer' => 'user'
-        ], self::$UserTemplate);
-    }
-
-    public function Collection()
-    {
-        $this->render('user/collection', [
-            'pages' => 'userCollection',
-            'title' => 'ของสะสม',
-            // 'script' => '../../js/UserDashboard.js',
-            'activeTab' => 'collection',
-            'footer' => 'user'
-        ], self::$UserTemplate);
-    }
-
-    public function Quests()
-    {
-        $this->render('user/quests', [
-            'pages' => 'userQuests',
-            'title' => 'ภารกิจ',
-            // 'script' => '../../js/UserDashboard.js',
-            'activeTab' => 'quests',
-            'footer' => 'user'
-        ], self::$UserTemplate);
-    }
-
     public function Barcode()
     {
-        $user = Authentication::MemberAuth(); // Uncomment when authentication is ready
-
+        $user = Authentication::MemberAuth();
         $this->render('user/barcode', [
             'pages' => 'userBarcode',
             'title' => 'บาร์โค้ด',
@@ -106,5 +61,61 @@ class UserPagesController extends RouterBase
             'footer' => 'user'
         ], self::$UserTemplate);
     }
+
+    public function InviteQr()
+    {
+        $user = Authentication::MemberAuth();
+        $this->render('user/invite', [
+            'pages' => 'inviteQr',
+            'title' => 'คิวอาร์โค้ดชวนเพื่อน',
+            'user' => $user['user_data'],
+            'activeTab' => 'inviteQr',
+            'footer' => 'user'
+        ], self::$UserTemplate);
+    }
+
+    // public function Shop()
+    // {
+    //     $this->render('user/shop', [
+    //         'pages' => 'userShop',
+    //         'title' => 'ร้านค้า',
+    //         // 'script' => '../../js/UserDashboard.js',
+    //         'activeTab' => 'shop',
+    //         'footer' => 'user'
+    //     ], self::$UserTemplate);
+    // }
+
+    // public function Equipment()
+    // {
+    //     $this->render('user/equipment', [
+    //         'pages' => 'userEquipment',
+    //         'title' => 'อุปกรณ์',
+    //         // 'script' => '../../js/UserDashboard.js',
+    //         'activeTab' => 'equipment',
+    //         'footer' => 'user'
+    //     ], self::$UserTemplate);
+    // }
+
+    // public function Collection()
+    // {
+    //     $this->render('user/collection', [
+    //         'pages' => 'userCollection',
+    //         'title' => 'ของสะสม',
+    //         // 'script' => '../../js/UserDashboard.js',
+    //         'activeTab' => 'collection',
+    //         'footer' => 'user'
+    //     ], self::$UserTemplate);
+    // }
+
+    // public function Quests()
+    // {
+    //     $this->render('user/quests', [
+    //         'pages' => 'userQuests',
+    //         'title' => 'ภารกิจ',
+    //         // 'script' => '../../js/UserDashboard.js',
+    //         'activeTab' => 'quests',
+    //         'footer' => 'user'
+    //     ], self::$UserTemplate);
+    // }
 
 }

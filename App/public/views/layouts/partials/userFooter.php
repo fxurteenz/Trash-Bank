@@ -5,21 +5,39 @@
 </style>
 
 <?php
+echo $activeTab;
 if (!function_exists('userFootActive')) {
     function userFootActive($key, $active)
     {
         return $key === ($active ?? '');
     }
 }
-$dotClasses = "after:content-[''] after:absolute after:-bottom-[2px] after:left-1/2 after:-translate-x-1/2 after:w-[4px] after:h-[4px] after:rounded-full after:bg-[#1B8B4B]";
+$borderClasses = "border-t-3 border-emerald-600";
+$iconClasses = "text-emerald-600";
+
 ?>
 
 <nav
-    class="fixed inset-x-0 bottom-0 bg-white border-t border-[#F0F1F3] shadow-[0_-2px_12px_rgba(0,0,0,0.08)] px-[8px] pt-[6px] pb-[calc(6px+env(safe-area-inset-bottom,0px))] z-[1000]">
+    class="fixed inset-x-0 bottom-0 bg-white border-t border-[#F0F1F3] shadow-[0_-2px_12px_rgba(0,0,0,0.08)] pb-[calc(6px+env(safe-area-inset-bottom,0px))] z-[1000]">
     <div class="max-w-[460px] mx-auto flex ">
-        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px] rounded-[10px] transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500"
+        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px]  transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500 <?php if($activeTab == "barcode"){ echo $borderClasses; } ?>"
+            href="/user/barcode" aria-label="barcode">
+            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative <?php if($activeTab == "barcode"){ echo $iconClasses; }?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <g fill="none" stroke="currentColor" stroke-linecap="round">
+                        <path stroke-width="2"
+                            d="M2.992 4.983v13.934m6.97-13.934v13.934m5.976-13.934v13.934m2.987-13.934v13.934" />
+                        <path d="M5.48 4.483v14.934M7.47 4.483v14.934M21.413 4.483v14.934M13.446 4.483v14.934" />
+                    </g>
+                </svg>
+            </div>
+            <div class="text-[10px] font-[700] tracking-[0.1px] mt-[1px] <?php if($activeTab == "barcode"){ echo $iconClasses; }?>">บาร์โค้ด</div>
+        </a>
+
+        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px]  transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500 <?php if($activeTab == "dashboard"){ echo $borderClasses; } ?>"
             href="/user" aria-label="Home">
-            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative">
+            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative <?php if($activeTab == "dashboard"){ echo $iconClasses; }?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="1.5">
@@ -29,26 +47,12 @@ $dotClasses = "after:content-[''] after:absolute after:-bottom-[2px] after:left-
                     </g>
                 </svg>
             </div>
-            <div class="text-[10px] font-[700] tracking-[0.1px]">บัญชี</div>
+            <div class="text-[10px] font-[700] tracking-[0.1px] mt-[1px] <?php if($activeTab == "dashboard"){ echo $iconClasses; }?>">บัญชี</div>
         </a>
-        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px] rounded-[10px] transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500"
-            href="/user/barcode" aria-label="barcode">
-            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative">
-                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24">
-                    <path d="M0 0h24v24H0z" fill="none" />
-                    <g fill="none" stroke="currentColor" stroke-linecap="round">
-                        <path stroke-width="2"
-                            d="M2.992 4.983v13.934m6.97-13.934v13.934m5.976-13.934v13.934m2.987-13.934v13.934" />
-                        <path d="M5.48 4.483v14.934M7.47 4.483v14.934M21.413 4.483v14.934M13.446 4.483v14.934" />
-                    </g>
-                </svg>
 
-            </div>
-            <div class="text-[10px] font-[700] tracking-[0.1px]">บาร์โค้ด</div>
-        </a>
-        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px] rounded-[10px] transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500"
+        <a class="flex flex-col flex-1 items-center justify-center gap-[3px] no-underline p-[6px_4px]  transition-colors duration-[120ms] min-h-[52px]  active:bg-gray-100 text-gray-400 active:text-gray-500 <?php if($activeTab == "profile"){ echo $borderClasses; } ?>"
             href="/user/profile" aria-label="profile">
-            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative">
+            <div class="w-[28px] h-[28px] grid place-items-center text-[20px] relative <?php if($activeTab == "profile"){ echo $iconClasses; }?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
                     <g fill="none" stroke="currentColor" stroke-width="1.6">
                         <path stroke-linejoin="round"
@@ -57,8 +61,7 @@ $dotClasses = "after:content-[''] after:absolute after:-bottom-[2px] after:left-
                     </g>
                 </svg>
             </div>
-            <div class="text-[10px] font-[700] tracking-[0.1px]">โปรไฟล์</div>
+            <div class="text-[10px] font-[700] tracking-[0.1px] mt-[1px] <?php if($activeTab == "profile"){ echo $iconClasses; }?>">โปรไฟล์</div>
         </a>
-
     </div>
 </nav>

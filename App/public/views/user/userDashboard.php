@@ -18,7 +18,8 @@
                 class="w-[36px] h-[36px] rounded-full bg-[#E8F5EE] text-[#1B8B4B] grid place-items-center no-underline border-none cursor-pointer"
                 aria-label="บาร์โค้ดสมาชิก" title="บาร์โค้ดสมาชิก">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M4 6h2v12H4zm3 0h1v12H7zm2 0h3v12H9zm4 0h1v12h-1zm3 0h2v12h-2zm3 0h3v12h-3z"/>
+                    <path fill="currentColor"
+                        d="M4 6h2v12H4zm3 0h1v12H7zm2 0h3v12H9zm4 0h1v12h-1zm3 0h2v12h-2zm3 0h3v12h-3z" />
                 </svg>
             </a>
 
@@ -65,29 +66,69 @@
     </div>
 
     <!-- Quick Actions -->
-    <!-- <div
-        class="bg-white mx-[14px] mt-[14px] rounded-[16px] p-4 shadow-[0_1px_6px_rgba(0,0,0,0.07)] grid grid-cols-4 gap-1">
-        <a class="flex flex-col items-center gap-[7px] no-underline p-[6px_4px] rounded-[12px] transition-colors active:bg-[#F4F5F7]"
-            href="/user/shop">
-            <div class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-[#E8F5EE]">🛍️</div>
-            <div class="text-[11px] font-[700] text-[#374151] text-center">แลกรางวัล</div>
-        </a>
-        <a class="flex flex-col items-center gap-[7px] no-underline p-[6px_4px] rounded-[12px] transition-colors active:bg-[#F4F5F7]"
-            href="#">
-            <div class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-[#E0F2FE]">♻️</div>
-            <div class="text-[11px] font-[700] text-[#374151] text-center">ฝากขยะ</div>
-        </a>
-        <a class="flex flex-col items-center gap-[7px] no-underline p-[6px_4px] rounded-[12px] transition-colors active:bg-[#F4F5F7]"
-            href="/user/quests">
-            <div class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-[#FEF3C7]">✅</div>
-            <div class="text-[11px] font-[700] text-[#374151] text-center">ภารกิจ</div>
-        </a>
-        <a class="flex flex-col items-center gap-[7px] no-underline p-[6px_4px] rounded-[12px] transition-colors active:bg-[#F4F5F7]"
-            href="/user/collection">
-            <div class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-[#F3E8FF]">🏅</div>
-            <div class="text-[11px] font-[700] text-[#374151] text-center">รางวัล</div>
-        </a>
-    </div> -->
+    <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+        <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
+            <div class="text-[14px] font-[800] text-[#1A1A2E]">เมนู</div>
+        </div>
+        <div class="grid grid-cols-6 border-t border-[#F0F1F3] p-2">
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors active:bg-gray-200"
+                href="/user/invite">
+                <div
+                    class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-100 text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path fill="currentColor"
+                            d="M5 5h2v2H5zM1 1h10v10H1zm2 2v6h6V3zm2 14h2v2H5zm-4-4h10v10H1zm2 2v6h6v-6zm10-2h4v2h2v-2h4v2h-4v2h4v6h-4v-2h-4v2h-2v-2h2v-2h-2zm8 8v-2h-2v2zm-2-4h-2v-2h-2v4h4zM17 2v3h-3v2h3v3h2V7h3V5h-3V2Z" />
+                    </svg>
+
+                </div>
+                <div class="text-[11px] font-regular text-[#9CA3AF] text-center">เชิญเพื่อน</div>
+            </a>
+
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors active:bg-gray-200"
+                href="/user/barcode">
+                <div
+                    class="w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-100 text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <g fill="none" stroke="currentColor" stroke-linecap="round">
+                            <path stroke-width="2"
+                                d="M2.992 4.983v13.934m6.97-13.934v13.934m5.976-13.934v13.934m2.987-13.934v13.934" />
+                            <path d="M5.48 4.483v14.934M7.47 4.483v14.934M21.413 4.483v14.934M13.446 4.483v14.934" />
+                        </g>
+                    </svg>
+
+                </div>
+                <div class="text-[11px] font-regular text-[#9CA3AF] text-center">บาร์โค้ด</div>
+            </a>
+
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                text-gray-600">
+                </div>
+                <div class="text-[11px] font-regular text-gray-300 text-center"></div>
+            </a>
+
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                text-gray-600">
+                </div>
+                <div class="text-[11px] font-regular text-gray-300 text-center"></div>
+            </a>
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                text-gray-600">
+                </div>
+                <div class="text-[11px] font-regular text-gray-300 text-center"></div>
+            </a>
+            <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                text-gray-600">
+                </div>
+                <div class="text-[11px] font-regular text-gray-300 text-center"></div>
+            </a>
+        </div>
+    </div>
 
     <!-- Stats -->
     <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
@@ -222,6 +263,7 @@
                     // 1. Fetch Profile Data (สำหรับข้อมูลส่วนตัว, แต้ม และรายการล่าสุด)
                     const profileRes = await fetch(`/api/members/profile/${memberId}`);
                     const profileData = await profileRes.json();
+                    console.log(profileData);
 
                     if (profileData.success && profileData.data) {
                         this.profile = profileData.data;
