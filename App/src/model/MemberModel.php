@@ -366,6 +366,7 @@ class MemberModel
                         m.member_email,
                         m.member_waste_point,
                         m.member_goodness_point,
+                        m.member_social_point,
                         m.role_id,
                         m.faculty_id,
                         m.major_id,

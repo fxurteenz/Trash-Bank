@@ -12,12 +12,15 @@
                 member_name: '',
                 faculty_id: '',
                 major_id: '',
+                inviter_id: null,
             },
             faculties: [],
             majors: [],
             errors: {},
 
             init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                this.formData.inviter_id = urlParams.get('recruiter');
                 this.fetchFaculties();
             },
 

@@ -125,6 +125,13 @@ class UsersModel
                 throw new Exception('รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก', 422);
             }
 
+            self::$Conn->beginTransaction();
+
+            $inviterId = null;
+            if (!empty($data['inviter_id'])) {
+                $inviterId = $data['inviter_id'];
+                unset($data['inviter_id']);
+            }
             $encodedPassword = password_hash(
                 $data['member_password'],
                 PASSWORD_DEFAULT,
@@ -163,12 +170,36 @@ class UsersModel
 
             $stmt = self::$Conn->prepare($sql);
             $stmt->execute($updateData);
-            $id = self::$Conn->lastInsertId();
-            return ["member_phone" => $data["member_phone"], "member_id" => $id];
+            $newMemberId = self::$Conn->lastInsertId();
+
+            if ($inviterId) {
+                // บันทึกข้อมูลการแนะนำ
+                $inviteSql = "INSERT INTO member_invite (inviter_id, invitees_id, created_at) VALUES (:inviter_id, :invitees_id, NOW())";
+                $inviteStmt = self::$Conn->prepare($inviteSql);
+                $inviteStmt->execute([
+                    ':inviter_id' => $inviterId,
+                    ':invitees_id' => $newMemberId
+                ]);
+
+                // อัปเดตแต้มให้ผู้แนะนำ
+                $updateRecruiterSql = "UPDATE member SET member_social_point = member_social_point + 1 WHERE member_id = :inviter_id";
+                $updateRecruiterStmt = self::$Conn->prepare($updateRecruiterSql);
+                $updateRecruiterStmt->execute([':inviter_id' => $inviterId]);
+            }
+
+            self::$Conn->commit();
+            return ["member_phone" => $data["member_phone"], "member_id" => $newMemberId];
         } catch (PDOException $e) {
+            if (self::$Conn->inTransaction()) {
+                self::$Conn->rollBack();
+            }
             $error = DatabaseException::handle($e);
+            error_log($e->getMessage());
             throw new Exception($error['message'], $error['code']);
         } catch (Exception $e) {
+            if (self::$Conn->inTransaction()) {
+                self::$Conn->rollBack();
+            }
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }
