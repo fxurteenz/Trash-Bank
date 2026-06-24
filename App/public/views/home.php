@@ -110,6 +110,92 @@
         </div>
     </section>
 
+    <section id="news"
+        class="scroll-mt-20 bg-gray-50 min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6"
+        x-data="{
+        newsList: [
+            { id: 1, title: 'อัปเดตระบบสะสมแต้มใหม่', excerpt: 'เปิดตัวระบบสะสมแต้มที่ทำให้คุณแลกของรางวัลได้รวดเร็วและคุ้มค่ายิ่งขึ้น...', image: 'https://placehold.co/600x400/e2e8f0/a0aec0?text=News+1', link: '/news/1' },
+            { id: 2, title: 'กิจกรรมรณรงค์คัดแยกขยะ', excerpt: 'ขอเชิญชวนทุกท่านร่วมกิจกรรมคัดแยกขยะในชุมชน พร้อมรับแต้มพิเศษสุดสัปดาห์นี้', image: 'https://placehold.co/600x400/e2e8f0/a0aec0?text=News+2', link: '/news/2' },
+            { id: 3, title: 'เพิ่มของรางวัลใหม่ประจำเดือน', excerpt: 'พบกับของรางวัลสุดพิเศษประจำเดือนนี้ ที่พร้อมให้คุณใช้แต้มแลกได้ทันที', image: 'https://placehold.co/600x400/e2e8f0/a0aec0?text=News+3', link: '/news/3' },
+            { id: 4, title: 'สรุปยอดการรีไซเคิลปี 2026', excerpt: 'มาร่วมดูความสำเร็จของเราในการช่วยลดปริมาณขยะและรักษาสิ่งแวดล้อมในปีที่ผ่านมา', image: 'https://placehold.co/600x400/e2e8f0/a0aec0?text=News+4', link: '/news/4' }
+        ],
+        scroll(direction) {
+            const container = this.$refs.carousel;
+            const scrollAmount = container.clientWidth;
+            if (direction === 'left') {
+                container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            }
+        }
+    }">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
+                        <!-- เปลี่ยนไอคอนเป็น newspaper หรืออัปเดตตามที่ต้องการ -->
+                        <i data-lucide="newspaper" class="text-blue-500 w-8 h-8"></i> ข่าวสารและกิจกรรม
+                    </h2>
+                    <p class="text-gray-600 max-w-2xl text-lg">
+                        ติดตามข่าวสาร กิจกรรม และประกาศใหม่ๆ จากโครงการของเรา
+                    </p>
+                </div>
+
+                <!-- ปุ่มควบคุมการเลื่อน (สำหรับหน้าจอ Desktop) -->
+                <div class="hidden md:flex gap-2 mt-4 md:mt-0">
+                    <button @click="scroll('left')"
+                        class="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <button @click="scroll('right')"
+                        class="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Container -->
+            <div class="relative w-full">
+                <div x-ref="carousel"
+                    class="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+
+                    <template x-for="news in newsList" :key="news.id">
+                        <!-- ใช้ Tag <a> เพื่อให้กดแล้วไปที่ลิงก์ข่าว -->
+                        <a :href="news.link"
+                            class="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1 group flex flex-col cursor-pointer">
+
+                            <!-- รูปภาพข่าว -->
+                            <div
+                                class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center mb-5 overflow-hidden">
+                                <img :src="news.image" :alt="news.title"
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            </div>
+
+                            <!-- เนื้อหาข่าว -->
+                            <div class="flex-grow">
+                                <!-- หัวข้อข่าว (จำกัด 2 บรรทัด) -->
+                                <h3 class="font-bold text-xl text-gray-900 mb-2 line-clamp-2" x-text="news.title"></h3>
+                                <!-- คำอธิบายย่อ (จำกัด 3 บรรทัด) -->
+                                <p class="text-gray-600 text-sm line-clamp-3" x-text="news.excerpt"></p>
+                            </div>
+
+                            <!-- ส่วนล่าง (ปุ่มอ่านเพิ่มเติม) -->
+                            <div
+                                class="flex items-center justify-between pt-4 mt-4 border-t border-gray-50 text-blue-600 font-medium">
+                                <span class="text-sm group-hover:text-blue-800 transition-colors">อ่านเพิ่มเติม</span>
+                                <i data-lucide="arrow-right"
+                                    class="w-4 h-4 transform transition-transform group-hover:translate-x-1"></i>
+                            </div>
+                        </a>
+                    </template>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="how-it-works"
         class="scroll-mt-20 bg-white min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
