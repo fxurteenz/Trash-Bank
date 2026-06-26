@@ -232,6 +232,34 @@ class MemberController extends RouterBase
         }
     }
 
+    public function GetInvitations($member_id)
+    {
+        try {
+            Authentication::MemberAuth();
+            $profile = $this->MemberModel->GetMemberInvitation($member_id);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $profile,
+                'message' => 'Invitation retrieved successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function GetRoleCount()
     {
         try {

@@ -182,6 +182,7 @@ class Routes
             ['GET', '', [MemberController::class, 'GetAll']],
             ['GET', '/profile/[i:id]', [MemberController::class, 'GetProfile']],
             ['GET', '/count', [MemberController::class, 'GetRoleCount']],
+            ['GET', '/invitations/[i:id]', [MemberController::class, 'GetInvitations']],
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/profile/[i:uid]', [MemberController::class, 'UpdateProfile']],
             ['POST', '/update/[i:uid]', [MemberController::class, 'Update']],

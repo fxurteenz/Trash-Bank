@@ -37,17 +37,19 @@
 
     <!-- Account Card -->
     <div
-        class="bg-gradient-to-br from-[#1B8B4B] via-[#0D6B38] to-[#0A5A2F] mx-[14px] mt-[14px] rounded-[18px] p-[20px_20px_16px] text-white relative overflow-hidden shadow-[0_6px_24px_rgba(27,139,75,0.35)]">
+        class="bg-gradient-to-br from-[#1B8B4B] via-[#0D6B38] to-[#0A5A2F] mx-[14px] mt-[14px] rounded-[18px] p-[20px_20px_16px] text-white relative overflow-hidden shadow-lg">
         <div class="absolute w-[180px] h-[180px] rounded-full -top-[60px] -right-[50px] bg-white/10"></div>
         <div class="absolute w-[100px] h-[100px] rounded-full -bottom-[30px] left-[30px] bg-white/5"></div>
+        <div class="absolute w-[80px] h-[80px] rounded-full bottom-[20px] left-[60px] bg-white/5"></div>
+
 
         <div class="relative z-10">
-            <div class="flex items-center justify-between mb-[6px]">
+            <div class="flex items-center justify-end mb-[6px]">
                 <div class="text-[11px] opacity-80 tracking-[0.5px] uppercase">แต้มขยะสะสม</div>
             </div>
-            <div class="text-[38px] font-[900] leading-[1.1] mt-1 mb-0.5 tracking-[-1px]"
+            <div class="text-[38px] font-[900] leading-[1.1] mt-1 mb-0.5 tracking-[-1px] text-right"
                 x-text="Number(profile?.member_waste_point || 0).toLocaleString()">...</div>
-            <div class="text-[14px] opacity-85 font-[600]">แต้ม</div>
+            <div class="text-[14px] opacity-85 font-[600] text-right">แต้ม</div>
             <div class="flex items-center justify-between mt-4 pt-[14px] border-t border-white/20">
                 <div class="text-center">
                     <div class="text-[17px] font-[800]"
@@ -57,9 +59,8 @@
                 <div class="w-[1px] h-[34px] bg-white/20"></div>
                 <div class="text-center">
                     <div class="text-[17px] font-[800]"
-                        x-text="totals.weight.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})">
-                        ...</div>
-                    <div class="text-[10px] opacity-75 mt-[2px]">ขยะรวม (กก.)</div>
+                        x-text="Number(profile?.member_social_point || 0).toLocaleString()">...</div>
+                    <div class="text-[10px] opacity-75 mt-[2px]">แต้มสังคม</div>
                 </div>
             </div>
         </div>
@@ -103,26 +104,26 @@
             </a>
 
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
-                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] border border-gray-200 border-dashed border-2
                 text-gray-600">
                 </div>
                 <div class="text-[11px] font-regular text-gray-300 text-center"></div>
             </a>
 
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
-                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] border border-gray-200 border-dashed border-2
                 text-gray-600">
                 </div>
                 <div class="text-[11px] font-regular text-gray-300 text-center"></div>
             </a>
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
-                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] border border-gray-200 border-dashed border-2
                 text-gray-600">
                 </div>
                 <div class="text-[11px] font-regular text-gray-300 text-center"></div>
             </a>
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
-                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] bg-gray-50
+                <div class=" w-[46px] h-[46px] rounded-[14px] grid place-items-center text-[21px] border border-gray-200 border-dashed border-2
                 text-gray-600">
                 </div>
                 <div class="text-[11px] font-regular text-gray-300 text-center"></div>
@@ -259,6 +260,7 @@
                     const depositIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="M12 22c-.818 0-1.6-.325-3.163-.974C4.946 19.41 3 18.602 3 17.243V7.745M12 22c.818 0 1.6-.325 3.163-.974C19.054 19.41 21 18.602 21 17.243V7.745M12 22v-9.831M3 7.745c0 .603.802.985 2.405 1.747l2.92 1.39C10.13 11.74 11.03 12.17 12 12.17M3 7.745c0-.604.802-.986 2.405-1.748L7.5 5M21 7.745c0 .603-.802.985-2.405 1.747l-2.92 1.39C13.87 11.74 12.97 12.17 12 12.17m9-4.424c0-.604-.802-.986-2.405-1.748L16.5 5M6 13.152l2 .983" /><path d="M12.004 2v7m0 0c.263.004.522-.18.714-.405L14 7.062M12.004 9c-.254-.003-.511-.186-.714-.405L10 7.062" /></g></svg>`;
                     const donationIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21h9.62a4 4 0 0 0 3.037-1.397l5.102-5.952a1 1 0 0 0-.442-1.6l-1.968-.656a3.04 3.04 0 0 0-2.823.503l-3.185 2.547l-.617-1.235A3.98 3.98 0 0 0 9.146 11H4c-1.103 0-2 .897-2 2v6c0 1.103.897 2 2 2m0-8h5.146c.763 0 1.448.423 1.789 1.105l.447.895H7v2h6.014a1 1 0 0 0 .442-.11l.003-.001l.004-.002h.003l.002-.001h.004l.001-.001c.009.003.003-.001.003-.001c.01 0 .002-.001.002-.001h.001l.002-.001l.003-.001l.002-.001l.002-.001l.003-.001l.002-.001c.003 0 .001-.001.002-.001l.003-.002l.002-.001l.002-.001l.003-.001l.002-.001h.001l.002-.001h.001l.002-.001l.002-.001c.009-.001.003-.001.003-.001l.002-.001a1 1 0 0 0 .11-.078l4.146-3.317c.262-.208.623-.273.94-.167l.557.186l-4.133 4.823a2.03 2.03 0 0 1-1.52.688H4zM16 2h-.017c-.163.002-1.006.039-1.983.705c-.951-.648-1.774-.7-1.968-.704L12.002 2h-.004c-.801 0-1.555.313-2.119.878C9.313 3.445 9 4.198 9 5s.313 1.555.861 2.104l3.414 3.586a1.006 1.006 0 0 0 1.45-.001l3.396-3.568C18.688 6.555 19 5.802 19 5s-.313-1.555-.878-2.121A2.98 2.98 0 0 0 16.002 2zm1 3c0 .267-.104.518-.311.725L14 8.55l-2.707-2.843C11.104 5.518 11 5.267 11 5s.104-.518.294-.708A.98.98 0 0 1 11.979 4c.025.001.502.032 1.067.485q.121.098.247.222l.707.707l.707-.707q.126-.124.247-.222c.529-.425.976-.478 1.052-.484a1 1 0 0 1 .701.292c.189.189.293.44.293.707" stroke-width="0.5" stroke="currentColor" /></svg>`;
                     const redeemIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M3 27.564S9 25 14 25c3.527 0 7.4 1.418 9.994 2.587c1.99.896 3.135 1.462 3.59 3.597c.317 1.483-.748 3.955-2.26 4.077l-1.065.086m0 0c-2.442 0-6.222-.724-6.222-.724m6.222.724c3.387 0 12.303-1.609 15.463-2.2c.754-.14 1.535-.243 2.252.027c.902.341 2.112 1.164 2.69 3.15c.452 1.552-.633 3.045-2.14 3.628C38.104 41.662 28.887 45 24.259 45C12 45 3 41.923 3 41.923M36 9c0-2-1.02-6-4.588-6c-4.077 0-4.265 5-1.808 6M36 9c0-2 1.02-6 4.588-6c4.077 0 4.265 5 1.807 6" /><path d="M44.88 19.905c-.11 1.617-1.354 2.814-2.971 2.922A89 89 0 0 1 36 23a89 89 0 0 1-5.909-.173c-1.617-.108-2.86-1.305-2.971-2.922c-.068-.99-.12-2.28-.12-3.905s.052-2.915.12-3.905c.11-1.617 1.354-2.814 2.971-2.922A89 89 0 0 1 36 9c2.581 0 4.528.081 5.909.173c1.617.108 2.86 1.305 2.971 2.922c.068.99.12 2.28.12 3.905s-.052 2.915-.12 3.905M36 9.045v14" /></g></svg>`
+                    const inviteIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M5 5h2v2H5zM1 1h10v10H1zm2 2v6h6V3zm2 14h2v2H5zm-4-4h10v10H1zm2 2v6h6v-6zm10-2h4v2h2v-2h4v2h-4v2h4v6h-4v-2h-4v2h-2v-2h2v-2h-2zm8 8v-2h-2v2zm-2-4h-2v-2h-2v4h4zM17 2v3h-3v2h3v3h2V7h3V5h-3V2Z" /></svg>`;
 
                     // 1. Fetch Profile Data (สำหรับข้อมูลส่วนตัว, แต้ม และรายการล่าสุด)
                     const profileRes = await fetch(`/api/members/profile/${memberId}`);
@@ -281,6 +283,9 @@
                         }
                         if (this.profile.member_items) {
                             recentItems = [...recentItems, ...this.profile.member_items];
+                        }
+                        if (this.profile.member_invites) {
+                            recentItems = [...recentItems, ...this.profile.member_invites];
                         }
                         recentItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -311,6 +316,14 @@
                                     title: item.donation_item_name ? `แลกของรางวัล (${item.donation_item_name})` : 'แลกของรางวัล', dateStr,
                                     pointText: `-${Number(item.member_item_point_used || 0).toLocaleString()} แต้ม`,
                                     pointColor: 'text-amber-500'
+                                };
+                            } else if (item.invite_record_id) {
+                                return {
+                                    icon: inviteIconSvg,
+                                    bgColor: 'bg-sky-100 text-sky-600',
+                                    title: `ชวนเพื่อน: ${item.invitee_name}`, dateStr,
+                                    pointText: `+1 แต้มสังคม`,
+                                    pointColor: 'text-sky-600'
                                 };
                             }
                             return {};

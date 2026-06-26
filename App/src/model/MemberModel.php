@@ -471,7 +471,49 @@ class MemberModel
 
             $member['member_items'] = $memberItems;
 
+
+            $memberInvites = $this->GetMemberInvitation($member_id);
+
+            $member['member_invites'] = $memberInvites;
+
             return $member;
+        } catch (PDOException $e) {
+            throw new Exception($e->getMessage(), (int) $e->getCode());
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function GetMemberInvitation($member_id): array
+    {
+        try {
+
+            $memberInviteSql = "SELECT 
+                                    member_invite.member_invite_id AS invite_record_id,
+                                    member_invite.created_at,
+                                    
+                                    inviter.member_id AS inviter_id,
+                                    inviter.member_name AS inviter_name,
+
+                                    invitee.member_id AS invitee_id,
+                                    invitee.member_name AS invitee_name
+
+                                FROM 
+                                    member_invite
+                                JOIN 
+                                    member AS inviter ON member_invite.inviter_id = inviter.member_id
+                                JOIN 
+                                    member AS invitee ON member_invite.invitees_id = invitee.member_id
+                                WHERE 
+                                    member_invite.inviter_id = :member_id
+                                ORDER BY 
+                                    member_invite.created_at DESC";
+            $memberInviteStmt = $this->Conn->prepare($memberInviteSql);
+            $memberInviteStmt->bindValue(':member_id', $member_id, PDO::PARAM_INT);
+            $memberInviteStmt->execute();
+            $memberInvites = $memberInviteStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $memberInvites;
         } catch (PDOException $e) {
             throw new Exception($e->getMessage(), (int) $e->getCode());
         } catch (Exception $e) {
