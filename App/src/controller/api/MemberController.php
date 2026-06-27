@@ -75,6 +75,31 @@ class MemberController extends RouterBase
         }
     }
 
+    public function UpdatePassword($uid)
+    {
+        try {
+            // Allow operator to change password for others
+            Authentication::OperateAuth();
+
+            $result = $this->MemberModel->ChangeMemberPassword($uid, $this->data);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Password updated successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (Exception $e) {
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } finally {
+            exit;
+        }
+    }
+
     public function Create()
     {
         try {

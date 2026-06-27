@@ -430,126 +430,145 @@
                     </svg>
                 </div>
 
-                <div class="grid grid-1 space-y-2 text-xs">
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_role" class="text-gray-700 font-medium">
-                            บทบาท <span class="text-red-500">*</span>
-                        </label>
-                        <select id="create_acc_role" x-model="createUserForm.role_id"
-                            @change="handleRoleChange('create')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.create.role_id}">
-                            <option value="">เลือกบทบาท</option>
-                            <option value="1">นักศึกษา</option>
-                            <option value="2">อาจารย์</option>
-                            <option value="3">บุคลากร</option>
-                            <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
-                            <?php
-                            if ((int) $user->role_id == 6) {
-                                echo '<option value="5">เจ้าหน้าที่ศูนย์/หน่วย</option>
-                                    <option value="6">ผู้ดูแลระบบ</option>';
-                            }
-                            ?>
-                        </select>
-                        <span x-show="errors.create.role_id" class="text-red-500 text-xs">
-                            กรุณาเลือกบทบาท
-                        </span>
-                    </div>
-                    <div class="flex flex-col space-y-1"
-                        x-show="createUserForm.role_id == '1' || createUserForm.role_id == '2' || createUserForm.role_id == '4'"
-                        x-cloak>
-                        <label for="create_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ <span x-show="createUserForm.role_id == '4'" class="text-red-500">*</span>
-                        </label>
-                        <select id="create_acc_faculty" x-model="createUserForm.faculty_id"
-                            @change="fetchMajorsByFaculty(createUserForm.faculty_id, 'create')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.create.faculty_id}">
-                            <option value="">เลือกคณะ</option>
-                            <template x-for="fac in faculties" :key="fac.faculty_id">
-                                <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                            </template>
-                        </select>
-                        <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">
-                            กรุณาเลือกคณะ
-                        </span>
-                    </div>
+                <div class="space-y-3 text-xs">
 
-                    <div class="flex flex-col space-y-1"
-                        x-show="createUserForm.role_id == '1' || createUserForm.role_id == '2' || createUserForm.role_id == '4'"
-                        x-cloak>
-                        <label for="create_acc_major" class="text-gray-700 font-medium">
-                            สาขา
-                        </label>
-                        <select id="create_acc_major" x-model="createUserForm.major_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white disabled:bg-gray-100"
-                            :disabled="!createUserForm.faculty_id">
-                            <option value="">เลือกสาขา</option>
-                            <template x-for="major in createMajors" :key="major.major_id">
-                                <option :value="major.major_id" x-text="major.major_name"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col space-y-1"
-                        x-show="createUserForm.role_id == '5' || createUserForm.role_id == '6'" x-cloak>
-                        <label for="create_acc_center_branch" class="text-gray-700 font-medium">
-                            ศูนย์ <span class="text-red-500">*</span>
-                        </label>
-                        <select id="create_acc_center_branch" x-model="createUserForm.faculty_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.create.faculty_id}">
-                            <option value="">เลือกศูนย์</option>
-                            <template x-for="branch in centerBranches" :key="branch.faculty_id">
-                                <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
-                            </template>
-                        </select>
-                        <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_tel">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="create_acc_tel" class="col-span-1">
                             เบอร์โทรศัพท์ <span class="text-red-500">*</span>
                         </label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            type="text" id="create_acc_tel" x-model="createUserForm.member_phone"
-                            placeholder="หมายเลขโทรศัพท์">
-                        <span x-show="errors.create.member_phone" class="text-red-500 text-xs">
-                            กรุณากรอกหมายเลขโทรศัพท์
-                        </span>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                type="text" id="create_acc_tel" x-model="createUserForm.member_phone"
+                                placeholder="หมายเลขโทรศัพท์">
+                            <span x-show="errors.create.member_phone"
+                                class="text-red-500 text-xs">กรุณากรอกหมายเลขโทรศัพท์</span>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_pass" class="text-gray-700 font-medium">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="create_acc_pass" class="col-span-1 text-gray-700 font-medium">
                             รหัสผ่าน <span class="text-red-500">*</span>
                         </label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            :class="{'border-red-500': errors.create.member_password}" type="password"
-                            id="create_acc_pass" x-model="createUserForm.member_password" placeholder="8 character">
-                        <span x-show="errors.create.member_password" class="text-red-500 text-xs">
-                            กรุณากรอกรหัสผ่าน
-                        </span>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                :class="{'border-red-500': errors.create.member_password}" type="password"
+                                id="create_acc_pass" x-model="createUserForm.member_password" placeholder="8 character">
+                            <span x-show="errors.create.member_password"
+                                class="text-red-500 text-xs">กรุณากรอกรหัสผ่าน</span>
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_name">ชื่อ-สกุล</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            type="text" id="create_acc_name" x-model="createUserForm.member_name"
-                            placeholder="ชื่อ นามสกุล">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="create_acc_name" class="col-span-1">ชื่อ-สกุล</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                type="text" id="create_acc_name" x-model="createUserForm.member_name"
+                                placeholder="ชื่อ นามสกุล">
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1" x-show="createUserForm.role_id == '1'" x-cloak>
-                        <label for="create_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            :class="{'border-red-500': errors.create.member_personal_id}" type="text"
-                            id="create_acc_personal_id" x-model="createUserForm.member_personal_id"
-                            placeholder="รหัสนักศึกษา">
+                    <div class="grid grid-cols-3 items-center" x-show="createUserForm.role_id == '1'" x-cloak>
+                        <label for="create_acc_personal_id"
+                            class="col-span-1 text-gray-700 font-medium">รหัสประจำตัว</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                :class="{'border-red-500': errors.create.member_personal_id}" type="text"
+                                id="create_acc_personal_id" x-model="createUserForm.member_personal_id"
+                                placeholder="รหัสนักศึกษา">
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1">
-                        <label for="create_acc_mail">อีเมล</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            type="text" id="create_acc_mail" x-model="createUserForm.member_email" placeholder="อีเมล">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="create_acc_mail" class="col-span-1">อีเมล</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                type="text" id="create_acc_mail" x-model="createUserForm.member_email"
+                                placeholder="อีเมล">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="create_acc_role" class="col-span-1 text-gray-700 font-medium">
+                            บทบาท <span class="text-red-500">*</span>
+                        </label>
+                        <div class="col-span-2">
+                            <select id="create_acc_role" x-model="createUserForm.role_id"
+                                @change="handleRoleChange('create')"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.create.role_id}">
+                                <option value="">เลือกบทบาท</option>
+                                <option value="1">นักศึกษา</option>
+                                <option value="2">อาจารย์</option>
+                                <option value="3">บุคลากร</option>
+                                <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
+                                <?php
+                                if ((int) $user->role_id == 6) {
+                                    echo '<option value="5">เจ้าหน้าที่ศูนย์/หน่วย</option>
+                                    <option value="6">ผู้ดูแลระบบ</option>';
+                                }
+                                ?>
+                            </select>
+                            <span x-show="errors.create.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center"
+                        x-show="createUserForm.role_id == '1' || createUserForm.role_id == '2' || createUserForm.role_id == '4'"
+                        x-cloak>
+                        <label for="create_acc_faculty" class="col-span-1 text-gray-700 font-medium">
+                            คณะ <span x-show="createUserForm.role_id == '4'" class="text-red-500">*</span>
+                        </label>
+                        <div class="col-span-2">
+                            <select id="create_acc_faculty" x-model="createUserForm.faculty_id"
+                                @change="fetchMajorsByFaculty(createUserForm.faculty_id, 'create')"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.create.faculty_id}">
+                                <option value="">เลือกคณะ</option>
+                                <template x-for="fac in faculties" :key="fac.faculty_id">
+                                    <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
+                                </template>
+                            </select>
+                            <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">กรุณาเลือกคณะ</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center"
+                        x-show="createUserForm.role_id == '1' || createUserForm.role_id == '2' || createUserForm.role_id == '4'"
+                        x-cloak>
+                        <label for="create_acc_major" class="col-span-1 text-gray-700 font-medium">สาขา</label>
+                        <div class="col-span-2">
+                            <select id="create_acc_major" x-model="createUserForm.major_id"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white disabled:bg-gray-100"
+                                :disabled="!createUserForm.faculty_id">
+                                <option value="">เลือกสาขา</option>
+                                <template x-for="major in createMajors" :key="major.major_id">
+                                    <option :value="major.major_id" x-text="major.major_name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center"
+                        x-show="createUserForm.role_id == '5' || createUserForm.role_id == '6'" x-cloak>
+                        <label for="create_acc_center_branch" class="col-span-1 text-gray-700 font-medium">
+                            ศูนย์ <span class="text-red-500">*</span>
+                        </label>
+                        <div class="col-span-2">
+                            <select id="create_acc_center_branch" x-model="createUserForm.faculty_id"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.create.faculty_id}">
+                                <option value="">เลือกศูนย์</option>
+                                <template x-for="branch in centerBranches" :key="branch.faculty_id">
+                                    <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
+                                </template>
+                            </select>
+                            <span x-show="errors.create.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
+                        </div>
                     </div>
 
                 </div>
@@ -569,110 +588,146 @@
             <div class="bg-white rounded-md shadow p-6 w-96 max-w-full">
                 <h3 class="font-bold text-lg mb-3">แก้ไขข้อมูล</h3>
 
-                <div class="grid grid-1 space-y-2 text-xs">
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_role" class="text-gray-700 font-medium">บทบาท <span
-                                class="text-red-500">*</span></label>
-                        <select id="edit_acc_role" x-model="editUserForm.role_id" @change="handleRoleChange('edit')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.edit.role_id}">
-                            <option value="">เลือกบทบาท</option>
-                            <option value="1">นักศึกษา</option>
-                            <option value="2">อาจารย์</option>
-                            <option value="3">บุคลากร</option>
-                            <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
-                            <?php
-                            if ((int) $user->role_id == 6) {
-                                echo '<option value="5">เจ้าหน้าที่ศูนย์/หน่วย</option>
-                                    <option value="6">ผู้ดูแลระบบ</option>';
-                            }
-                            ?>
-                        </select>
-                        <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
+                <div class="space-y-3 text-xs">
+
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="edit_acc_name" class="col-span-1">ชื่อ-สกุล</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
+                                type="text" id="edit_acc_name" x-model="editUserForm.member_name"
+                                placeholder="ชื่อ นามสกุล">
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1"
-                        x-show="editUserForm.role_id == '1' || editUserForm.role_id == '2' || editUserForm.role_id == '4'"
-                        x-cloak>
-                        <label for="edit_acc_faculty" class="text-gray-700 font-medium">
-                            คณะ <span x-show="editUserForm.role_id == '4'" class="text-red-500">*</span>
-                        </label>
-                        <select id="edit_acc_faculty" x-model="editUserForm.faculty_id"
-                            @change="fetchMajorsByFaculty(editUserForm.faculty_id, 'edit')"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.edit.faculty_id}">
-                            <option value="">เลือกคณะ</option>
-                            <template x-for="fac in faculties" :key="fac.faculty_id">
-                                <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
-                            </template>
-                        </select>
-                        <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">
-                            กรุณาเลือกคณะ
-                        </span>
+                    <div class="grid grid-cols-3 items-center" x-show="editUserForm.role_id == '1'" x-cloak>
+                        <label for="edit_acc_personal_id"
+                            class="col-span-1 text-gray-700 font-medium">รหัสประจำตัว</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                :class="{'border-red-500': errors.edit.member_personal_id}" type="text"
+                                id="edit_acc_personal_id" x-model="editUserForm.member_personal_id"
+                                placeholder="รหัสนักศึกษา">
+                        </div>
                     </div>
 
-                    <div class="flex flex-col space-y-1"
-                        x-show="editUserForm.role_id == '1' || editUserForm.role_id == '2' || editUserForm.role_id == '4'"
-                        x-cloak>
-                        <label for="edit_acc_major" class="text-gray-700 font-medium">
-                            สาขา
-                        </label>
-                        <select id="edit_acc_major" x-model="editUserForm.major_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white disabled:bg-gray-100"
-                            :disabled="!editUserForm.faculty_id">
-                            <option value="">เลือกสาขา</option>
-                            <template x-for="major in editMajors" :key="major.major_id">
-                                <option :value="major.major_id" x-text="major.major_name"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <div class="flex flex-col space-y-1"
-                        x-show="editUserForm.role_id == '5' || editUserForm.role_id == '6'" x-cloak>
-                        <label for="edit_acc_center_branch" class="text-gray-700 font-medium">
-                            ศูนย์ <span class="text-red-500">*</span>
-                        </label>
-                        <select id="edit_acc_center_branch" x-model="editUserForm.faculty_id"
-                            class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
-                            :class="{'border-red-500': errors.edit.faculty_id}">
-                            <option value="">เลือกศูนย์</option>
-                            <template x-for="branch in centerBranches" :key="branch.faculty_id">
-                                <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
-                            </template>
-                        </select>
-                        <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_tel">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="edit_acc_tel" class="col-span-1">
                             เบอร์โทรศัพท์ <span class="text-red-500">*</span>
                         </label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
-                            type="text" id="edit_acc_tel" x-model="editUserForm.member_phone"
-                            placeholder="เบอร์โทรศัพท์">
-                        <span x-show="errors.edit.member_phone" class="text-red-500 text-xs">
-                            กรุณากรอกหมายเลขโทรศัพท์
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
+                                type="text" id="edit_acc_tel" x-model="editUserForm.member_phone"
+                                placeholder="เบอร์โทรศัพท์">
+                            <span x-show="errors.edit.member_phone"
+                                class="text-red-500 text-xs">กรุณากรอกหมายเลขโทรศัพท์</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="edit_acc_mail" class="col-span-1">อีเมล</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
+                                type="text" id="edit_acc_mail" x-model="editUserForm.member_email" placeholder="อีเมล">
+                        </div>
+                    </div>
+
+
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="edit_acc_role" class="col-span-1 text-gray-700 font-medium">บทบาท <span
+                                class="text-red-500">*</span></label>
+                        <div class="col-span-2">
+                            <select id="edit_acc_role" x-model="editUserForm.role_id" @change="handleRoleChange('edit')"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.edit.role_id}">
+                                <option value="">เลือกบทบาท</option>
+                                <option value="1">นักศึกษา</option>
+                                <option value="2">อาจารย์</option>
+                                <option value="3">บุคลากร</option>
+                                <option value="4">เจ้าหน้าที่จุดฝาก/คณะ</option>
+                                <?php
+                                if ((int) $user->role_id == 6) {
+                                    echo '<option value="5">เจ้าหน้าที่ศูนย์/หน่วย</option>
+                                    <option value="6">ผู้ดูแลระบบ</option>';
+                                }
+                                ?>
+                            </select>
+                            <span x-show="errors.edit.role_id" class="text-red-500 text-xs">กรุณาเลือกบทบาท</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center"
+                        x-show="editUserForm.role_id == '1' || editUserForm.role_id == '2' || editUserForm.role_id == '4'"
+                        x-cloak>
+                        <label for="edit_acc_faculty" class="col-span-1 text-gray-700 font-medium">
+                            คณะ <span x-show="editUserForm.role_id == '4'" class="text-red-500">*</span>
+                        </label>
+                        <div class="col-span-2">
+                            <select id="edit_acc_faculty" x-model="editUserForm.faculty_id"
+                                @change="fetchMajorsByFaculty(editUserForm.faculty_id, 'edit')"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.edit.faculty_id}">
+                                <option value="">เลือกคณะ</option>
+                                <template x-for="fac in faculties" :key="fac.faculty_id">
+                                    <option :value="fac.faculty_id" x-text="fac.faculty_name"></option>
+                                </template>
+                            </select>
+                            <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกคณะ</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center"
+                        x-show="editUserForm.role_id == '1' || editUserForm.role_id == '2' || editUserForm.role_id == '4'"
+                        x-cloak>
+                        <label for="edit_acc_major" class="col-span-1 text-gray-700 font-medium">สาขา</label>
+                        <div class="col-span-2">
+                            <select id="edit_acc_major" x-model="editUserForm.major_id"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3 bg-white disabled:bg-gray-100"
+                                :disabled="!editUserForm.faculty_id">
+                                <option value="">เลือกสาขา</option>
+                                <template x-for="major in editMajors" :key="major.major_id">
+                                    <option :value="major.major_id" x-text="major.major_name"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 items-center "
+                        x-show="editUserForm.role_id == '5' || editUserForm.role_id == '6'" x-cloak>
+                        <label for="edit_acc_center_branch" class="col-span-1 text-gray-700 font-medium">
+                            ศูนย์ <span class="text-red-500">*</span>
+                        </label>
+                        <div class="col-span-2">
+                            <select id="edit_acc_center_branch" x-model="editUserForm.faculty_id"
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3 bg-white"
+                                :class="{'border-red-500': errors.edit.faculty_id}">
+                                <option value="">เลือกศูนย์</option>
+                                <template x-for="branch in centerBranches" :key="branch.faculty_id">
+                                    <option :value="branch.faculty_id" x-text="branch.faculty_name"></option>
+                                </template>
+                            </select>
+                            <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 items-center">
+                        <span class="col-span-1 text-gray-700 font-medium">
+                            รหัสผ่าน 
                         </span>
-                    </div>
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_name">ชื่อ-สกุล</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
-                            type="text" id="edit_acc_name" x-model="editUserForm.member_name"
-                            placeholder="ชื่อ นามสกุล">
-                    </div>
+                        <button @click="openChangePasswordDialog()" type="button"
+                            class="col-span-2 hover:underline cursor-pointer flex p-1.5 border border-gray-300 rounded items-center gap-1 justify-center shadow-sm hover:shadow-md hover:scale-102 transition duration-50">
+                            <span class="">เปลี่ยนรหัสผ่าน</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 24 24">
+                                <path d="M0 0h24v24H0z" fill="none" />
+                                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    d="m9.701 12.75l2.598-1.5m0 1.5l-2.598-1.5M11 10.5v3m-6.049-.75l2.598-1.5m0 1.5l-2.598-1.5m1.299-.75v3m8.25-5.75H4.75A2.25 2.25 0 0 0 2.5 10v4a2.25 2.25 0 0 0 2.25 2.25h14.5A2.25 2.25 0 0 0 21.5 14v-1.5m-1.932-6.189a1.49 1.49 0 0 1 2.106.015a1.49 1.49 0 0 1 .015 2.107l-3.809 3.809a3.5 3.5 0 0 1-1.501.888l-2.129.62l.62-2.128a3.5 3.5 0 0 1 .889-1.502z" />
+                            </svg>
+                        </button>
 
-                    <div class="flex flex-col space-y-1" x-show="editUserForm.role_id == '1'" x-cloak>
-                        <label for="edit_acc_personal_id" class="text-gray-700 font-medium">รหัสประจำตัว</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
-                            :class="{'border-red-500': errors.edit.member_personal_id}" type="text"
-                            id="edit_acc_personal_id" x-model="editUserForm.member_personal_id"
-                            placeholder="รหัสนักศึกษา">
-                    </div>
-
-                    <div class="flex flex-col space-y-1">
-                        <label for="edit_acc_mail">อีเมล</label>
-                        <input class="border border-gray-300 rounded p-1.5 focus:ring-emerald-300 focus:ring-3"
-                            type="text" id="edit_acc_mail" x-model="editUserForm.member_email" placeholder="อีเมล">
                     </div>
 
                 </div>
@@ -681,6 +736,55 @@
                     <button @click="editUserDialogShow = false"
                         class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-500 hover:scale-105 transition duration-100">ยกเลิก</button>
                     <button @click="submitEdit"
+                        class="px-3 py-1 bg-emerald-600 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105 transition duration-100">ยืนยัน</button>
+                </div>
+            </div>
+        </dialog>
+
+        <!-- Change Password Dialog -->
+        <dialog x-ref="changePasswordDialog" x-show="changePasswordDialogShow"
+            @click.self="changePasswordDialogShow = false" @close="changePasswordDialogShow = false"
+            class="fixed inset-0 mx-auto my-auto p-0 bg-transparent z-50"
+            x-init="$watch('changePasswordDialogShow', value => {if (value) $refs.changePasswordDialog.showModal();else $refs.changePasswordDialog.close();})">
+            <div class="bg-white rounded-md shadow p-6 w-96 max-w-full">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-bold text-lg">เปลี่ยนรหัสผ่าน</h3>
+                    <svg class="cursor-pointer hover:scale-110 transition-transform"
+                        @click="changePasswordDialogShow = false" xmlns="http://www.w3.org/2000/svg" width="18"
+                        height="18" viewBox="0 0 32 32">
+                        <path fill="currentColor"
+                            d="M24.879 2.879A3 3 0 1 1 29.12 7.12l-8.79 8.79a.125.125 0 0 0 0 .177l8.79 8.79a3 3 0 1 1-4.242 4.243l-8.79-8.79a.125.125 0 0 0-.177 0l-8.79 8.79a3 3 0 1 1-4.243-4.242l8.79-8.79a.125.125 0 0 0 0-.177l-8.79-8.79A3 3 0 0 1 7.12 2.878l8.79 8.79a.125.125 0 0 0 .177 0z"
+                            stroke-width="0.5" stroke="currentColor" />
+                    </svg>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="change_pass_new" class="col-span-1 text-gray-700 font-medium">รหัสผ่านใหม่</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                :class="{'border-red-500': errors.password.new_password}" type="password"
+                                id="change_pass_new" x-model="changePasswordForm.new_password"
+                                placeholder="กรอกรหัสผ่านใหม่">
+                            <span x-show="errors.password.new_password" class="text-red-500 text-xs"
+                                x-text="errors.password.new_password"></span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 items-center">
+                        <label for="change_pass_confirm"
+                            class="col-span-1 text-gray-700 font-medium">ยืนยันรหัสผ่าน</label>
+                        <div class="col-span-2">
+                            <input
+                                class="w-full border border-gray-300 rounded p-1.5 focus:ring-emerald-500 focus:ring-3"
+                                type="password" id="change_pass_confirm" x-model="changePasswordForm.confirm_password"
+                                placeholder="กรอกรหัสผ่านใหม่อีกครั้ง">
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 text-right space-x-2">
+                    <button @click="changePasswordDialogShow = false"
+                        class="px-3 py-1 border-2 border-gray-200 rounded hover:border-gray-300 cursor-pointer text-gray-500 hover:scale-105 transition duration-100">ยกเลิก</button>
+                    <button @click="submitChangePassword"
                         class="px-3 py-1 bg-emerald-600 rounded hover:bg-emerald-700 cursor-pointer text-white font-semibold hover:scale-105 transition duration-100">ยืนยัน</button>
                 </div>
             </div>
@@ -705,6 +809,8 @@
             selectedUser: null,
             createUserDialogShow: false,
             editUserDialogShow: false,
+            changePasswordDialogShow: false,
+            showChangePasswordForm: false,
             page: 1,
             limit: 10,
             totalPages: 1,
@@ -712,6 +818,7 @@
             errors: {
                 create: {},
                 edit: {},
+                password: {},
             },
 
             editUserForm: {
@@ -722,6 +829,8 @@
                 faculty_id: "",
                 major_id: "",
                 role_id: "",
+                new_password: "",
+                confirm_password: "",
             },
 
             createUserForm: {
@@ -734,6 +843,13 @@
                 major_id: "",
                 role_id: "",
             },
+
+            changePasswordForm: {
+                member_id: null,
+                new_password: "",
+                confirm_password: "",
+            },
+
 
             filters: {
                 faculty_id: "",
@@ -987,17 +1103,32 @@
                     faculty_id: user.faculty_id ?? "",
                     major_id: user.major_id ?? "",
                     role_id: parseInt(user.role_id),
+                    new_password: "",
+                    confirm_password: "",
                 };
                 this.errors.edit = {};
+                this.showChangePasswordForm = false;
 
                 if (user.faculty_id) {
-                    await this.fetchMajorsByFaculty(user.faculty_id, 'edit');
+                    await this.fetchMajorsByFaculty(user.faculty_id, "edit");
                 }
 
                 console.log("Selected User:", user);
                 console.log("Form Data:", this.editUserForm);
 
                 this.editUserDialogShow = true;
+            },
+
+            openChangePasswordDialog() {
+                if (!this.selectedUser) return;
+                this.changePasswordForm = {
+                    member_id: this.selectedUser.member_id,
+                    new_password: "",
+                    confirm_password: "",
+                };
+                this.errors.password = {};
+                this.editUserDialogShow = false;
+                this.changePasswordDialogShow = true;
             },
 
             validateForm(formType) {
@@ -1095,6 +1226,69 @@
                         console.error(error);
                         this.editUserDialogShow = true;
                     }
+                }
+            },
+
+            validatePasswordForm() {
+                let isValid = true;
+                const errors = {};
+                const form = this.changePasswordForm;
+
+                if (!form.new_password || form.new_password.length < 6) {
+                    errors.new_password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+                    isValid = false;
+                } else if (form.new_password !== form.confirm_password) {
+                    errors.new_password = "รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน";
+                    isValid = false;
+                }
+
+                this.errors.password = errors;
+                return isValid;
+            },
+
+            async submitChangePassword() {
+                this.changePasswordDialogShow = false;
+                if (!this.validatePasswordForm()) {
+                    await Swal.fire({
+                        icon: "warning",
+                        title: "ข้อมูลไม่ถูกต้อง",
+                        text: this.errors.password.new_password,
+                        confirmButtonColor: "#ff8f4eff",
+                    });
+                    this.changePasswordDialogShow = true;
+                    return;
+                }
+
+                const result = await Swal.fire({
+                    title: "ยืนยันการเปลี่ยนรหัสผ่าน",
+                    text: "คุณแน่ใจหรือไม่ที่จะเปลี่ยนรหัสผ่านสำหรับผู้ใช้นี้?",
+                    icon: "info",
+                    showConfirmButton: true,
+                    confirmButtonText: "ยืนยัน",
+                    showCancelButton: true,
+                    cancelButtonText: "ยกเลิก",
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const res = await fetch(`/api/members/update_password/${this.changePasswordForm.member_id}`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ new_password: this.changePasswordForm.new_password, confirm_password: this.changePasswordForm.confirm_password }),
+                        });
+                        const response = await res.json();
+                        if (response.success) {
+                            Swal.fire("สำเร็จ!", "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว", "success");
+                        } else {
+                            throw new Error(response.message || "เกิดข้อผิดพลาด");
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire("ผิดพลาด!", error.message || "ไม่สามารถเปลี่ยนรหัสผ่านได้", "error");
+                        this.changePasswordDialogShow = true;
+                    }
+                } else {
+                    this.changePasswordDialogShow = true;
                 }
             },
 

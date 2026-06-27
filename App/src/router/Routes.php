@@ -186,6 +186,7 @@ class Routes
             ['POST', '', [MemberController::class, 'Create']],
             ['POST', '/update/profile/[i:uid]', [MemberController::class, 'UpdateProfile']],
             ['POST', '/update/[i:uid]', [MemberController::class, 'Update']],
+            ['POST', '/update_password/[i:uid]', [MemberController::class, 'UpdatePassword']],
             ['POST', '/delete', [MemberController::class, 'Delete']],
         ]);
         /* /api/majors */
