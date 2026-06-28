@@ -15,7 +15,7 @@
                         class="bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 cursor-pointer hover:scale-105 active:scale-98 px-6 py-2 rounded-full font-semibold transition-all">
                         สมัครสมาชิก
                     </a>
-                </div>                
+                </div>
             </div>
         </div>
 
@@ -37,7 +37,8 @@
                 <div class="flex flex-col space-y-1">
                     <div class="flex justify-between items-center">
                         <label for="password" class="text-gray-700 font-medium">รหัสผ่าน</label>
-                        <a href="#" class="text-xs text-emerald-600 hover:underline">ลืมรหัสผ่าน?</a>
+                        <a href="#" onclick="event.preventDefault(); showForgotPasswordDialog();"
+                            class="text-xs text-emerald-600 hover:underline">ลืมรหัสผ่าน?</a>
                     </div>
                     <input type="password" name="password" id="password"
                         class="border border-gray-300 rounded-md p-2.5 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 outline-none transition-all"
@@ -154,6 +155,16 @@
                 text: error.message || "ข้อมูลหรือรหัสผ่านไม่ถูกต้อง",
             });
         }
+    }
+
+    function showForgotPasswordDialog() {
+        Swal.fire({
+            icon: 'info',
+            title: 'ลืมรหัสผ่าน',
+            text: 'กรุณาติดต่อศูนย์ธนาคารขยะเพื่อรีเซ็ทรหัสผ่าน ขออภัยในความไม่สะดวก',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#059669',
+        });
     }
 
 </script>
