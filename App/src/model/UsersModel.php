@@ -27,7 +27,7 @@ class UsersModel
         try {
             $identifier = $data['identifier'] ?? null;
             if (empty($identifier) || empty($data['password'])) {
-                throw new Exception('Identifier or password not provided', 400);
+                throw new Exception('กรุณาลองใหม่อีกครั้ง', 400);
             }
 
             $sql =
@@ -59,7 +59,7 @@ class UsersModel
             if (password_verify($data['password'], $user['member_password'])) {
                 unset($user['member_password']);
             } else {
-                throw new Exception("Wrong Password", 401);
+                throw new Exception("กรุณาลองใหม่อีกครั้ง, รหัสผ่านไม่ถูกต้อง", 401);
             }
             $token = Jwt::jwt_encode($user);
             $cookieToken = CookieBaker::BakeUserCookie($token);
@@ -123,6 +123,10 @@ class UsersModel
 
             if ($data['member_type'] === 'student' && isset($data['member_personal_id']) && !empty($data['member_personal_id']) && !preg_match('/^\d{12}$/', $data['member_personal_id'])) {
                 throw new Exception('รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก', 422);
+            }
+
+            if ($data['member_password'] < 6) {
+                throw new Exception('ตรวจสอบข้อมูล, รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 422);
             }
 
             self::$Conn->beginTransaction();

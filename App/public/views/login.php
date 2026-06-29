@@ -28,7 +28,7 @@
 
             <div class="space-y-4 text-sm">
                 <div class="flex flex-col space-y-1">
-                    <label for="identifier" class="text-gray-700 font-medium">ผู้ใช้งาน</label>
+                    <label for="identifier" class="text-gray-700 font-medium">เบอร์โทรศัพท์ - อีเมล</label>
                     <input type="text" name="identifier" id="identifier"
                         class="border border-gray-300 rounded-md p-2.5 focus:ring-emerald-500 focus:ring-2 focus:border-emerald-400 outline-none transition-all"
                         placeholder="เบอร์โทรศัพท์, อีเมล หรือ รหัสประจำตัว">

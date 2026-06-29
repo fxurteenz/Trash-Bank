@@ -100,8 +100,8 @@
                 }
                 if (!this.formData.member_password) {
                     this.errors.member_password = 'กรุณากรอกรหัสผ่าน';
-                } else if (this.formData.member_password.length < 8) {
-                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
+                } else if (this.formData.member_password.length < 6) {
+                    this.errors.member_password = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
                 }
                 return Object.keys(this.errors).length === 0;
             },
@@ -341,7 +341,7 @@
                             </label>
                             <input class="border border-gray-300 rounded-md p-2 focus:ring-emerald-500 focus:ring-2"
                                 :class="{'border-red-500': errors.member_password}" type="password" id="password"
-                                x-model="formData.member_password" placeholder="อย่างน้อย 8 ตัวอักษร">
+                                x-model="formData.member_password" placeholder="รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร">
                             <span x-show="errors.member_password" class="text-red-500 text-xs"
                                 x-text="errors.member_password"></span>
                         </div>
