@@ -20,6 +20,31 @@
             font-family: "Open Sans", sans-serif;
         }
 
+        html,
+        body {
+            font-family: "Sarabun", sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        button,
+        a {
+            font-family: "Noto Sans Thai", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: "Sarabun", sans-serif;
+        }
+
         /* KBank-style user layout */
         .user-mode {
             background: #F4F5F7;
@@ -45,7 +70,7 @@
 
 <body>
     <div
-        class="min-h-screen min-w-screen noto-sans-thai <?= isset($footer) ? 'has-footer' : '' ?> <?= (isset($footer) && $footer === 'user') ? 'user-mode' : 'bg-gray-100' ?>">
+        class="min-h-screen min-w-screen <?= isset($footer) ? 'has-footer' : '' ?> <?= (isset($footer) && $footer === 'user') ? 'user-mode' : 'bg-gray-100' ?>">
         <div class="<?= (isset($footer) && $footer === 'user') ? 'user-page' : '' ?>">
             <?php include $viewPath; ?>
         </div>

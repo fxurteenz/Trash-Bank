@@ -38,7 +38,6 @@ class UserPagesController extends RouterBase
                 'pages' => 'Profile',
                 'title' => 'แดชบอร์ดผู้ใช้',
                 'user' => $user['user_data'],
-                // 'script' => '../../js/UserDashboard.js',
                 'activeTab' => "profile",
                 'footer' => 'user'
             ], self::$UserTemplate);

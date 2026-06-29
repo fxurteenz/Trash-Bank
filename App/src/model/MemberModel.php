@@ -587,6 +587,67 @@ class MemberModel
             if (empty($member_id)) {
                 throw new Exception('ไม่พบข้อมูลผู้ใช้', 400);
             }
+            if (empty($data['old_password'])) {
+                throw new Exception('กรุณากรอกรหัสผ่านเก่า', 422);
+            }
+            if (empty($data['new_password'])) {
+                throw new Exception('กรุณากรอกรหัสผ่านใหม่', 422);
+            }
+            if (strlen($data['new_password']) < 6) {
+                throw new Exception('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร', 422);
+            }
+            if ($data['new_password'] !== $data['confirm_password']) {
+                throw new Exception('รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน', 422);
+            }
+
+            $sql =
+                'SELECT 
+                    m.*
+                FROM 
+                    member m
+                WHERE 
+                    member_id = :member_id';
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute(['member_id' => $member_id]);
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$user) {
+                throw new Exception("ไม่สามารถดำเนินการได้, กรุณาติดต่อศูนย์ธนาคารขยะ", 422);
+            }
+
+            if (password_verify($data['old_password'], $user['member_password'])) {
+                unset($user['member_password']);
+            } else {
+                throw new Exception("กรุณาลองใหม่อีกครั้ง, รหัสผ่านเก่าไม่ถูกต้อง", 422);
+            }
+
+            $encodedPassword = password_hash(
+                $data['new_password'],
+                PASSWORD_DEFAULT,
+                ['cost' => self::$SaltRound]
+            );
+
+            $date = date('Y-m-d H:i:s');
+            $sql = "UPDATE member SET member_password = :password, updated_at = :updated_at WHERE member_id = :member_id";
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute([':password' => $encodedPassword, ':updated_at' => $date, ':member_id' => $member_id]);
+
+            return $stmt->rowCount();
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function UpdateMemberPassword($member_id, $data)
+    {
+        try {
+            if (empty($member_id)) {
+                throw new Exception('ไม่พบข้อมูลผู้ใช้', 400);
+            }
             if (empty($data['new_password'])) {
                 throw new Exception('กรุณากรอกรหัสผ่านใหม่', 422);
             }
@@ -603,9 +664,9 @@ class MemberModel
                 ['cost' => self::$SaltRound]
             );
 
-            $sql = "UPDATE member SET member_password = :password WHERE member_id = :member_id";
+            $sql = "UPDATE member SET member_password = :password,updated_at = :updated_at WHERE member_id = :member_id";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute([':password' => $encodedPassword, ':member_id' => $member_id]);
+            $stmt->execute([':password' => $encodedPassword,':updated_at' => date('Y-m-d H:i:s'), ':member_id' => $member_id]);
 
             return $stmt->rowCount();
         } catch (PDOException $e) {

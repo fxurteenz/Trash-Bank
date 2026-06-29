@@ -13,16 +13,6 @@
             </div>
         </a>
         <div class="flex items-center gap-[10px]">
-            <!-- ปุ่มดูบาร์โค้ด -->
-            <a href="/user/barcode"
-                class="w-[36px] h-[36px] rounded-full bg-[#E8F5EE] text-[#1B8B4B] grid place-items-center no-underline border-none cursor-pointer"
-                aria-label="บาร์โค้ดสมาชิก" title="บาร์โค้ดสมาชิก">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1.2rem" height="1.2rem" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                        d="M4 6h2v12H4zm3 0h1v12H7zm2 0h3v12H9zm4 0h1v12h-1zm3 0h2v12h-2zm3 0h3v12h-3z" />
-                </svg>
-            </a>
-
             <a href="/logout"
                 class="w-[36px] h-[36px] rounded-full bg-[#F4F5F7] grid place-items-center text-[17px] no-underline border-none cursor-pointer"
                 aria-label="ออกจากระบบ" title="ออกจากระบบ">
