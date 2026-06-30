@@ -188,7 +188,7 @@ class MemberController extends RouterBase
     {
         try {
             Authentication::MemberAuth();
-            $restricted_keys = ['role_id', 'member_waste_point', 'member_goodness_point', 'faculty_id', 'major_id'];
+            $restricted_keys = ['role_id', 'member_waste_point', 'member_goodness_point'];
             foreach ($restricted_keys as $key) {
                 if (array_key_exists($key, $this->data)) {
                     unset($this->data[$key]);

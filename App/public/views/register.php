@@ -23,6 +23,7 @@
                 this.formData.inviter_id = urlParams.get('recruiter');
                 this.fetchFaculties();
             },
+            
 
             nextStep() {
                 if (this.step === 1) {
@@ -204,7 +205,7 @@
     </nav>
 
     <div class="flex-1 flex justify-center items-center px-4 py-8">
-        <div class="bg-white rounded-lg shadow-lg p-8 w-96 max-w-full">
+        <div class="bg-white rounded-2xl shadow-lg p-8 w-96 max-w-full">
             <h3 class="font-bold text-2xl mb-6 text-center text-gray-800">สมัครสมาชิก</h3>
 
             <div class="relative mb-8">

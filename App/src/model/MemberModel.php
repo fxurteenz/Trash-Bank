@@ -271,21 +271,18 @@ class MemberModel
 
 
             if (!empty($data['new_password']) && !empty($data['old_password'])) {
-                // $encodedPassword = password_hash(
-                //     $data['password'],
-                //     PASSWORD_DEFAULT,
-                //     ['cost' => self::$SaltRound]
-                // );
+                $encodedPassword = password_hash(
+                    $data['password'],
+                    PASSWORD_DEFAULT,
+                    ['cost' => self::$SaltRound]
+                );
 
-                // $data["member_password"] = $encodedPassword;
+                $data["member_password"] = $encodedPassword;
             } else if (empty($data['old_password']) && !empty($data['new_password'])) {
                 throw new Exception("กรุณาลองใหม่, ต้องใช้รหัสผ่านเก่า", 400);
             } else if (!empty($data['new_password']) && empty($data['old_password'])) {
                 throw new Exception("กรุณาลองใหม่, อย่าลืมกรอกรหัสผ่านใหม่", 400);
             }
-
-
-
 
             $setClauses = [];
             $updateData = [];
@@ -666,7 +663,7 @@ class MemberModel
 
             $sql = "UPDATE member SET member_password = :password,updated_at = :updated_at WHERE member_id = :member_id";
             $stmt = $this->Conn->prepare($sql);
-            $stmt->execute([':password' => $encodedPassword,':updated_at' => date('Y-m-d H:i:s'), ':member_id' => $member_id]);
+            $stmt->execute([':password' => $encodedPassword, ':updated_at' => date('Y-m-d H:i:s'), ':member_id' => $member_id]);
 
             return $stmt->rowCount();
         } catch (PDOException $e) {

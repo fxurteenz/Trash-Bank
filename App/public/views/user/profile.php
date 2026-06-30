@@ -4,7 +4,7 @@
         class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
         <div class="flex items-center gap-4">
             <a href="/user"
-                class="text-[22px] no-underline text-[#1A1A2E] leading-none w-[36px] h-[36px] rounded-full bg-[#F4F5F7] flex items-center justify-center">‹</a>
+                class="text-[22px] no-underline text-gray-700 leading-none w-[36px] h-[36px] rounded-full bg-[#F4F5F7] flex items-center justify-center">‹</a>
         </div>
 
         <div class="flex items-center gap-[10px]">
@@ -23,51 +23,50 @@
     <!-- Header / Avatar -->
     <div class="flex flex-col items-center justify-center mt-6 mb-2">
         <div class="w-[80px] h-[80px] rounded-full bg-gradient-to-br from-[#1B8B4B] to-[#0D6B38] text-white text-[32px] font-[800] grid place-items-center shadow-[0_4px_12px_rgba(27,139,75,0.3)]"
-            x-text="profile?.member_name ? profile.member_name.charAt(0) : ''">
+            x-text="getFirstThaiChar(profile?.member_name) || '-'">
         </div>
-        <div class="text-[18px] font-[800] text-[#1A1A2E] mt-3" x-text="profile?.member_name || 'กำลังโหลด...'"></div>
-        <div class="text-[13px] text-[#1B8B4B] font-[700] mt-1 bg-[#E8F5EE] px-3 py-1 rounded-full"
+        <div class="text-[18px] font-[800] text-gray-700 mt-3" x-text="profile?.member_name || 'กำลังโหลด...'"></div>
+        <div class="text-[13px] text-[#1B8B4B] mt-1 bg-[#E8F5EE] px-3 py-1 rounded-full"
             x-text="profile?.role_name_th || 'สมาชิก'"></div>
     </div>
 
     <!-- Personal Info -->
     <div class="bg-white mt-[14px] mx-[14px] mb-0 rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between pt-[14px] px-4 pb-[10px] border-b border-[#F0F1F3]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">ข้อมูลบัญชี</div>
+            <div class="text-[14px] text-gray-800 font-bold">ข้อมูลบัญชี</div>
 
             <!-- Edit Actions -->
             <div x-show="!isEditing" class="flex items-center gap-2">
                 <button @click="openChangePasswordDialog()"
-                    class="text-[12px] text-gray-600 font-[700] bg-gray-200 px-3 py-1 rounded-full cursor-pointer border-none outline-none hover:bg-gray-300">เปลี่ยนรหัสผ่าน</button>
+                    class="text-[12px] text-gray-600 bg-gray-200 px-3 py-1 rounded-full cursor-pointer border-none outline-none hover:bg-gray-300 font-semibold">เปลี่ยนรหัสผ่าน</button>
                 <button @click="startEdit()"
-                    class="text-[12px] text-[#1B8B4B] font-[700] bg-[#E8F5EE] px-3 py-1 rounded-full cursor-pointer border-none outline-none hover:bg-emerald-200">แก้ไข</button>
+                    class="text-[12px] text-[#1B8B4B] bg-[#E8F5EE] px-3 py-1 rounded-full cursor-pointer border-none outline-none hover:bg-emerald-200 font-semibold">แก้ไข</button>
             </div>
             <div x-show="isEditing" class="flex gap-2" style="display: none;">
                 <button @click="cancelEdit()"
-                    class="text-[12px] text-gray-500 font-[700] px-2 py-1 cursor-pointer border-none bg-transparent outline-none">ยกเลิก</button>
+                    class="text-[12px] text-gray-500 px-2 py-1 cursor-pointer border-none bg-transparent outline-none">ยกเลิก</button>
                 <button @click="saveProfile()" :disabled="isSaving"
-                    class="text-[12px] text-white font-[700] bg-[#1B8B4B] px-3 py-1 rounded-full cursor-pointer border-none outline-none disabled:opacity-50">
+                    class="text-[12px] text-white bg-[#1B8B4B] px-3 py-1 rounded-full cursor-pointer border-none outline-none disabled:opacity-50">
                     <span x-text="isSaving ? 'กำลังบันทึก...' : 'บันทึก'"></span>
                 </button>
             </div>
         </div>
 
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">ชื่อ - นามสกุล</div>
-            <div x-show="!isEditing" class="text-[14px] font-[700] text-[#1A1A2E]" x-text="profile?.member_name || '-'">
+            <div class="text-[12px] text-[#9CA3AF]">ชื่อ - นามสกุล</div>
+            <div x-show="!isEditing" class="text-[14px] text-gray-700" x-text="profile?.member_name || '-'">
             </div>
             <input x-show="isEditing" type="text" x-model="editData.member_name"
-                class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
+                class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
                 :class="{'border-red-500': errors.member_name}" style="display: none;">
             <span x-show="isEditing && errors.member_name" class="text-red-500 text-xs mt-1" x-text="errors.member_name"
                 style="display: none;"></span>
         </div>
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">เบอร์โทรศัพท์</div>
-            <div x-show="!isEditing" class="text-[14px] font-[700] text-[#1A1A2E]"
-                x-text="profile?.member_phone || '-'"></div>
+            <div class="text-[12px] text-[#9CA3AF]">เบอร์โทรศัพท์</div>
+            <div x-show="!isEditing" class="text-[14px] text-gray-700" x-text="profile?.member_phone || '-'"></div>
             <input x-show="isEditing" type="tel" x-model="editData.member_phone"
-                class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
+                class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
                 :class="{'border-red-500': errors.member_phone}" style="display: none;">
             <span x-show="isEditing && errors.member_phone" class="text-red-500 text-xs mt-1"
                 x-text="errors.member_phone" style="display: none;"></span>
@@ -75,11 +74,11 @@
 
         <?php if (((int) $user->role_id) === 1): ?>
             <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-                <div class="text-[12px] text-[#9CA3AF] font-">รหัสประจำตัว / รหัสนักศึกษา</div>
-                <div x-show="!isEditing" class="text-[14px] font- text-[#1A1A2E]"
+                <div class="text-[12px] text-[#9CA3AF]">รหัสประจำตัว / รหัสนักศึกษา</div>
+                <div x-show="!isEditing" class="text-[14px] font- text-gray-700"
                     x-text="profile?.member_personal_id || ' - '"></div>
                 <input x-show="isEditing" type="text" x-model="editData.member_personal_id"
-                    class="text-[14px] font- text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
+                    class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
                     :class="{'border-red-500': errors.member_personal_id}" style="display: none;">
                 <span x-show="isEditing && errors.member_personal_id" class="text-red-500 text-xs mt-1"
                     x-text="errors.member_personal_id" style="display: none;"></span>
@@ -87,11 +86,10 @@
         <?php endif; ?>
 
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">อีเมล</div>
-            <div x-show="!isEditing" class="text-[14px] font-[700] text-[#1A1A2E]"
-                x-text="profile?.member_email || '-'"></div>
+            <div class="text-[12px] text-[#9CA3AF]">อีเมล</div>
+            <div x-show="!isEditing" class="text-[14px] text-gray-700" x-text="profile?.member_email || '-'"></div>
             <input x-show="isEditing" type="email" x-model="editData.member_email"
-                class="text-[14px] font-[700] text-[#1A1A2E] border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
+                class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full"
                 :class="{'border-red-500': errors.member_email}" style="display: none;">
             <span x-show="isEditing && errors.member_email" class="text-red-500 text-xs mt-1"
                 x-text="errors.member_email" style="display: none;"></span>
@@ -101,19 +99,41 @@
     <!-- Faculty Info -->
     <div class="bg-white mt-[14px] mx-[14px] mb-0 rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="pt-[14px] px-4 pb-[10px] border-b border-[#F0F1F3]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">ข้อมูลสังกัด</div>
+            <div class="text-[14px] text-gray-800 font-bold">ข้อมูลสังกัด</div>
         </div>
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">คณะ / หน่วยงาน</div>
-            <div class="text-[14px] font-[700] text-[#1A1A2E]" x-text="profile?.faculty_name || '-'"></div>
+            <div class="text-[12px] text-[#9CA3AF]">คณะ / หน่วยงาน</div>
+            <div x-show="!isEditing" class="text-[14px] text-gray-700" x-text="profile?.faculty_name || '-'"></div>
+            <select x-show="isEditing" x-model="editData.faculty_id" @change="fetchMajors()"
+                class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full bg-white"
+                :class="{'border-red-500': errors.faculty_id}" style="display: none;">
+                <option value="">-- เลือกคณะ --</option>
+                <template x-for="faculty in faculties" :key="faculty.faculty_id">
+                    <option :value="faculty.faculty_id" x-text="faculty.faculty_name"
+                        :selected="parseInt(profile.faculty_id) === parseInt(faculty.faculty_id)"></option>
+                </template>
+            </select>
+            <span x-show="isEditing && errors.faculty_id" class="text-red-500 text-xs mt-1" x-text="errors.faculty_id"
+                style="display: none;"></span>
         </div>
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">สาขา / ภาควิชา</div>
-            <div class="text-[14px] font-[700] text-[#1A1A2E]" x-text="profile?.major_name || '-'"></div>
+            <div class="text-[12px] text-[#9CA3AF]">สาขา / ภาควิชา</div>
+            <div x-show="!isEditing" class="text-[14px] text-gray-700" x-text="profile?.major_name || '-'"></div>
+            <select x-show="isEditing" x-model="editData.major_id"
+                class="text-[14px] text-gray-700 border border-gray-300 rounded px-2 py-1.5 outline-none focus:border-[#1B8B4B] w-full bg-white disabled:bg-gray-100"
+                :disabled="!editData.faculty_id || majors.length === 0" style="display: none;">
+                <option value=""
+                    x-text="!editData.faculty_id ? 'กรุณาเลือกคณะก่อน' : (majors.length > 0 ? '-- เลือกสาขา --' : 'ไม่มีสาขาในคณะนี้')">
+                </option>
+                <template x-for="major in majors" :key="major.major_id">
+                    <option :value="major.major_id" x-text="major.major_name"
+                        :selected="parseInt(profile.major_id) === parseInt(major.major_id)"></option>
+                </template>
+            </select>
         </div>
         <div class="flex flex-col gap-1 py-[14px] px-4 border-b border-[#F0F1F3] last:border-b-0">
-            <div class="text-[12px] text-[#9CA3AF] font-[600]">วันที่สมัครสมาชิก</div>
-            <div class="text-[14px] font-[700] text-[#1A1A2E]" x-text="formatDate(profile?.created_at)"></div>
+            <div class="text-[12px] text-[#9CA3AF]">วันที่สมัครสมาชิก</div>
+            <div class="text-[14px] text-gray-700" x-text="formatDate(profile?.created_at)"></div>
         </div>
     </div>
 
@@ -178,6 +198,8 @@
             profile: {},
             editData: {},
             errors: {},
+            faculties: [],
+            majors: [],
             changePasswordDialogShow: false,
             isSavingPassword: false,
             passwordData: {
@@ -207,20 +229,64 @@
                     this.isLoading = false;
                 }
             },
-            startEdit() {
+            async startEdit() {
                 this.editData = {
                     member_name: this.profile.member_name || '',
                     member_phone: this.profile.member_phone || '',
                     member_personal_id: this.profile.member_personal_id || '',
-                    member_email: this.profile.member_email || ''
+                    member_email: this.profile.member_email || '',
+                    faculty_id: this.profile.faculty_id || '',
+                    major_id: this.profile.major_id || ''
                 };
                 this.errors = {};
                 this.isEditing = true;
+                await this.fetchFaculties();
+                if (this.editData.faculty_id) {
+                    await this.fetchMajors();
+                    this.editData.major_id = this.profile.major_id || '';
+                }
             },
+
+            getFirstThaiChar(name) {
+                if (!name || name.length === 0) return '?';
+                const leadingVowels = ['เ', 'แ', 'โ', 'ใ', 'ไ'];
+                if (leadingVowels.includes(name.charAt(0)) && name.length > 1) {
+                    return name.charAt(1);
+                }
+                return name.charAt(0);
+            },
+
+            async fetchFaculties() {
+                try {
+                    const response = await fetch('/api/faculties');
+                    const result = await response.json();
+                    if (result.success) {
+                        this.faculties = result.data;
+                    }
+                } catch (error) {
+                    console.error('Could not fetch faculties:', error);
+                }
+            },
+
+            async fetchMajors() {
+                this.majors = [];
+                if (!this.editData.faculty_id) return;
+                try {
+                    const response = await fetch(`/api/majors/faculty/${this.editData.faculty_id}`);
+                    const result = await response.json();
+                    if (result.success) {
+                        this.majors = result.result;
+                    }
+                } catch (error) {
+                    console.error('Could not fetch majors:', error);
+                }
+            },
+
             cancelEdit() {
                 this.isEditing = false;
                 this.errors = {};
             },
+            
             async saveProfile() {
                 if (this.isSaving) return;
 
