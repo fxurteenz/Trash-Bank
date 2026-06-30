@@ -42,7 +42,6 @@ class LeaderController
     {
         try {
             // use user auth
-            // $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
             $result = self::$LeaderModel->LeadingFacultyDeposit(self::$queryString);
 
             header('Content-Type: application/json');
@@ -69,7 +68,7 @@ class LeaderController
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } 
+        }
     }
 
     public function GetMemberLeader()
@@ -102,7 +101,7 @@ class LeaderController
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } 
+        }
     }
 
     public function GetMajorLeader()
@@ -136,7 +135,42 @@ class LeaderController
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } 
+        }
+    }
+
+    public function GetAll()
+    {
+        try {
+            $facultyResult = self::$LeaderModel->LeadingFacultyDeposit(self::$queryString);
+            $majorResult = self::$LeaderModel->LeadingMajorDeposit(self::$queryString);
+            $memberResult = self::$LeaderModel->LeadingMember(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => [
+                    'faculty' => $facultyResult['stats'],
+                    'major' => $majorResult['stats'],
+                    'member' => $memberResult['stats'],
+                ],
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
     }
 
 }

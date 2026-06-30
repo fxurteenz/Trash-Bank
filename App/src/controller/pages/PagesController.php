@@ -35,6 +35,12 @@ class PagesController extends RouterBase
             'title' => 'BRU Go Green : ธนาคารขยะ'
         ], "landing");
     }
+    public function Leaderboard()
+    {
+        $this->render('leaderboard', [
+            'title' => 'BRU Go Green : ธนาคารขยะ'
+        ], "landing");
+    }
     public function RegisterPage()
     {
         $this->render('register', [

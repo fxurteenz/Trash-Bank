@@ -59,6 +59,8 @@ class Routes
 
         // PAGES 
         $this->Router->map('GET', '/', [PagesController::class, 'HomePage']);
+        $this->Router->map('GET', '/leaderboard', [PagesController::class, 'Leaderboard']);
+
         $this->Router->map('GET', '/login', [PagesController::class, 'LoginPage']);
         $this->Router->map('GET', '/register', [PagesController::class, 'RegisterPage']);
 
@@ -325,8 +327,8 @@ class Routes
         $this->addPrefixedRoutes("/api/leaders", [
             ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
             ['GET', "/member", [LeaderController::class, "GetMemberLeader"]],
-            ['GET', "/major", [LeaderController::class, "GetMajorLeader"]]
-
+            ['GET', "/major", [LeaderController::class, "GetMajorLeader"]],
+            ["GET", "/all", [LeaderController::class, "GetAll"]]
         ]);
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [
