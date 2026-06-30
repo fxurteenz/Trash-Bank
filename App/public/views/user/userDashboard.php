@@ -3,12 +3,12 @@
     <div
         class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
         <a href="/user/profile" class="flex items-center gap-[10px] no-underline">
-            <div class="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#1B8B4B] to-[#0D6B38] text-white text-[16px] font-[800] grid place-items-center shrink-0"
+            <div class="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#1B8B4B] to-[#0D6B38] text-white text-[16px] font-bold grid place-items-center shrink-0"
                 x-text="profile?.member_name ? profile.member_name.charAt(0) : ''">
             </div>
             <div>
                 <div class="text-[11px] text-[#9CA3AF]">สวัสดี,</div>
-                <div class="text-[14px] font-[800] text-[#1A1A2E] mt-[1px]"
+                <div class="text-[14px] font-bold text-gray-800 mt-[1px]"
                     x-text="profile?.member_name || 'กำลังโหลด...'"></div>
             </div>
         </a>
@@ -26,32 +26,81 @@
     </div>
 
     <!-- Account Card -->
-    <div
-        class="bg-gradient-to-br from-[#1B8B4B] via-[#0D6B38] to-[#0A5A2F] mx-[14px] mt-[14px] rounded-[18px] p-[20px_20px_16px] text-white relative overflow-hidden shadow-lg">
-        <div class="absolute w-[180px] h-[180px] rounded-full -top-[60px] -right-[50px] bg-white/10"></div>
-        <div class="absolute w-[100px] h-[100px] rounded-full -bottom-[30px] left-[30px] bg-white/5"></div>
-        <div class="absolute w-[80px] h-[80px] rounded-full bottom-[20px] left-[60px] bg-white/5"></div>
+    <div class="relative mx-[14px] mt-[14px] aspect-[1.6/1] rounded-2xl shadow-2xl overflow-hidden text-gray-900"
+        style="background-image: url('/assets/images/waste-bank_card.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
 
+        <!-- แผ่นกระจกใส (Glassmorphism Overlay) ตรงกลางบัตร -->
+        <div
+            class="absolute inset-[15px] sm:inset-[20px] backdrop-blur-[6px] rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/80 p-4 sm:p-5 flex flex-col justify-between">
 
-        <div class="relative z-10">
-            <div class="flex items-center justify-end mb-[6px]">
-                <div class="text-[11px] opacity-80 tracking-[0.5px] uppercase">แต้มขยะสะสม</div>
-            </div>
-            <div class="text-[38px] font-[900] leading-[1.1] mt-1 mb-0.5 tracking-[-1px] text-right"
-                x-text="Number(profile?.member_waste_point || 0).toLocaleString()">...</div>
-            <div class="text-[14px] opacity-85 font-[600] text-right">แต้ม</div>
-            <div class="flex items-center justify-between mt-4 pt-[14px] border-t border-white/20">
-                <div class="text-center">
-                    <div class="text-[17px] font-[800]"
-                        x-text="Number(profile?.member_goodness_point || 0).toLocaleString()">...</div>
-                    <div class="text-[10px] opacity-75 mt-[2px]">แต้มความดี</div>
+            <div class="flex flex-col h-full">
+
+                <!-- ด้านซ้าย: ข้อมูลสมาชิก และ หมายเลขบัตร -->
+                <div class="flex-1 flex flex-col justify-between">
+
+                    <div>
+                        <div class="text-sm font-bold text-gray-800">
+                            <span x-text="profile?.member_name || '...'"></span>
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="w-12 h-9 sm:w-14 sm:h-10 rounded-md bg-gradient-to-br from-[#fbe396] to-[#d6aa32] border border-yellow-600/50 shadow-inner relative overflow-hidden flex flex-wrap opacity-90">
+                        <div class="absolute w-full h-[1px] bg-yellow-700/40 top-[30%]"></div>
+                        <div class="absolute w-full h-[1px] bg-yellow-700/40 bottom-[30%]"></div>
+                        <div class="absolute w-[1px] h-full bg-yellow-700/40 left-[30%]"></div>
+                        <div class="absolute w-[1px] h-full bg-yellow-700/40 right-[30%]"></div>
+                    </div>
+
+                    <!-- หมายเลขบัตร และ วันหมดอายุ -->
+                    <div class="flex flex-row items-end justify-between w-full">
+                        <div class=" text-xl font-bold tracking-widest text-gray-900 drop-shadow-sm "
+                            x-text="profile?.member_personal_id || 'xxx-xxxxxx-xxx'">
+                        </div>
+                        <div class="flex items-center gap-1 text-[10px] sm:text-xs font-bold leading-tight">
+
+                        </div>
+                    </div>
                 </div>
-                <div class="w-[1px] h-[34px] bg-white/20"></div>
-                <div class="text-center">
-                    <div class="text-[17px] font-[800]"
-                        x-text="Number(profile?.member_social_point || 0).toLocaleString()">...</div>
-                    <div class="text-[10px] opacity-75 mt-[2px]">แต้มสังคม</div>
+
+                <!-- ด้านขวา: แสดงแต้มต่างๆ (เน้นแต้มขยะ) -->
+                <div class="w-full flex justify-between">
+
+                    <!-- กล่องแต้มขยะสะสม (เน้นพิเศษ) -->
+                    <div class=" p-2 rounded-xl flex flex-row items-center justify-between">
+
+                        <div class="flex flex-col text-right text-gray-900">
+                            <div class="text-xs font-bold">แต้มขยะสะสม</div>
+                            <div class="text-lg font-black leading-none tracking-tight py-1"
+                                x-text="Number(profile?.member_waste_point || 0).toLocaleString()">0000</div>
+                        </div>
+                    </div>
+
+                    <!-- กล่องแต้มความดี -->
+                    <div class="p-2 rounded-xl flex flex-row items-center justify-between">
+                        <div class="text-right">
+                            <div class="text-xs font-extrabold text-gray-700">แต้มความดี</div>
+                            <div class="flex items-baseline justify-end gap-1">
+                                <span class="text-lg font-black text-gray-900"
+                                    x-text="Number(profile?.member_goodness_point || 0).toLocaleString()">310</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- กล่องแต้มมิตรภาพ (สังคม) -->
+                    <div class="p-2 px-3 rounded-xl flex flex-row items-center justify-between">
+                        <div class="text-right">
+                            <div class="text-[11px] font-extrabold text-gray-700">แต้มมิตรภาพ</div>
+                            <div class="flex items-baseline justify-end gap-1">
+                                <span class="text-lg sm:text-xl font-black text-gray-900"
+                                    x-text="Number(profile?.member_social_point || 0).toLocaleString()">0</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </div>
@@ -59,7 +108,7 @@
     <!-- Quick Actions -->
     <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">เมนู</div>
+            <div class="text-[14px] font-bold text-gray-800">เมนู</div>
         </div>
         <div class="grid grid-cols-6 border-t border-[#F0F1F3] p-2">
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors active:bg-gray-200"
@@ -124,57 +173,62 @@
     <!-- Stats -->
     <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">สถิติของฉัน</div>
+            <div class="text-[14px] font-bold text-gray-800">สถิติสะสม</div>
         </div>
-        <div class="grid grid-cols-3 border-t border-[#F0F1F3]">
+        <div class="grid grid-cols-5 border-t border-[#F0F1F3]">
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-emerald-600"><svg xmlns="http://www.w3.org/2000/svg"
-                        width="32" height="32" viewBox="0 0 16 16">
-                        <path fill="none" stroke="currentColor"
-                            d="M9 12.5s2.678.322 4.208-1.208S14.5 6.5 14.5 6.5s-3.11-.447-4.5 1c-.435.453-1 1-1 2.5zm0 0s-3.5.5-5.912-1.912S1.5 3.5 1.5 3.5s3.652-.348 6.059 2.059C8.526 6.526 9 8 9 9.706zm2.5-2.5L9 12M5 8l3.782 3.972"
-                            stroke-width="1.2" />
-                    </svg></div>
-                <div class="text-[17px] font-[900] text-[#1A1A2E] mt-[3px]"
-                    x-text="totals.carbon.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})">
+                <div class="flex justify-center items-center text-emerald-600">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
                 </div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">คาร์บอน (กก.)</div>
+                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
+                    x-text="parseInt(totals.credit).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">แต้มขยะ</div>
+            </div>
+
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center text-yellow-500">
+                    <i data-lucide="laugh" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
+                    x-text="parseInt(profile?.member_goodness_point).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">แต้มความดี</div>
             </div>
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-sky-600"><svg xmlns="http://www.w3.org/2000/svg"
-                        width="32" height="32" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="M5.998 2c0 .513.49 1 1 1h10c.513 0 1-.49 1-1h2a3 3 0 0 1-3 3h-4l.001 2.062A8 8 0 0 1 19.998 15v6a1 1 0 0 1-1 1h-14a1 1 0 0 1-1-1v-6a8 8 0 0 1 7-7.938V5h-4c-1.66 0-3-1.34-3-3zm6 7c-3.238 0-6 2.76-6 6v5h12v-5c0-3.238-2.762-6-6-6m0 2c.742 0 1.437.202 2.032.554l-2.74 2.739a1 1 0 0 0 1.32 1.497l.095-.083l2.74-2.739A4 4 0 1 1 11.998 11"
-                            stroke-width="0.2" stroke="currentColor" />
-                    </svg></div>
-                <div class="text-[17px] font-[900] text-[#1A1A2E] mt-[3px]"
-                    x-text="totals.weight.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})">
-                    ...</div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">ขยะฝาก (กก.)</div>
+                <div class="flex justify-center items-center text-red-500">
+                    <i data-lucide="users"></i>
+                </div>
+                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
+                    x-text="parseInt(profile?.member_social_point || 0).toLocaleString()">...</div>
+                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">มิตรภาพ</div>
             </div>
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-amber-500"><svg xmlns="http://www.w3.org/2000/svg"
-                        width="30" height="30" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="M20.172 6.75h-1.861l-4.566 4.564a1.874 1.874 0 1 1-1.06-1.06l4.565-4.565V3.828a.94.94 0 0 1 .275-.664l1.73-1.73a.25.25 0 0 1 .25-.063c.089.026.155.1.173.191l.46 2.301l2.3.46c.09.018.164.084.19.173a.25.25 0 0 1-.062.249l-1.731 1.73a.94.94 0 0 1-.663.275"
-                            stroke-width="0.5" stroke="currentColor" />
-                        <path fill="currentColor"
-                            d="M2.625 12A9.375 9.375 0 0 0 12 21.375A9.375 9.375 0 0 0 21.375 12c0-.898-.126-1.766-.361-2.587A.75.75 0 0 1 22.455 9c.274.954.42 1.96.42 3c0 6.006-4.869 10.875-10.875 10.875S1.125 18.006 1.125 12S5.994 1.125 12 1.125c1.015-.001 2.024.14 3 .419a.75.75 0 1 1-.413 1.442A9.4 9.4 0 0 0 12 2.625A9.375 9.375 0 0 0 2.625 12"
-                            stroke-width="0.5" stroke="currentColor" />
-                        <path fill="currentColor"
-                            d="M7.125 12a4.874 4.874 0 1 0 9.717-.569a.748.748 0 0 1 1.047-.798c.251.112.42.351.442.625a6.373 6.373 0 0 1-10.836 5.253a6.376 6.376 0 0 1 5.236-10.844a.75.75 0 1 1-.17 1.49A4.876 4.876 0 0 0 7.125 12"
-                            stroke-width="0.5" stroke="currentColor" />
-                    </svg></div>
-                <div class="text-[17px] font-[900] text-[#1A1A2E] mt-[3px]"
-                    x-text="'Lv.' + (Math.floor(totals.weight / 50) + 1)">...</div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">ระดับ</div>
+                <div class="flex justify-center items-center text-emerald-600">
+                    <i data-lucide="leaf" class="w-6 h-6"></i>
+                </div>
+                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
+                    x-text="parseFloat(totals?.carbon||0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                </div>
+                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">CO2e/KG.</div>
             </div>
+
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center text-sky-600"><i data-lucide="weight"></i></div>
+                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
+                    x-text="(totals?.weight || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                    0.00</div>
+                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">ขยะฝาก/KG</div>
+            </div>
+
+
         </div>
     </div>
 
     <!-- Waste Breakdown -->
     <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">สัดส่วนขยะที่ฝาก</div>
+            <div class="text-[14px] font-bold text-gray-800">สัดส่วนขยะที่ฝาก</div>
             <a href="#" class="text-[12px] text-[#1B8B4B] font-[700] no-underline">ดูทั้งหมด ›</a>
         </div>
         <div class="px-[16px] pb-[14px]">
@@ -203,7 +257,7 @@
     <!-- Recent Transactions -->
     <div class="bg-white mx-[14px] mt-[14px] mb-0 rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-[800] text-[#1A1A2E]">รายการล่าสุด</div>
+            <div class="text-[14px] font-bold text-gray-800">รายการล่าสุด</div>
             <a href="#" class="text-[12px] text-[#1B8B4B] font-[700] no-underline">ดูทั้งหมด ›</a>
         </div>
         <div class="pb-2">
@@ -218,10 +272,10 @@
                     <div class="w-[40px] h-[40px] rounded-[12px] grid place-items-center shrink-0" :class="tx.bgColor"
                         x-html="tx.icon"></div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-[13px] font-[700] text-[#1A1A2E]" x-text="tx.title"></div>
+                        <div class="text-[13px] font-[700] text-gray-800" x-text="tx.title"></div>
                         <div class="text-[11px] text-[#9CA3AF] mt-[2px]" x-text="tx.dateStr"></div>
                     </div>
-                    <div class="text-[14px] font-[800]" :class="tx.pointColor" x-text="tx.pointText"></div>
+                    <div class="text-[14px] font-bold" :class="tx.pointColor" x-text="tx.pointText"></div>
                 </div>
             </template>
         </div>
