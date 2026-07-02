@@ -85,7 +85,7 @@ class UsersController extends RouterBase
     public function Register()
     {
         try {
-            $result = $this->UsersModel->UsersRegister(data: $this->data);
+            $result = $this->UsersModel->UsersRegister($this->data);
             http_response_code(201);
             echo json_encode([
                 'success' => true,
@@ -97,10 +97,8 @@ class UsersController extends RouterBase
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'data' => $this->data
+                // 'data' => $this->data
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 }
