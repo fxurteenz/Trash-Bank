@@ -38,7 +38,7 @@ class MemberItemModel
             }
 
             // Lock and fetch member
-            $memberSql = "SELECT member_waste_point as total_points FROM member WHERE member_id = :member_id FOR UPDATE";
+            $memberSql = "SELECT waste_point as total_points FROM member_point WHERE member_id = :member_id FOR UPDATE";
             $memberStmt = $this->Conn->prepare($memberSql);
             $memberStmt->bindValue(':member_id', $memberId, PDO::PARAM_INT);
             $memberStmt->execute();
@@ -108,8 +108,8 @@ class MemberItemModel
             }
 
             // Update member points
-            $updateMemberSql = "UPDATE member 
-                               SET member_waste_point = GREATEST(0, member_waste_point - :points)
+            $updateMemberSql = "UPDATE member_point 
+                               SET waste_point = GREATEST(0, waste_point - :points)
                                WHERE member_id = :member_id";
             $updateMemberStmt = $this->Conn->prepare($updateMemberSql);
             $updateMemberStmt->bindValue(':points', $overallTotalPoints, PDO::PARAM_INT);

@@ -60,21 +60,21 @@ class MemberModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
+            $orderBySql = " ORDER BY m.member_id ASC";
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
-                    case 'waste_point':
-                        $orderBySql = " ORDER BY m.member_waste_point " . $sortDirection;
+                    case 'total_waste_point':
+                        $orderBySql .= ", ORDER BY mp.total_waste_point " . $sortDirection;
                         break;
-                    case 'goodness_point':
-                        $orderBySql = " ORDER BY m.member_goodness_point " . $sortDirection;
+                    case 'total_goodness_point':
+                        $orderBySql .= ", ORDER BY mp.total_goodness_point " . $sortDirection;
                         break;
                     case 'name':
-                        $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                        $orderBySql .= ", ORDER BY m.member_name " . $sortDirection;
                         break;
                     case 'role':
-                        $orderBySql = " ORDER BY m.role_id " . $sortDirection;
+                        $orderBySql .= ", ORDER BY m.role_id " . $sortDirection;
                         break;
                 }
             }
@@ -85,9 +85,13 @@ class MemberModel
                     m.member_phone, 
                     m.member_email, 
                     m.member_personal_id, 
-                    m.member_waste_point, 
-                    m.member_goodness_point, 
                     m.role_id,
+                    mp.waste_point AS member_waste_point,
+                    mp.total_waste_point AS total_waste_point,
+                    mp.goodness_point AS member_goodness_point,
+                    mp.total_goodness_point AS total_goodness_point,
+                    mp.social_point AS member_social_point,
+                    mp.total_social_point AS total_social_point,
                     m.faculty_id,
                     m.major_id,
                     f.faculty_name,
@@ -103,6 +107,8 @@ class MemberModel
                     major maj ON m.major_id = maj.major_id
                 LEFT JOIN 
                     role r ON m.role_id = r.role_id
+                LEFT JOIN
+                    member_point mp ON m.member_id = mp.member_id
                 {$whereSql}
                 {$orderBySql}";
 
@@ -202,12 +208,6 @@ class MemberModel
 
             $data['member_password'] = $encodedPassword;
             $data['created_at'] = date('Y-m-d H:i:s');
-            // Add initial points of 10 for new members
-            if ((int) $data["role_id"] == 2) {
-                $data['member_waste_point'] = 10;
-            } else {
-                $data['member_waste_point'] = 0;
-            }
 
             $setClauses = [];
             $updateData = [];
@@ -219,6 +219,8 @@ class MemberModel
             }
             $setClauseString = implode(', ', $setClauses);
 
+            $this->Conn->beginTransaction();
+
             $sql =
                 "INSERT INTO 
                     member 
@@ -228,15 +230,38 @@ class MemberModel
 
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute($updateData);
+            $newMemberId = $this->Conn->lastInsertId();
+            // Add initial points of 10 for new members
+            if ((int) $data["role_id"] == 1 || (int) $data["role_id"] == 2 || (int) $data["role_id"] == 3) {
+                $updateWasteTransaction = "INSERT INTO waste_transaction (member_id, waste_transaction_total_point, waste_transaction_note, created_at)
+                                        VALUES (:member_id, 10, 'แต้มพิเศษสำหรับสมาชิกใหม่', NOW())";
+                $updateWasteTransactionStmt = $this->Conn->prepare($updateWasteTransaction);
+                $updateWasteTransactionStmt->execute([':member_id' => $newMemberId]);
 
-            $id = $this->Conn->lastInsertId();
-            return ["member_phone" => $data["member_phone"], "member_id" => $id];
+                $updateMemberPoint = "INSERT INTO member_point (member_id, waste_point, total_waste_point)
+                                    VALUES (:member_id, 10, 10)
+                                    ON DUPLICATE KEY UPDATE
+                                        waste_point = waste_point + 10,
+                                        total_waste_point = total_waste_point + 10";
+
+                $updateMemberPointStmt = $this->Conn->prepare($updateMemberPoint);
+                $updateMemberPointStmt->execute([':member_id' => $newMemberId]);
+            }
+            $this->Conn->commit();
+
+            return ["member_phone" => $data["member_phone"], "member_id" => $newMemberId];
         } catch (PDOException $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
             // error_log($e->getMessage());
             $error = DatabaseException::handle($e);
             throw new Exception($error['message'], $error['code']);
             // throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         } catch (Exception $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
             // error_log($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
@@ -361,9 +386,12 @@ class MemberModel
                         m.member_name,
                         m.member_phone,
                         m.member_email,
-                        m.member_waste_point,
-                        m.member_goodness_point,
-                        m.member_social_point,
+                        mp.waste_point as member_waste_point,
+                        mp.total_waste_point as member_total_waste_point,
+                        mp.goodness_point as member_goodness_point,
+                        mp.total_goodness_point as member_total_goodness_point,
+                        mp.social_point as member_social_point,
+                        mp.total_social_point as member_total_social_point,
                         m.role_id,
                         m.faculty_id,
                         m.major_id,
@@ -376,6 +404,8 @@ class MemberModel
                         r.role_name_th
                     FROM 
                         member m
+                    LEFT JOIN 
+                        member_point mp ON m.member_id = mp.member_id
                     LEFT JOIN 
                         faculty f ON m.faculty_id = f.faculty_id
                     LEFT JOIN 

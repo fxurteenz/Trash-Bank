@@ -202,14 +202,12 @@
                             <div class="flex items-center space-x-4">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-gray-900 truncate"
-                                        x-text="donation.donation_item_name"></p>
-                                    <p class="text-sm text-gray-500 truncate"
-                                        x-text="'จำนวน: ' + Number(donation.donation_item_qty || 0).toLocaleString()">
+                                        x-text="'รหัส: ' + donation.donation_id">
                                     </p>
                                     <p class="text-sm text-gray-500 truncate" x-text="donation.created_at"></p>
                                 </div>
                                 <div class="inline-flex items-center text-base font-semibold text-purple-700"
-                                    x-text="'+' + Number(donation.donation_goodness_point || 0).toLocaleString() + ' แต้ม'">
+                                    x-text="'+' + Number(donation.donation_total_goodness_point || 0).toLocaleString() + ' แต้ม'">
                                 </div>
                             </div>
                         </li>
@@ -222,7 +220,7 @@
                 </ul>
             </div>
         </div>
-        
+
     </div>
 
     <!-- Edit Member Modal -->

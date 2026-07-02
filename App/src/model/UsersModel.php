@@ -176,17 +176,36 @@ class UsersModel
             $stmt->execute($updateData);
             $newMemberId = self::$Conn->lastInsertId();
 
+            $updateWasteTransaction = "INSERT INTO waste_transaction (member_id, waste_transaction_total_point, waste_transaction_note, created_at)
+                                        VALUES (:member_id, 10, 'แต้มพิเศษสำหรับสมาชิกใหม่', NOW())";
+            $updateWasteTransactionStmt = self::$Conn->prepare($updateWasteTransaction);
+            $updateWasteTransactionStmt->execute([':member_id' => $newMemberId]);
+
+            $updateMemberPoint = "INSERT INTO member_point (member_id, waste_point, total_waste_point)
+                                    VALUES (:member_id, 10, 10)
+                                    ON DUPLICATE KEY UPDATE
+                                        waste_point = waste_point + 10,
+                                        total_waste_point = total_waste_point + 10";
+
+            $updateMemberPointStmt = self::$Conn->prepare($updateMemberPoint);
+            $updateMemberPointStmt->execute([':member_id' => $newMemberId]);
+
             if ($inviterId) {
-                // บันทึกข้อมูลการแนะนำ
-                $inviteSql = "INSERT INTO member_invite (inviter_id, invitees_id, created_at) VALUES (:inviter_id, :invitees_id, NOW())";
+                $inviteSql = "INSERT INTO 
+                                member_invite (inviter_id, invitees_id, created_at) 
+                            VALUES (:inviter_id, :invitees_id, NOW())";
                 $inviteStmt = self::$Conn->prepare($inviteSql);
                 $inviteStmt->execute([
                     ':inviter_id' => $inviterId,
                     ':invitees_id' => $newMemberId
                 ]);
 
-                // อัปเดตแต้มให้ผู้แนะนำ
-                $updateRecruiterSql = "UPDATE member SET member_social_point = member_social_point + 1 WHERE member_id = :inviter_id";
+                $updateRecruiterSql = "INSERT INTO 
+                                            member_point (member_id, social_point, total_social_point) 
+                                        VALUES (:inviter_id, 1, 1)
+                                        ON DUPLICATE KEY UPDATE
+                                            social_point = social_point + 1,
+                                            total_social_point = total_social_point + 1";
                 $updateRecruiterStmt = self::$Conn->prepare($updateRecruiterSql);
                 $updateRecruiterStmt->execute([':inviter_id' => $inviterId]);
             }
@@ -204,6 +223,7 @@ class UsersModel
             if (self::$Conn->inTransaction()) {
                 self::$Conn->rollBack();
             }
+            error_log($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
     }

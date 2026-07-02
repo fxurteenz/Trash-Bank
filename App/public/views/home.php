@@ -380,22 +380,16 @@
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="award" class="w-4 h-4"></i> แต้มขยะ
                     </button>
+                     <button @click="setSortType('goodness')"
+                        :class="{'bg-white shadow text-yellow-600': sortType === 'goodness', 'text-gray-400 hover:text-yellow-600': sortType !== 'goodness'}"
+                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มความดี
+                    </button>
                     <button @click="setSortType('social')"
                         :class="{'bg-white shadow text-red-600': sortType === 'social', 'text-gray-400 hover:text-red-700': sortType !== 'social'}"
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="users" class="w-4 h-4"></i> แต้มสังคม
                     </button>
-                    <!-- <button @click="setSortType('weight')"
-                        :class="{'bg-white shadow text-emerald-600': sortType === 'weight', 'text-gray-400 hover:text-emerald-700': sortType !== 'weight'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="scale" class="w-4 h-4"></i> น้ำหนัก
-                    </button> -->
-                    <button @click="setSortType('carbon')"
-                        :class="{'bg-white shadow text-emerald-600': sortType === 'carbon', 'text-gray-400 hover:text-emerald-600': sortType !== 'carbon'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="leaf" class="w-4 h-4"></i> ลดคาร์บอน
-                    </button>
-
                 </div>
             </div>
 
@@ -430,8 +424,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
                             x-text="getSortValue(activeLeaderboard[1])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -472,7 +465,7 @@
                             </span>
                         </template>
                         <div class="text-3xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
                             x-text="getSortValue(activeLeaderboard[0])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -513,7 +506,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
                             x-text="getSortValue(activeLeaderboard[2])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -534,7 +527,7 @@
                             <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider"
                                 x-text="leaderboardType === 'faculty' ? 'คณะ' : (leaderboardType === 'major' ? 'สาขา' : 'ชื่อ-สกุล')">
                             </th>
-                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-center"
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-end"
                                 x-text="getSortLabel()"></th>
                         </tr>
                     </thead>
@@ -550,22 +543,22 @@
                                         <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
                                             x-text="item.name"></h4>
                                         <template x-if="leaderboardType !== 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5">
+                                            <p class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 ปริมาณขยะ: <span x-text="item.weight"></span> | ลดคาร์บอน: <span
-                                                    x-text="item.carbon"></span> CO₂e
+                                                    x-text="item.goodness"></span> CO₂e
                                             </p>
                                         </template>
                                         <template x-if="leaderboardType === 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5">
+                                            <p class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 คณะ: <span x-text="item.fname"></span> | สาขา: <span
                                                     x-text="item.mname"></span>
                                             </p>
                                         </template>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="text-lg font-black"
-                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                                <td class="px-6 py-4 text-end">
+                                    <div class="text-lg font-black transition-all duration-300 ease-in-out transform"
+                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
                                         x-text="getSortValue(item)"></div>
                                 </td>
                             </tr>
@@ -687,10 +680,8 @@
             getSortValue(item) {
                 if (!item) return '';
                 switch (this.sortType) {
-                    case 'weight':
-                        return item.weight;
-                    case 'carbon':
-                        return item.carbon;
+                    case 'goodness':
+                        return item.goodness;
                     case 'social':
                         return item.social;
                     case 'point':
@@ -701,14 +692,13 @@
 
             getSortLabel() {
                 switch (this.sortType) {
-                    case 'weight':
-                        return 'น้ำหนักรวม';
-                    case 'carbon':
-                        return 'คาร์บอนที่ลดได้';
+                    case 'goodness':
+                        return 'แต้มความดี';
                     case 'social':
                         return 'แต้มสังคม';
+                    case 'point':
                     default:
-                        return 'แต้มรวม';
+                        return 'แต้มขยะ';
                 }
             },
             get activeLeaderboard() {
@@ -742,9 +732,8 @@
                             rank: index + 1,
                             name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`
-                            , social: `${parseInt(item.total_social_point).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
 
                         // Major
@@ -753,9 +742,8 @@
                             name: item.major_name,
                             faculty_name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`,
-                            social: `${parseInt(item.total_social_point).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
 
                         // Member
@@ -763,9 +751,8 @@
                             rank: index + 1,
                             name: item.member_name || item.name || 'ไม่ระบุชื่อ',
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`,
-                            social: `${parseInt(item.member_social_point).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                             fname: item.faculty_name || 'ไม่ระบุคณะ',
                             mname: item.major_name || 'ไม่ระบุสาขา'
                         }));

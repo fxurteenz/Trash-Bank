@@ -1,17 +1,17 @@
 meta {
-  name: faculty leaderboard
+  name: major leaderboard
   type: http
-  seq: 1
+  seq: 4
 }
 
 get {
-  url: {{api_domain}}/leaders/faculty?sort=member
+  url: {{api_domain}}/leaders/major?sort=social
   body: none
   auth: inherit
 }
 
 params:query {
-  sort: member
+  sort: social
   ~month: 01
   ~year: 2026
 }

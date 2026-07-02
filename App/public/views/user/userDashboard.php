@@ -71,7 +71,7 @@
                     <div class=" p-2 rounded-xl flex flex-row items-center justify-between">
 
                         <div class="flex flex-col text-right text-gray-900">
-                            <div class="text-xs font-bold">แต้มขยะสะสม</div>
+                            <div class="text-xs font-bold">แต้มขยะคงเหลือ</div>
                             <div class="text-lg font-black leading-none tracking-tight py-1"
                                 x-text="Number(profile?.member_waste_point || 0).toLocaleString()">0000</div>
                         </div>
@@ -191,7 +191,7 @@
                     <i data-lucide="laugh" class="w-6 h-6"></i>
                 </div>
                 <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseInt(profile?.member_goodness_point).toLocaleString()">
+                    x-text="parseInt(profile?.member_total_goodness_point).toLocaleString()">
                 </div>
                 <div class="text-[10px] text-[#9CA3AF] mt-[2px]">แต้มความดี</div>
             </div>
@@ -200,7 +200,7 @@
                     <i data-lucide="users"></i>
                 </div>
                 <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseInt(profile?.member_social_point || 0).toLocaleString()">...</div>
+                    x-text="parseInt(profile?.member_total_social_point || 0).toLocaleString()">...</div>
                 <div class="text-[10px] text-[#9CA3AF] mt-[2px]">มิตรภาพ</div>
             </div>
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">

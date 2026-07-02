@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/leaders/member?sort=point
+  url: {{api_domain}}/leaders/member?sort=weight
   body: none
   auth: inherit
 }
 
 params:query {
-  sort: point
+  sort: weight
   ~faculty_id: 1
   ~month: 01
   ~year: 2026
