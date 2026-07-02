@@ -784,30 +784,6 @@ class WasteTransactionModel
         }
     }
 
-    private static function CheckBranchPoint($conn, $branchId, $point)
-    {
-        try {
-            $sql = "SELECT center_branch_point FROM center_branch WHERE center_branch_id = :center_branch_id";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute(["center_branch_id" => $branchId]);
-            $branch = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$branch) {
-                throw new Exception("ไม่พบศูนย์นี้ในระบบ : " . htmlspecialchars($branchId), 404);
-            }
-
-            if ($branch['center_branch_point'] < $point) {
-                throw new Exception("แต้มไม่เพียงพอทำรายการนี้ ต้องใช้ " . htmlspecialchars($point) . " แต้ม", 400);
-            }
-
-            return $branch['center_branch_point'];
-        } catch (PDOException $e) {
-            throw new Exception("Error while checking faculty point : " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
     private static function UpdateFacultyWasteStock($conn, $facultyId, $wasteTypeId, $weight)
     {
         try {
@@ -820,29 +796,6 @@ class WasteTransactionModel
             $stmt = $conn->prepare($sql);
             $stmt->execute([
                 ':faculty_id' => $facultyId,
-                ':waste_type_id' => $wasteTypeId,
-                ':weight' => $weight,
-                ':now' => date('Y-m-d H:i:s')
-            ]);
-        } catch (PDOException $e) {
-            // Re-throw to be caught by the main function's transaction handler
-            throw new Exception("Error while updating faculty stock : " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-    private static function UpdateBranchWasteStock($conn, $branchId, $wasteTypeId, $weight)
-    {
-        try {
-            $sql = "INSERT INTO center_branch_waste_stock (center_branch_id, waste_type_id, stock_weight, updated_at) 
-                    VALUES (:center_branch_id, :waste_type_id, :weight, :now)
-                    ON DUPLICATE KEY UPDATE 
-                    stock_weight = stock_weight + VALUES(stock_weight), 
-                    updated_at = VALUES(updated_at)";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->execute([
-                ':center_branch_id' => $branchId,
                 ':waste_type_id' => $wasteTypeId,
                 ':weight' => $weight,
                 ':now' => date('Y-m-d H:i:s')
@@ -880,61 +833,36 @@ class WasteTransactionModel
         }
     }
 
-    private static function UpdateBranchPoint($conn, $branchId, $point)
-    {
-        try {
-            $sql = "UPDATE center_branch SET center_branch_point = center_branch_point - :point WHERE center_branch_id = :center_branch_id";
-
-            $stmt = $conn->prepare($sql);
-            $stmt->bindValue(":center_branch_id", $branchId, PDO::PARAM_INT);
-            $stmt->bindValue(":point", $point, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $sql = "SELECT center_branch_point FROM center_branch WHERE center_branch_id = :center_branch_id";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindValue(":center_branch_id", $branchId, PDO::PARAM_INT);
-            $stmt->execute();
-            $updatedFaculty = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            return $updatedFaculty;
-        } catch (PDOException $e) {
-            // Re-throw to be caught by the main function's transaction handler
-            throw new Exception("Error while updating faculty point : " . $e->getMessage(), 500);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
-        }
-    }
-
     private static function UpdateMemberPoint($conn, $memberId, $point)
     {
         try {
             if ($point == 0) {
-                $selectSql = "SELECT member_waste_point FROM member WHERE member_id = :member_id";
+                $selectSql = "SELECT total_waste_point AS member_waste_point FROM member_point WHERE member_id = :member_id";
                 $stmt = $conn->prepare($selectSql);
                 $stmt->execute(["member_id" => $memberId]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if (!$user) {
-                    throw new Exception("Account not found ID: " . htmlspecialchars($memberId), 404);
+                    return ['member_waste_point' => 0];
                 }
 
                 return $user;
             }
 
-            $sql =
-                "UPDATE
-                    member
-                SET
-                    member_waste_point = member_waste_point + :point
-                WHERE
-                   member_id = :member_id
-                ";
+            $sql ="INSERT INTO 
+                    member_point (member_id, total_waste_point)
+                VALUES (:member_id, :point)
+                ON DUPLICATE KEY UPDATE
+                waste_point = waste_point + :point,
+                total_waste_point = total_waste_point + :point";
+
             $stmt = $conn->prepare($sql);
             $stmt->bindValue(":member_id", $memberId, PDO::PARAM_INT);
             $stmt->bindValue(":point", $point, PDO::PARAM_INT);
             $stmt->execute();
 
-            $selectSql = "SELECT member_waste_point FROM member WHERE member_id = :member_id";
+            // ดึงข้อมูลแต้มล่าสุดหลังอัปเดต
+            $selectSql = "SELECT waste_point AS member_waste_point FROM member_point WHERE member_id = :member_id";
             $stmt = $conn->prepare($selectSql);
             $stmt->execute(["member_id" => $memberId]);
             $updatedUser = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -946,9 +874,7 @@ class WasteTransactionModel
             return $updatedUser;
 
         } catch (PDOException $e) {
-            throw new Exception("Error while updating member point : " . $e->getMessage(), 500);
+            throw new Exception("ไม่สามารถดำเนินการได้ม กรุณาลองใหม่", 500);
         }
     }
-
-
 }
