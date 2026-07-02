@@ -224,7 +224,7 @@ class MemberModel
                 SET
                     {$setClauseString}
                 ";
-            
+
             $stmt = $this->Conn->prepare($sql);
             $stmt->execute($updateData);
             $newMemberId = $this->Conn->lastInsertId();
@@ -248,11 +248,17 @@ class MemberModel
 
             return ["member_phone" => $data["member_phone"], "member_id" => $newMemberId];
         } catch (PDOException $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
             // error_log($e->getMessage());
             $error = DatabaseException::handle($e);
             throw new Exception($error['message'], $error['code']);
             // throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         } catch (Exception $e) {
+            if ($this->Conn->inTransaction()) {
+                $this->Conn->rollBack();
+            }
             // error_log($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode() ?: 400);
         }
