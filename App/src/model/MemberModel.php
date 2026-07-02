@@ -60,21 +60,21 @@ class MemberModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = "";
+            $orderBySql = " ORDER BY m.member_id ASC";
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
                     case 'total_waste_point':
-                        $orderBySql = " ORDER BY mp.total_waste_point " . $sortDirection;
+                        $orderBySql .= ", ORDER BY mp.total_waste_point " . $sortDirection;
                         break;
                     case 'total_goodness_point':
-                        $orderBySql = " ORDER BY mp.total_goodness_point " . $sortDirection;
+                        $orderBySql .= ", ORDER BY mp.total_goodness_point " . $sortDirection;
                         break;
                     case 'name':
-                        $orderBySql = " ORDER BY m.member_name " . $sortDirection;
+                        $orderBySql .= ", ORDER BY m.member_name " . $sortDirection;
                         break;
                     case 'role':
-                        $orderBySql = " ORDER BY m.role_id " . $sortDirection;
+                        $orderBySql .= ", ORDER BY m.role_id " . $sortDirection;
                         break;
                 }
             }
