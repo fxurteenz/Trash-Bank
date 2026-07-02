@@ -71,6 +71,7 @@ class LeaderModel
                     ORDER BY
                     {$orderBy} {$orderDirection}, f.faculty_name ASC";
 
+
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
                 $page = (int) $query['page'];
@@ -118,11 +119,11 @@ class LeaderModel
             $year = $query['year'] ?? null;
             $sort = $query['sort'] ?? 'point';
             $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
-            $orderBy = 'total_point';
+            $orderBy = 'total_waste_point';
 
             switch ($sort) {
                 case 'carbon':
-                    $orderBy = 'total_co2';
+                    $orderBy = 'total_co2e';
                     break;
                 case 'point':
                     $orderBy = 'total_point';
@@ -134,74 +135,54 @@ class LeaderModel
                     $orderBy = 'total_weight';
                     break;
                 case 'name':
-                    $orderBy = 'a.member_name';
+                    $orderBy = 'm.member_name';
                     break;
                 case 'social':
-                    $orderBy = 'member_social_point';
+                    $orderBy = 'total_social';
                     break;
             }
 
-            // 1. เงื่อนไขสำหรับการ JOIN (กรองข้อมูล Transaction ตามเวลา)
             $params = [];
-            $onClause = "w.member_id = a.member_id";
-            if ($month) {
-                $onClause .= " AND MONTH(w.created_at) = :month";
-                $params[':month'] = $month;
-            }
-            if ($year) {
-                $onClause .= " AND YEAR(w.created_at) = :year";
-                $params[':year'] = $year;
+            $whereClauses = ["m.role_id IN (1,2,3)"];
+            if ($facultyId) {
+                $whereClauses[] = "m.faculty_id = :faculty_id";
+                $params[':faculty_id'] = $facultyId;
             }
 
-            // 2. เงื่อนไขสำหรับการ WHERE (กรองที่ตัว Member)
-            $whereClauses = ["a.role_id IN (1,2,3)"];
-            $countParams = [];
-            if ($facultyId) {
-                $whereClauses[] = "a.faculty_id = :faculty_id";
-                $params[':faculty_id'] = $facultyId;
-                $countParams[':faculty_id'] = $facultyId;
-            }
             $whereClause = "WHERE " . implode(" AND ", $whereClauses);
 
-            $countSql = "SELECT COUNT(*) FROM member a {$whereClause}";
+            $countSql = "SELECT COUNT(*) FROM member m {$whereClause}";
             $countStmt = $this->Conn->prepare($countSql);
-            $countStmt->execute($countParams);
+            $countStmt->execute($params);
             $totalRecords = (int) $countStmt->fetchColumn();
-            // -------------------------------------------------------
-
-            // 3. SQL สำหรับดึงข้อมูลหลัก
-            $sql = "
-            SELECT
-                a.member_id,
-                a.member_name,
-                a.member_phone,
-                f.faculty_name,
-                m.major_name,
-                COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
-                a.member_goodness_point AS total_goodness,
-                a.member_social_point,
-                COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2
-            FROM
-                member a
-            LEFT JOIN
-                faculty f ON a.faculty_id = f.faculty_id
-            LEFT JOIN
-                major m ON a.major_id = m.major_id
-            LEFT JOIN
-                waste_transaction w ON {$onClause}
-            {$whereClause}
-            GROUP BY
-                a.member_id, 
-                a.member_name, 
-                a.member_phone,
-                f.faculty_name,
-                m.major_name,
-                a.member_goodness_point,
-                a.member_social_point
-            ORDER BY
-                {$orderBy} {$orderDirection}, a.member_id ASC
-        ";
+            $sql = "SELECT
+                    	mp.member_id,
+                        mp.total_waste_point AS total_point,
+                        mp.total_goodness_point AS total_goodness,
+                        mp.total_social_point AS total_social,
+                        mp.total_weight,
+                        mp.total_co2e,
+                        f.faculty_name,
+                        mj.major_name,
+                        m.member_name,
+                        m.member_phone,
+                        m.role_id,
+                        r.role_name_th,
+                        m.member_email,
+                        m.member_personal_id
+                    FROM
+                    	member m
+                    LEFT JOIN
+                    	member_point mp ON m.member_id = mp.member_id
+                    LEFT JOIN
+                    	faculty f ON m.faculty_id = f.faculty_id
+                    LEFT JOIN
+                    	major mj ON m.major_id = mj.major_id
+                    LEFT JOIN
+                    	role r ON m.role_id = r.role_id    
+                    {$whereClause}                   
+                    ORDER BY
+                        {$orderBy} {$orderDirection}, m.member_id ASC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -213,7 +194,6 @@ class LeaderModel
 
             $stmt = $this->Conn->prepare($sql);
 
-            // Bind ค่าต่างๆ
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
@@ -224,7 +204,6 @@ class LeaderModel
             $stmt->execute();
             $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // ส่งค่า totalRecords ที่นับได้จริงกลับไป
             return [
                 'stats' => $stats,
                 'total' => $totalRecords
@@ -240,8 +219,6 @@ class LeaderModel
     public function LeadingFacultyDeposit($query): array
     {
         try {
-            $month = $query['month'] ?? null;
-            $year = $query['year'] ?? null;
             $sort = $query['sort'] ?? 'point';
             $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
             $orderBy = 'total_point';
@@ -253,6 +230,9 @@ class LeaderModel
                 case 'point':
                     $orderBy = 'total_point';
                     break;
+                case 'goodness':
+                    $orderBy = 'total_goodness';
+                    break;
                 case 'weight':
                     $orderBy = 'total_weight';
                     break;
@@ -260,7 +240,7 @@ class LeaderModel
                     $orderBy = 'f.faculty_name';
                     break;
                 case 'social':
-                    $orderBy = 'total_social_point';
+                    $orderBy = 'total_social';
                     break;
                 case 'member':
                     $orderBy = 'total_member';
@@ -268,45 +248,30 @@ class LeaderModel
             }
 
             $whereConditions = [];
-            if ($month) {
-                $whereConditions[] = "MONTH(w.created_at) = :month";
-            }
-            if ($year) {
-                $whereConditions[] = "YEAR(w.created_at) = :year";
-            }
+            $whereConditions[] = "f.isCenterBranch = 0";
             $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
 
-            $sql = "SELECT
+            $sql = "SELECT 
                         f.faculty_id,
                         f.faculty_name,
-                        COALESCE(member_stats.total_member, 0) AS total_member,
-                        COALESCE(member_stats.total_social_point, 0) AS total_social_point,
-                        COALESCE(wt.total_weight, 0) AS total_weight,
-                        COALESCE(wt.total_point, 0) AS total_point,
-                        COALESCE(wt.total_co2e, 0) AS total_co2e
-                    FROM
+                        SUM(mp.total_waste_point) AS total_point,
+                        SUM(mp.total_goodness_point) AS total_goodness,
+                        SUM(mp.total_social_point) AS total_social,
+                        SUM(mp.total_co2e) AS total_co2e,
+                        SUM(mp.total_weight) AS total_weight,
+                        COUNT(m.member_id) AS total_member
+                    FROM 
                         faculty f
-                    LEFT JOIN ( SELECT faculty_id, COUNT(member_id) as total_member, SUM(member_social_point) as total_social_point FROM member GROUP BY faculty_id
-                    ) AS member_stats ON f.faculty_id = member_stats.faculty_id
-                    LEFT JOIN (
-                        SELECT 
-                            m.faculty_id,
-                            w.waste_transaction_total_weight,
-                            w.waste_transaction_total_point,
-                            w.waste_transaction_total_co2e,
-                            w.created_at
-                        FROM waste_transaction w
-                        JOIN member m ON w.member_id = m.member_id
-                    ) w ON f.faculty_id = w.faculty_id {$whereClause}
-                    LEFT JOIN (
-                        SELECT m.faculty_id, SUM(w.waste_transaction_total_weight) AS total_weight, SUM(w.waste_transaction_total_point) AS total_point, SUM(w.waste_transaction_total_co2e) AS total_co2e
-                        FROM waste_transaction w JOIN member m ON w.member_id = m.member_id {$whereClause} GROUP BY m.faculty_id
-                    ) wt ON f.faculty_id = wt.faculty_id
-                    WHERE f.isCenterBranch = 0
-                    GROUP BY
-                        f.faculty_id, f.faculty_name, member_stats.total_member, member_stats.total_social_point
-                    ORDER BY
-                    {$orderBy} {$orderDirection},f.faculty_name ASC";
+                    JOIN 
+                        member m ON f.faculty_id = m.faculty_id
+                    JOIN 
+                        member_point mp ON m.member_id = mp.member_id
+                    {$whereClause}
+                    GROUP BY 
+                        f.faculty_id, 
+                        f.faculty_name
+                    ORDER BY 
+                        {$orderBy} {$orderDirection}, f.faculty_name ASC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -321,13 +286,6 @@ class LeaderModel
             if ($isPagination) {
                 $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-            }
-
-            if ($month) {
-                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
-            }
-            if ($year) {
-                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
             }
 
             $stmt->execute();
@@ -363,14 +321,17 @@ class LeaderModel
                 case 'point':
                     $orderBy = 'total_point';
                     break;
+                case 'goodness':
+                    $orderBy = 'total_goodness';
+                    break;
+                case 'social':
+                    $orderBy = 'total_social';
+                    break;
                 case 'weight':
                     $orderBy = 'total_weight';
                     break;
                 case 'name':
                     $orderBy = 'mj.major_name';
-                    break;
-                case 'social':
-                    $orderBy = 'total_social_point';
                     break;
                 case 'member':
                     $orderBy = 'total_member';
@@ -386,38 +347,31 @@ class LeaderModel
             }
             $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
 
-            $sql = "SELECT
+            $sql = "SELECT 
+                        f.faculty_id,
+                        f.faculty_name,
                         mj.major_id,
                         mj.major_name,
-                        f.faculty_name,
-                        COALESCE(member_stats.total_member, 0) AS total_member,
-                        COALESCE(member_stats.total_social_point, 0) AS total_social_point,
-                        COALESCE(wt.total_weight, 0) AS total_weight,
-                        COALESCE(wt.total_point, 0) AS total_point,
-                        COALESCE(wt.total_co2e, 0) AS total_co2e
-                    FROM
+                        SUM(mp.total_waste_point) AS total_point,
+                        SUM(mp.total_goodness_point) AS total_goodness,
+                        SUM(mp.total_social_point) AS total_social,
+                        SUM(mp.total_co2e) AS total_c02e,
+                        SUM(mp.total_weight) AS total_weight,
+                        COUNT(m.member_id) AS total_member
+                    FROM 
                         major mj
-                    LEFT JOIN faculty f ON mj.faculty_id = f.faculty_id
-                    LEFT JOIN ( SELECT major_id, COUNT(member_id) as total_member, SUM(member_social_point) as total_social_point FROM member GROUP BY major_id
-                    ) AS member_stats ON mj.major_id = member_stats.major_id
-                    LEFT JOIN (
-                        SELECT 
-                            m.major_id,
-                            w.waste_transaction_total_weight,
-                            w.waste_transaction_total_point,
-                            w.waste_transaction_total_co2e,
-                            w.created_at
-                        FROM waste_transaction w
-                        JOIN member m ON w.member_id = m.member_id
-                    ) w ON mj.major_id = w.major_id {$whereClause}
-                    LEFT JOIN (
-                        SELECT m.major_id, SUM(w.waste_transaction_total_weight) AS total_weight, SUM(w.waste_transaction_total_point) AS total_point, SUM(w.waste_transaction_total_co2e) AS total_co2e
-                        FROM waste_transaction w JOIN member m ON w.member_id = m.member_id {$whereClause} GROUP BY m.major_id
-                    ) wt ON mj.major_id = wt.major_id
-                    GROUP BY
-                        mj.major_id, mj.major_name, f.faculty_name, member_stats.total_member, member_stats.total_social_point
-                    ORDER BY
-                    {$orderBy} {$orderDirection},mj.major_name ASC";
+                    JOIN 
+                        faculty f ON mj.faculty_id = f.faculty_id
+                    JOIN 
+                        member m ON mj.major_id = m.major_id
+                    JOIN 
+                        member_point mp ON m.member_id = mp.member_id
+                    {$whereClause}
+                    GROUP BY 
+                        mj.major_id,
+                        mj.major_name
+                    ORDER BY 
+                        {$orderBy} {$orderDirection}, mj.major_name ASC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
