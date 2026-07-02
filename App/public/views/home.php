@@ -680,7 +680,7 @@
             getSortValue(item) {
                 if (!item) return '';
                 switch (this.sortType) {
-                    case 'goodnesss':
+                    case 'goodness':
                         return item.goodness;
                     case 'social':
                         return item.social;
