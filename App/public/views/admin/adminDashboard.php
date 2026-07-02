@@ -22,7 +22,7 @@
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <!-- Waste Volume -->
-        <div 
+        <div
             class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Carbon Reduction -->
-        <div 
+        <div
             class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -101,7 +101,7 @@
         </div>
 
         <!-- Growth -->
-        <div 
+        <div
             class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white hover:scale-102 hover:shadow-xl cursor-pointer duration-200">
             <div class="flex items-center justify-between mb-4">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3">
@@ -338,17 +338,22 @@
                                 คณะ <span x-show="facultySort === 'name'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
-                                @click="sortFaculties('weight')">
-                                น้ำหนัก (กก.) <span x-show="facultySort === 'weight'"
-                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
-                            </th>
+
                             <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
                                 @click="sortFaculties('point')">
-                                คะแนน <span x-show="facultySort === 'point'"
+                                แต้มขยะ <span x-show="facultySort === 'point'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortFaculties('goodness')">
+                                แต้มความดี <span x-show="facultySort === 'goodness'"
+                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortFaculties('social')">
+                                แต้มสังคม <span x-show="facultySort === 'social'"
+                                    x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
@@ -356,13 +361,12 @@
                             <tr class="bg-white hover:bg-slate-50 transition">
                                 <td class="px-4 py-3 font-bold text-slate-900" x-text="index + 1"></td>
                                 <td class="px-4 py-3 font-medium text-slate-700" x-text="faculty.faculty_name"></td>
-                                <td class="px-4 py-3 text-right font-medium text-emerald-600"
-                                    x-text="Number(faculty.total_weight || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
-                                </td>
-                                <td class="px-4 py-3 text-right font-bold text-amber-500"
-                                    x-text="Number(faculty.total_point || 0).toLocaleString()"></td>
                                 <td class="px-4 py-3 text-right font-bold text-sky-500"
-                                    x-text="Number(faculty.total_co2e || 0).toLocaleString()"></td>
+                                    x-text="Number(faculty.total_point || 0).toLocaleString()"></td>
+                                <td class="px-4 py-3 text-right font-bold text-yellow-500"
+                                    x-text="Number(faculty.total_goodness || 0).toLocaleString()"></td>
+                                <td class="px-4 py-3 text-right font-bold text-red-500"
+                                    x-text="Number(faculty.total_social || 0).toLocaleString()"></td>
                             </tr>
                         </template>
                         <template x-if="facultyLeaderboard.length === 0">
@@ -400,7 +404,11 @@
                                 แต้มความดี <span x-show="memberSort === 'goodness'"
                                     x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right rounded-r-lg">co2e</th>
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                                @click="sortMembers('social')">
+                                แต้มสังคม <span x-show="memberSort === 'social'"
+                                    x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
@@ -413,13 +421,13 @@
                                     <div class="text-xs text-slate-400 mt-0.5" x-text="member.member_phone || '-'">
                                     </div>
                                 </td>
-                                <td class="px-4 py-3 text-right font-medium text-emerald-600"
+                                <td class="px-4 py-3 text-right font-medium text-sky-600"
                                     x-text="Number(member.total_point || 0).toLocaleString()">
                                 </td>
-                                <td class="px-4 py-3 text-right font-bold text-amber-500"
+                                <td class="px-4 py-3 text-right font-bold text-yellow-500"
                                     x-text="Number(member.total_goodness || 0).toLocaleString()"></td>
-                                <td class="px-4 py-3 text-right font-bold text-sky-500"
-                                    x-text="Number(member.total_co2e || 0).toLocaleString()"></td>
+                                <td class="px-4 py-3 text-right font-bold text-red-500"
+                                    x-text="Number(member.total_social || 0).toLocaleString()"></td>
                             </tr>
                         </template>
                         <template x-if="memberLeaderboard.length === 0">
