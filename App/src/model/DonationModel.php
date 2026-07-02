@@ -71,7 +71,8 @@ class DonationModel
                     'redeem_point' => $redeemPoint
                 ];
             }
-
+            // ใช้เวลาจาก PHP เพื่อความแม่นยำ
+            $now = date('Y-m-d H:i:s'); 
             // เริ่ม Transaction 
             $this->Conn->beginTransaction();
 
@@ -79,7 +80,7 @@ class DonationModel
             $sqlDonation = "INSERT INTO donation 
                             (member_id, staff_id, donation_total_value, donation_total_goodness_point, donation_description, created_at) 
                             VALUES 
-                            (:member_id, :staff_id, :total_value, :total_goodness_point, :description, NOW())";
+                            (:member_id, :staff_id, :total_value, :total_goodness_point, :description, :created_at)";
 
             $stmtDonation = $this->Conn->prepare($sqlDonation);
             $stmtDonation->execute([
@@ -87,7 +88,8 @@ class DonationModel
                 ':staff_id' => $staffId,
                 ':total_value' => $overallTotalValue,
                 ':total_goodness_point' => $overallGoodnessPoint,
-                ':description' => $description
+                ':description' => $description,
+                ":created_at" => $now
             ]);
 
             // ดึง ID ของ donation ล่าสุดเพื่อไปใส่ในตาราง detail
@@ -103,11 +105,11 @@ class DonationModel
             $sqlInventory = "INSERT INTO donation_item 
                              (donation_item_name, donation_item_category_id, donation_item_amount, donation_item_redeem_point, updated_at) 
                              VALUES 
-                             (:name, 1, :qty, :redeem_point, NOW()) 
+                             (:name, 1, :qty, :redeem_point, :updated_at) 
                              ON DUPLICATE KEY UPDATE 
-                             donation_item_amount = donation_item_amount + :qty_update, 
-                             donation_item_redeem_point = :redeem_point_update,
-                             updated_at = NOW()";
+                             donation_item_amount = donation_item_amount + VALUES(donation_item_amount), 
+                             donation_item_redeem_point = VALUES(donation_item_redeem_point),
+                             updated_at = VALUES(updated_at)";
             $stmtInventory = $this->Conn->prepare($sqlInventory);
 
             // Step 4: Loop Insert details และ Upsert into inventory
@@ -125,16 +127,19 @@ class DonationModel
                 $stmtInventory->execute([
                     ':name' => $pItem['name'],
                     ':qty' => $pItem['qty'],
-                    ':qty_update' => $pItem['qty'],
                     ':redeem_point' => $pItem['redeem_point'],
-                    ':redeem_point_update' => $pItem['redeem_point']
+                    ':updated_at' => date('Y-m-d H:i:s')
                 ]);
             }
 
             // Step 5: Update member goodness point (เพิ่มแต้มความดีรวมให้ผู้ใช้งาน)
-            $sqlMember = "UPDATE member 
-                          SET member_goodness_point = member_goodness_point + :goodness_point 
-                          WHERE member_id = :member_id";
+            $sqlMember = "INSERT INTO member_point 
+                            (member_id, goodness_point, total_goodness_point) 
+                            VALUES 
+                            (:member_id, :goodness_point, :goodness_point) 
+                            ON DUPLICATE KEY UPDATE
+                                goodness_point = goodness_point + VALUES(goodness_point),
+                                total_goodness_point = total_goodness_point + VALUES(goodness_point)";
             $stmtMember = $this->Conn->prepare($sqlMember);
             $stmtMember->execute([
                 ':goodness_point' => $overallGoodnessPoint,
@@ -154,8 +159,8 @@ class DonationModel
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
             }
-            // อาจใช้ DatabaseException ของระบบเดิมที่คุณมี
-            throw new Exception("Database Error: " . $e->getMessage(), (int) $e->getCode());
+            error_log($e->getMessage());
+            throw new Exception("เกิดข้อผิดพลาด, กรุณาลองใหม่", (int) $e->getCode());
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
