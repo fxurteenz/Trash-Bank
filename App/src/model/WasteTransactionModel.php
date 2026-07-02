@@ -874,7 +874,7 @@ class WasteTransactionModel
             return $updatedUser;
 
         } catch (PDOException $e) {
-            throw new Exception("ไม่สามารถดำเนินการได้ม กรุณาลองใหม่", 500);
-        }
+            throw new Exception("ไม่สามารถดำเนินการได้ กรุณาลองใหม่", 500);
+        } 
     }
 }
