@@ -347,7 +347,7 @@
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.faculty_name || 'ไม่ระบุ'">
                             </td>
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell" :class="!member.major_name ? 'bg-yellow-400'"
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell" :class="!member.major_name ? 'bg-yellow-400': ''"
                                 x-text="member.major_name || 'ไม่ระบุ'">
                             </td>
                             <td class="px-2 py-2 text-xs text-end"
