@@ -230,16 +230,11 @@ class MemberModel
             $newMemberId = $this->Conn->lastInsertId();
             // Add initial points of 10 for new members
             if ((int) $data["role_id"] == 1 || (int) $data["role_id"] == 2 || (int) $data["role_id"] == 3) {
-                $updateWasteTransaction = "INSERT INTO waste_transaction (member_id, waste_transaction_total_point, waste_transaction_note, created_at)
-                                        VALUES (:member_id, 10, 'แต้มพิเศษสำหรับสมาชิกใหม่', NOW())";
-                $updateWasteTransactionStmt = $this->Conn->prepare($updateWasteTransaction);
-                $updateWasteTransactionStmt->execute([':member_id' => $newMemberId]);
-
-                $updateMemberPoint = "INSERT INTO member_point (member_id, waste_point, total_waste_point)
-                                    VALUES (:member_id, 10, 10)
-                                    ON DUPLICATE KEY UPDATE
-                                        waste_point = waste_point + 10,
-                                        total_waste_point = total_waste_point + 10";
+                $updateMemberPoint = "INSERT INTO member_point (member_id, member_point_event, member_point_event_sum)
+                              VALUES (:member_id, 10, 10)
+                              ON DUPLICATE KEY UPDATE
+                                member_point_event = member_point_event + 10,
+                                member_point_event_sum = member_point_event_sum + 10";
 
                 $updateMemberPointStmt = $this->Conn->prepare($updateMemberPoint);
                 $updateMemberPointStmt->execute([':member_id' => $newMemberId]);

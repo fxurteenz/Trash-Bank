@@ -87,12 +87,15 @@ class UsersModel
     public function UsersRegister(array $data)
     {
         try {
-            if (empty($data) && !is_array($data)) {
-                throw new Exception('มีบางอย่างผิดพลาด,กรุณาลองใหม่อีกครั้ง', 400);
+            if (empty($data)) {
+                throw new Exception('มีบางอย่างผิดพลาด, กรุณาลองใหม่อีกครั้ง', 400);
             }
 
             if (empty($data['member_password'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกรหัสผ่าน', 422);
+            }
+            if (mb_strlen($data['member_password']) < 6) {
+                throw new Exception('ตรวจสอบข้อมูล, รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 422);
             }
 
             if (empty($data['member_phone'])) {
@@ -109,116 +112,98 @@ class UsersModel
             if (empty($data['member_name'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกชื่อ-สกุล', 422);
             }
-            if (!preg_match('/^[a-zA-Zก-๏\s]+$/u', $data['member_name'])) {
+            if (!preg_match('/^[a-zA-Zก-๏\s\.]+$/u', $data['member_name'])) {
                 throw new Exception('ชื่อ-นามสกุลต้องเป็นตัวอักษรเท่านั้น', 422);
             }
 
-            if (isset($data['member_email']) && !empty($data['member_email']) && !filter_var($data['member_email'], FILTER_VALIDATE_EMAIL)) {
+            if (!empty($data['member_email']) && !filter_var($data['member_email'], FILTER_VALIDATE_EMAIL)) {
                 throw new Exception('รูปแบบอีเมลไม่ถูกต้อง', 422);
             }
 
-            if (($data['member_type'] === 'student' || $data['member_type'] === 'teacher') && empty($data['faculty_id'])) {
+            if (in_array($data['member_type'], ['student', 'teacher'], true) && empty($data['faculty_id'])) {
                 throw new Exception('ตรวจสอบข้อมูล, กรุณาระบุคณะ', 422);
             }
 
-            if ($data['member_type'] === 'student' && isset($data['member_personal_id']) && !empty($data['member_personal_id']) && !preg_match('/^\d{12}$/', $data['member_personal_id'])) {
+            if ($data['member_type'] === 'student' && !empty($data['member_personal_id']) && !preg_match('/^\d{12}$/', $data['member_personal_id'])) {
                 throw new Exception('รหัสนักศึกษาต้องเป็นตัวเลข 12 หลัก', 422);
-            }
-
-            if ($data['member_password'] < 6) {
-                throw new Exception('ตรวจสอบข้อมูล, รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร', 422);
             }
 
             self::$Conn->beginTransaction();
 
-            $inviterId = null;
-            if (!empty($data['inviter_id'])) {
-                $inviterId = $data['inviter_id'];
-                unset($data['inviter_id']);
-            }
-            $encodedPassword = password_hash(
-                $data['member_password'],
-                PASSWORD_DEFAULT,
-                ['cost' => self::$SaltRound]
-            );
+            // จัดการ Inviter
+            $inviterId = !empty($data['inviter_id']) ? $data['inviter_id'] : null;
 
-            $data['member_password'] = $encodedPassword;
-            $data['created_at'] = date('Y-m-d H:i:s');
+            // แปลง Role ID
+            $roleMap = [
+                'student' => 1,
+                'teacher' => 2,
+                'staff' => 3
+            ];
 
-            if ($data['member_type'] === 'student') {
-                $data['role_id'] = 1;
-            } elseif ($data['member_type'] === 'staff') {
-                $data['role_id'] = 3;
-            } elseif ($data['member_type'] === 'teacher') {
-                $data['role_id'] = 2;
-            } else {
+            if (!isset($roleMap[$data['member_type']])) {
                 throw new Exception('ประเภทสมาชิกไม่ถูกต้อง', 400);
             }
-            unset($data['member_type']);
 
-            $setClauses = [];
-            $updateData = [];
-            foreach ($data as $column => $value) {
-                if (!empty($value)) {
-                    $setClauses[] = "`{$column}` = :{$column}";
-                    $updateData[$column] = $value;
+            // เตรียมข้อมูลสำหรับบันทึก (Whitelist เพื่อป้องกัน Mass Assignment และ SQL Injection)
+            $insertData = [
+                'member_phone' => $data['member_phone'],
+                'member_password' => password_hash($data['member_password'], PASSWORD_DEFAULT, ['cost' => self::$SaltRound]),
+                'member_name' => $data['member_name'],
+                'role_id' => $roleMap[$data['member_type']],
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+
+            // คอลัมน์ทางเลือก (Optional fields)
+            $optionalFields = ['member_email', 'faculty_id', 'member_personal_id'];
+            foreach ($optionalFields as $field) {
+                if (isset($data[$field]) && $data[$field] !== '') {
+                    $insertData[$field] = $data[$field];
                 }
             }
-            $setClauseString = implode(', ', $setClauses);
 
-            $sql =
-                "INSERT INTO member 
-                SET
-                    {$setClauseString}
-                ";
+            // สร้าง SQL INSERT dynamically อย่างปลอดภัย
+            $columns = array_keys($insertData);
+            $setClauses = array_map(fn($col) => "`{$col}` = :{$col}", $columns);
+            $sql = "INSERT INTO member SET " . implode(', ', $setClauses);
 
             $stmt = self::$Conn->prepare($sql);
-            $stmt->execute($updateData);
+            $stmt->execute($insertData);
             $newMemberId = self::$Conn->lastInsertId();
 
-            $updateWasteTransaction = "INSERT INTO waste_transaction (member_id, waste_transaction_total_point, waste_transaction_note, created_at)
-                                        VALUES (:member_id, 10, 'แต้มพิเศษสำหรับสมาชิกใหม่', NOW())";
-            $updateWasteTransactionStmt = self::$Conn->prepare($updateWasteTransaction);
-            $updateWasteTransactionStmt->execute([':member_id' => $newMemberId]);
+            $updateMemberPoint = "INSERT INTO member_point (member_id, member_point_event, member_point_event_sum)
+                              VALUES (:member_id, 10, 10)
+                              ON DUPLICATE KEY UPDATE
+                                member_point_event = member_point_event + 10,
+                                member_point_event_sum = member_point_event_sum + 10";
+            self::$Conn->prepare($updateMemberPoint)->execute([':member_id' => $newMemberId]);
 
-            $updateMemberPoint = "INSERT INTO member_point (member_id, waste_point, total_waste_point)
-                                    VALUES (:member_id, 10, 10)
-                                    ON DUPLICATE KEY UPDATE
-                                        waste_point = waste_point + 10,
-                                        total_waste_point = total_waste_point + 10";
-
-            $updateMemberPointStmt = self::$Conn->prepare($updateMemberPoint);
-            $updateMemberPointStmt->execute([':member_id' => $newMemberId]);
-
+            // กรณีมีผู้แนะนำ (Inviter)
             if ($inviterId) {
-                $inviteSql = "INSERT INTO 
-                                member_invite (inviter_id, invitees_id, created_at) 
-                            VALUES (:inviter_id, :invitees_id, NOW())";
-                $inviteStmt = self::$Conn->prepare($inviteSql);
-                $inviteStmt->execute([
+                $inviteSql = "INSERT INTO member_invite (inviter_id, invitees_id, created_at) 
+                          VALUES (:inviter_id, :invitees_id, NOW())";
+                self::$Conn->prepare($inviteSql)->execute([
                     ':inviter_id' => $inviterId,
                     ':invitees_id' => $newMemberId
                 ]);
 
-                $updateRecruiterSql = "INSERT INTO 
-                                            member_point (member_id, social_point, total_social_point) 
-                                        VALUES (:inviter_id, 1, 1)
-                                        ON DUPLICATE KEY UPDATE
-                                            social_point = social_point + 1,
-                                            total_social_point = total_social_point + 1";
-                $updateRecruiterStmt = self::$Conn->prepare($updateRecruiterSql);
-                $updateRecruiterStmt->execute([':inviter_id' => $inviterId]);
+                $updateRecruiterSql = "INSERT INTO member_point (member_id, social_point, total_social_point) 
+                                   VALUES (:inviter_id, 1, 1)
+                                   ON DUPLICATE KEY UPDATE
+                                       social_point = social_point + 1,
+                                       total_social_point = total_social_point + 1";
+                self::$Conn->prepare($updateRecruiterSql)->execute([':inviter_id' => $inviterId]);
             }
 
             self::$Conn->commit();
             return ["member_phone" => $data["member_phone"], "member_id" => $newMemberId];
+
         } catch (PDOException $e) {
             if (self::$Conn->inTransaction()) {
                 self::$Conn->rollBack();
             }
             $error = DatabaseException::handle($e);
-            error_log($e->getMessage());
-            throw new Exception($error['message'], $error['code']);
+            // error_log($e->getMessage());
+            throw new Exception($error['message'], $error['code'] ?? 500);
         } catch (Exception $e) {
             if (self::$Conn->inTransaction()) {
                 self::$Conn->rollBack();
