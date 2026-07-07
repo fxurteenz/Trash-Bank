@@ -234,12 +234,11 @@
                             บทบาท <span x-show="filters.sort_by === 'role'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
-                        <th
-                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
+                        <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             คณะ
                         </th>
                         <th
-                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b" >
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             สาขา
                         </th>
                         <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
@@ -347,14 +346,22 @@
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
                                 x-text="member.faculty_name || 'ไม่ระบุ'">
                             </td>
-                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell" :class="!member.major_name ? 'bg-yellow-400': ''"
-                                x-text="member.major_name || 'ไม่ระบุ'">
-                            </td>
+                            <template x-if="member.role_id == 1 || member.role_id == 2 || member.role_id == 3">
+                                <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell">
+                                    <span x-text="member?.major_name || 'ไม่ระบุ'"
+                                        :class="(member.role_id == 1 || member.role_id == 2 || member.role_id == 3) && !member?.major_name ? 'bg-yellow-400 px-2 py-.5 rounded-xl': ''"></span>
+                                </td>
+                            </template>
+                            <template x-if="member.role_id != 1 && member.role_id !=2 && member.role_id != 3">
+                                <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell">
+                                </td>
+                            </template>
                             <td class="px-2 py-2 text-xs text-end"
                                 x-text="Number(parseInt(member.member_waste_point) || 0).toLocaleString()">
                             </td>
                             <td class="px-2 py-2 text-xs text-end"
-                                x-text="Number(parseInt(member.member_goodness_point) || 0).toLocaleString()"></td>
+                                x-text="Number(parseInt(member.member_goodness_point) || 0).toLocaleString()">
+                            </td>
                             <td class="px-2 py-2 whitespace-nowrap text-center text-sm" @click.stop>
                                 <div class="flex justify-center items-center gap-1"
                                     x-show="currentUserRoleId === 6 || (member.role_id != 6 && member.role_id != 5)">
