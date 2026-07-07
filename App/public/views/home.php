@@ -175,7 +175,7 @@
                 <div
                     class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
                     <div
-                        class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
+                        class="w-16 h-16 bg-yellow-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
                         3</div>
                     <h3 class="text-xl font-bold text-center mb-3">รับแต้ม & แบดจ์</h3>
                     <p class="text-gray-500 text-center text-sm">ระบบคำนวณแต้มขยะอัตโนมัติ
@@ -380,10 +380,10 @@
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="award" class="w-4 h-4"></i> แต้มขยะ
                     </button>
-                     <button @click="setSortType('goodness')"
-                        :class="{'bg-white shadow text-yellow-600': sortType === 'goodness', 'text-gray-400 hover:text-yellow-600': sortType !== 'goodness'}"
+                    <button @click="setSortType('event')"
+                        :class="{'bg-white shadow text-purple-600': sortType === 'event', 'text-gray-400 hover:text-purple-600': sortType !== 'event'}"
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มความดี
+                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มกิจกรรม
                     </button>
                     <button @click="setSortType('social')"
                         :class="{'bg-white shadow text-red-600': sortType === 'social', 'text-gray-400 hover:text-red-700': sortType !== 'social'}"
@@ -424,7 +424,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[1])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -465,7 +465,7 @@
                             </span>
                         </template>
                         <div class="text-3xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[0])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -506,7 +506,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[2])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -543,13 +543,15 @@
                                         <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
                                             x-text="item.name"></h4>
                                         <template x-if="leaderboardType !== 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 ปริมาณขยะ: <span x-text="item.weight"></span> | ลดคาร์บอน: <span
                                                     x-text="item.goodness"></span> CO₂e
                                             </p>
                                         </template>
                                         <template x-if="leaderboardType === 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 คณะ: <span x-text="item.fname"></span> | สาขา: <span
                                                     x-text="item.mname"></span>
                                             </p>
@@ -558,7 +560,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-end">
                                     <div class="text-lg font-black transition-all duration-300 ease-in-out transform"
-                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-yellow-600'"
+                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                                         x-text="getSortValue(item)"></div>
                                 </td>
                             </tr>
@@ -572,7 +574,6 @@
 
         </div>
     </section>
-
 
     <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -684,6 +685,8 @@
                         return item.goodness;
                     case 'social':
                         return item.social;
+                    case 'event':
+                        return item.event;
                     case 'point':
                     default:
                         return item.points;
@@ -696,11 +699,14 @@
                         return 'แต้มความดี';
                     case 'social':
                         return 'แต้มสังคม';
+                    case 'event':
+                        return 'แต้มกิจกรรม';
                     case 'point':
                     default:
                         return 'แต้มขยะ';
                 }
             },
+
             get activeLeaderboard() {
                 if (this.leaderboardType === 'faculty') return this.facultyLeaderboard;
                 if (this.leaderboardType === 'major') return this.majorLeaderboard;
@@ -733,6 +739,7 @@
                             name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
                             goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
                             social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
 
@@ -742,6 +749,7 @@
                             name: item.major_name,
                             faculty_name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
                             goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
                             social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
@@ -751,6 +759,7 @@
                             rank: index + 1,
                             name: item.member_name || item.name || 'ไม่ระบุชื่อ',
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
                             goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
                             social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                             fname: item.faculty_name || 'ไม่ระบุคณะ',

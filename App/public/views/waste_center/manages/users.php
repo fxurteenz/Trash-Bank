@@ -9,32 +9,34 @@
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </button>
-            <h1 class="text-2xl font-bold text-slate-900">ผู้ใช้งาน</h1>
+            <h1 class="text-2xl font-bold text-slate-900">จัดการผู้ใช้งาน</h1>
         </div>
     </div>
 
     <!-- Top Card -->
     <div id="role-counts-container" class="w-full grid grid-cols-2 md:grid-cols-4 gap-2">
         <div @click="filterByRole('')"
-            class="bg-white rounded-md shadow p-6 cursor-pointer hover:scale-105 active:scale-95 duration-300 ease-out hover:shadow-md hover:shadow-emerald-500/50 transition-all"
+            class="bg-white rounded-xl shadow p-6 cursor-pointer hover:scale-105 active:scale-95 duration-300 ease-out hover:shadow-md hover:shadow-emerald-500/50 transition-all"
             :class="filters.role.length === 0 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-gray-600">ผู้ใช้ทั้งหมด</p>
+                    <p class="text-sm text-gray-600">ผู้ใช้งานทั้งหมด</p>
                     <p class="text-2xl font-bold text-emerald-700"
                         x-text="Number(roleCounts.total_members || 0).toLocaleString()"></p>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <div class="text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+                        <path d="M0 0h24v24H0z" fill="none" />
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
-                            d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0-4 0m-2 8v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1M15 5a2 2 0 1 0 4 0a2 2 0 0 0-4 0m2 5h2a2 2 0 0 1 2 2v1M5 5a2 2 0 1 0 4 0a2 2 0 0 0-4 0m-2 8v-1a2 2 0 0 1 2-2h2" />
+                            d="M21 20c0-1.742-1.67-3.223-4-3.773M15 20c0-2.21-2.686-4-6-4s-6 1.79-6 4m12-7a4 4 0 0 0 0-8m-6 8a4 4 0 1 1 0-8a4 4 0 0 1 0 8" />
                     </svg>
+
                 </div>
             </div>
         </div>
         <div @click="filterByRole(roleCounts.roles[0]?.role_id)"
-            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            class="bg-white rounded-xl shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
             :class="filters.role.includes(roleCounts.roles[0]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
@@ -43,17 +45,18 @@
                         x-text="Number(roleCounts.roles[0]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                        <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 21v-2a4 4 0 0 1 4-4h2m10 1c0 4-2.5 6-3.5 6S15 20 15 16c1 0 2.5-.5 3.5-1.5c1 1 2.5 1.5 3.5 1.5M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0" />
+                <div class="text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 256 256">
+                        <path d="M0 0h256v256H0z" fill="none" />
+                        <path fill="currentColor"
+                            d="m227.79 52.62l-96-32a11.85 11.85 0 0 0-7.58 0l-96 32A12 12 0 0 0 20 63.37a6 6 0 0 0 0 .63v80a12 12 0 0 0 24 0V80.65l23.71 7.9a67.92 67.92 0 0 0 18.42 85A100.36 100.36 0 0 0 46 209.44a12 12 0 1 0 20.1 13.11C80.37 200.59 103 188 128 188s47.63 12.59 61.95 34.55a12 12 0 1 0 20.1-13.11a100.36 100.36 0 0 0-40.18-35.92a67.92 67.92 0 0 0 18.42-85l39.5-13.17a12 12 0 0 0 0-22.76Zm-99.79-8L186.05 64L128 83.35L70 64ZM172 120a44 44 0 1 1-81.06-23.71l33.27 11.09a11.9 11.9 0 0 0 7.58 0l33.27-11.09A43.85 43.85 0 0 1 172 120" />
                     </svg>
+
                 </div>
             </div>
         </div>
         <div @click="filterByRole(roleCounts.roles[1]?.role_id)"
-            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            class="bg-white rounded-xl shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
             :class="filters.role.includes(roleCounts.roles[1]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
@@ -62,8 +65,8 @@
                         x-text="Number(roleCounts.roles[1]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <div class="text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
                             d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" />
@@ -72,7 +75,7 @@
             </div>
         </div>
         <div @click="filterByRole(roleCounts.roles[2]?.role_id)"
-            class="bg-white rounded-md shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
+            class="bg-white rounded-xl shadow p-6 col-span-1 cursor-pointer hover:scale-105 hover:shadow-md hover:shadow-emerald-500/50 active:scale-95 duration-300 ease-out transition-all"
             :class="filters.role.includes(roleCounts.roles[2]?.role_id?.toString()) && filters.role.length === 1 ? 'ring-2 ring-emerald-500' : ''">
             <div class="flex items-center justify-between">
                 <div>
@@ -81,8 +84,8 @@
                         x-text="Number(roleCounts.roles[2]?.member_count || 0).toLocaleString()">
                     </p>
                 </div>
-                <div class="p-3 bg-emerald-100 rounded-full text-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                <div class="text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
                         <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
                             d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h.5m7.5 7l3.35-3.284a2.143 2.143 0 0 0 .005-3.071a2.24 2.24 0 0 0-3.129-.006l-.224.22l-.223-.22a2.24 2.24 0 0 0-3.128-.006a2.143 2.143 0 0 0-.006 3.071z" />
@@ -92,12 +95,12 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-md shadow p-6 overflow-x-auto w-full">
+    <div class="bg-white rounded-xl shadow p-8 overflow-x-auto w-full">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">รายชื่อผู้ใช้งาน</h2>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-6 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+        <div class="grid grid-cols-1 lg:grid-cols-6 gap-4 mb-4 rounded-lg">
             <div class="items-center flex gap-2 justify-center">
                 <button @click="openCreateDialog" :class="createUserDialogShow && 'bg-emerald-300'"
                     class="group cursor-pointer flex items-center justify-between py-1 px-2 border-2 border-emerald-500 rounded-full hover:bg-emerald-100 space-x-1 hover:scale-105 font-medium text-emerald-700">
@@ -232,17 +235,21 @@
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
-                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase border-b">
                             คณะ
                         </th>
+                        <th
+                            class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b" >
+                            สาขา
+                        </th>
                         <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMembers('waste_point')">
-                            แต้มขยะ <span x-show="filters.sort_by === 'waste_point'"
+                            @click="sortMembers('total_waste_point')">
+                            แต้มขยะ <span x-show="filters.sort_by === 'total_waste_point'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMembers('goodness_point')">
-                            แต้มความดี <span x-show="filters.sort_by === 'goodness_point'"
+                            @click="sortMembers('total_goodness_point')">
+                            แต้มความดี <span x-show="filters.sort_by === 'total_goodness_point'"
                                 x-text="filters.order === 'ASC' ? '↑' : '↓'"></span>
                         </th>
                         <th
@@ -338,7 +345,10 @@
                                 x-text="member.role_name_th || 'ไม่ระบุ'">
                             </td>
                             <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell"
-                                x-text="member.faculty_name || ''">
+                                x-text="member.faculty_name || 'ไม่ระบุ'">
+                            </td>
+                            <td class="px-2 py-2 overflow-hidden text-ellipsis text-xs hidden lg:table-cell" :class="!member.major_name ? 'bg-yellow-400'"
+                                x-text="member.major_name || 'ไม่ระบุ'">
                             </td>
                             <td class="px-2 py-2 text-xs text-end"
                                 x-text="Number(parseInt(member.member_waste_point) || 0).toLocaleString()">
@@ -401,13 +411,18 @@
                     :disabled="page <= 1" @click="page--; fetchMembers()">
                     ก่อนหน้า
                 </button>
+
                 <div class="flex items-center space-x-1">
-                    <template x-for="p in totalPages">
-                        <button class="px-2 py-1 rounded"
-                            :class="p === page ? 'bg-emerald-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
-                            @click="page = p; fetchMembers()" x-text="p"></button>
+                    <template x-for="(p, index) in visiblePages" :key="index">
+                        <button class="px-2 py-1 rounded cursor-pointer" :class="{
+                        'bg-emerald-500 text-white': p === page,
+                        'bg-transparent text-gray-500 cursor-default': p === '...',
+                        'bg-gray-200 hover:bg-gray-300': p !== page && p !== '...'
+                    }" :disabled="p === '...'" @click="if(p !== '...') { page = p; fetchMembers() }" x-text="p">
+                        </button>
                     </template>
                 </div>
+
                 <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
                     :disabled="page >= totalPages" @click="page++; fetchMembers()">
                     ถัดไป
@@ -712,10 +727,10 @@
                             <span x-show="errors.edit.faculty_id" class="text-red-500 text-xs">กรุณาเลือกศูนย์</span>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-3 items-center">
                         <span class="col-span-1 text-gray-700 font-medium">
-                            รหัสผ่าน 
+                            รหัสผ่าน
                         </span>
                         <button @click="openChangePasswordDialog()" type="button"
                             class="col-span-2 hover:underline cursor-pointer flex p-1.5 border border-gray-300 rounded items-center gap-1 justify-center shadow-sm hover:shadow-md hover:scale-102 transition duration-50">
@@ -812,7 +827,7 @@
             changePasswordDialogShow: false,
             showChangePasswordForm: false,
             page: 1,
-            limit: 10,
+            limit: 20,
             totalPages: 1,
 
             errors: {
@@ -856,7 +871,7 @@
                 major_id: "",
                 role: [],
                 search: "",
-                sort_by: "",
+                sort_by: "total_waste_point",
                 order: "DESC",
             },
 
@@ -1467,6 +1482,40 @@
                 this.quickMenuShow = false;
                 window.open(`/${this.manager_role}/transactions/donation?member_id=${member.member_id}`, '_blank');
             },
+
+            get visiblePages() {
+                let pages = [];
+                const delta = 5; // จำนวนหน้าใกล้เคียงที่ต้องการแสดง (ซ้าย 5, ขวา 5)
+
+                // ถ้ามีแค่หน้าเดียว หรือไม่มีข้อมูล
+                if (this.totalPages <= 1) return [1];
+
+                pages.push(1); // ใส่หน้าแรกเสมอ
+
+                // คำนวณขอบเขตของหน้าตรงกลาง
+                let start = Math.max(2, this.page - delta);
+                let end = Math.min(this.totalPages - 1, this.page + delta);
+
+                // ใส่จุดไข่ปลาด้านหน้า หากระยะห่างจากหน้าแรกมากกว่า 1
+                if (start > 2) {
+                    pages.push('...');
+                }
+
+                // ใส่ตัวเลขหน้าตรงกลาง
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+
+                // ใส่จุดไข่ปลาด้านหลัง หากระยะห่างจากหน้าสุดท้ายมากกว่า 1
+                if (end < this.totalPages - 1) {
+                    pages.push('...');
+                }
+
+                // ใส่หน้าสุดท้ายเสมอ
+                pages.push(this.totalPages);
+
+                return pages;
+            }
         };
     }
 

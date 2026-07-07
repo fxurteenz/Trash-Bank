@@ -55,62 +55,59 @@ class MemberModel
             }
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
-            $sortDirection = 'DESC';
-            if (isset($query['order']) && strtolower($query['order']) === 'asc') {
-                $sortDirection = 'ASC';
-            }
 
-            $orderBySql = " ORDER BY m.member_id ASC";
+            $sortDirection = (isset($query['order']) && strtolower($query['order']) === 'asc') ? 'ASC' : 'DESC';
+            $sortColumns = [];
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {
                     case 'total_waste_point':
-                        $orderBySql .= ", ORDER BY mp.total_waste_point " . $sortDirection;
+                        $sortColumns[] = "mp.total_waste_point " . $sortDirection;
                         break;
                     case 'total_goodness_point':
-                        $orderBySql .= ", ORDER BY mp.total_goodness_point " . $sortDirection;
+                        $sortColumns[] = "mp.total_goodness_point " . $sortDirection;
                         break;
                     case 'name':
-                        $orderBySql .= ", ORDER BY m.member_name " . $sortDirection;
+                        $sortColumns[] = "m.member_name " . $sortDirection;
                         break;
                     case 'role':
-                        $orderBySql .= ", ORDER BY m.role_id " . $sortDirection;
+                        $sortColumns[] = "m.role_id " . $sortDirection;
                         break;
                 }
             }
 
+            $sortColumns[] = "m.member_id ASC";
+            $orderBySql = " ORDER BY " . implode(', ', $sortColumns);
+
             $sql = "SELECT 
-                    m.member_id, 
-                    m.member_name, 
-                    m.member_phone, 
-                    m.member_email, 
-                    m.member_personal_id, 
-                    m.role_id,
-                    mp.waste_point AS member_waste_point,
-                    mp.total_waste_point AS total_waste_point,
-                    mp.goodness_point AS member_goodness_point,
-                    mp.total_goodness_point AS total_goodness_point,
-                    mp.social_point AS member_social_point,
-                    mp.total_social_point AS total_social_point,
-                    m.faculty_id,
-                    m.major_id,
-                    f.faculty_name,
-                    f.faculty_point as member_faculty_point,
-                    maj.major_name,
-                    r.role_name,
-                    r.role_name_th
-                FROM 
-                    member m
-                LEFT JOIN 
-                    faculty f ON m.faculty_id = f.faculty_id
-                LEFT JOIN 
-                    major maj ON m.major_id = maj.major_id
-                LEFT JOIN 
-                    role r ON m.role_id = r.role_id
-                LEFT JOIN
-                    member_point mp ON m.member_id = mp.member_id
-                {$whereSql}
-                {$orderBySql}";
+                m.member_id, 
+                m.member_name, 
+                m.member_phone, 
+                m.member_email, 
+                m.member_personal_id, 
+                m.role_id,
+                mp.waste_point AS member_waste_point,
+                mp.total_waste_point AS total_waste_point,
+                mp.goodness_point AS member_goodness_point,
+                mp.total_goodness_point AS total_goodness_point,
+                mp.social_point AS member_social_point,
+                mp.total_social_point AS total_social_point,
+                mp.member_point_event,
+                mp.member_point_event_sum,
+                m.faculty_id,
+                m.major_id,
+                f.faculty_name,
+                f.faculty_point as member_faculty_point,
+                maj.major_name,
+                r.role_name,
+                r.role_name_th
+            FROM member m
+            LEFT JOIN faculty f ON m.faculty_id = f.faculty_id
+            LEFT JOIN major maj ON m.major_id = maj.major_id
+            LEFT JOIN role r ON m.role_id = r.role_id
+            LEFT JOIN member_point mp ON m.member_id = mp.member_id
+            {$whereSql}
+            {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 
@@ -147,35 +144,31 @@ class MemberModel
                 $total = count($users);
             }
 
+            $summaryMemberSql = "SELECT
+                        SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
+                        SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                        SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
+                        SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
+                        COUNT(member_id) as total_member
+                    FROM member m";
+
             if (!empty($query["faculty"])) {
-                $summaryMember = "SELECT
-                                SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
-                                SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
-                                SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
-                                SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
-                                COUNT(member_id) as total_member
-                            FROM member m
-                            WHERE faculty_id = :faculty_id";
-                $smstmt = $this->Conn->prepare($summaryMember);
+                $summaryMemberSql .= " WHERE faculty_id = :faculty_id";
+                $smstmt = $this->Conn->prepare($summaryMemberSql);
                 $smstmt->bindValue(':faculty_id', $query["faculty"], PDO::PARAM_INT);
-                $smstmt->execute();
-                $summary = $smstmt->fetch(PDO::FETCH_ASSOC);
-                return ["data" => $users, "total" => $total, "summary" => $summary ?? []];
             } else {
-                $summaryMember = "SELECT
-                                SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as member_count,
-                                SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
-                                SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count,
-                                SUM(CASE WHEN role_id = 4 THEN 1 ELSE 0 END) as staff_count,
-                                COUNT(member_id) as total_member
-                            FROM member m";
-                $smstmt = $this->Conn->prepare($summaryMember);
-                $smstmt->execute();
-                $summary = $smstmt->fetch(PDO::FETCH_ASSOC);
-                return ["data" => $users, "total" => $total, "summary" => $summary ?? []];
+                $smstmt = $this->Conn->prepare($summaryMemberSql);
             }
 
-            return ["data" => $users, "total" => $total];
+            $smstmt->execute();
+            $summary = $smstmt->fetch(PDO::FETCH_ASSOC);
+
+            return [
+                "data" => $users,
+                "total" => $total,
+                "summary" => $summary ?: []
+            ];
+
         } catch (PDOException $e) {
             error_log($e->getMessage());
             throw new Exception("Database error: " . $e->getMessage(), 500);
@@ -190,6 +183,10 @@ class MemberModel
         try {
             if (empty($data) && !is_array($data)) {
                 throw new Exception('มีบางอย่างผิดพลาด,กรุณาลองใหม่อีกครั้ง', 400);
+            }
+
+            if (empty($data['member_name'])) {
+                throw new Exception('ตรวจสอบข้อมูล, กรุณากรอกชื่อ-สกุล', 422);
             }
 
             if (empty($data['member_password'])) {
@@ -254,10 +251,10 @@ class MemberModel
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();
             }
-            // error_log($e->getMessage());
+
             $error = DatabaseException::handle($e);
             throw new Exception($error['message'], $error['code']);
-            // throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+            // throw new Exception($e->getMessage(), $error['code'] ?: 500);
         } catch (Exception $e) {
             if ($this->Conn->inTransaction()) {
                 $this->Conn->rollBack();

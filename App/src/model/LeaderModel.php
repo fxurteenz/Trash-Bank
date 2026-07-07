@@ -140,6 +140,9 @@ class LeaderModel
                 case 'social':
                     $orderBy = 'total_social';
                     break;
+                case 'event':
+                    $orderBy = 'total_event';
+                    break;
             }
 
             $params = [];
@@ -160,6 +163,7 @@ class LeaderModel
                         mp.total_waste_point AS total_point,
                         mp.total_goodness_point AS total_goodness,
                         mp.total_social_point AS total_social,
+                        mp.member_point_event_sum AS total_event,
                         mp.total_weight,
                         mp.total_co2e,
                         f.faculty_name,
@@ -230,8 +234,14 @@ class LeaderModel
                 case 'point':
                     $orderBy = 'total_point';
                     break;
+                case 'event':
+                    $orderBy = 'total_event';
+                    break;
                 case 'goodness':
                     $orderBy = 'total_goodness';
+                    break;
+                case 'social':
+                    $orderBy = 'total_social';
                     break;
                 case 'weight':
                     $orderBy = 'total_weight';
@@ -239,9 +249,7 @@ class LeaderModel
                 case 'name':
                     $orderBy = 'f.faculty_name';
                     break;
-                case 'social':
-                    $orderBy = 'total_social';
-                    break;
+               
                 case 'member':
                     $orderBy = 'total_member';
                     break;
@@ -257,6 +265,7 @@ class LeaderModel
                         SUM(mp.total_waste_point) AS total_point,
                         SUM(mp.total_goodness_point) AS total_goodness,
                         SUM(mp.total_social_point) AS total_social,
+                        SUM(mp.member_point_event_sum) AS total_event,
                         SUM(mp.total_co2e) AS total_co2e,
                         SUM(mp.total_weight) AS total_weight,
                         COUNT(m.member_id) AS total_member
@@ -324,6 +333,9 @@ class LeaderModel
                 case 'goodness':
                     $orderBy = 'total_goodness';
                     break;
+                case 'event':
+                    $orderBy = 'total_event';
+                    break;
                 case 'social':
                     $orderBy = 'total_social';
                     break;
@@ -355,6 +367,7 @@ class LeaderModel
                         SUM(mp.total_waste_point) AS total_point,
                         SUM(mp.total_goodness_point) AS total_goodness,
                         SUM(mp.total_social_point) AS total_social,
+                        SUM(mp.member_point_event_sum) AS total_event,
                         SUM(mp.total_co2e) AS total_c02e,
                         SUM(mp.total_weight) AS total_weight,
                         COUNT(m.member_id) AS total_member
