@@ -5,13 +5,15 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/leaders/all?sort=social
+  url: {{api_domain}}/leaders/all?sort=social&page=1&limit=10
   body: none
   auth: inherit
 }
 
 params:query {
   sort: social
+  page: 1
+  limit: 10
   ~faculty_id: 1
   ~month: 01
   ~year: 2026

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/members?limit=10&page=1&search=56&role=1,2,3
+  url: {{api_domain}}/members?limit=10&page=1&role=1,2,3&faculty=1&order=DESC&sort_by=total_waste_point
   body: none
   auth: inherit
 }
@@ -13,11 +13,11 @@ get {
 params:query {
   limit: 10
   page: 1
-  search: 56
   role: 1,2,3
-  ~faculty: 1
-  ~order: DESC
-  ~sort_by: waste_point
+  faculty: 1
+  order: DESC
+  sort_by: total_waste_point
+  ~search: 56
   ~major_id: 7
   ~search: 
 }
