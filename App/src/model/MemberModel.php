@@ -389,6 +389,8 @@ class MemberModel
                         mp.total_goodness_point as member_total_goodness_point,
                         mp.social_point as member_social_point,
                         mp.total_social_point as member_total_social_point,
+                        mp.member_point_event,
+                        mp.member_point_event_sum,
                         m.role_id,
                         m.faculty_id,
                         m.major_id,

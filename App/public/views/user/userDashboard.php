@@ -1,37 +1,33 @@
 <!-- Top Bar -->
 <div class="grid gap-0" x-data="dashboardData()">
     <div
-        class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
-        <a href="/user/profile" class="flex items-center gap-[10px] no-underline">
+        class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-end sticky top-0 z-[100] border-b border-[#F0F1F3]">
+        <!-- <a href="/user/profile" class="flex items-center gap-[10px] no-underline">
             <div class="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#1B8B4B] to-[#0D6B38] text-white text-[16px] font-bold grid place-items-center shrink-0"
                 x-text="profile?.member_name ? profile.member_name.charAt(0) : ''">
             </div>
             <div>
-                <div class="text-[11px] text-[#9CA3AF]">สวัสดี,</div>
+                <div class="text-[11px] text-gray-400">สวัสดี,</div>
                 <div class="text-[14px] font-bold text-gray-800 mt-[1px]"
                     x-text="profile?.member_name || 'กำลังโหลด...'"></div>
             </div>
-        </a>
+        </a> -->
         <div class="flex items-center gap-[10px]">
             <a href="/logout"
-                class="w-[36px] h-[36px] rounded-full bg-[#F4F5F7] grid place-items-center text-[17px] no-underline border-none cursor-pointer"
+                class="p-2 rounded-full bg-[#F4F5F7] grid place-items-center text-[17px] no-underline border-none cursor-pointer"
                 aria-label="ออกจากระบบ" title="ออกจากระบบ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                        d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"
-                        stroke-width="0.5" stroke="currentColor" />
-                </svg>
+                <i data-lucide="log-out" class="w-[1rem] h-[1rem]"></i>
             </a>
         </div>
     </div>
 
     <!-- Account Card -->
-    <div class="relative mx-[14px] mt-[14px] aspect-[1.6/1] rounded-2xl shadow-2xl overflow-hidden text-gray-900"
-        style="background-image: url('/assets/images/waste-bank_card.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <div class="relative mx-[14px] mt-[14px] aspect-[16/9] rounded-2xl shadow-2xl overflow-hidden text-gray-900"
+        style="background-image: url('/assets/images/card2.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
 
         <!-- แผ่นกระจกใส (Glassmorphism Overlay) ตรงกลางบัตร -->
         <div
-            class="absolute inset-[15px] sm:inset-[20px] backdrop-blur-[6px] rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/80 p-4 sm:p-5 flex flex-col justify-between">
+            class="absolute bg-white/50 inset-[15px] sm:inset-[20px] backdrop-blur-[6px] rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/80 p-4 sm:p-5 flex flex-col justify-between">
 
             <div class="flex flex-col h-full">
 
@@ -103,6 +99,7 @@
 
             </div>
         </div>
+
     </div>
 
     <!-- Quick Actions -->
@@ -122,7 +119,7 @@
                     </svg>
 
                 </div>
-                <div class="text-[11px] font-regular text-[#9CA3AF] text-center">เชิญเพื่อน</div>
+                <div class="text-[11px] font-regular text-gray-400 text-center">เชิญเพื่อน</div>
             </a>
 
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors active:bg-gray-200"
@@ -139,7 +136,7 @@
                     </svg>
 
                 </div>
-                <div class="text-[11px] font-regular text-[#9CA3AF] text-center">บาร์โค้ด</div>
+                <div class="text-[11px] font-regular text-gray-400 text-center">บาร์โค้ด</div>
             </a>
 
             <a class="flex flex-col items-center gap-[7px] no-underline p-[4px_2px] rounded-[12px] transition-colors">
@@ -173,55 +170,64 @@
     <!-- Stats -->
     <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-bold text-gray-800">สถิติสะสม</div>
+            <div class="text-[14px] font-bold text-gray-800" x-text="showTotalPoints ? 'แต้มสะสม' : 'แต้มคงเหลือ'">
+                แต้มคงเหลือ</div>
+            <button @click="showTotalPoints = !showTotalPoints"
+                class="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                title="สลับมุมมอง">
+                <i data-lucide="arrow-left-right" class="h-4"></i>
+            </button>
         </div>
         <div class="grid grid-cols-5 border-t border-[#F0F1F3]">
+            <!-- แต้มขยะ -->
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-emerald-600">
-                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/blue_coin.png" class="h-10" alt="เหรียญแต้มขยะ">
                 </div>
-                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseInt(totals.credit).toLocaleString()">
+                <div class="text-[17px] font-[900] text-sky-700 mt-[3px]"
+                    x-text="parseInt(showTotalPoints ? (profile?.member_total_waste_point || 0) : (profile?.member_waste_point || 0)).toLocaleString()">
                 </div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">แต้มขยะ</div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มขยะ</div>
             </div>
-
+            <!-- แต้มความดี -->
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-yellow-500">
-                    <i data-lucide="laugh" class="w-6 h-6"></i>
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/yellow_coin.png" class="h-10" alt="เหรียญแต้มความดี">
                 </div>
-                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseInt(profile?.member_total_goodness_point).toLocaleString()">
+                <div class="text-[17px] font-[900] text-yellow-500 mt-[3px]"
+                    x-text="parseInt(showTotalPoints ? (profile?.member_total_goodness_point || 0) : (profile?.member_goodness_point || 0)).toLocaleString()">
                 </div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">แต้มความดี</div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มความดี</div>
             </div>
+            <!-- แต้มมิตรภาพ -->
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-red-500">
-                    <i data-lucide="users"></i>
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/red_coin.png" class="h-10" alt="เหรียญแต้มมิตรภาพ">
                 </div>
-                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseInt(profile?.member_total_social_point || 0).toLocaleString()">...</div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">มิตรภาพ</div>
+                <div class="text-[17px] font-[900] text-red-700 mt-[3px]"
+                    x-text="parseInt(showTotalPoints ? (profile?.member_total_social_point || 0) : (profile?.member_social_point || 0)).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">มิตรภาพ</div>
             </div>
+            <!-- แต้มกิจกรรม -->
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-emerald-600">
-                    <i data-lucide="leaf" class="w-6 h-6"></i>
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/purple_coin.png" class="h-10" alt="เหรียญแต้มกิจกรรม">
                 </div>
-                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="parseFloat(totals?.carbon||0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
+                <div class="text-[17px] font-[900] text-purple-800 mt-[3px]"
+                    x-text="parseFloat(showTotalPoints ? (profile?.member_point_event_sum || 0) : (profile?.member_point_event || 0)).toLocaleString()">
                 </div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">CO2e/KG.</div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มกิจกรรม</div>
             </div>
-
+            <!-- แต้มอื่นๆ -->
             <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center text-sky-600"><i data-lucide="weight"></i></div>
-                <div class="text-[17px] font-[900] text-gray-800 mt-[3px]"
-                    x-text="(totals?.weight || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})">
-                    0.00</div>
-                <div class="text-[10px] text-[#9CA3AF] mt-[2px]">ขยะฝาก/KG</div>
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/unknow_coin.png" class="h-10 opacity-50" alt="เหรียญอื่นๆ">
+                </div>
+                <div class="text-[17px] font-[900] text-gray-400 mt-[3px] opacity-50"
+                    x-text="parseFloat(0).toLocaleString()"></div>
+                <div class="text-[10px] text-gray-400 opacity-50 mt-[2px]">...</div>
             </div>
-
-
         </div>
     </div>
 
@@ -233,10 +239,10 @@
         </div>
         <div class="px-[16px] pb-[14px]">
             <template x-if="isLoading">
-                <div class="text-center py-4 text-[#9CA3AF] text-[13px]">กำลังโหลดข้อมูล...</div>
+                <div class="text-center py-4 text-gray-400 text-[13px]">กำลังโหลดข้อมูล...</div>
             </template>
             <template x-if="!isLoading && wasteBreakdown.length === 0">
-                <div class="text-center py-4 text-[#9CA3AF] text-[13px]">ยังไม่มีข้อมูลสัดส่วนขยะ</div>
+                <div class="text-center py-4 text-gray-400 text-[13px]">ยังไม่มีข้อมูลสัดส่วนขยะ</div>
             </template>
             <template x-for="(item, index) in wasteBreakdown" :key="index">
                 <div class="flex items-center gap-[10px] py-[7px]">
@@ -262,10 +268,10 @@
         </div>
         <div class="pb-2">
             <template x-if="isLoading">
-                <div class="text-center py-4 text-[#9CA3AF] text-[13px]">กำลังโหลดข้อมูล...</div>
+                <div class="text-center py-4 text-gray-400 text-[13px]">กำลังโหลดข้อมูล...</div>
             </template>
             <template x-if="!isLoading && recentTransactions.length === 0">
-                <div class="text-center py-4 text-[#9CA3AF] text-[13px]">ยังไม่มีรายการล่าสุด</div>
+                <div class="text-center py-4 text-gray-400 text-[13px]">ยังไม่มีรายการล่าสุด</div>
             </template>
             <template x-for="(tx, index) in recentTransactions" :key="index">
                 <div class="flex items-center gap-[12px] py-[13px] px-[16px] border-b border-[#F0F1F3] last:border-b-0">
@@ -273,7 +279,7 @@
                         x-html="tx.icon"></div>
                     <div class="flex-1 min-w-0">
                         <div class="text-[13px] font-[700] text-gray-800" x-text="tx.title"></div>
-                        <div class="text-[11px] text-[#9CA3AF] mt-[2px]" x-text="tx.dateStr"></div>
+                        <div class="text-[11px] text-gray-400 mt-[2px]" x-text="tx.dateStr"></div>
                     </div>
                     <div class="text-[14px] font-bold" :class="tx.pointColor" x-text="tx.pointText"></div>
                 </div>
@@ -291,6 +297,7 @@
             totals: { weight: 0, carbon: 0, credit: 0 },
             recentTransactions: [],
             wasteBreakdown: [],
+            showTotalPoints: false,
 
             async init() {
                 try {
