@@ -80,9 +80,49 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
+    }
+
+    public function GetAllGroup()
+    {
+        try {
+            // Authentication::OperateAuth();
+            $result = self::$WasteTypeModel->GetAllWasteTypeGroup(self::$QueryString);
+
+            $response = [
+                'success' => TRUE,
+                'data' => $result["data"],
+                'total' => $result["total"],
+                'message' => 'successfully =)'
+            ];
+
+            if (isset(self::$QueryString['page'])) {
+                $response['page'] = (int) self::$QueryString['page'];
+            }
+            if (isset(self::$QueryString['limit'])) {
+                $response['limit'] = (int) self::$QueryString['limit'];
+            }
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode($response);
+        } catch (AuthenticationException $e) {
+            // error_log("ERROR AUTH : " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 403);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            // error_log("ERROR EXCEPTION: " . $e->getMessage());
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } 
     }
 
     public function GetByCategoryId($cid)
@@ -124,9 +164,7 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 
     public function Create()
@@ -159,9 +197,7 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 
     public function Update($wtid)
@@ -192,9 +228,7 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 
     public function ToggleActive()
@@ -225,9 +259,7 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 
     public function DeleteById($id)
@@ -258,9 +290,7 @@ class WasteTypeController extends RouterBase
                 'success' => false,
                 'message' => $e->getMessage()
             ]);
-        } finally {
-            exit;
-        }
+        } 
     }
 
     public function Delete()
@@ -285,8 +315,6 @@ class WasteTypeController extends RouterBase
             header('Content-Type: application/json');
             http_response_code($e->getCode() ?: 400);
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-        } finally {
-            exit;
-        }
+        } 
     }
 }

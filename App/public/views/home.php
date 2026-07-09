@@ -110,31 +110,295 @@
         </div>
     </section>
 
-    <section id="video-guide"
-        class="scroll-mt-20 bg-white min-h-[calc(80vh)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
-        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-8 md:mb-12">
-                <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
-                    <i data-lucide="square-play" class="w-8 h-8 text-red-600"></i>
+    <section id="leaderboard" class="py-12 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
+                    <i data-lucide="trophy" class="w-8 h-8 text-yellow-600"></i>
                 </div>
-                <!-- <h2 class="text-3xl font-bold text-gray-900 mb-4">วิดีโอแนะนำระบบ</h2> -->
-                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
-                    วิดิโอแนะนำกิจกรรม BRU Go Green
+                <h2 class="text-3xl font-bold text-gray-900 mb-4"
+                    x-text="leaderboardType === 'faculty' ? 'กระดานผู้นำระดับคณะ' : (leaderboardType === 'major' ? 'กระดานผู้นำระดับสาขา' : 'กระดานผู้นำระดับบุคคล')">
+                    กระดานผู้นำระดับคณะ</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+                    การแข่งขันเชิงสร้างสรรค์
+                    เพื่อค้นหาสุดยอดคณะและบุคคลที่มีส่วนร่วมในการจัดการขยะและลดคาร์บอนได้มากที่สุด
                 </p>
             </div>
-            <div class="max-w-7xl mx-auto w-full">
-                <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
-                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/s-OtnUQglrs?si=mltqiwJ43FM2pud1"
-                        title="YouTube video player" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+            <div class="rounded-full p-2 md:p-3 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
+                    <button @click="setLeaderboardType('faculty')"
+                        :class="leaderboardType === 'faculty' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
+                        ระดับคณะ
+                    </button>
+                    <button @click="setLeaderboardType('major')"
+                        :class="leaderboardType === 'major' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="school" class="w-4 h-4"></i>
+                        ระดับสาขา
+                    </button>
+                    <button @click="setLeaderboardType('member')"
+                        :class="leaderboardType === 'member' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="users-round" class="w-4 h-4"></i>
+                        ระดับบุคคล
+                    </button>
+                </div>
+
+                <div class="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
+                    <button @click="setSortType('point')"
+                        :class="{'bg-white shadow text-sky-600': sortType === 'point', 'text-gray-400 hover:text-sky-600': sortType !== 'point'}"
+                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="award" class="w-4 h-4"></i> แต้มขยะ
+                    </button>
+                    <button @click="setSortType('event')"
+                        :class="{'bg-white shadow text-purple-600': sortType === 'event', 'text-gray-400 hover:text-purple-600': sortType !== 'event'}"
+                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มกิจกรรม
+                    </button>
+                    <button @click="setSortType('social')"
+                        :class="{'bg-white shadow text-red-600': sortType === 'social', 'text-gray-400 hover:text-red-700': sortType !== 'social'}"
+                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="users" class="w-4 h-4"></i> แต้มสังคม
+                    </button>
                 </div>
             </div>
+
+            <div class="flex flex-col md:flex-row justify-center items-end gap-6 mb-16 px-4 md:px-12 mt-25"
+                x-show="activeLeaderboard?.length >= 3">
+
+                <div class="w-full md:w-1/3 order-2 md:order-1 relative group mt-16 md:mt-0">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                        <div class="relative">
+                            <div
+                                class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
+                                <template x-if="leaderboardType === 'member'">
+                                    <span class="text-4xl font-bold text-blue-300"
+                                        x-text="getFirstThaiChar(activeLeaderboard[1]?.name) || ''"></span>
+                                </template>
+                                <div x-show="leaderboardType !== 'member'">
+                                    <i data-lucide="building-2" class="w-10 h-10 text-blue-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-16 pb-8 px-6 text-center transition-transform group-hover:-translate-y-2">
+                        <span
+                            class="inline-block px-3 py-1 bg-gray-100 text-gray-400 text-[8px] font-bold rounded-full mb-4">อันดับที่
+                            2</span>
+                        <h3 class="font-bold text-gray-900 text-xl line-clamp-1"
+                            x-text="activeLeaderboard[1]?.name || '...'"></h3>
+                        <template x-if="leaderboardType === 'major'">
+                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
+                                x-text="activeLeaderboard[1]?.faculty_name || '...'">
+                            </span>
+                        </template>
+                        <div class="text-2xl font-black"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
+                            x-text="getSortValue(activeLeaderboard[1])">
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/3 order-1 md:order-2 relative z-10 group mt-16 md:mt-0">
+                    <div class="absolute -top-30 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                        <i data-lucide="crown" class="w-8 h-8 text-yellow-500 mb-1 drop-shadow-md animate-bounce "></i>
+                        <div class="relative">
+                            <div
+                                class="w-32 h-32 rounded-full border-4 border-yellow-400 shadow-xl bg-gray-900 flex items-center justify-center overflow-hidden ring-4 ring-white">
+                                <template x-if="leaderboardType === 'member'">
+                                    <span class="text-5xl font-bold text-yellow-400"
+                                        x-text="getFirstThaiChar(activeLeaderboard[0]?.name) || '?'"></span>
+                                </template>
+                                <div x-show="leaderboardType !== 'member'">
+                                    <i data-lucide="trophy" class="w-14 h-14 text-yellow-500"></i>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white rounded-t-3xl rounded-b-2xl border border-gray-100 shadow-xl pt-20 pb-10 px-6 text-center transform md:-translate-y-6 transition-transform group-hover:-translate-y-8 relative">
+                        <span
+                            class="inline-block px-3 py-1 bg-yellow-300/70 text-yellow-700 text-[8px] font-bold rounded-full mb-4">
+                            อันดับที่ 1
+                        </span>
+                        <h3 class="font-bold text-gray-900 text-2xl line-clamp-1"
+                            x-text="activeLeaderboard[0]?.name || '...'">
+                        </h3>
+                        <template x-if="leaderboardType === 'major'">
+                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
+                                x-text="activeLeaderboard[0]?.faculty_name || '...'">
+                            </span>
+                        </template>
+                        <div class="text-3xl font-black"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
+                            x-text="getSortValue(activeLeaderboard[0])">
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/3 order-3 relative group mt-16 md:mt-0">
+                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                        <div class="relative">
+                            <div
+                                class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
+                                <template x-if="leaderboardType === 'member'">
+                                    <span class="text-4xl font-bold text-orange-300"
+                                        x-text="getFirstThaiChar(activeLeaderboard[2]?.name) || '?'"></span>
+                                </template>
+                                <div x-show="leaderboardType !== 'member'">
+                                    <i data-lucide="medal" class="w-10 h-10 text-orange-300"></i>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div
+                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-16 pb-8 px-6 text-center transition-transform group-hover:-translate-y-2">
+                        <span
+                            class="inline-block px-3 py-1 bg-red-800/80 text-white text-[8px] font-bold rounded-full mb-4">อันดับที่
+                            3</span>
+
+                        <h3 class="font-bold text-gray-900 text-lg line-clamp-1"
+                            x-text="activeLeaderboard[2]?.name || '...'">
+                        </h3>
+                        <template x-if="leaderboardType === 'major'">
+                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
+                                x-text="activeLeaderboard[2]?.faculty_name || '...'">
+                            </span>
+                        </template>
+                        <div class="text-2xl font-black"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
+                            x-text="getSortValue(activeLeaderboard[2])">
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto"
+                x-show="activeLeaderboard?.length > 3">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50">
+                        <tr>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase w-5 tracking-wider">อันดับ
+                            </th>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider"
+                                x-text="leaderboardType === 'faculty' ? 'คณะ' : (leaderboardType === 'major' ? 'สาขา' : 'ชื่อ-สกุล')">
+                            </th>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-end"
+                                x-text="getSortLabel()"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <template x-for="(item, index) in activeLeaderboard?.slice(3)" :key="item.rank">
+                            <tr class="hover:bg-blue-50/50 transition-colors group">
+                                <td class="px-6 py-4 text-center">
+                                    <span class="text-gray-400 font-bold text-lg w-6 text-center font-mono"
+                                        x-text="item.rank"></span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
+                                            x-text="item.name"></h4>
+                                        <template x-if="leaderboardType !== 'member'">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
+                                                ปริมาณขยะ: <span x-text="item.weight"></span> | ลดคาร์บอน: <span
+                                                    x-text="item.goodness"></span> CO₂e
+                                            </p>
+                                        </template>
+                                        <template x-if="leaderboardType === 'member'">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
+                                                คณะ: <span x-text="item.fname"></span> | สาขา: <span
+                                                    x-text="item.mname"></span>
+                                            </p>
+                                        </template>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-end">
+                                    <div class="text-lg font-black transition-all duration-300 ease-in-out transform"
+                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
+                                        x-text="getSortValue(item)"></div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="p-4 bg-gray-50 text-center text-xs text-gray-500 border-t border-gray-100 italic">
+                    แสดงข้อมูลอันดับ 4 - 10 จากทั้งหมด
+                </div>
+            </div>
+
         </div>
     </section>
 
-
-
+    <section id="waste-types"
+        class="bg-white min-h-[calc(80vh)] scroll-mt-20 bg-gray-50 py-6 md:py-12 flex flex-col justify-center">
+        <div class=" mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-flex items-center justify-center p-3 bg-green-100 rounded-full mb-4">
+                    <i data-lucide="recycle" class="w-8 h-8 text-green-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">ประเภทขยะที่รับซื้อ</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    ประเภทและราคาของขยะที่โครงการรับซื้อ ณ ปัจจุบัน
+                </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="(category, index) in wasteCategories" :key="category.waste_category_id">
+                    <div x-show="isWasteTableExpanded || index < 3"
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col">
+                        <div class="flex justify-between items-center text-sm mb-4">
+                            <h3 class="font-bold text-lg text-gray-800"
+                                x-text="category.waste_category_name || 'อื่น ๆ'"></h3>
+                            <span>แต้ม/กิโล</span>
+                        </div>
+                        <ul class="space-y-4 flex-grow">
+                            <template x-for="wasteType in category.waste_types" :key="wasteType.waste_type_id">
+                                <li class="flex justify-between items-center text-sm">
+                                    <div class="flex gap-1 items-center">
+                                        <div class="w-2 h-2 rounded-full" :class="wasteType.waste_type_active == 1 ? 'bg-green-300':'bg-gray-200'"></div>
+                                        <span class="text-gray-600 font-normal" x-text="wasteType.waste_type_name"></span>
+                                    </div>
+                                    <span class="font-semibold text-sky-600"
+                                        x-text="`${parseInt(wasteType.waste_type_price * 10).toLocaleString()} แต้ม`"></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+            </div>
+            <button @click="isWasteTableExpanded = !isWasteTableExpanded" x-show="wasteCategories.length > 3"
+                class="mt-8 flex items-center justify-center w-full border border-gray-100 hover:border-gray-100 border-1 rounded-2xl cursor-pointer py-1 transition-all shadow-xs hover:shadow-md">
+                <div class="text-sm font-medium text-green-700 hover:text-green-800 flex items-center gap-2 ">
+                    <span x-show="!isWasteTableExpanded" class="flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        ดูเพิ่มเติม
+                    </span>
+                    <span x-show="isWasteTableExpanded" class="flex items-center gap-1 cursor-pointer">
+                        <i data-lucide="chevron-up" class="w-4 h-4"></i>
+                        ย่อลง
+                    </span>
+                </div>
+            </button>
+        </div>
+    </section>
     <!-- <section id="how-it-works"
         class="scroll-mt-20 bg-gray-50 min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -282,18 +546,16 @@
     </section> -->
 
     <section id="rewards"
-        class="scroll-mt-20 bg-gray-50 min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-24">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900 mb-4 flex items-center gap-3">
-                        <i data-lucide="gift" class="text-rose-500 w-8 h-8"></i> ของรางวัลที่แลกได้
-                    </h2>
-                    <p class="text-gray-600 max-w-2xl text-lg">
-                        ใช้แต้มขยะที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
-                    </p>
+        class="bg-white min-h-[calc(80vh)] scroll-mt-20 bg-gray-50 py-6 md:py-12 flex flex-col justify-center">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-flex items-center justify-center p-3 bg-sky-200 rounded-full mb-4">
+                    <i data-lucide="gift" class="w-8 h-8 text-sky-600"></i>
                 </div>
-
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">ของรางวัลที่แลกได้</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    ใช้แต้มขยะที่คุณสะสม มาแลกรับของรางวัลจากศูนย์ใหญ่ได้ทันที
+                </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -337,241 +599,26 @@
         </div>
     </section>
 
-    <section id="leaderboard" class="py-12 bg-white">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
-                    <i data-lucide="trophy" class="w-8 h-8 text-yellow-600"></i>
+    <section id="video-guide"
+        class="scroll-mt-20 bg-white min-h-[calc(80vh)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8 md:mb-12">
+                <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
+                    <i data-lucide="square-play" class="w-8 h-8 text-red-600"></i>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-4"
-                    x-text="leaderboardType === 'faculty' ? 'กระดานผู้นำระดับคณะ' : (leaderboardType === 'major' ? 'กระดานผู้นำระดับสาขา' : 'กระดานผู้นำระดับบุคคล')">
-                    กระดานผู้นำระดับคณะ</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
-                    การแข่งขันเชิงสร้างสรรค์
-                    เพื่อค้นหาสุดยอดคณะและบุคคลที่มีส่วนร่วมในการจัดการขยะและลดคาร์บอนได้มากที่สุด
+                <!-- <h2 class="text-3xl font-bold text-gray-900 mb-4">วิดีโอแนะนำระบบ</h2> -->
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
+                    วิดิโอแนะนำกิจกรรม BRU Go Green
                 </p>
             </div>
-
-            <div class="rounded-full p-2 md:p-3 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
-                    <button @click="setLeaderboardType('faculty')"
-                        :class="leaderboardType === 'faculty' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="building-2" class="w-4 h-4"></i>
-                        ระดับคณะ
-                    </button>
-                    <button @click="setLeaderboardType('major')"
-                        :class="leaderboardType === 'major' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="school" class="w-4 h-4"></i>
-                        ระดับสาขา
-                    </button>
-                    <button @click="setLeaderboardType('member')"
-                        :class="leaderboardType === 'member' ? 'bg-white shadow text-emerald-700 font-medium' : 'text-gray-400 hover:text-emerald-700 font-medium'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="users-round" class="w-4 h-4"></i>
-                        ระดับบุคคล
-                    </button>
-                </div>
-
-                <div class="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
-                    <button @click="setSortType('point')"
-                        :class="{'bg-white shadow text-sky-600': sortType === 'point', 'text-gray-400 hover:text-sky-600': sortType !== 'point'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="award" class="w-4 h-4"></i> แต้มขยะ
-                    </button>
-                    <button @click="setSortType('event')"
-                        :class="{'bg-white shadow text-purple-600': sortType === 'event', 'text-gray-400 hover:text-purple-600': sortType !== 'event'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มกิจกรรม
-                    </button>
-                    <button @click="setSortType('social')"
-                        :class="{'bg-white shadow text-red-600': sortType === 'social', 'text-gray-400 hover:text-red-700': sortType !== 'social'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="users" class="w-4 h-4"></i> แต้มสังคม
-                    </button>
+            <div class="max-w-7xl mx-auto w-full">
+                <div class="w-full aspect-video rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-black">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/s-OtnUQglrs?si=mltqiwJ43FM2pud1"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
             </div>
-
-            <div class="flex flex-col md:flex-row justify-center items-end gap-6 mb-16 px-4 md:px-12 mt-25"
-                x-show="activeLeaderboard.length >= 3">
-
-                <div class="w-full md:w-1/3 order-2 md:order-1 relative group mt-16 md:mt-0">
-                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
-                        <div class="relative">
-                            <div
-                                class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
-                                <template x-if="leaderboardType === 'member'">
-                                    <span class="text-4xl font-bold text-blue-300"
-                                        x-text="getFirstThaiChar(activeLeaderboard[1]?.name) || ''"></span>
-                                </template>
-                                <div x-show="leaderboardType !== 'member'">
-                                    <i data-lucide="building-2" class="w-10 h-10 text-blue-300"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-16 pb-8 px-6 text-center transition-transform group-hover:-translate-y-2">
-                        <span
-                            class="inline-block px-3 py-1 bg-gray-100 text-gray-400 text-[8px] font-bold rounded-full mb-4">อันดับที่
-                            2</span>
-                        <h3 class="font-bold text-gray-900 text-xl line-clamp-1"
-                            x-text="activeLeaderboard[1]?.name || '...'"></h3>
-                        <template x-if="leaderboardType === 'major'">
-                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
-                                x-text="activeLeaderboard[1]?.faculty_name || '...'">
-                            </span>
-                        </template>
-                        <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
-                            x-text="getSortValue(activeLeaderboard[1])">
-                        </div>
-                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="w-full md:w-1/3 order-1 md:order-2 relative z-10 group mt-16 md:mt-0">
-                    <div class="absolute -top-30 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
-                        <i data-lucide="crown" class="w-8 h-8 text-yellow-500 mb-1 drop-shadow-md animate-bounce "></i>
-                        <div class="relative">
-                            <div
-                                class="w-32 h-32 rounded-full border-4 border-yellow-400 shadow-xl bg-gray-900 flex items-center justify-center overflow-hidden ring-4 ring-white">
-                                <template x-if="leaderboardType === 'member'">
-                                    <span class="text-5xl font-bold text-yellow-400"
-                                        x-text="getFirstThaiChar(activeLeaderboard[0]?.name) || '?'"></span>
-                                </template>
-                                <div x-show="leaderboardType !== 'member'">
-                                    <i data-lucide="trophy" class="w-14 h-14 text-yellow-500"></i>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div
-                        class="bg-white rounded-t-3xl rounded-b-2xl border border-gray-100 shadow-xl pt-20 pb-10 px-6 text-center transform md:-translate-y-6 transition-transform group-hover:-translate-y-8 relative">
-                        <span
-                            class="inline-block px-3 py-1 bg-yellow-300/70 text-yellow-700 text-[8px] font-bold rounded-full mb-4">
-                            อันดับที่ 1
-                        </span>
-                        <h3 class="font-bold text-gray-900 text-2xl line-clamp-1"
-                            x-text="activeLeaderboard[0]?.name || '...'">
-                        </h3>
-                        <template x-if="leaderboardType === 'major'">
-                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
-                                x-text="activeLeaderboard[0]?.faculty_name || '...'">
-                            </span>
-                        </template>
-                        <div class="text-3xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
-                            x-text="getSortValue(activeLeaderboard[0])">
-                        </div>
-                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="w-full md:w-1/3 order-3 relative group mt-16 md:mt-0">
-                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
-                        <div class="relative">
-                            <div
-                                class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
-                                <template x-if="leaderboardType === 'member'">
-                                    <span class="text-4xl font-bold text-orange-300"
-                                        x-text="getFirstThaiChar(activeLeaderboard[2]?.name) || '?'"></span>
-                                </template>
-                                <div x-show="leaderboardType !== 'member'">
-                                    <i data-lucide="medal" class="w-10 h-10 text-orange-300"></i>
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                    <div
-                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-16 pb-8 px-6 text-center transition-transform group-hover:-translate-y-2">
-                        <span
-                            class="inline-block px-3 py-1 bg-red-800/80 text-white text-[8px] font-bold rounded-full mb-4">อันดับที่
-                            3</span>
-
-                        <h3 class="font-bold text-gray-900 text-lg line-clamp-1"
-                            x-text="activeLeaderboard[2]?.name || '...'">
-                        </h3>
-                        <template x-if="leaderboardType === 'major'">
-                            <span class="text-gray-700 text-sm mb-1 line-clamp-1"
-                                x-text="activeLeaderboard[2]?.faculty_name || '...'">
-                            </span>
-                        </template>
-                        <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
-                            x-text="getSortValue(activeLeaderboard[2])">
-                        </div>
-                        <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto"
-                x-show="activeLeaderboard.length > 3">
-                <table class="w-full text-left">
-                    <thead class="bg-gray-50/50">
-                        <tr>
-                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase w-5 tracking-wider">อันดับ
-                            </th>
-                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider"
-                                x-text="leaderboardType === 'faculty' ? 'คณะ' : (leaderboardType === 'major' ? 'สาขา' : 'ชื่อ-สกุล')">
-                            </th>
-                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-end"
-                                x-text="getSortLabel()"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <template x-for="(item, index) in activeLeaderboard.slice(3)" :key="item.rank">
-                            <tr class="hover:bg-blue-50/50 transition-colors group">
-                                <td class="px-6 py-4 text-center">
-                                    <span class="text-gray-400 font-bold text-lg w-6 text-center font-mono"
-                                        x-text="item.rank"></span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div>
-                                        <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
-                                            x-text="item.name"></h4>
-                                        <template x-if="leaderboardType !== 'member'">
-                                            <p
-                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
-                                                ปริมาณขยะ: <span x-text="item.weight"></span> | ลดคาร์บอน: <span
-                                                    x-text="item.goodness"></span> CO₂e
-                                            </p>
-                                        </template>
-                                        <template x-if="leaderboardType === 'member'">
-                                            <p
-                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
-                                                คณะ: <span x-text="item.fname"></span> | สาขา: <span
-                                                    x-text="item.mname"></span>
-                                            </p>
-                                        </template>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-end">
-                                    <div class="text-lg font-black transition-all duration-300 ease-in-out transform"
-                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
-                                        x-text="getSortValue(item)"></div>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-                <div class="p-4 bg-gray-50 text-center text-xs text-gray-500 border-t border-gray-100 italic">
-                    แสดงข้อมูลอันดับ 4 - 10 จากทั้งหมด
-                </div>
-            </div>
-
         </div>
     </section>
 
@@ -619,6 +666,8 @@
                 { label: 'อาจารย์/บุคลากร (คน)', value: '0', icon: 'id-card-lanyard', iconColor: 'text-green-500' },
                 { label: 'แต้มที่แจกจ่ายแล้ว (แต้ม)', value: '0', icon: 'award', iconColor: 'text-yellow-500' },
             ],
+            wasteCategories: [],
+            isWasteTableExpanded: false,
             rewards: [],
             leaderboardType: 'faculty',
             facultyLeaderboard: [],
@@ -629,6 +678,7 @@
 
             init() {
                 this.fetchStats();
+                this.fetchWasteGroups();
                 this.fetchRewards();
                 this.fetchAllLeaderboards();
             },
@@ -646,6 +696,18 @@
                     }
                 } catch (error) {
                     console.error('Error fetching stats:', error);
+                }
+            },
+
+            async fetchWasteGroups() {
+                try {
+                    const response = await fetch('/api/waste_types/groups');
+                    const result = await response.json();
+                    if (result.success && result.data) {
+                        this.wasteCategories = result.data;
+                    }
+                } catch (error) {
+                    console.error('Error fetching waste groups:', error);
                 }
             },
 
@@ -712,6 +774,7 @@
                 if (this.leaderboardType === 'major') return this.majorLeaderboard;
                 return this.memberLeaderboard;
             },
+
 
             setLeaderboardType(type) {
                 this.leaderboardType = type;

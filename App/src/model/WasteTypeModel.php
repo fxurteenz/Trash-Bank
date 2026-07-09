@@ -31,7 +31,7 @@ class WasteTypeModel
             }
 
             if (!empty($query['active_status'])) {
-                $whereClauses[] = "wt.waste_type_active_status = :active_status";
+                $whereClauses[] = "wt.waste_type_active = :active_status";
                 $params[':active_status'] = $query['active_status'];
             }
 
@@ -85,6 +85,50 @@ class WasteTypeModel
             }
 
             return ["data" => $wasteType, "total" => $total];
+
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage(), 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function GetAllWasteTypeGroup($query): array
+    {
+        try {
+            $sql = "SELECT 
+                    wt.*, 
+                    COALESCE(cws.stock_weight,0.000) AS stock_weight,
+                    wc.waste_category_name
+                FROM 
+                    waste_type wt
+                LEFT JOIN 
+                    waste_category wc ON wt.waste_category_id = wc.waste_category_id
+                LEFT JOIN
+                    center_waste_stock cws ON wt.waste_type_id = cws.waste_type_id
+                WHERE wt.waste_type_active = 1
+                ORDER BY wc.waste_category_name, wt.waste_type_name";
+
+            $stmt = $this->Conn->prepare($sql);
+            $stmt->execute();
+            $wasteType = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $total = count($wasteType);
+
+            $groupedWaste = [];
+            foreach ($wasteType as $item) {
+                $categoryName = $item['waste_category_name'];
+                if (!isset($groupedWaste[$categoryName])) {
+                    $groupedWaste[$categoryName] = [
+                        'waste_category_id' => $item['waste_category_id'],
+                        'waste_category_name' => $categoryName,
+                        'waste_types' => []
+                    ];
+                }
+                $groupedWaste[$categoryName]['waste_types'][] = $item;
+            }
+
+            return ["data" => array_values($groupedWaste), "total" => $total];
 
         } catch (PDOException $e) {
             throw new Exception("Database error: " . $e->getMessage(), 500);

@@ -222,6 +222,7 @@ class Routes
         /* /api/waste_types */
         $this->addPrefixedRoutes("/api/waste_types", [
             ['GET', "", [WasteTypeController::class, "GetAll"]],
+            ['GET', "/groups", [WasteTypeController::class, "GetAllGroup"]],
             ['GET', "/[i:cid]", [WasteTypeController::class, "GetByCategoryId"]],
             ['POST', '', [WasteTypeController::class, 'Create']],
             ['POST', '/update/[i:wtid]', [WasteTypeController::class, 'Update']],
