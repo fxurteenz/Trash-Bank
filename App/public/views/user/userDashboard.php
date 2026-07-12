@@ -22,12 +22,12 @@
     </div>
 
     <!-- Account Card -->
-    <div class="relative mx-[14px] mt-[14px] aspect-[16/9] rounded-2xl shadow-2xl overflow-hidden text-gray-900"
+    <div class="relative mx-[14px] mt-[14px] aspect-[16/9] rounded-2xl shadow-2xl overflow-hidden text-gray-900 bg-gradient-to-br from-sky-600 to-sky-700 z-0"
         style="background-image: url('/assets/images/card2.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
 
         <!-- แผ่นกระจกใส (Glassmorphism Overlay) ตรงกลางบัตร -->
         <div
-            class="absolute bg-white/50 inset-[15px] sm:inset-[20px] backdrop-blur-[6px] rounded-[16px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] border border-white/80 p-4 sm:p-5 flex flex-col justify-between">
+            class="absolute inset-[15px] sm:inset-[20px] backdrop-blur border border-gray-100 border-1 rounded-2xl p-4 sm:p-5 flex flex-col justify-between ">
 
             <div class="flex flex-col h-full">
 
@@ -102,8 +102,72 @@
 
     </div>
 
+    <!-- Stats -->
+    <div class="bg-white mx-[14px] mt-[14px] rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)] z-0">
+        <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
+            <div class="text-[14px] font-bold text-gray-800" x-text="showTotalPoints ? 'แต้มสะสม' : 'แต้มคงเหลือ'">
+                แต้มคงเหลือ</div>
+            <button @click="showTotalPoints = !showTotalPoints"
+                class="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                title="สลับมุมมอง">
+                <i data-lucide="arrow-left-right" class="h-4"></i>
+            </button>
+        </div>
+        <div class="grid grid-cols-5 border-t border-[#F0F1F3]">
+            <!-- แต้มรักษ์โลก -->
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/green_coin.png" class="h-10" alt="เหรียญแต้มรักษ์โลก">
+                </div>
+                <div class="text-[17px] font-[900] text-emerald-600 mt-[3px]"
+                    x-text="`${parseInt(showTotalPoints ? (profile?.total_co2e) : (profile?.total_co2e )).toLocaleString()}`">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มรักษ์โลก</div>
+            </div>
+            <!-- แต้มความดี -->
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/yellow_coin.png" class="h-10" alt="เหรียญแต้มความดี">
+                </div>
+                <div class="text-[17px] font-[900] text-yellow-500 mt-[3px]"
+                    x-text="parseInt(showTotalPoints ? (profile?.member_total_goodness_point || 0) : (profile?.member_goodness_point || 0)).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มความดี</div>
+            </div>
+            <!-- แต้มมิตรภาพ -->
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/red_coin.png" class="h-10" alt="เหรียญแต้มมิตรภาพ">
+                </div>
+                <div class="text-[17px] font-[900] text-red-700 mt-[3px]"
+                    x-text="parseInt(showTotalPoints ? (profile?.member_total_social_point || 0) : (profile?.member_social_point || 0)).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">มิตรภาพ</div>
+            </div>
+            <!-- แต้มกิจกรรม -->
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/purple_coin.png" class="h-10" alt="เหรียญแต้มกิจกรรม">
+                </div>
+                <div class="text-[17px] font-[900] text-purple-800 mt-[3px]"
+                    x-text="parseFloat(showTotalPoints ? (profile?.member_point_event_sum || 0) : (profile?.member_point_event || 0)).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มกิจกรรม</div>
+            </div>
+            <!-- แต้มอื่นๆ -->
+            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
+                <div class="flex justify-center items-center">
+                    <img src="assets/images/pink_coin.png" class="h-10" alt="เหรียญจิตอาสา">
+                </div>
+                <div class="text-[17px] font-[900] text-pink-600 mt-[3px]" x-text="parseFloat(0).toLocaleString()">
+                </div>
+                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มจิตอาสา</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Actions -->
-    <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+    <div class="bg-white mx-[14px] mt-[14px] rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)] z-0">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
             <div class="text-[14px] font-bold text-gray-800">เมนู</div>
         </div>
@@ -167,72 +231,8 @@
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
-        <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
-            <div class="text-[14px] font-bold text-gray-800" x-text="showTotalPoints ? 'แต้มสะสม' : 'แต้มคงเหลือ'">
-                แต้มคงเหลือ</div>
-            <button @click="showTotalPoints = !showTotalPoints"
-                class="w-8 h-8 rounded-full grid place-items-center text-gray-400 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                title="สลับมุมมอง">
-                <i data-lucide="arrow-left-right" class="h-4"></i>
-            </button>
-        </div>
-        <div class="grid grid-cols-5 border-t border-[#F0F1F3]">
-            <!-- แต้มขยะ -->
-            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center">
-                    <img src="assets/images/blue_coin.png" class="h-10" alt="เหรียญแต้มขยะ">
-                </div>
-                <div class="text-[17px] font-[900] text-sky-700 mt-[3px]"
-                    x-text="parseInt(showTotalPoints ? (profile?.member_total_waste_point || 0) : (profile?.member_waste_point || 0)).toLocaleString()">
-                </div>
-                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มขยะ</div>
-            </div>
-            <!-- แต้มความดี -->
-            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center">
-                    <img src="assets/images/yellow_coin.png" class="h-10" alt="เหรียญแต้มความดี">
-                </div>
-                <div class="text-[17px] font-[900] text-yellow-500 mt-[3px]"
-                    x-text="parseInt(showTotalPoints ? (profile?.member_total_goodness_point || 0) : (profile?.member_goodness_point || 0)).toLocaleString()">
-                </div>
-                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มความดี</div>
-            </div>
-            <!-- แต้มมิตรภาพ -->
-            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center">
-                    <img src="assets/images/red_coin.png" class="h-10" alt="เหรียญแต้มมิตรภาพ">
-                </div>
-                <div class="text-[17px] font-[900] text-red-700 mt-[3px]"
-                    x-text="parseInt(showTotalPoints ? (profile?.member_total_social_point || 0) : (profile?.member_social_point || 0)).toLocaleString()">
-                </div>
-                <div class="text-[10px] text-gray-400 mt-[2px]">มิตรภาพ</div>
-            </div>
-            <!-- แต้มกิจกรรม -->
-            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center">
-                    <img src="assets/images/purple_coin.png" class="h-10" alt="เหรียญแต้มกิจกรรม">
-                </div>
-                <div class="text-[17px] font-[900] text-purple-800 mt-[3px]"
-                    x-text="parseFloat(showTotalPoints ? (profile?.member_point_event_sum || 0) : (profile?.member_point_event || 0)).toLocaleString()">
-                </div>
-                <div class="text-[10px] text-gray-400 mt-[2px]">แต้มกิจกรรม</div>
-            </div>
-            <!-- แต้มอื่นๆ -->
-            <div class="p-[12px_8px] text-center border-r border-[#F0F1F3] last:border-r-0">
-                <div class="flex justify-center items-center">
-                    <img src="assets/images/unknow_coin.png" class="h-10 opacity-50" alt="เหรียญอื่นๆ">
-                </div>
-                <div class="text-[17px] font-[900] text-gray-400 mt-[3px] opacity-50"
-                    x-text="parseFloat(0).toLocaleString()"></div>
-                <div class="text-[10px] text-gray-400 opacity-50 mt-[2px]">...</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Waste Breakdown -->
-    <div class="bg-white mx-[14px] mt-[14px] rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+    <div class="bg-white mx-[14px] mt-[14px] rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)] z-0">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
             <div class="text-[14px] font-bold text-gray-800">สัดส่วนขยะที่ฝาก</div>
             <a href="#" class="text-[12px] text-[#1B8B4B] font-[700] no-underline">ดูทั้งหมด ›</a>
@@ -261,7 +261,7 @@
     </div>
 
     <!-- Recent Transactions -->
-    <div class="bg-white mx-[14px] mt-[14px] mb-0 rounded-[16px] overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)]">
+    <div class="bg-white mx-[14px] mt-[14px] mb-0 rounded-2xl overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.07)] z-0">
         <div class="flex items-center justify-between px-[16px] pt-[14px] pb-[10px]">
             <div class="text-[14px] font-bold text-gray-800">รายการล่าสุด</div>
             <a href="#" class="text-[12px] text-[#1B8B4B] font-[700] no-underline">ดูทั้งหมด ›</a>
