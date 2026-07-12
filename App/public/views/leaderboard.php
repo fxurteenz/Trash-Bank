@@ -100,22 +100,16 @@
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="award" class="w-4 h-4"></i> แต้มขยะ
                     </button>
+                    <button @click="setSortType('event')"
+                        :class="{'bg-white shadow text-purple-600': sortType === 'event', 'text-gray-400 hover:text-purple-600': sortType !== 'event'}"
+                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="smile" class="w-4 h-4"></i> แต้มกิจกรรม
+                    </button>
                     <button @click="setSortType('social')"
                         :class="{'bg-white shadow text-red-600': sortType === 'social', 'text-gray-400 hover:text-red-700': sortType !== 'social'}"
                         class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
                         <i data-lucide="users" class="w-4 h-4"></i> แต้มสังคม
                     </button>
-                    <!-- <button @click="setSortType('weight')"
-                        :class="{'bg-white shadow text-emerald-600': sortType === 'weight', 'text-gray-400 hover:text-emerald-700': sortType !== 'weight'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="scale" class="w-4 h-4"></i> น้ำหนัก
-                    </button> -->
-                    <button @click="setSortType('carbon')"
-                        :class="{'bg-white shadow text-emerald-600': sortType === 'carbon', 'text-gray-400 hover:text-emerald-600': sortType !== 'carbon'}"
-                        class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer">
-                        <i data-lucide="leaf" class="w-4 h-4"></i> ลดคาร์บอน
-                    </button>
-
                 </div>
             </div>
 
@@ -150,8 +144,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[1])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -192,7 +185,7 @@
                             </span>
                         </template>
                         <div class="text-3xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[0])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -233,7 +226,7 @@
                             </span>
                         </template>
                         <div class="text-2xl font-black"
-                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                            :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                             x-text="getSortValue(activeLeaderboard[2])">
                         </div>
                         <div class="text-xs text-gray-400 font-medium uppercase tracking-wider" x-text="getSortLabel()">
@@ -254,7 +247,7 @@
                             <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider"
                                 x-text="leaderboardType === 'faculty' ? 'คณะ' : (leaderboardType === 'major' ? 'สาขา' : 'ชื่อ-สกุล')">
                             </th>
-                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-center"
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-end"
                                 x-text="getSortLabel()"></th>
                         </tr>
                     </thead>
@@ -270,22 +263,24 @@
                                         <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
                                             x-text="item.name"></h4>
                                         <template x-if="leaderboardType !== 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 ปริมาณขยะ: <span x-text="item.weight"></span> | ลดคาร์บอน: <span
-                                                    x-text="item.carbon"></span> CO₂e
+                                                    x-text="item.goodness"></span> CO₂e
                                             </p>
                                         </template>
                                         <template x-if="leaderboardType === 'member'">
-                                            <p class="text-xs text-gray-500 mt-0.5">
+                                            <p
+                                                class="text-xs text-gray-500 mt-0.5 transition-all duration-300 ease-out transform">
                                                 คณะ: <span x-text="item.fname"></span> | สาขา: <span
                                                     x-text="item.mname"></span>
                                             </p>
                                         </template>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="text-lg font-black"
-                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-green-600'"
+                                <td class="px-6 py-4 text-end">
+                                    <div class="text-lg font-black transition-all duration-300 ease-in-out transform"
+                                        :class="sortType === 'point' ? 'text-sky-500' : sortType === 'social' ? 'text-red-600' : 'text-purple-600'"
                                         x-text="getSortValue(item)"></div>
                                 </td>
                             </tr>
@@ -299,6 +294,26 @@
 
         </div>
     </section>
+
+    <section id="faculty-stats" class="py-12 bg-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-4">
+                    <i data-lucide="bar-chart-3" class="w-8 h-8 text-blue-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    สถิติการเข้าร่วมรายคณะ
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+                    ภาพรวมจำนวนสมาชิกที่เข้าร่วมโครงการธนาคารขยะในแต่ละคณะ
+                </p>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 md:p-6">
+                <canvas id="facultyMemberChart"></canvas>
+            </div>
+        </div>
+    </section>
+
 
     <footer class="bg-gray-900 text-gray-400 py-12 border-t border-gray-800 mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -324,6 +339,7 @@
 
             init() {
                 this.fetchAllLeaderboards();
+                this.initFacultyChart();
             },
 
             getFirstThaiChar(name) {
@@ -338,12 +354,12 @@
             getSortValue(item) {
                 if (!item) return '';
                 switch (this.sortType) {
-                    case 'weight':
-                        return item.weight;
-                    case 'carbon':
-                        return item.carbon;
+                    case 'goodness':
+                        return item.goodness;
                     case 'social':
                         return item.social;
+                    case 'event':
+                        return item.event;
                     case 'point':
                     default:
                         return item.points;
@@ -352,16 +368,18 @@
 
             getSortLabel() {
                 switch (this.sortType) {
-                    case 'weight':
-                        return 'น้ำหนักรวม';
-                    case 'carbon':
-                        return 'คาร์บอนที่ลดได้';
+                    case 'goodness':
+                        return 'แต้มความดี';
                     case 'social':
                         return 'แต้มสังคม';
+                    case 'event':
+                        return 'แต้มกิจกรรม';
+                    case 'point':
                     default:
-                        return 'แต้มสะสม';
+                        return 'แต้มขยะ';
                 }
             },
+
             get activeLeaderboard() {
                 if (this.leaderboardType === 'faculty') return this.facultyLeaderboard;
                 if (this.leaderboardType === 'major') return this.majorLeaderboard;
@@ -393,9 +411,9 @@
                             rank: index + 1,
                             name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`
-                            , social: `${parseInt(item.total_social_point).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
 
                         // Major
@@ -404,9 +422,9 @@
                             name: item.major_name,
                             faculty_name: `คณะ ${item.faculty_name}`,
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2e).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`,
-                            social: `${parseInt(item.total_social_point).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                         }));
 
                         // Member
@@ -414,9 +432,9 @@
                             rank: index + 1,
                             name: item.member_name || item.name || 'ไม่ระบุชื่อ',
                             points: `${parseInt(item.total_point).toLocaleString()} แต้ม`,
-                            weight: `${parseFloat(item.total_weight).toLocaleString('en-US', { maximumFractionDigits: 2 })} กก.`,
-                            carbon: `${parseFloat(item.total_co2).toLocaleString('en-US', { maximumFractionDigits: 2 })} CO2e`,
-                            social: `${parseInt(item.member_social_point).toLocaleString()} แต้ม`,
+                            event: `${parseInt(item.total_event).toLocaleString()} แต้ม`,
+                            goodness: `${parseInt(item.total_goodness).toLocaleString()} แต้ม`,
+                            social: `${parseInt(item.total_social).toLocaleString()} แต้ม`,
                             fname: item.faculty_name || 'ไม่ระบุคณะ',
                             mname: item.major_name || 'ไม่ระบุสาขา'
                         }));
@@ -428,6 +446,69 @@
                 }
             },
 
+            initFacultyChart() {
+                const ctx = document.getElementById('facultyMemberChart');
+                if (!ctx) return;
+
+                // Mockup Data
+                const facultyData = {
+                    labels: [
+                        'คณะครุศาสตร์',
+                        'คณะมนุษยศาสตร์และสังคมศาสตร์',
+                        'คณะวิทยาศาสตร์',
+                        'คณะวิทยาการจัดการ',
+                        'คณะเทคโนโลยีอุตสาหกรรม',
+                        'คณะเทคโนโลยีการเกษตร',
+                        'คณะพยาบาลศาสตร์',
+                        'บัณฑิตวิทยาลัย'
+                    ],
+                    datasets: [{
+                        label: 'จำนวนสมาชิก (คน)',
+                        data: [120, 190, 80, 150, 95, 60, 40, 10],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)',
+                            'rgba(201, 203, 207, 0.5)',
+                            'rgba(100, 100, 100, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(201, 203, 207, 1)',
+                            'rgba(100, 100, 100, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: facultyData,
+                    options: {
+                        indexAxis: 'y',
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            },
 
         }))
     })

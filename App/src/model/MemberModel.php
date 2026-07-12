@@ -386,6 +386,8 @@ class MemberModel
                         mp.total_social_point as member_total_social_point,
                         mp.member_point_event,
                         mp.member_point_event_sum,
+                        mp.total_co2e,
+                        mp.total_weight,
                         m.role_id,
                         m.faculty_id,
                         m.major_id,
