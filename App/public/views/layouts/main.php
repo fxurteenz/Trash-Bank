@@ -5,6 +5,9 @@
     <title><?= $title ?? '' ?></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="/assets/manifest.json">
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="apple-touch-icon" href="/assets/images/icon-192.png">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script defer src="/js/alpine-collapse.min.js"></script>
     <script defer src="/js/alpine.min.js"></script>
@@ -66,7 +69,7 @@
         }
     </style>
     <script type="text/javascript" src="/js/lucide.min.js"></script>
-    <script type="text/javascript" src="<?= $script ?>"></script>
+    <script type="text/javascript" src="<?= isset($script) ? $script : '' ?>"></script>
 </head>
 
 <body>
