@@ -405,11 +405,11 @@ $faculty_id = $faculty_id ?? "null";
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สาขา
                         </th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMembers('waste_point')">แต้มขยะ <span x-show="memberSortBy === 'waste_point'"
+                            @click="sortMembers('total_waste_point')">แต้มขยะ <span x-show="memberSortBy === 'total_waste_point'"
                                 x-text="memberSortOrder === 'ASC' ? '↑' : '↓'"></span></th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMembers('goodness_point')">แต้มความดี <span
-                                x-show="memberSortBy === 'goodness_point'"
+                            @click="sortMembers('total_goodness_point')">แต้มความดี <span
+                                x-show="memberSortBy === 'total_goodness_point'"
                                 x-text="memberSortOrder === 'ASC' ? '↑' : '↓'"></span></th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                             จัดการ</th>
@@ -777,7 +777,7 @@ $faculty_id = $faculty_id ?? "null";
             memberPage: 1,
             memberLimit: 10,
             memberTotalPages: 1,
-            memberSortBy: '',
+            memberSortBy: 'total_waste_point',
             memberSortOrder: 'DESC',
 
             facultyDialogShow: false,
