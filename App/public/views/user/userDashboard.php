@@ -1,22 +1,19 @@
 <!-- Top Bar -->
 <div class="grid gap-0" x-data="dashboardData()">
     <div
-        class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-end sticky top-0 z-[100] border-b border-[#F0F1F3]">
-        <!-- <a href="/user/profile" class="flex items-center gap-[10px] no-underline">
-            <div class="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#1B8B4B] to-[#0D6B38] text-white text-[16px] font-bold grid place-items-center shrink-0"
-                x-text="profile?.member_name ? profile.member_name.charAt(0) : ''">
-            </div>
-            <div>
-                <div class="text-[11px] text-gray-400">สวัสดี,</div>
-                <div class="text-[14px] font-bold text-gray-800 mt-[1px]"
-                    x-text="profile?.member_name || 'กำลังโหลด...'"></div>
-            </div>
-        </a> -->
+        class="relative bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
+
+        <a href="/" class="flex items-center gap-[2px] no-underline text-[14px] text-gray-400">
+            <i data-lucide="circle-chevron-left" class="h-[14px]"></i>
+            <span>หน้าหลัก</span>
+        </a>
+
+        <img src="/assets/images/waste_bankFullLogo.png" class="absolute left-1/2 -translate-x-1/2 h-[20px]" alt="">
+
         <div class="flex items-center gap-[10px]">
-            <a href="/logout"
-                class="p-2 rounded-full bg-[#F4F5F7] grid place-items-center text-[17px] no-underline border-none cursor-pointer"
-                aria-label="ออกจากระบบ" title="ออกจากระบบ">
-                <i data-lucide="log-out" class="w-[1rem] h-[1rem]"></i>
+            <a href="/logout" class="text-[17px] no-underline cursor-pointer" aria-label="ออกจากระบบ"
+                title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-[14px] h-[14px] text-gray-400"></i>
             </a>
         </div>
     </div>
@@ -24,6 +21,8 @@
     <!-- Account Card -->
     <div class="relative mx-[14px] mt-[14px] aspect-[16/9] rounded-2xl shadow-2xl overflow-hidden text-gray-900 bg-gradient-to-br from-sky-600 to-sky-700 z-0"
         style="background-image: url('/assets/images/card2.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <!-- <div
+        class="relative mx-[14px] mt-[14px] aspect-[16/9] rounded-2xl shadow-2xl overflow-hidden text-gray-900 bg-gradient-to-r from-emerald-600 via-emerald-500 via-emerald-550 via-40% via-emerald-500 to-emerald-600 z-0"> -->
 
         <!-- แผ่นกระจกใส (Glassmorphism Overlay) ตรงกลางบัตร -->
         <div

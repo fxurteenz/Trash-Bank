@@ -1,13 +1,21 @@
 <div class="grid gap-0 pb-6" x-data="barcodeData()">
     <!-- Top Bar -->
     <div
-        class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
-        <div class="flex items-center gap-4">
-            <a href="/user"
-                class="text-[22px] no-underline text-[#1A1A2E] leading-none w-[36px] h-[36px] rounded-full bg-[#F4F5F7] flex items-center justify-center">‹</a>
+        class="relative bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
+
+        <a @click="window.history.back()" class="flex items-center gap-[2px] no-underline text-[14px] text-gray-400">
+            <i data-lucide="circle-chevron-left" class="h-[14px]"></i>
+            <span>ย้อนกลับ</span>
+        </a>
+
+        <img src="/assets/images/waste_bankFullLogo.png" class="absolute left-1/2 -translate-x-1/2 h-[20px]" alt="">
+
+        <div class="flex items-center gap-[10px]">
+            <a href="/logout" class="text-[17px] no-underline cursor-pointer" aria-label="ออกจากระบบ"
+                title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-[14px] h-[14px] text-gray-400"></i>
+            </a>
         </div>
-        <div class="text-[17px] font-[800] text-[#1A1A2E]">บัตรสมาชิก</div>
-        <div class="w-[36px]"></div> <!-- เว้นไว้จัดกึ่งกลาง -->
     </div>
 
     <div class="mt-6 mx-[14px] flex flex-col items-center">

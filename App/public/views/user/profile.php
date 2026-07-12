@@ -1,21 +1,19 @@
 <div class="grid gap-0 pb-6" x-data="profileData()">
     <!-- Top Bar -->
     <div
-        class="bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
-        <div class="flex items-center gap-4">
-            <a href="/user"
-                class="text-[22px] no-underline text-gray-700 leading-none w-[36px] h-[36px] rounded-full bg-[#F4F5F7] flex items-center justify-center">‹</a>
-        </div>
+        class="relative bg-white px-4 pt-[14px] pb-3 flex items-center justify-between sticky top-0 z-[100] border-b border-[#F0F1F3]">
+
+        <a @click="window.history.back()" class="flex items-center gap-[2px] no-underline text-[14px] text-gray-400">
+            <i data-lucide="circle-chevron-left" class="h-[14px]"></i>
+            <span>ย้อนกลับ</span>
+        </a>
+
+        <img src="/assets/images/waste_bankFullLogo.png" class="absolute left-1/2 -translate-x-1/2 h-[20px]" alt="">
 
         <div class="flex items-center gap-[10px]">
-            <a href="/logout"
-                class="w-[36px] h-[36px] rounded-full bg-[#F4F5F7] grid place-items-center text-[17px] no-underline border-none cursor-pointer"
-                aria-label="ออกจากระบบ" title="ออกจากระบบ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1rem" height="1rem" viewBox="0 0 24 24">
-                    <path fill="currentColor"
-                        d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h7v2H5v14h7v2zm11-4l-1.375-1.45l2.55-2.55H9v-2h8.175l-2.55-2.55L16 7l5 5z"
-                        stroke-width="0.5" stroke="currentColor" />
-                </svg>
+            <a href="/logout" class="text-[17px] no-underline cursor-pointer" aria-label="ออกจากระบบ"
+                title="ออกจากระบบ">
+                <i data-lucide="log-out" class="w-[14px] h-[14px] text-gray-400"></i>
             </a>
         </div>
     </div>
@@ -286,7 +284,7 @@
                 this.isEditing = false;
                 this.errors = {};
             },
-            
+
             async saveProfile() {
                 if (this.isSaving) return;
 
