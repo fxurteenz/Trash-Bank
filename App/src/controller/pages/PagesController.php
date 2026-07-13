@@ -31,8 +31,16 @@ class PagesController extends RouterBase
 
     public function HomePage()
     {
+        $isLogin = empty($_COOKIE["user_token"]) ? false : true;
+        $userData = null;
+        if ($isLogin) {
+            $userData = Authentication::CookieAuth();
+        }
+
         $this->render('home', [
-            'title' => 'BRU Go Green : ธนาคารขยะ'
+            'title' => 'BRU Go Green : ธนาคารขยะ',
+            'isLogin' => $isLogin,
+            'userData' => $userData
         ], "landing");
     }
     public function Leaderboard()

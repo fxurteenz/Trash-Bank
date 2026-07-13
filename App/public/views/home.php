@@ -13,18 +13,21 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <button @click="scrollTo('about')"
                         class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">รู้จักโครงการ</button>
-                    <button @click="scrollTo('video-guide')"
-                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">วิดีโอแนะนำ</button>
-                    <!-- <button @click="scrollTo('news')"
-                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ข่าวสารและกิจกรรม</button> -->
-                    <button @click="scrollTo('rewards')"
-                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ของรางวัล</button>
                     <button @click="scrollTo('leaderboard')"
                         class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">กระดานผู้นำ</button>
-                    <a href="/login"
-                        class="bg-white border-2 border-green-600 text-green-600 hover:bg-green-50 hover:cursor-pointer hover:scale-105 active:scale-98 px-6 py-2 rounded-full font-semibold transition-all">
-                        เข้าสู่ระบบ
-                    </a>
+                    <button @click="scrollTo('waste-types')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ขยะที่เปิดรับ</button>
+                    <button @click="scrollTo('rewards')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">ของรางวัล</button>
+                    <button @click=" scrollTo('video-guide')"
+                        class="text-gray-600 hover:text-green-600 font-medium transition-colors cursor-pointer">วิดีโอแนะนำ</button>
+                    <?php if (!$isLogin): ?>
+                        <button onclick="window.location.href='/login'"
+                            class=" bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าสู่ระบบ</button>
+                    <?php else: ?>
+                        <button onclick="window.location.href='/login'"
+                            class=" bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าใช้งาน</button>
+                    <?php endif; ?>
                 </div>
 
                 <div class="md:hidden flex items-center">
@@ -40,18 +43,25 @@
             class="md:hidden bg-white border-b border-gray-100 px-4 pt-2 pb-6 space-y-3 shadow-lg absolute w-full">
             <button @click="scrollTo('about')"
                 class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">รู้จักโครงการ</button>
-            <button @click="scrollTo('video-guide')"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">วิดีโอแนะนำ</button>
-            <!-- <button @click="scrollTo('how-it-works')"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">การทำงาน</button> -->
-            <button @click="scrollTo('rewards')"
-                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</button>
             <button @click="scrollTo('leaderboard')"
                 class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">กระดานผู้นำ</button>
-            <div class="pt-2">
-                <button onclick="window.location.href='/login'"
-                    class="w-full bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าสู่ระบบ</button>
-            </div>
+            <button @click="scrollTo('waste-types')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ขยะที่เปิดรับ</button>
+            <button @click="scrollTo('rewards')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">ของรางวัล</button>
+            <button @click="scrollTo('video-guide')"
+                class="block w-full text-left px-4 py-2 text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-lg">วิดีโอแนะนำ</button>
+            <?php if (!$isLogin): ?>
+                <div class="pt-2">
+                    <button onclick="window.location.href='/login'"
+                        class="w-full bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าสู่ระบบ</button>
+                </div>
+            <?php else: ?>
+                <div class="pt-2">
+                    <button onclick="window.location.href='/login'"
+                        class="w-full bg-green-600 text-white px-4 py-3 rounded-xl font-semibold cursor-pointer hover:scale-105 active:scale-98 hover:bg-green-700 active:bg-green-700">เข้าใช้งาน</button>
+                </div>
+            <?php endif; ?>
         </div>
     </nav>
 
@@ -83,14 +93,21 @@
                 และร่วมสร้างสังคมคาร์บอนต่ำ พร้อมเก็บชั่วโมงจิตอาสา
             </p>
             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <button onclick="window.location.href = '/login'"
-                    class="px-8 py-4 bg-white hover:bg-gray-50 hover:cursor-pointer text-gray-700 border border-gray-200 rounded-xl font-bold text-lg shadow-sm transition-all hover:scale-105 active:scale-98">
-                    เข้าสู่ระบบ
-                </button>
-                <button onclick="window.location.href = '/register'"
-                    class="px-8 py-4 bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white rounded-xl font-bold text-lg shadow-lg shadow-green-600/30 transition-all hover:scale-105 active:scale-98 flex items-center justify-center gap-2">
-                    สมัครสมาชิกเลย <i data-lucide="arrow-right" class="w-5 h-5"></i>
-                </button>
+                <?php if (!$isLogin): ?>
+                    <button onclick="window.location.href = '/login'"
+                        class="px-8 py-4 bg-white hover:bg-gray-50 hover:cursor-pointer text-gray-700 border border-gray-200 rounded-xl font-bold text-lg shadow-sm transition-all hover:scale-105 active:scale-98">
+                        เข้าสู่ระบบ
+                    </button>
+                    <button onclick="window.location.href = '/register'"
+                        class="px-8 py-4 bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white rounded-xl font-bold text-lg shadow-lg shadow-green-600/30 transition-all hover:scale-105 active:scale-98 flex items-center justify-center gap-2">
+                        สมัครสมาชิก <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                <?php else: ?>
+                    <button onclick="window.location.href = '/login'"
+                        class="px-8 py-4 bg-green-600 hover:bg-green-700 hover:cursor-pointer text-white rounded-xl font-bold text-lg shadow-lg shadow-green-600/30 transition-all hover:scale-105 active:scale-98 flex items-center justify-center gap-2">
+                        เข้าใช้งาน
+                    </button>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -366,15 +383,19 @@
                         class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col">
                         <div class="flex justify-between items-center text-sm mb-4">
                             <h3 class="font-bold text-lg text-gray-800"
-                                x-text="category.waste_category_name || 'อื่น ๆ'"></h3>
+                                x-text="category.waste_category_name || 'อื่น ๆ'">
+                            </h3>
                             <span>แต้ม/กิโล</span>
                         </div>
                         <ul class="space-y-4 flex-grow">
                             <template x-for="wasteType in category.waste_types" :key="wasteType.waste_type_id">
                                 <li class="flex justify-between items-center text-sm">
                                     <div class="flex gap-1 items-center">
-                                        <div class="w-2 h-2 rounded-full" :class="wasteType.waste_type_active == 1 ? 'bg-green-300':'bg-gray-200'"></div>
-                                        <span class="text-gray-600 font-normal" x-text="wasteType.waste_type_name"></span>
+                                        <div class="w-2 h-2 rounded-full"
+                                            :class="wasteType.waste_type_active == 1 ? 'bg-green-300':'bg-gray-200'">
+                                        </div>
+                                        <span class="text-gray-600 font-normal"
+                                            x-text="wasteType.waste_type_name"></span>
                                     </div>
                                     <span class="font-semibold text-sky-600"
                                         x-text="`${parseInt(wasteType.waste_type_price * 10).toLocaleString()} แต้ม`"></span>
@@ -399,151 +420,6 @@
             </button>
         </div>
     </section>
-    <!-- <section id="how-it-works"
-        class="scroll-mt-20 bg-gray-50 min-h-[calc(100vh-5rem)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-8 md:mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">เปลี่ยนพฤติกรรม เป็นรางวัลได้อย่างไร?</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto text-lg">
-                    โมเดลการทำงานที่ออกแบบมาเพื่อให้นักศึกษาและบุคลากรมีส่วนร่วมได้ง่ายๆ
-                    ผ่านแนวคิด Activity-based Volunteer Credit
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-4 gap-8 relative">
-                <div
-                    class="hidden md:block absolute top-1/2 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-green-100 via-green-300 to-green-100 z-10 transform -translate-y-1/2 border-dashed border-t-2">
-                </div>
-
-                <div
-                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
-                    <div
-                        class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
-                        1</div>
-                    <h3 class="text-xl font-bold text-center mb-3">คัดแยกขยะ</h3>
-                    <p class="text-gray-500 text-center text-sm">นักศึกษาคัดแยกขยะตามประเภท (พลาสติก, กระดาษ,
-                        แก้ว,
-                        โลหะ)</p>
-                </div>
-
-                <div
-                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
-                    <div
-                        class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
-                        2</div>
-                    <h3 class="text-xl font-bold text-center mb-3">ฝากที่จุดรับ</h3>
-                    <p class="text-gray-500 text-center text-sm">นำขยะมาฝากที่จุดรับของคณะ
-                        เจ้าหน้าที่ชั่งน้ำหนักและบันทึก</p>
-                </div>
-
-                <div
-                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
-                    <div
-                        class="w-16 h-16 bg-yellow-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
-                        3</div>
-                    <h3 class="text-xl font-bold text-center mb-3">รับแต้ม & แบดจ์</h3>
-                    <p class="text-gray-500 text-center text-sm">ระบบคำนวณแต้มขยะอัตโนมัติ
-                        พร้อมสะสมค่าประสบการณ์
-                        (Level)</p>
-                </div>
-
-                <div
-                    class="z-15 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition-shadow group">
-                    <div
-                        class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mb-6 text-2xl font-bold mx-auto group-hover:scale-110 transition-transform">
-                        4</div>
-                    <h3 class="text-xl font-bold text-center mb-3">แลกรางวัล / กยศ.</h3>
-                    <p class="text-gray-500 text-center text-sm">ใช้แต้มแลกของจากศูนย์ใหญ่
-                        หรือใช้เป็นหลักฐานปลดล็อกชั่วโมงจิตอาสา</p>
-                </div>
-            </div>
-
-            <div
-                class="mt-8 md:mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-100 flex flex-col md:flex-row items-center gap-8">
-                <div class="bg-white p-4 rounded-full shadow-sm">
-                    <i data-lucide="clock" class="w-12 h-12 text-blue-500"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-2">โมเดลเก็บชั่วโมง กยศ. รูปแบบใหม่</h3>
-                    <p class="text-gray-600">
-                        แต้มจากธนาคารขยะ ทำหน้าที่เป็น <span
-                            class="font-semibold text-blue-600">"ตัวกรองความตั้งใจ"</span> เมื่อสะสมแต้มถึงเกณฑ์
-                        จะสามารถปลดล็อกสิทธิ์เข้าร่วมกิจกรรมจิตอาสาจริงของศูนย์ใหญ่หรือคณะได้
-                        ชั่วโมงเกิดจากการลงมือทำจริง ไม่ใช่การนำขยะมาซื้อชั่วโมง
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section> -->
-
-    <!-- <section class="scroll-mt-20 py-6 md:py-12 bg-gray-900 text-white relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-            <div
-                class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob">
-            </div>
-            <div
-                class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000">
-            </div>
-            <div
-                class="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000">
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center justify-center p-3 bg-gray-800 rounded-full mb-4">
-                    <i data-lucide="shield-check" class="w-8 h-8 text-yellow-400"></i>
-                </div>
-                <h2 class="text-3xl font-bold mb-4">สนุกไปกับการรักษ์โลก (Gamification)</h2>
-                <p class="text-gray-400 max-w-2xl mx-auto text-lg">
-                    สะสมแต้ม เลื่อนระดับ และปลดล็อกเหรียญตราเกียรติยศ เพื่อเป็นผู้นำด้านสิ่งแวดล้อม
-                </p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div
-                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
-                    <div
-                        class="w-20 h-20 mx-auto bg-green-900/50 rounded-full flex items-center justify-center border-4 border-green-500 mb-4 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-                        <span class="text-4xl">♻️</span>
-                    </div>
-                    <h4 class="font-bold text-lg text-white mb-1">พลาสติกมาสเตอร์</h4>
-                    <p class="text-xs text-green-400 font-medium">Recycling Badge</p>
-                    <p class="text-xs text-gray-400 mt-2">รีไซเคิลพลาสติกครบ 50 กก.</p>
-                </div>
-                <div
-                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
-                    <div
-                        class="w-20 h-20 mx-auto bg-emerald-900/50 rounded-full flex items-center justify-center border-4 border-emerald-500 mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                        <span class="text-4xl">🌱</span>
-                    </div>
-                    <h4 class="font-bold text-lg text-white mb-1">ผู้พิทักษ์สีเขียว</h4>
-                    <p class="text-xs text-emerald-400 font-medium">Green Impact</p>
-                    <p class="text-xs text-gray-400 mt-2">ลดคาร์บอนครบ 100 kgCO₂e</p>
-                </div>
-                <div
-                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
-                    <div
-                        class="w-20 h-20 mx-auto bg-blue-900/50 rounded-full flex items-center justify-center border-4 border-blue-500 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
-                        <span class="text-4xl">🤝</span>
-                    </div>
-                    <h4 class="font-bold text-lg text-white mb-1">จิตอาสาดีเด่น</h4>
-                    <p class="text-xs text-blue-400 font-medium">Community Badge</p>
-                    <p class="text-xs text-gray-400 mt-2">เข้าร่วมกิจกรรม 5 ครั้ง</p>
-                </div>
-                <div
-                    class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 p-6 rounded-2xl text-center hover:bg-gray-800 transition-colors">
-                    <div
-                        class="w-20 h-20 mx-auto bg-yellow-900/50 rounded-full flex items-center justify-center border-4 border-yellow-500 mb-4 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-                        <span class="text-4xl">⭐</span>
-                    </div>
-                    <h4 class="font-bold text-lg text-white mb-1">ฮีโร่เลเวล 10</h4>
-                    <p class="text-xs text-yellow-400 font-medium">Achievement</p>
-                    <p class="text-xs text-gray-400 mt-2">แต้มสะสมรวม 10,000 แต้ม</p>
-                </div>
-            </div>
-        </div>
-    </section> -->
 
     <section id="rewards"
         class="bg-white min-h-[calc(80vh)] scroll-mt-20 bg-gray-50 py-6 md:py-12 flex flex-col justify-center">
