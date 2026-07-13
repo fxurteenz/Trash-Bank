@@ -63,8 +63,14 @@ class FacultyModel
                     case 'major':
                         $orderBySql = " ORDER BY major_count_total " . $sortDirection;
                         break;
-                    case 'member':
-                        $orderBySql = " ORDER BY total_member " . $sortDirection;
+                    case 'member': // student
+                        $orderBySql = " ORDER BY user_count " . $sortDirection;
+                        break;
+                    case 'professor':
+                        $orderBySql = " ORDER BY professor_count " . $sortDirection;
+                        break;
+                    case 'employee':
+                        $orderBySql = " ORDER BY employee_count " . $sortDirection;
                         break;
                 }
             }

@@ -60,21 +60,53 @@ class MajorModel
 
             $whereSql = !empty($whereClauses) ? " WHERE " . implode(" AND ", $whereClauses) : "";
 
+            $sortDirection = 'DESC';
+            if (isset($query['order']) && strtoupper($query['order']) === 'ASC') {
+                $sortDirection = 'ASC';
+            }
+
+            $orderBySql = " ORDER BY major_member_total " . $sortDirection;
+
+            if (!empty($query['sort_by'])) {
+                switch ($query['sort_by']) {
+                    case 'name':
+                        $orderBySql = " ORDER BY m.major_name " . $sortDirection;
+                        break;
+                    case 'member':
+                        $orderBySql = " ORDER BY student_count " . $sortDirection;
+                        break;
+                    case 'professor':
+                        $orderBySql = " ORDER BY professor_count " . $sortDirection;
+                        break;
+                    case 'employee':
+                        $orderBySql = " ORDER BY employee_count " . $sortDirection;
+                        break;
+                }
+            }
+
             $sql = "SELECT 
                         m.*,
-                        COALESCE(member_count.total_member, 0) AS major_member_total
+                        f.faculty_name,
+                        COALESCE(member_count.total_member, 0) AS major_member_total,
+                        COALESCE(member_count.student_count, 0) AS student_count,
+                        COALESCE(member_count.professor_count, 0) AS professor_count,
+                        COALESCE(member_count.employee_count, 0) AS employee_count
                     FROM 
                         major m
+                    LEFT JOIN faculty f ON m.faculty_id = f.faculty_id
                     LEFT JOIN (
                         SELECT 
                             major_id, 
-                            COUNT(member_id) AS total_member
+                            COUNT(member_id) AS total_member,
+                            SUM(CASE WHEN role_id = 1 THEN 1 ELSE 0 END) as student_count,
+                            SUM(CASE WHEN role_id = 2 THEN 1 ELSE 0 END) as professor_count,
+                            SUM(CASE WHEN role_id = 3 THEN 1 ELSE 0 END) as employee_count
                         FROM 
                             member
                         GROUP BY 
                             major_id
                     ) AS member_count ON m.major_id = member_count.major_id
-                    {$whereSql}";
+                    {$whereSql} {$orderBySql}";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
 

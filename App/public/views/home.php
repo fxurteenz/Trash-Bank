@@ -365,6 +365,105 @@
         </div>
     </section>
 
+    <section id="member-stats" class="py-12 bg-gray-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-4">
+                    <i data-lucide="bar-chart-3" class="w-8 h-8 text-blue-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    สถิติการเข้าร่วม
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto text-lg mb-8">
+                    ภาพรวมจำนวนสมาชิกที่เข้าร่วมโครงการธนาคารขยะในแต่ละคณะและสาขา
+                </p>
+            </div>
+
+            <div class="flex justify-center mb-8">
+                <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
+                    <button @click="setMemberLeaderboardType('faculty')"
+                        :class="memberLeaderboardType === 'faculty' ? 'bg-white shadow text-blue-700 font-medium' : 'text-gray-500 hover:text-blue-700'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="building-2" class="w-4 h-4"></i>
+                        อันดับคณะ
+                    </button>
+                    <button @click="setMemberLeaderboardType('major')"
+                        :class="memberLeaderboardType === 'major' ? 'bg-white shadow text-blue-700 font-medium' : 'text-gray-500 hover:text-blue-700'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="school" class="w-4 h-4"></i>
+                        อันดับสาขา
+                    </button>
+                </div>
+            </div>
+            <div class="flex justify-center mb-8">
+                <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
+                    <button @click="setMemberSortType('member')"
+                        :class="memberSortType === 'member' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        นักศึกษา
+                    </button>
+                    <button @click="setMemberSortType('professor')"
+                        :class="memberSortType === 'professor' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        อาจารย์
+                    </button>
+                    <button @click="setMemberSortType('employee')"
+                        :class="memberSortType === 'employee' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        บุคลากร
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50">
+                        <tr>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase w-5 tracking-wider">อันดับ
+                            </th>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider"
+                                x-text="memberLeaderboardType === 'faculty' ? 'คณะ' : 'สาขา'"></th>
+                            <th class="px-6 py-4 text-gray-600 font-bold text-sm uppercase tracking-wider text-end"
+                                x-text="getMemberSortLabel()"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <template x-for="item in activeMemberLeaderboard" :key="item.rank">
+                            <tr class="hover:bg-blue-50/50 transition-colors group">
+                                <td class="px-6 py-4 text-center">
+                                    <span class="text-gray-400 font-bold text-lg w-6 text-center font-mono"
+                                        x-text="item.rank"></span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
+                                            x-text="item.name"></h4>
+                                        <template x-if="memberLeaderboardType === 'major'">
+                                            <p class="text-xs text-gray-500 mt-0.5" x-text="item.faculty_name"></p>
+                                        </template>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-end">
+                                    <div class="text-lg font-black text-blue-600" x-text="item.count"></div>
+                                </td>
+                            </tr>
+                        </template>
+                        <template x-if="!activeMemberLeaderboard || activeMemberLeaderboard.length === 0">
+                            <tr>
+                                <td colspan="3" class="text-center py-10 text-gray-500">
+                                    ไม่พบข้อมูล
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
     <section id="waste-types"
         class="bg-white min-h-[calc(80vh)] scroll-mt-20 bg-gray-50 py-6 md:py-12 flex flex-col justify-center">
         <div class=" mx-auto px-4 sm:px-6 lg:px-8">
@@ -549,14 +648,18 @@
             facultyLeaderboard: [],
             majorLeaderboard: [],
             memberLeaderboard: [],
-            leaderboardType: 'faculty',
             sortType: 'point',
+            memberLeaderboardType: 'faculty', // or 'major'
+            memberSortType: 'member', // or 'professor', 'employee'
+            facultyMemberLeaderboard: [],
+            majorMemberLeaderboard: [],
 
             init() {
                 this.fetchStats();
                 this.fetchWasteGroups();
                 this.fetchRewards();
                 this.fetchAllLeaderboards();
+                this.fetchMemberLeaderboards();
             },
 
             async fetchStats() {
@@ -711,6 +814,84 @@
                     console.error('Error fetching leaderboard:', error);
                 }
             },
+
+            get activeMemberLeaderboard() {
+                if (this.memberLeaderboardType === 'faculty') return this.facultyMemberLeaderboard;
+                return this.majorMemberLeaderboard;
+            },
+
+            setMemberLeaderboardType(type) {
+                this.memberLeaderboardType = type;
+                this.$nextTick(() => {
+                    if (window.lucide) {
+                        lucide.createIcons();
+                    }
+                });
+            },
+
+            setMemberSortType(type) {
+                this.memberSortType = type;
+                this.fetchMemberLeaderboards();
+                this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
+            },
+
+            async fetchMemberLeaderboards() {
+                try {
+                    const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberSortType}&limit=5`);
+                    const facultyResult = await facultyResponse.json();
+                    if (facultyResult.success && facultyResult.data) {
+                        this.facultyMemberLeaderboard = facultyResult.data.map((item, index) => ({
+                            rank: index + 1,
+                            name: `คณะ ${item.faculty_name}`,
+                            count: this.getMemberSortValue(item, 'faculty'),
+                        }));
+                    }
+
+                    const majorResponse = await fetch(`/api/majors?sort_by=${this.memberSortType}&limit=5`);
+                    const majorResult = await majorResponse.json();
+                    if (majorResult.success && majorResult.result) {
+                        this.majorMemberLeaderboard = majorResult.result.map((item, index) => ({
+                            rank: index + 1,
+                            name: item.major_name,
+                            faculty_name: `คณะ ${item.faculty_name}`,
+                            count: this.getMemberSortValue(item, 'major'),
+                        }));
+                    }
+
+                    setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
+                } catch (error) {
+                    console.error('Error fetching member leaderboard:', error);
+                }
+            },
+
+            getMemberSortValue(item, type) {
+                if (!item) return '0';
+                let count = 0;
+                switch (this.memberSortType) {
+                    case 'member':
+                        count = (type === 'faculty') ? (item.user_count ?? 0) : (item.student_count ?? 0);
+                        break;
+                    case 'professor':
+                        count = item.professor_count ?? 0;
+                        break;
+                    case 'employee':
+                        count = item.employee_count ?? 0;
+                        break;
+                }
+                return parseInt(count).toLocaleString();
+            },
+
+            getMemberSortLabel() {
+                switch (this.memberSortType) {
+                    case 'member':
+                        return 'นักศึกษา (คน)';
+                    case 'professor':
+                        return 'อาจารย์ (คน)';
+                    case 'employee':
+                        return 'บุคลากร (คน)';
+                }
+                return 'จำนวน (คน)';
+            }
 
         }))
     })
