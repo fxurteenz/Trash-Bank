@@ -37,6 +37,7 @@
         h5,
         h6,
         button,
+        span,
         a {
             font-family: "Noto Sans Thai", sans-serif;
             font-optical-sizing: auto;

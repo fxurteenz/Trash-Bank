@@ -26,73 +26,67 @@
 
         <!-- แผ่นกระจกใส (Glassmorphism Overlay) ตรงกลางบัตร -->
         <div
-            class="absolute inset-[15px] sm:inset-[20px] backdrop-blur border border-gray-100 border-1 rounded-2xl p-4 sm:p-5 flex flex-col justify-between ">
-
-            <div class="flex flex-col h-full">
-
-                <!-- ด้านซ้าย: ข้อมูลสมาชิก และ หมายเลขบัตร -->
-                <div class="flex-1 flex flex-col justify-between">
-
+            class="bg-white/50 absolute inset-[15px] sm:inset-[20px] backdrop-blur border border-gray-100 border-1 rounded-2xl p-4 sm:p-5 flex flex-col justify-between ">
+            <div class="h-full flex flex-col justify-between">
+                <div class="flex-auto flex justify-between text-xs">
                     <div>
-                        <div class="text-sm font-bold text-gray-800">
+                        <div class="text-gray-800">
                             <span x-text="profile?.member_name || '...'"></span>
                         </div>
-
-                    </div>
-
-                    <div
-                        class="w-12 h-9 sm:w-14 sm:h-10 rounded-md bg-gradient-to-br from-[#fbe396] to-[#d6aa32] border border-yellow-600/50 shadow-inner relative overflow-hidden flex flex-wrap opacity-90">
-                        <div class="absolute w-full h-[1px] bg-yellow-700/40 top-[30%]"></div>
-                        <div class="absolute w-full h-[1px] bg-yellow-700/40 bottom-[30%]"></div>
-                        <div class="absolute w-[1px] h-full bg-yellow-700/40 left-[30%]"></div>
-                        <div class="absolute w-[1px] h-full bg-yellow-700/40 right-[30%]"></div>
-                    </div>
-
-                    <!-- หมายเลขบัตร และ วันหมดอายุ -->
-                    <div class="flex flex-row items-end justify-between w-full">
-                        <div class=" text-xl font-bold tracking-widest text-gray-900 drop-shadow-sm "
-                            x-text="profile?.member_personal_id || 'xxx-xxxxxx-xxx'">
+                        <div class="text-gray-900 " x-text="profile?.member_personal_id || 'xxx-xxxxxx-xxx'">
                         </div>
-                        <div class="flex items-center gap-1 text-[10px] sm:text-xs font-bold leading-tight">
+                    </div>
 
+                    <div class="flex gap-1 mt-3">
+                        <span class="text-7xl text-gray-700 font-bold"
+                            x-text="`${parseInt(showTotalPoints ? (profile?.member_total_waste_point || 0) : (profile?.member_waste_point || 0)).toLocaleString()}`">
+                        </span>
+
+                        <div class="flex flex-col mt-1">
+                            <span class="text-2xl text-gray-700">
+                                แต้มขยะ
+                            </span>
+                            <span class="text-xs text-gray-600 text-end"
+                                x-text="showTotalPoints ? '(สะสม)' : '(คงเหลือ)'">
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- ด้านขวา: แสดงแต้มต่างๆ (เน้นแต้มขยะ) -->
-                <div class="w-full flex justify-between">
-
-                    <!-- กล่องแต้มขยะสะสม (เน้นพิเศษ) -->
-                    <div class=" p-2 rounded-xl flex flex-row items-center justify-between">
-
-                        <div class="flex flex-col text-right text-gray-900">
-                            <div class="text-xs font-bold">แต้มขยะคงเหลือ</div>
-                            <div class="text-lg font-black leading-none tracking-tight py-1"
-                                x-text="Number(profile?.member_waste_point || 0).toLocaleString()">0000</div>
-                        </div>
+                <div class="flex justify-between">
+                    <div class="flex items-end gap-1">
+                        <img src="/assets/images/bru_logo-227x300.png" class="h-5" alt="">
+                        <img src="/assets/images/bru_gogreen_logo.png" class="h-5" alt="">
+                        <img src="/assets/images/waste_bankFullLogo.png" class="h-5" alt="">
                     </div>
+                    <template x-if="profile?.role_name == 'member' || profile?.role_name == 'lecturer/professor'">
+                        <div class="flex flex-col items-end">
+                            <span
+                                class="text-[8px] text-gray-500 px-1 py-0.5 bg-emerald-500/70 rounded-2xl">นักศึกษา</span>
+                            <template x-if="profile?.faculty_name">
+                                <span class="text-[8px] text-gray-500" x-text="`คณะ ${profile?.faculty_name}`"></span>
+                            </template>
+                            <template x-if="!profile?.faculty_name">
+                                <div class="flex gap-[2px] items-center">
+                                    <a class="text-[8px] text-gray-400 cursor-pointer"
+                                        href="/user/profile">ยังไม่ระบุคณะ</a>
+                                    <i data-lucide="pen-line" class="h-[8px] w-[8px] text-gray-400"></i>
+                                </div>
+                            </template>
 
-                    <!-- กล่องแต้มความดี -->
-                    <div class="p-2 rounded-xl flex flex-row items-center justify-between">
-                        <div class="text-right">
-                            <div class="text-xs font-extrabold text-gray-700">แต้มความดี</div>
-                            <div class="flex items-baseline justify-end gap-1">
-                                <span class="text-lg font-black text-gray-900"
-                                    x-text="Number(profile?.member_goodness_point || 0).toLocaleString()">310</span>
-                            </div>
-                        </div>
-                    </div>
+                            <template x-if="profile?.major_name">
+                                <span class="text-[8px] text-gray-500" x-text="`สาขา ${profile?.major_name}`"></span>
+                            </template>
 
-                    <!-- กล่องแต้มมิตรภาพ (สังคม) -->
-                    <div class="p-2 px-3 rounded-xl flex flex-row items-center justify-between">
-                        <div class="text-right">
-                            <div class="text-[11px] font-extrabold text-gray-700">แต้มมิตรภาพ</div>
-                            <div class="flex items-baseline justify-end gap-1">
-                                <span class="text-lg sm:text-xl font-black text-gray-900"
-                                    x-text="Number(profile?.member_social_point || 0).toLocaleString()">0</span>
-                            </div>
+                            <template x-if="!profile?.major_name">
+                                <div class="flex gap-[2px] items-center">
+                                    <a class="text-[8px] text-gray-400 cursor-pointer"
+                                        href="/user/profile">ยังไม่ระบุสาขา </a>
+                                    <i data-lucide="pen-line" class="h-[8px] w-[8px] text-gray-400"></i>
+                                </div>
+                            </template>
                         </div>
-                    </div>
+                    </template>
 
                 </div>
 
@@ -300,6 +294,7 @@
 
             async init() {
                 try {
+
                     const memberId = <?php echo (int) $user->member_id; ?>
 
                     if (!memberId) {
@@ -402,6 +397,8 @@
                 } catch (error) {
                     console.error('Failed to load dashboard data:', error);
                 } finally {
+                    lucide.createIcons();
+
                     this.isLoading = false;
                 }
             }
