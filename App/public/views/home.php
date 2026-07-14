@@ -112,7 +112,19 @@
         </div>
 
         <div class="max-w-2xl lg:max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-8 md:mt-12 relative z-10">
-            <div
+            <div x-show="statsLoading"
+                class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 grid grid-cols-2 lg:grid-cols-4 gap-8 border border-gray-100">
+                <template x-for="(stat, index) in stats" :key="index">
+                    <div :class="{'md:pt-0': index !== 0}" class="flex flex-col items-center text-center">
+                        <div class="bg-gray-50 p-4 rounded-2xl mb-4" :class="stat.iconColor">
+                            <i :data-lucide="stat.icon" class="w-8 h-8"></i>
+                        </div>
+                        <div class="w-full bg-gray-200 mb-1 h-10 animate-pulse rounded-2xl"></div>
+                        <p class="text-sm text-gray-500 font-medium" x-text="stat.label"></p>
+                    </div>
+                </template>
+            </div>
+            <div x-show="!statsLoading" x-cloak
                 class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 grid grid-cols-2 lg:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-100 border border-gray-100">
                 <template x-for="(stat, index) in stats" :key="index">
                     <div :class="{'md:pt-0': index !== 0}" class="flex flex-col items-center text-center">
@@ -127,7 +139,7 @@
         </div>
     </section>
 
-    <section id="leaderboard" class="py-12 bg-white">
+    <section id="leaderboard" class="py-12 bg-white scroll-mt-20">
         <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
@@ -183,13 +195,56 @@
                 </div>
             </div>
 
+            <div x-show="leaderboardLoading"
+                class="animate-pulse flex flex-col md:flex-row justify-center items-end gap-3 md:gap-6 mb-8 md:mb-16 px-4 md:px-12 mt-18 md:mt-24">
+                <!-- 2nd place skeleton -->
+                <div class="w-full md:w-1/3 order-2 md:order-1 relative mt-16 md:mt-0 space-y-2">
+                    <div class="absolute -top-12 left-1/2 -translate-x-1/2 z-20">
+                        <div class="w-24 h-24 rounded-full bg-gray-200"></div>
+                    </div>
+                    <div
+                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-15 pb-6 h-44 flex flex-col justify-center items-center">
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-10 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-2/5 bg-gray-300 my-1 rounded-xl h-12 animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- 1st place skeleton -->
+                <div class="w-full md:w-1/3 order-1 md:order-2 relative mt-16 md:mt-0 space-y-2">
+                    <div class="absolute -top-25 md:-top-30 lg:-top-35 left-1/2 -translate-x-1/2 z-20">
+                        <div class="w-32 h-32 rounded-full bg-gray-200"></div>
+                    </div>
+                    <div
+                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-15 pb-6 h-44 flex flex-col justify-center items-center">
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-10 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-2/5 bg-gray-300 my-1 rounded-xl h-12 animate-pulse"></div>
+                    </div>
+                </div>
+                <!-- 3rd place skeleton -->
+                <div class="w-full md:w-1/3 order-3 relative mt-16 md:mt-0 space-y-2">
+                    <div class="absolute -top-6 lg:-top-10 left-1/2 -translate-x-1/2 z-20">
+                        <div class="w-20 h-20 rounded-full bg-gray-200"></div>
+                    </div>
+                    <div
+                        class="bg-white rounded-2xl shadow-lg border border-gray-100 pt-15 pb-6 h-44 flex flex-col justify-center items-center">
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-10 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-3/5 bg-gray-300 my-1 rounded-xl h-8 animate-pulse"></div>
+                        <div class="w-2/5 bg-gray-300 my-1 rounded-xl h-12 animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex flex-col md:flex-row justify-center items-end gap-3 md:gap-6 mb-8 md:mb-16 px-4 md:px-12 mt-18 md:mt-24"
-                x-show="activeLeaderboard?.length >= 3">
+                x-show="!leaderboardLoading && activeLeaderboard?.length >= 3" x-cloak>
                 <div class="w-full md:w-1/3 order-2 md:order-1 relative group mt-16 md:mt-0">
                     <div class="absolute -top-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
                         <div class="relative">
                             <div
-                                class="w-25 h-25 md:w-22 md:h-22 md:w-24 md:h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
+                                class="w-25 h-25 md:w-24 md:h-24 rounded-full border-4 border-white shadow-lg bg-gray-800 flex items-center justify-center overflow-hidden">
                                 <template x-if="leaderboardType === 'member'">
                                     <span class="text-4xl font-bold text-blue-300"
                                         x-text="getFirstThaiChar(activeLeaderboard[1]?.name) || ''"></span>
@@ -245,12 +300,11 @@
                 </div>
 
                 <div class="w-full md:w-1/3 order-1 md:order-2 relative group mt-16 md:mt-0">
-                    <div
-                        class="absolute -top-25 md:-top-30 lg:-top-35 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                    <div class="absolute -top-30 lg:-top-35 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
                         <i data-lucide="crown" class="w-8 h-8 text-yellow-500 mb-1 drop-shadow-md animate-bounce "></i>
                         <div class="relative">
                             <div
-                                class="w-25 h-25 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-full border-4 border-yellow-400 shadow-xl bg-gray-900 flex items-center justify-center overflow-hidden ring-4 ring-white">
+                                class="w-30 h-30 md:w-24 md:h-24 lg:w-32 lg:h-32 rounded-full border-4 border-yellow-400 shadow-xl bg-gray-900 flex items-center justify-center overflow-hidden ring-4 ring-white">
                                 <template x-if="leaderboardType === 'member'">
                                     <span class="text-5xl font-bold text-yellow-400"
                                         x-text="getFirstThaiChar(activeLeaderboard[0]?.name) || '?'"></span>
@@ -370,8 +424,22 @@
                 </div>
             </div>
 
+            <div x-show="leaderboardLoading"
+                class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                <div class="animate-pulse p-4">
+                    <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
+                    <div class="space-y-2">
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto"
-                x-show="activeLeaderboard?.length > 3">
+                x-show="!leaderboardLoading && activeLeaderboard?.length > 3" x-cloak>
                 <table class="w-full text-left">
                     <thead class="bg-gray-50/50">
                         <tr>
@@ -387,11 +455,11 @@
                     <tbody class="divide-y divide-gray-100">
                         <template x-for="(item, index) in activeLeaderboard?.slice(3)" :key="item.rank">
                             <tr class="hover:bg-blue-50/50 transition-colors group">
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-4 py-4 text-center">
                                     <span class="text-gray-400 font-bold text-md w-6 text-center font-mono"
                                         x-text="item.rank"></span>
                                 </td>
-                                <td class="px-6 py-4">
+                                <td class="px-4 py-4">
                                     <div>
                                         <h4 class="font-bold text-gray-900 text-sm md:text-base group-hover:text-blue-700 transition-colors"
                                             x-text="item.name"></h4>
@@ -439,7 +507,7 @@
         </div>
     </section>
 
-    <section id="member-stats" class="py-12 bg-white">
+    <section id="member-stats" class="scroll-mt-20 py-12 bg-white">
         <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
@@ -487,7 +555,21 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+            <div x-show="memberLeaderboardLoading"
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+                <div class="animate-pulse p-4">
+                    <div class="h-12 bg-gray-200 rounded mb-4 w-full"></div>
+                    <div class="space-y-2">
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                        <div class="h-12 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+            <div x-show="!memberLeaderboardLoading" x-cloak
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50/50">
                         <tr>
@@ -562,7 +644,7 @@
         </div>
     </section>
 
-    <section id="waste-types" class="bg-white py-12">
+    <section id="waste-types" class="scroll-mt-20 bg-white py-12">
         <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 md:mb-12">
                 <div class="inline-flex items-center justify-center p-3 bg-green-100 rounded-full mb-4">
@@ -573,7 +655,19 @@
                     ประเภทและราคาของขยะที่โครงการรับซื้อ ณ ปัจจุบัน
                 </p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div x-show="wasteLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="i in 3" :key="i">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse h-48">
+                        <div class="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+                        <div class="space-y-3">
+                            <div class="h-4 bg-gray-200 rounded"></div>
+                            <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                            <div class="h-4 bg-gray-200 rounded w-4/6"></div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div x-show="!wasteLoading" x-cloak class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="(category, index) in wasteCategories" :key="category.waste_category_id">
                     <div x-show="isWasteTableExpanded || (isLgScreen ? index < 3 : index < 2)"
                         class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col">
@@ -617,7 +711,7 @@
         </div>
     </section>
 
-    <section id="rewards" class="min-h-[calc(80vh)] bg-white py-12">
+    <section id="rewards" class="scroll-mt-20 min-h-[calc(80vh)] bg-white py-12">
         <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 md:mb-12">
                 <div class="inline-flex items-center justify-center p-3 bg-sky-200 rounded-full mb-4">
@@ -629,7 +723,17 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div x-show="rewardsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="i in 6" :key="i">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col animate-pulse">
+                        <div class="w-full h-40 bg-gray-200 rounded-2xl mb-6"></div>
+                        <div class="h-6 bg-gray-200 rounded w-3/4 mb-auto"></div>
+                        <div class="h-8 bg-gray-200 rounded w-1/2 mt-4"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="!rewardsLoading" x-cloak class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="(reward, index) in rewards" :key="reward.donation_item_id">
                     <div x-show="isRewardTableExpanded || (isLgScreen ? index < 6 : index < 4)"
                         class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group flex flex-col">
@@ -679,8 +783,7 @@
         </div>
     </section>
 
-    <section id="video-guide"
-        class="scroll-mt-20 bg-white min-h-[calc(80vh)] overflow-hidden flex flex-col justify-center py-6 md:py-12">
+    <section id="video-guide" class="scroll-mt-20 bg-white overflow-hidden flex flex-col justify-center py-6 md:py-12">
         <div class="max-w-2xl lg:max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-8 md:mb-12">
                 <div class="inline-flex items-center justify-center p-3 bg-red-100 rounded-full mb-4">
@@ -746,19 +849,24 @@
                 { label: 'อาจารย์/บุคลากร', value: '0', icon: 'id-card-lanyard', iconColor: 'text-green-500' },
                 { label: 'แต้มที่แจกจ่ายแล้ว', value: '0', icon: 'award', iconColor: 'text-yellow-500' },
             ],
+            statsLoading: true,
             wasteCategories: [],
+            wasteLoading: true,
             isWasteTableExpanded: false,
             isRewardTableExpanded: false,
             rewards: [],
+            rewardsLoading: true,
             leaderboardType: 'faculty',
             facultyLeaderboard: [],
             majorLeaderboard: [],
             memberLeaderboard: [],
+            leaderboardLoading: true,
             sortType: 'point',
             memberLeaderboardType: 'faculty', // or 'major'
             memberSortType: 'member', // or 'professor', 'employee'
             facultyMemberLeaderboard: [],
             majorMemberLeaderboard: [],
+            memberLeaderboardLoading: true,
             memberLeaderboardVisibleCount: 5,
             isLgScreen: false,
 
@@ -776,6 +884,7 @@
             },
 
             async fetchStats() {
+                this.statsLoading = true;
                 try {
                     const response = await fetch('/api/statistics');
                     const result = await response.json();
@@ -788,10 +897,13 @@
                     }
                 } catch (error) {
                     console.error('Error fetching stats:', error);
+                } finally {
+                    this.statsLoading = false;
                 }
             },
 
             async fetchWasteGroups() {
+                this.wasteLoading = true;
                 try {
                     const response = await fetch('/api/waste_types/groups');
                     const result = await response.json();
@@ -800,10 +912,13 @@
                     }
                 } catch (error) {
                     console.error('Error fetching waste groups:', error);
+                } finally {
+                    this.wasteLoading = false;
                 }
             },
 
             async fetchRewards() {
+                this.rewardsLoading = true;
                 try {
                     const response = await fetch('/api/donations/items/available');
                     const result = await response.json();
@@ -812,6 +927,8 @@
                     }
                 } catch (error) {
                     console.error('Error fetching rewards:', error);
+                } finally {
+                    this.rewardsLoading = false;
                 }
             },
 
@@ -884,6 +1001,7 @@
             },
 
             async fetchAllLeaderboards() {
+                this.leaderboardLoading = true;
                 try {
                     const response = await fetch(`/api/leaders/all?limit=10&page=1&sort=${this.sortType}`);
                     const result = await response.json();
@@ -933,6 +1051,8 @@
                     }
                 } catch (error) {
                     console.error('Error fetching leaderboard:', error);
+                } finally {
+                    this.leaderboardLoading = false;
                 }
             },
 
@@ -957,6 +1077,7 @@
             },
 
             async fetchMemberLeaderboards() {
+                this.memberLeaderboardLoading = true;
                 try {
                     const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberSortType}`);
                     const facultyResult = await facultyResponse.json();
@@ -982,6 +1103,8 @@
                     setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
                 } catch (error) {
                     console.error('Error fetching member leaderboard:', error);
+                } finally {
+                    this.memberLeaderboardLoading = false;
                 }
             },
 
