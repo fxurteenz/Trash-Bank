@@ -5,15 +5,16 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/faculties?show_branch=true
+  url: {{api_domain}}/faculties?show_branch=false&sort_by=member
   body: none
   auth: inherit
 }
 
 params:query {
-  show_branch: true
+  show_branch: false
+  sort_by: member
   ~page: 1
-  ~limit: 1
+  ~limit: 5
   ~only_branch: true
 }
 

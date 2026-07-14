@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: {{api_domain}}/majors?faculty=1
+  url: {{api_domain}}/majors?sort_by=professor
   body: none
   auth: inherit
 }
 
 params:query {
-  faculty: 1
+  sort_by: professor
+  ~faculty: 1
   ~name: ว
   ~page: 1
   ~limit: 2
