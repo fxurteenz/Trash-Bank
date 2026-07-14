@@ -1,12 +1,12 @@
 <div x-data="wasteBankApp()" x-init=" $nextTick(() => { lucide.createIcons() })" class="min-h-screen">
 
     <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
-        <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl lg:max-w-6xl mx-2 px-1 lg:px-8">
             <div class="flex justify-between h-20">
                 <div class="flex items-center gap-3">
                     <a href="/" class="h-full flex items-center justify-center">
                         <img src="assets/images/bru_gogreen_logo.png" alt="BRU Waste Bank"
-                            class="h-[60%] hover:cursor-pointer">
+                            class="h-[50%] hover:cursor-pointer">
                     </a>
                 </div>
 
@@ -140,7 +140,7 @@
     </section>
 
     <section id="leaderboard" class="py-12 bg-white scroll-mt-20">
-        <div class="max-w-2xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl md:max-w-3xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <div class="inline-flex items-center justify-center p-3 bg-yellow-100 rounded-full mb-4">
                     <i data-lucide="trophy" class="w-8 h-8 text-yellow-600"></i>
@@ -238,8 +238,9 @@
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row justify-center items-end gap-3 md:gap-6 mb-8 md:mb-16 px-4 md:px-12 mt-18 md:mt-24"
-                x-show="!leaderboardLoading && activeLeaderboard?.length >= 3" x-cloak>
+            <div class="flex flex-col md:flex-row justify-center items-end gap-3 md:gap-6 mb-8 md:mb-16 px-4 md:px-12 mt-18 md:mt-24 transition-all"
+                :class="{'opacity-0': isSwitchingLeaderboard}"
+                x-show="!leaderboardLoading && activeLeaderboard?.length >= 3" x-cloak x-transition.duration.600ms>
                 <div class="w-full md:w-1/3 order-2 md:order-1 relative group mt-16 md:mt-0">
                     <div class="absolute -top-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
                         <div class="relative">
@@ -424,8 +425,8 @@
                 </div>
             </div>
 
-            <div x-show="leaderboardLoading"
-                class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+            <div x-show="leaderboardLoading" x-cloak
+                class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto" x-transition>
                 <div class="animate-pulse p-4">
                     <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
                     <div class="space-y-2">
@@ -438,7 +439,7 @@
                 </div>
             </div>
 
-            <div class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto"
+            <div class="bg-white w-full rounded-2xl shadow-sm border border-gray-200 overflow-x-auto transition-opacity duration-300"
                 x-show="!leaderboardLoading && activeLeaderboard?.length > 3" x-cloak>
                 <table class="w-full text-left">
                     <thead class="bg-gray-50/50">
@@ -452,7 +453,7 @@
                                 x-text="getSortLabel()"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-100 " :class="{'opacity-0': isSwitchingLeaderboard}">
                         <template x-for="(item, index) in activeLeaderboard?.slice(3)" :key="item.rank">
                             <tr class="hover:bg-blue-50/50 transition-colors group">
                                 <td class="px-4 py-4 text-center">
@@ -555,8 +556,8 @@
                 </div>
             </div>
 
-            <div x-show="memberLeaderboardLoading"
-                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+            <div x-show="memberLeaderboardLoading" x-cloak
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto" x-transition>
                 <div class="animate-pulse p-4">
                     <div class="h-12 bg-gray-200 rounded mb-4 w-full"></div>
                     <div class="space-y-2">
@@ -568,8 +569,8 @@
                     </div>
                 </div>
             </div>
-            <div x-show="!memberLeaderboardLoading" x-cloak
-                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto">
+            <div x-show="!memberLeaderboardLoading" x-transition.duration.600ms x-cloak
+                class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto transition-all">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50/50">
                         <tr>
@@ -670,7 +671,8 @@
             <div x-show="!wasteLoading" x-cloak class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="(category, index) in wasteCategories" :key="category.waste_category_id">
                     <div x-show="isWasteTableExpanded || (isLgScreen ? index < 3 : index < 2)"
-                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col">
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col"
+                        x-transition.duration.600ms>
                         <div class="flex justify-between items-center text-sm mb-4">
                             <h3 class="font-bold text-lg text-gray-800"
                                 x-text="category.waste_category_name || 'อื่น ๆ'">
@@ -736,7 +738,8 @@
             <div x-show="!rewardsLoading" x-cloak class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="(reward, index) in rewards" :key="reward.donation_item_id">
                     <div x-show="isRewardTableExpanded || (isLgScreen ? index < 6 : index < 4)"
-                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group flex flex-col">
+                        class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group flex flex-col"
+                        x-transition.duration.600ms>
                         <div
                             class="w-full h-40 bg-gray-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform overflow-hidden">
                             <img :src="reward.donation_item_image ? `assets/images/donation_items/${reward.donation_item_image}` : 'https://placehold.co/400x400/e2e8f0/a0aec0?text=BRU'"
@@ -861,6 +864,7 @@
             majorLeaderboard: [],
             memberLeaderboard: [],
             leaderboardLoading: true,
+            isSwitchingLeaderboard: false,
             sortType: 'point',
             memberLeaderboardType: 'faculty', // or 'major'
             memberSortType: 'member', // or 'professor', 'employee'
@@ -868,6 +872,7 @@
             majorMemberLeaderboard: [],
             memberLeaderboardLoading: true,
             memberLeaderboardVisibleCount: 5,
+            isSwitchingMemberLeaderboard: false,
             isLgScreen: false,
 
             init() {
@@ -986,18 +991,24 @@
 
 
             setLeaderboardType(type) {
-                this.leaderboardType = type;
-                this.$nextTick(() => {
-                    if (window.lucide) {
-                        lucide.createIcons();
-                    }
-                });
+                if (this.leaderboardType === type) return;
+
+                this.isSwitchingLeaderboard = true;
+                setTimeout(() => {
+                    this.leaderboardType = type;
+                    this.$nextTick(() => {
+                        if (window.lucide) {
+                            lucide.createIcons();
+                        }
+                        this.isSwitchingLeaderboard = false;
+                    });
+                }, 300);
             },
 
             setSortType(type) {
                 this.sortType = type;
                 this.fetchAllLeaderboards();
-                this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
+                this.$nextTick(() => { if (window.lucide) { lucide.createIcons() } });
             },
 
             async fetchAllLeaderboards() {
@@ -1062,12 +1073,17 @@
             },
 
             setMemberLeaderboardType(type) {
-                this.memberLeaderboardType = type;
-                this.$nextTick(() => {
-                    if (window.lucide) {
-                        lucide.createIcons();
-                    }
-                });
+                if (this.memberLeaderboardType === type) return;
+                this.isSwitchingMemberLeaderboard = true;
+                setTimeout(() => {
+                    this.memberLeaderboardType = type;
+                    this.$nextTick(() => {
+                        if (window.lucide) {
+                            lucide.createIcons();
+                        }
+                        this.isSwitchingMemberLeaderboard = false;
+                    });
+                }, 300);
             },
 
             setMemberSortType(type) {
