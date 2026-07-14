@@ -73,7 +73,7 @@ class MajorModel
                         $orderBySql = " ORDER BY m.major_name " . $sortDirection;
                         break;
                     case 'member':
-                        $orderBySql = " ORDER BY student_count " . $sortDirection;
+                        $orderBySql = " ORDER BY user_count " . $sortDirection;
                         break;
                     case 'professor':
                         $orderBySql = " ORDER BY professor_count " . $sortDirection;
@@ -81,14 +81,17 @@ class MajorModel
                     case 'employee':
                         $orderBySql = " ORDER BY employee_count " . $sortDirection;
                         break;
+                    case 'total':
+                        $orderBySql = " ORDER BY total_member" . $sortDirection;
+                        break;
                 }
             }
 
             $sql = "SELECT 
                         m.*,
                         f.faculty_name,
-                        COALESCE(member_count.total_member, 0) AS major_member_total,
-                        COALESCE(member_count.student_count, 0) AS student_count,
+                        COALESCE(member_count.total_member, 0) AS total_member,
+                        COALESCE(member_count.student_count, 0) AS user_count,
                         COALESCE(member_count.professor_count, 0) AS professor_count,
                         COALESCE(member_count.employee_count, 0) AS employee_count
                     FROM 

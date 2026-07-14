@@ -379,42 +379,38 @@
                 </p>
             </div>
 
-            <div class="flex justify-center mb-8">
-                <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
-                    <button @click="setMemberLeaderboardType('faculty')"
-                        :class="memberLeaderboardType === 'faculty' ? 'bg-white shadow text-blue-700 font-medium' : 'text-gray-500 hover:text-blue-700'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="building-2" class="w-4 h-4"></i>
-                        อันดับคณะ
-                    </button>
-                    <button @click="setMemberLeaderboardType('major')"
-                        :class="memberLeaderboardType === 'major' ? 'bg-white shadow text-blue-700 font-medium' : 'text-gray-500 hover:text-blue-700'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="school" class="w-4 h-4"></i>
-                        อันดับสาขา
-                    </button>
+            <div class="rounded-full p-2 md:p-3 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex justify-center mb-8">
+                    <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
+                        <button @click="setMemberLeaderboardType('faculty')"
+                            :class="memberLeaderboardType === 'faculty' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                            class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                            <i data-lucide="building-2" class="w-4 h-4"></i>
+                            อันดับคณะ
+                        </button>
+                        <button @click="setMemberLeaderboardType('major')"
+                            :class="memberLeaderboardType === 'major' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                            class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                            <i data-lucide="school" class="w-4 h-4"></i>
+                            อันดับสาขา
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="flex justify-center mb-8">
-                <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
-                    <button @click="setMemberSortType('member')"
-                        :class="memberSortType === 'member' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-                        นักศึกษา
-                    </button>
-                    <button @click="setMemberSortType('professor')"
-                        :class="memberSortType === 'professor' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="user-check" class="w-4 h-4"></i>
-                        อาจารย์
-                    </button>
-                    <button @click="setMemberSortType('employee')"
-                        :class="memberSortType === 'employee' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
-                        class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
-                        <i data-lucide="user" class="w-4 h-4"></i>
-                        บุคลากร
-                    </button>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-gray-200 p-1.5 rounded-full inline-flex relative shadow-inner">
+                        <button @click="setMemberSortType('member')"
+                            :class="memberSortType === 'member' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                            class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                            นักศึกษา
+                        </button>
+                        <button @click="setMemberSortType('professor')"
+                            :class="memberSortType === 'professor' ? 'bg-white shadow text-green-700 font-medium' : 'text-gray-500 hover:text-green-700'"
+                            class="px-6 py-2 rounded-full text-sm transition-all whitespace-nowrap flex-1 text-center flex gap-2 items-center cursor-pointer">
+                            <i data-lucide="user-check" class="w-4 h-4"></i>
+                            อาจารย์
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -431,8 +427,9 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        <template x-for="item in activeMemberLeaderboard" :key="item.rank">
-                            <tr class="hover:bg-blue-50/50 transition-colors group">
+                        <template x-for="(item, index) in activeMemberLeaderboard" :key="item.rank">
+                            <tr class="hover:bg-blue-50/50 transition-colors group"
+                                x-show="index < memberLeaderboardVisibleCount" x-transition>
                                 <td class="px-6 py-4 text-center">
                                     <span class="text-gray-400 font-bold text-lg w-6 text-center font-mono"
                                         x-text="item.rank"></span>
@@ -461,6 +458,32 @@
                     </tbody>
                 </table>
             </div>
+            
+            <div class="flex justify-center gap-2 mt-4">
+                <button @click="memberLeaderboardVisibleCount = Math.max(memberLeaderboardVisibleCount - 5, 5)"
+                    x-show="activeMemberLeaderboard && memberLeaderboardVisibleCount > 5" x-cloak
+                    class="flex items-center justify-center w-auto border border-gray-200 hover:bg-gray-50 rounded-lg cursor-pointer py-2 px-4 transition-all shadow-sm hover:shadow-md">
+                    <div class="text-sm font-medium text-blue-700 hover:text-blue-800 flex items-center gap-2 ">
+                        <span class="flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="chevron-up" class="w-4 h-4"></i>
+                            ดูน้อยลง
+                        </span>
+                    </div>
+                </button>
+                <button
+                    @click="memberLeaderboardVisibleCount = Math.min(memberLeaderboardVisibleCount + 5, activeMemberLeaderboard.length)"
+                    x-show="activeMemberLeaderboard && memberLeaderboardVisibleCount < activeMemberLeaderboard.length"
+                    x-cloak
+                    class="flex items-center justify-center w-auto border border-gray-200 hover:bg-gray-50 rounded-lg cursor-pointer py-2 px-4 transition-all shadow-sm hover:shadow-md">
+                    <div class="text-sm font-medium text-blue-700 hover:text-blue-800 flex items-center gap-2 ">
+                        <span class="flex items-center gap-1 cursor-pointer">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            ดูเพิ่มเติม
+                        </span>
+                    </div>
+                </button>
+            </div>
+
         </div>
     </section>
 
@@ -653,6 +676,7 @@
             memberSortType: 'member', // or 'professor', 'employee'
             facultyMemberLeaderboard: [],
             majorMemberLeaderboard: [],
+            memberLeaderboardVisibleCount: 5,
 
             init() {
                 this.fetchStats();
@@ -837,7 +861,7 @@
 
             async fetchMemberLeaderboards() {
                 try {
-                    const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberSortType}&limit=5`);
+                    const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberSortType}`);
                     const facultyResult = await facultyResponse.json();
                     if (facultyResult.success && facultyResult.data) {
                         this.facultyMemberLeaderboard = facultyResult.data.map((item, index) => ({
@@ -847,12 +871,12 @@
                         }));
                     }
 
-                    const majorResponse = await fetch(`/api/majors?sort_by=${this.memberSortType}&limit=5`);
+                    const majorResponse = await fetch(`/api/majors?sort_by=${this.memberSortType}`);
                     const majorResult = await majorResponse.json();
-                    if (majorResult.success && majorResult.result) {
-                        this.majorMemberLeaderboard = majorResult.result.map((item, index) => ({
+                    if (majorResult.success && majorResult.data) {
+                        this.majorMemberLeaderboard = majorResult.data.map((item, index) => ({
                             rank: index + 1,
-                            name: item.major_name,
+                            name: `สาขา ${item.major_name}`,
                             faculty_name: `คณะ ${item.faculty_name}`,
                             count: this.getMemberSortValue(item, 'major'),
                         }));
@@ -869,7 +893,7 @@
                 let count = 0;
                 switch (this.memberSortType) {
                     case 'member':
-                        count = (type === 'faculty') ? (item.user_count ?? 0) : (item.student_count ?? 0);
+                        count = (type === 'faculty') ? (item.user_count ?? 0) : (item.user_count ?? 0);
                         break;
                     case 'professor':
                         count = item.professor_count ?? 0;

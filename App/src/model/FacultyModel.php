@@ -72,6 +72,9 @@ class FacultyModel
                     case 'employee':
                         $orderBySql = " ORDER BY employee_count " . $sortDirection;
                         break;
+                    case 'total':
+                        $orderBySql = " ORDER BY total_member" . $sortDirection;
+                        break;
                 }
             }
 
