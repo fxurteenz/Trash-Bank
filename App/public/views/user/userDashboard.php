@@ -33,7 +33,8 @@
                         <div class="text-gray-800">
                             <span x-text="profile?.member_name || '...'"></span>
                         </div>
-                        <div class="text-gray-900 " x-text="profile?.member_personal_id || 'xxx-xxxxxx-xxx'">
+                        <div x-show="profile?.member_personal_id" class="text-gray-900 "
+                            x-text="profile?.member_personal_id || 'xxx-xxxxxx-xxx'">
                         </div>
                     </div>
 
@@ -61,8 +62,15 @@
                     </div>
                     <template x-if="profile?.role_name == 'member' || profile?.role_name == 'lecturer/professor'">
                         <div class="flex flex-col items-end">
-                            <span
-                                class="text-[8px] text-gray-500 px-1 py-0.5 bg-emerald-500/70 rounded-2xl">นักศึกษา</span>
+                            <template x-if="profile?.role_name == 'member'">
+                                <span
+                                    class="text-[8px] text-gray-500 px-1 py-0.5 bg-emerald-500/70 rounded-2xl">นักศึกษา</span>
+                            </template>
+                            <template x-if="profile?.role_name == 'lecturer/professor'">
+                                <span
+                                    class="text-[8px] text-gray-500 px-1 py-0.5 bg-emerald-500/70 rounded-2xl">อาจารย์</span>
+                            </template>
+
                             <template x-if="profile?.faculty_name">
                                 <span class="text-[8px] text-gray-500" x-text="`คณะ ${profile?.faculty_name}`"></span>
                             </template>
@@ -85,6 +93,7 @@
                                     <i data-lucide="pen-line" class="h-[8px] w-[8px] text-gray-400"></i>
                                 </div>
                             </template>
+
                         </div>
                     </template>
 
@@ -398,7 +407,6 @@
                     console.error('Failed to load dashboard data:', error);
                 } finally {
                     lucide.createIcons();
-
                     this.isLoading = false;
                 }
             }
