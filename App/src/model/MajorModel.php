@@ -65,7 +65,7 @@ class MajorModel
                 $sortDirection = 'ASC';
             }
 
-            $orderBySql = " ORDER BY major_member_total " . $sortDirection;
+            $orderBySql = " ORDER BY total_member " . $sortDirection;
 
             if (!empty($query['sort_by'])) {
                 switch ($query['sort_by']) {

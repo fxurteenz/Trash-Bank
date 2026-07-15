@@ -91,59 +91,61 @@ class DashboardDataModel
         }
     }
 
-    public function CenterDashboard(array $query): array
+    public function CenterDashboard(array $query = []): array
     {
         try {
-            // summary statistic (waste_transaction)
             $summarySql = "SELECT 
-                            COUNT(w.waste_transaction_id) AS transaction_count,
-                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
-                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
-                       FROM waste_transaction w";
+                -- Total (ยอดรวมทั้งหมด)
+                COUNT(w.waste_transaction_id) AS total_transaction_count,
+                COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
+                COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e,
+                
+                -- Month (ยอดรวมของเดือนนี้)
+                COUNT(CASE WHEN MONTH(w.created_at) = MONTH(CURRENT_DATE()) AND YEAR(w.created_at) = YEAR(CURRENT_DATE()) THEN w.waste_transaction_id END) AS month_transaction_count,
+                COALESCE(SUM(CASE WHEN MONTH(w.created_at) = MONTH(CURRENT_DATE()) AND YEAR(w.created_at) = YEAR(CURRENT_DATE()) THEN w.waste_transaction_total_weight END), 0) AS month_weight,
+                COALESCE(SUM(CASE WHEN MONTH(w.created_at) = MONTH(CURRENT_DATE()) AND YEAR(w.created_at) = YEAR(CURRENT_DATE()) THEN w.waste_transaction_total_point END), 0) AS month_spend_point,
+                COALESCE(SUM(CASE WHEN MONTH(w.created_at) = MONTH(CURRENT_DATE()) AND YEAR(w.created_at) = YEAR(CURRENT_DATE()) THEN w.waste_transaction_total_co2e END), 0) AS month_co2e,
+                
+                -- Today (ยอดรวมของวันนี้)
+                COUNT(CASE WHEN DATE(w.created_at) = CURRENT_DATE() THEN w.waste_transaction_id END) AS today_transaction_count,
+                COALESCE(SUM(CASE WHEN DATE(w.created_at) = CURRENT_DATE() THEN w.waste_transaction_total_weight END), 0) AS today_weight,
+                COALESCE(SUM(CASE WHEN DATE(w.created_at) = CURRENT_DATE() THEN w.waste_transaction_total_point END), 0) AS today_spend_point,
+                COALESCE(SUM(CASE WHEN DATE(w.created_at) = CURRENT_DATE() THEN w.waste_transaction_total_co2e END), 0) AS today_co2e
+
+            FROM waste_transaction w";
 
             $stmt = $this->Conn->prepare($summarySql);
             $stmt->execute();
-            $summary = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-            // summary statistic (waste_transaction)
-            $summaryMonthSql = "SELECT 
-                            COUNT(w.waste_transaction_id) AS transaction_count,
-                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
-                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
-                       FROM waste_transaction w
-                       WHERE MONTH(w.created_at) = MONTH(NOW()) AND YEAR(w.created_at) = YEAR(NOW())";
+            $result = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-            $stmt = $this->Conn->prepare($summaryMonthSql);
-            $stmt->execute();
-            $summaryMonth = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-            // summary today statistic (waste_transaction)
-            $summaryTodaySql = "SELECT 
-                            COUNT(w.waste_transaction_id) AS transaction_count,
-                            COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
-                            COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_spend_point,
-                            COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
-                       FROM waste_transaction w
-                       WHERE DATE(w.created_at) = :today_date";
-            $stmtToday = $this->Conn->prepare($summaryTodaySql);
-            $stmtToday->execute([":today_date" => date('Y-m-d')]);
-            $summaryToday = $stmtToday->fetch(PDO::FETCH_ASSOC) ?: [];
+            $summary = [
+                'transaction_count' => $result['total_transaction_count'] ?? 0,
+                'total_weight' => $result['total_weight'] ?? 0,
+                'total_spend_point' => $result['total_spend_point'] ?? 0,
+                'total_co2e' => $result['total_co2e'] ?? 0,
+            ];
 
-            $summaryMemberSql = "SELECT 
-                                    COUNT(m.member_id) AS member_count
-                                FROM 
-                                    member m
-                                WHERE m.role_id IN (1,2,3)";
+            $summaryMonth = [
+                'transaction_count' => $result['month_transaction_count'] ?? 0,
+                'total_weight' => $result['month_weight'] ?? 0,
+                'total_spend_point' => $result['month_spend_point'] ?? 0,
+                'total_co2e' => $result['month_co2e'] ?? 0,
+            ];
+
+            $summaryToday = [
+                'transaction_count' => $result['today_transaction_count'] ?? 0,
+                'total_weight' => $result['today_weight'] ?? 0,
+                'total_spend_point' => $result['today_spend_point'] ?? 0,
+                'total_co2e' => $result['today_co2e'] ?? 0,
+            ];
+
+            // 2. ดึงข้อมูลจำนวนสมาชิก (แยกไว้เพราะเป็นคนละตารางกัน ไม่ควรนำไป JOIN ให้หนัก)
+            $summaryMemberSql = "SELECT COUNT(m.member_id) FROM member m WHERE m.role_id IN (1, 2, 3)";
             $stmtMember = $this->Conn->prepare($summaryMemberSql);
             $stmtMember->execute();
-            $summaryMember = $stmtMember->fetch(PDO::FETCH_ASSOC) ?: [];
-            $totalMember = $summaryMember['member_count'];
-
-            $transactionCounts = [
-                'total' => (int) ($summary['transaction_count'] ?? 0),
-                'month' => (int) ($summaryMonth['transaction_count'] ?? 0),
-                'today' => (int) ($summaryToday['transaction_count'] ?? 0),
-            ];
+            // ใช้ fetchColumn() เพื่อดึงค่า COUNT ออกมาเป็นตัวเลขโดยตรง (เร็วและสั้นกว่า)
+            $totalMember = (int) ($stmtMember->fetchColumn() ?: 0);
 
             return [
                 'summary' => $summary,

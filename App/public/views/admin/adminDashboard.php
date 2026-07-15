@@ -2,19 +2,20 @@
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-            <h1 class="text-4xl font-bold text-slate-900">📊 Dashboard Admin</h1>
-            <p class="text-slate-600 text-lg">ภาพรวมระบบจัดการขยะธนาคาร</p>
+            <h1 class="text-4xl font-bold text-gray-600 flex items-center gap-2"> <i data-lucide="chart-column"
+                    class="w-8 h-8"></i>แดชบอร์ด</h1>
+            <p class="text-gray-400">ภาพรวมระบบจัดการธนาคารขยะ</p>
         </div>
 
-        <div class="flex bg-slate-200 p-1 rounded-lg w-full md:w-auto">
+        <div class="flex bg-gray-200 p-1 rounded-lg w-full md:w-auto shadow-sm">
             <button @click="period = 'today'"
-                :class="period === 'today' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="period === 'today' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">วันนี้</button>
             <button @click="period = 'month'"
-                :class="period === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="period === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">เดือนนี้</button>
             <button @click="period = 'all'"
-                :class="period === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="period === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ทั้งหมด</button>
         </div>
     </div>
@@ -92,7 +93,7 @@
                 <div>
                     <p class="text-4xl font-bold"
                         x-text="Number(currentSummary?.transaction_count || 0).toLocaleString()"></p>
-                    <p class="text-sm text-purple-100 mt-1">คน</p>
+                    <p class="text-sm text-purple-100 mt-1">ครั้ง</p>
 
                 </div>
             </div>
@@ -117,20 +118,20 @@
                 </div>
                 <div>
                     <p class="text-4xl font-bold" x-text="Number(dashboardData.total_member || 0).toLocaleString()"></p>
-                    <p class="text-sm text-orange-100 mt-1">ครั้ง</p>
+                    <p class="text-sm text-orange-100 mt-1">คน</p>
                 </div>
             </div>
-            <p class="text-orange-100 text-sm mb-1">ผู้ใช้งานระบบทั้งหมด</p>
+            <p class="text-orange-100 text-sm mb-1">ผู้ใช้งานใหม่</p>
 
         </div>
     </div>
 
     <!-- Quick Actions Section -->
-    <div>
-        <h2 class="text-2xl font-bold text-slate-900 mb-2">⚡ การเข้าถึงด่วน</h2>
+    <div class="bg-white p-4 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold text-gray-600 mb-2 flex gap-2"><i data-lucide="zap"></i> การเข้าถึงด่วน</h2>
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
             <a href="/admin/transactions/waste"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 group-hover:bg-teal-200 group-hover:scale-110 transition-all">
@@ -143,12 +144,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">ฝากขยะ</p>
+                <p class="font-semibold text-gray-600">ฝากขยะ</p>
                 <p class="text-sm text-slate-600 mt-1">Deposit</p>
             </a>
 
             <a href="/admin/transactions/clear_waste"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 group-hover:bg-amber-200 group-hover:scale-110 transition-all">
@@ -159,12 +160,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">เคลียร์ยอด</p>
+                <p class="font-semibold text-gray-600">เคลียร์ยอด</p>
                 <p class="text-sm text-slate-600 mt-1">Clear</p>
             </a>
 
             <a href="/admin/transactions/waste_sale"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
@@ -178,12 +179,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">จำหน่ายขยะ</p>
+                <p class="font-semibold text-gray-600">จำหน่ายขยะ</p>
                 <p class="text-sm text-slate-600 mt-1">Sell</p>
             </a>
 
             <a href="/admin/transactions/donation"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
@@ -194,12 +195,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">รับสิ่งของ</p>
+                <p class="font-semibold text-gray-600">รับสิ่งของ</p>
                 <p class="text-sm text-slate-600 mt-1">Donation</p>
             </a>
 
             <a href="/admin/transactions/redeem_item"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
@@ -213,12 +214,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">แลกของรางวัล</p>
+                <p class="font-semibold text-gray-600">แลกของรางวัล</p>
                 <p class="text-sm text-slate-600 mt-1">Redeem</p>
             </a>
 
             <a href="/admin/manage/users"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 group-hover:bg-emerald-200 group-hover:scale-110 transition-all">
@@ -231,12 +232,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">จัดการผู้ใช้</p>
+                <p class="font-semibold text-gray-600">จัดการผู้ใช้</p>
                 <p class="text-sm text-slate-600 mt-1">Users</p>
             </a>
 
             <a href="/admin/manage/faculty"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
@@ -247,12 +248,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">คณะ/สาขา</p>
+                <p class="font-semibold text-gray-600">คณะ/สาขา</p>
                 <p class="text-sm text-slate-600 mt-1">Faculty</p>
             </a>
 
             <a href="/admin/manage/reward"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
@@ -263,12 +264,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">รางวัล</p>
+                <p class="font-semibold text-gray-600">รางวัล</p>
                 <p class="text-sm text-slate-600 mt-1">Rewards</p>
             </a>
 
             <a href="/admin/manage/badge"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
@@ -279,12 +280,12 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">เหรียญตรา</p>
+                <p class="font-semibold text-gray-600">เหรียญตรา</p>
                 <p class="text-sm text-slate-600 mt-1">Badges</p>
             </a>
 
             <a href="/admin/manage/waste_type"
-                class="bg-white rounded-xl shadow-md p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover">
+                class="bg-white rounded-xl shadow-sm p-4 text-center hover:shadow-lg transition-all cursor-pointer group card-hover border border-gray-100">
                 <div class="flex justify-center mb-4">
                     <div
                         class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 group-hover:bg-green-200 group-hover:scale-110 transition-all">
@@ -297,7 +298,7 @@
                         </svg>
                     </div>
                 </div>
-                <p class="font-semibold text-slate-900">หมวดหมู่ขยะ</p>
+                <p class="font-semibold text-gray-600">หมวดหมู่ขยะ</p>
                 <p class="text-sm text-slate-600 mt-1">Waste Types</p>
             </a>
 
@@ -307,17 +308,18 @@
     <!-- Leaderboards Section -->
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-8 mb-4">
         <div>
-            <h2 class="text-2xl font-bold text-slate-900">🏆 จัดอันดับ (Leaderboards)</h2>
+            <h2 class="text-2xl font-bold text-gray-600 flex gap-2"><i data-lucide="trophy"></i> ตารางอันดับ
+                (Leaderboards)</h2>
         </div>
-        <div class="flex bg-slate-200 p-1 rounded-lg w-full md:w-auto">
+        <div class="flex bg-gray-200 p-1 rounded-lg w-full md:w-auto shadow-sm">
             <button @click="leaderboardPeriod = 'month'"
-                :class="leaderboardPeriod === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="leaderboardPeriod === 'month' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">เดือนนี้</button>
             <button @click="leaderboardPeriod = 'year'"
-                :class="leaderboardPeriod === 'year' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="leaderboardPeriod === 'year' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ปีนี้</button>
             <button @click="leaderboardPeriod = 'all'"
-                :class="leaderboardPeriod === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-slate-900'"
+                :class="leaderboardPeriod === 'all' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
                 class="flex-1 md:flex-none px-4 py-2 rounded-md text-sm font-medium transition-all">ทั้งหมด</button>
         </div>
     </div>
@@ -325,31 +327,32 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Faculty Leaderboard -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-900">🏆 5 อันดับคณะยอดเยี่ยม</h2>
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-600">อันดับคณะ</h2>
+                <p class="text-xs text-gray-400">จัดอันดับจากแต้มที่สมาชิกทำได้</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-600">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+            <div class="overflow-x-auto rounded-lg">
+                <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                         <tr>
-                            <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
-                            <th class="px-4 py-2 cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2">อันดับ</th>
+                            <th class="px-4 py-2 cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortFaculties('name')">
                                 คณะ <span x-show="facultySort === 'name'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
 
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortFaculties('point')">
                                 แต้มขยะ <span x-show="facultySort === 'point'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortFaculties('goodness')">
                                 แต้มความดี <span x-show="facultySort === 'goodness'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortFaculties('social')">
                                 แต้มสังคม <span x-show="facultySort === 'social'"
                                     x-text="facultySortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
@@ -359,7 +362,7 @@
                     <tbody class="divide-y divide-slate-200">
                         <template x-for="(faculty, index) in facultyLeaderboard" :key="faculty.faculty_id">
                             <tr class="bg-white hover:bg-slate-50 transition">
-                                <td class="px-4 py-3 font-bold text-slate-900" x-text="index + 1"></td>
+                                <td class="px-4 py-3 font-bold text-gray-600" x-text="index + 1"></td>
                                 <td class="px-4 py-3 font-medium text-slate-700" x-text="faculty.faculty_name"></td>
                                 <td class="px-4 py-3 text-right font-bold text-sky-500"
                                     x-text="Number(faculty.total_point || 0).toLocaleString()"></td>
@@ -381,30 +384,31 @@
 
         <!-- Member Leaderboard -->
         <div class="bg-white rounded-xl shadow-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-900">🏅 5 อันดับสมาชิกยอดเยี่ยม</h2>
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-gray-600">อันดับสมาชิก</h2>
+                <p class="text-xs text-gray-400">จัดอันดับจากแต้มที่สมาชิกทำได้</p>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-slate-600">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-100">
+            <div class="overflow-x-auto rounded-lg">
+                <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                         <tr>
-                            <th class="px-4 py-2 rounded-l-lg">อันดับ</th>
-                            <th class="px-4 py-2 cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2">อันดับ</th>
+                            <th class="px-4 py-2 cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortMembers('name')">
                                 ชื่อผู้ใช้งาน <span x-show="memberSort === 'name'"
                                     x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortMembers('point')">
                                 แต้มขยะ <span x-show="memberSort === 'point'"
                                     x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortMembers('goodness')">
                                 แต้มความดี <span x-show="memberSort === 'goodness'"
                                     x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
                             </th>
-                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-slate-200 transition select-none"
+                            <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
                                 @click="sortMembers('social')">
                                 แต้มสังคม <span x-show="memberSort === 'social'"
                                     x-text="memberSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
@@ -414,7 +418,7 @@
                     <tbody class="divide-y divide-slate-200">
                         <template x-for="(member, index) in memberLeaderboard" :key="member.member_id">
                             <tr class="bg-white hover:bg-slate-50 transition">
-                                <td class="px-4 py-3 font-bold text-slate-900" x-text="index + 1"></td>
+                                <td class="px-4 py-3 font-bold text-gray-600" x-text="index + 1"></td>
                                 <td class="px-4 py-3">
                                     <div class="font-medium text-slate-700" x-text="member.member_name || 'ไม่มีชื่อ'">
                                     </div>
@@ -441,113 +445,261 @@
         </div>
     </div>
 
-</div>
+    <!-- Member Stats -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-600">สถิติการเข้าร่วม</h2>
+                <p class="text-xs text-gray-400">จำนวนสมาชิกในแต่ละคณะ/สาขา</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-gray-200 p-1 rounded-lg shadow-sm">
+                    <button @click="memberStatsType = 'faculty'"
+                        :class="memberStatsType === 'faculty' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                        class="px-3 py-1.5 rounded-md text-sm font-medium transition-all">คณะ</button>
+                    <button @click="memberStatsType = 'major'"
+                        :class="memberStatsType === 'major' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                        class="px-3 py-1.5 rounded-md text-sm font-medium transition-all">สาขา</button>
+                </div>
+            </div>
+        </div>
 
-<script>
-    function adminDashboard() {
-        return {
-            dashboardData: {},
-            period: 'month', // 'all', 'month', 'today'
-            leaderboardPeriod: 'all', // 'all', 'month', 'year'
-            facultySort: 'point', // 'point', 'weight', 'name'
-            facultySortOrder: 'DESC',
-            memberSort: 'point', // 'point', 'goodness', 'name'
-            memberSortOrder: 'DESC',
-            facultyLeaderboard: [],
-            memberLeaderboard: [],
+        <div x-show="memberStatsLoading" class="animate-pulse">
+            <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
+            <div class="space-y-2">
+                <div class="h-12 bg-gray-100 rounded"></div>
+                <div class="h-12 bg-gray-100 rounded"></div>
+                <div class="h-12 bg-gray-100 rounded"></div>
+                <div class="h-12 bg-gray-100 rounded"></div>
+            </div>
+        </div>
 
-            get currentSummary() {
-                if (this.period === 'all') return this.dashboardData.summary || {};
-                if (this.period === 'today') return this.dashboardData.summary_today || {};
-                return this.dashboardData.summary_month || {};
-            },
+        <div x-show="!memberStatsLoading" x-cloak class="overflow-x-auto rounded-lg">
+            <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2">อันดับ</th>
+                        <th class="px-4 py-2" x-text="memberStatsType === 'faculty' ? 'คณะ' : 'สาขา'"></th>
+                        <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMemberStats('member')">
+                            นักศึกษา (คน) <span x-show="memberStatsSortColumn === 'member'"
+                                x-text="memberStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                        </th>
+                        <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
+                            @click="sortMemberStats('professor')">
+                            อาจารย์ (คน) <span x-show="memberStatsSortColumn === 'professor'"
+                                x-text="memberStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    <template x-for="(item, index) in activeMemberStats" :key="index">
+                        <tr class="bg-white hover:bg-slate-50 transition" x-show="index < memberStatsVisibleCount"
+                            x-transition>
+                            <td class="px-4 py-3 font-bold text-gray-600" x-text="item.rank"></td>
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-slate-700" x-text="item.name"></div>
+                                <template x-if="memberStatsType === 'major'">
+                                    <div class="text-xs text-slate-400 mt-0.5" x-text="item.faculty_name"></div>
+                                </template>
+                            </td>
+                            <td class="px-4 py-3 text-right font-bold text-blue-500"
+                                x-text="item.student_count.toLocaleString()">
+                            </td>
+                            <td class="px-4 py-3 text-right font-bold text-emerald-500"
+                                x-text="item.professor_count.toLocaleString()"></td>
+                        </tr>
+                    </template>
+                    <template x-if="!activeMemberStats || activeMemberStats.length === 0">
+                        <tr>
+                            <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+            <div class="flex justify-center gap-1 mt-4">
+                <button @click="memberStatsVisibleCount = Math.max(memberStatsVisibleCount - 10, 10)"
+                    x-show="activeMemberStats && memberStatsVisibleCount > 10" x-cloak
+                    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    แสดงน้อยลง
+                </button>
+                <button
+                    @click="memberStatsVisibleCount = Math.min(memberStatsVisibleCount + 10, activeMemberStats.length)"
+                    x-show="activeMemberStats && memberStatsVisibleCount < activeMemberStats.length" x-cloak
+                    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    แสดงเพิ่มเติม
+                </button>
+            </div>
+        </div>
+    </div>
 
-            get periodText() {
-                if (this.period === 'all') return '(ทั้งหมด)';
-                if (this.period === 'today') return '(วันนี้)';
-                return '(เดือนนี้)';
-            },
+    <script>
+        function adminDashboard() {
+            return {
+                dashboardData: {},
+                period: 'month', // 'all', 'month', 'today'
+                leaderboardPeriod: 'all', // 'all', 'month', 'year'
+                facultySort: 'point', // 'point', 'weight', 'name'
+                facultySortOrder: 'DESC',
+                memberSort: 'point', // 'point', 'goodness', 'name'
+                memberSortOrder: 'DESC',
+                facultyLeaderboard: [],
+                memberLeaderboard: [],
+                memberStatsType: 'faculty', // 'faculty' or 'major'
+                memberStatsSortColumn: 'member', // Default sort column for member stats
+                memberStatsSortOrder: 'DESC', // Default sort order for member stats
+                facultyMemberStats: [],
+                majorMemberStats: [],
+                memberStatsLoading: true,
+                memberStatsVisibleCount: 10,
 
-            async init() {
-                this.$watch('leaderboardPeriod', () => {
-                    this.fetchFacultyLeaderboard();
-                    this.fetchMemberLeaderboard();
-                });
-                this.$watch('facultySort', () => {
-                    this.fetchFacultyLeaderboard();
-                });
-                this.$watch('memberSort', () => {
-                    this.fetchMemberLeaderboard();
-                });
+                get currentSummary() {
+                    if (this.period === 'all') return this.dashboardData.summary || {};
+                    if (this.period === 'today') return this.dashboardData.summary_today || {};
+                    return this.dashboardData.summary_month || {};
+                },
 
-                try {
-                    const res = await fetch('/api/dashboards/center');
-                    const json = await res.json();
-                    if (json.success || json.data) {
-                        this.dashboardData = json.data;
+                get periodText() {
+                    if (this.period === 'all') return '(ทั้งหมด)';
+                    if (this.period === 'today') return '(วันนี้)';
+                    return '(เดือนนี้)';
+                },
+
+                async init() {
+                    this.$watch('leaderboardPeriod', () => {
+                        this.fetchFacultyLeaderboard();
+                        this.fetchMemberLeaderboard();
+                    });
+                    this.$watch('facultySort', () => {
+                        this.fetchFacultyLeaderboard();
+                    });
+                    this.$watch('memberSort', () => {
+                        this.fetchMemberLeaderboard();
+                    });
+                    this.$watch('memberStatsType', () => {
+                        this.fetchMemberStats();
+                    });
+                    this.$watch('memberStatsSortColumn', () => {
+                        this.fetchMemberStats();
+                    });
+                    this.$watch('memberStatsSortOrder', () => {
+                        this.fetchMemberStats();
+                    });
+
+                    try {
+                        const res = await fetch('/api/dashboards/center');
+                        const json = await res.json();
+                        if (json.success || json.data) {
+                            this.dashboardData = json.data;
+                        }
+                    } catch (error) {
+                        console.error('Error fetching dashboard data:', error);
                     }
-                } catch (error) {
-                    console.error('Error fetching dashboard data:', error);
-                }
 
-                await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard()]);
-            },
+                    await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard(), this.fetchMemberStats()]);
+                },
 
-            sortMembers(column) {
-                if (this.memberSort === column) {
-                    this.memberSortOrder = this.memberSortOrder === 'ASC' ? 'DESC' : 'ASC';
-                    this.fetchMemberLeaderboard();
-                } else {
-                    this.memberSortOrder = 'DESC';
-                    this.memberSort = column; // การเปลี่ยนค่าตรงนี้จะไป trigger watch ให้ fetch ข้อมูลอัตโนมัติ
-                }
-            },
+                get activeMemberStats() {
+                    return this.memberStatsType === 'faculty' ? this.facultyMemberStats : this.majorMemberStats;
+                },
 
-            sortFaculties(column) {
-                if (this.facultySort === column) {
-                    this.facultySortOrder = this.facultySortOrder === 'ASC' ? 'DESC' : 'ASC';
-                    this.fetchFacultyLeaderboard();
-                } else {
-                    this.facultySortOrder = 'DESC';
-                    this.facultySort = column;
-                }
-            },
+                async fetchMemberStats() {
+                    this.memberStatsLoading = true;
+                    try {
+                        const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberStatsSortColumn}&order=${this.memberStatsSortOrder}`);
+                        const facultyResult = await facultyResponse.json();
+                        if (facultyResult.success && facultyResult.data) {
+                            this.facultyMemberStats = facultyResult.data.map((item, index) => ({
+                                rank: index + 1,
+                                name: `คณะ ${item.faculty_name}`,
+                                student_count: item.user_count || 0,
+                                professor_count: item.professor_count || 0,
+                            }));
+                        }
 
-            async fetchFacultyLeaderboard() {
-                try {
-                    let params = `?limit=5&page=1&sort=${this.facultySort}&order=${this.facultySortOrder}`;
-                    const now = new Date();
-                    if (this.leaderboardPeriod === 'month') {
-                        params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
-                    } else if (this.leaderboardPeriod === 'year') {
-                        params += `&year=${now.getFullYear()}`;
+                        const majorResponse = await fetch(`/api/majors?sort_by=${this.memberStatsSortColumn}&order=${this.memberStatsSortOrder}`);
+                        const majorResult = await majorResponse.json();
+                        if (majorResult.success && majorResult.data) {
+                            this.majorMemberStats = majorResult.data.map((item, index) => ({
+                                rank: index + 1,
+                                name: `สาขา ${item.major_name}`,
+                                faculty_name: `คณะ ${item.faculty_name}`,
+                                student_count: item.user_count || 0,
+                                professor_count: item.professor_count || 0,
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('Error fetching member stats:', error);
+                    } finally {
+                        this.memberStatsLoading = false;
                     }
+                },
 
-                    const res = await fetch(`/api/leaders/faculty${params}`);
-                    const json = await res.json();
-                    if (json.success) this.facultyLeaderboard = json.data || [];
-                } catch (e) {
-                    console.error('Error fetching faculty leaderboard:', e);
-                }
-            },
-
-            async fetchMemberLeaderboard() {
-                try {
-                    let params = `?limit=5&page=1&sort=${this.memberSort}&order=${this.memberSortOrder}`;
-                    const now = new Date();
-                    if (this.leaderboardPeriod === 'month') {
-                        params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
-                    } else if (this.leaderboardPeriod === 'year') {
-                        params += `&year=${now.getFullYear()}`;
+                sortMemberStats(column) {
+                    if (this.memberStatsSortColumn === column) {
+                        this.memberStatsSortOrder = this.memberStatsSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                    } else {
+                        this.memberStatsSortColumn = column;
+                        this.memberStatsSortOrder = 'DESC';
                     }
+                    this.fetchMemberStats();
+                },
 
-                    const res = await fetch(`/api/leaders/member${params}`);
-                    const json = await res.json();
-                    if (json.success) this.memberLeaderboard = json.result || [];
-                } catch (e) {
-                    console.error('Error fetching leaderboards:', e);
-                }
-            },
+                sortMembers(column) {
+                    if (this.memberSort === column) {
+                        this.memberSortOrder = this.memberSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                        this.fetchMemberLeaderboard();
+                    } else {
+                        this.memberSortOrder = 'DESC';
+                        this.memberSort = column; // การเปลี่ยนค่าตรงนี้จะไป trigger watch ให้ fetch ข้อมูลอัตโนมัติ
+                    }
+                },
+
+                sortFaculties(column) {
+                    if (this.facultySort === column) {
+                        this.facultySortOrder = this.facultySortOrder === 'ASC' ? 'DESC' : 'ASC';
+                        this.fetchFacultyLeaderboard();
+                    } else {
+                        this.facultySortOrder = 'DESC';
+                        this.facultySort = column;
+                    }
+                },
+
+                async fetchFacultyLeaderboard() {
+                    try {
+                        let params = `?limit=5&page=1&sort=${this.facultySort}&order=${this.facultySortOrder}`;
+                        const now = new Date();
+                        if (this.leaderboardPeriod === 'month') {
+                            params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
+                        } else if (this.leaderboardPeriod === 'year') {
+                            params += `&year=${now.getFullYear()}`;
+                        }
+
+                        const res = await fetch(`/api/leaders/faculty${params}`);
+                        const json = await res.json();
+                        if (json.success) this.facultyLeaderboard = json.data || [];
+                    } catch (e) {
+                        console.error('Error fetching faculty leaderboard:', e);
+                    }
+                },
+
+                async fetchMemberLeaderboard() {
+                    try {
+                        let params = `?limit=5&page=1&sort=${this.memberSort}&order=${this.memberSortOrder}`;
+                        const now = new Date();
+                        if (this.leaderboardPeriod === 'month') {
+                            params += `&month=${now.getMonth() + 1}&year=${now.getFullYear()}`;
+                        } else if (this.leaderboardPeriod === 'year') {
+                            params += `&year=${now.getFullYear()}`;
+                        }
+
+                        const res = await fetch(`/api/leaders/member${params}`);
+                        const json = await res.json();
+                        if (json.success) this.memberLeaderboard = json.result || [];
+                    } catch (e) {
+                        console.error('Error fetching leaderboards:', e);
+                    }
+                },
+            }
         }
-    }
-</script>
+    </script>
