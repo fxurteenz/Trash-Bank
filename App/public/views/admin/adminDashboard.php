@@ -445,90 +445,173 @@
         </div>
     </div>
 
-    <!-- Member Stats -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-            <div>
-                <h2 class="text-xl font-bold text-gray-600">สถิติการเข้าร่วม</h2>
-                <p class="text-xs text-gray-400">จำนวนสมาชิกในแต่ละคณะ/สาขา</p>
+    <!-- fac-maj member Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Faculty Member Stats -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-600">สถิติการเข้าร่วม (คณะ)</h2>
+                    <p class="text-xs text-gray-400">จำนวนสมาชิกในแต่ละคณะ</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-gray-200 p-1 rounded-lg shadow-sm">
+                        <button @click="sortFacultyStats('member')"
+                            :class="facultyStatsSortColumn === 'member' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer">นักศึกษา</button>
+                        <button @click="sortFacultyStats('professor')"
+                            :class="facultyStatsSortColumn === 'professor' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer">อาจารย์</button>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="bg-gray-200 p-1 rounded-lg shadow-sm">
-                    <button @click="memberStatsType = 'faculty'"
-                        :class="memberStatsType === 'faculty' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
-                        class="px-3 py-1.5 rounded-md text-sm font-medium transition-all">คณะ</button>
-                    <button @click="memberStatsType = 'major'"
-                        :class="memberStatsType === 'major' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
-                        class="px-3 py-1.5 rounded-md text-sm font-medium transition-all">สาขา</button>
+
+            <div x-show="facultyMemberStatsLoading" class="animate-pulse">
+                <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
+                <div class="space-y-2">
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                </div>
+            </div>
+
+            <div x-show="!facultyMemberStatsLoading" x-cloak class="overflow-x-auto rounded-lg">
+                <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2">อันดับ</th>
+                            <th class="px-4 py-2">คณะ</th>
+                            <th class="px-4 py-2 text-right">
+                                นักศึกษา (คน) <span x-show="facultyStatsSortColumn === 'member'"
+                                    x-text="facultyStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right">
+                                อาจารย์ (คน) <span x-show="facultyStatsSortColumn === 'professor'"
+                                    x-text="facultyStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <template x-for="(item, index) in facultyMemberStats" :key="index">
+                            <tr class="bg-white hover:bg-slate-50 transition"
+                                x-show="index < facultyMemberStatsVisibleCount" x-transition>
+                                <td class="px-4 py-3 text-gray-600" x-text="item.rank"></td>
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-slate-700" x-text="item.name"></div>
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-blue-500"
+                                    x-text="item.student_count.toLocaleString()">
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-emerald-500"
+                                    x-text="item.professor_count.toLocaleString()"></td>
+                            </tr>
+                        </template>
+                        <template x-if="!facultyMemberStats || facultyMemberStats.length === 0">
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="flex justify-center gap-1 mt-4">
+                    <button @click="facultyMemberStatsVisibleCount = Math.max(facultyMemberStatsVisibleCount - 10, 10)"
+                        x-show="facultyMemberStats && facultyMemberStatsVisibleCount > 10" x-cloak
+                        class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        แสดงน้อยลง
+                    </button>
+                    <button
+                        @click="facultyMemberStatsVisibleCount = Math.min(facultyMemberStatsVisibleCount + 10, facultyMemberStats.length)"
+                        x-show="facultyMemberStats && facultyMemberStatsVisibleCount < facultyMemberStats.length"
+                        x-cloak
+                        class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        แสดงเพิ่มเติม
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div x-show="memberStatsLoading" class="animate-pulse">
-            <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
-            <div class="space-y-2">
-                <div class="h-12 bg-gray-100 rounded"></div>
-                <div class="h-12 bg-gray-100 rounded"></div>
-                <div class="h-12 bg-gray-100 rounded"></div>
-                <div class="h-12 bg-gray-100 rounded"></div>
+        <!-- Major Member Stats -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-600">สถิติการเข้าร่วม (สาขา)</h2>
+                    <p class="text-xs text-gray-400">จำนวนสมาชิกในแต่ละสาขา</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="bg-gray-200 p-1 rounded-lg shadow-sm">
+                        <button @click="sortMajorStats('member')"
+                            :class="majorStatsSortColumn === 'member' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer">นักศึกษา</button>
+                        <button @click="sortMajorStats('professor')"
+                            :class="majorStatsSortColumn === 'professor' ? 'bg-white shadow text-emerald-600' : 'text-slate-600 hover:text-gray-600'"
+                            class="px-3 py-1.5 rounded-md text-sm font-medium transition-all cursor-pointer">อาจารย์</button>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div x-show="!memberStatsLoading" x-cloak class="overflow-x-auto rounded-lg">
-            <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                    <tr>
-                        <th class="px-4 py-2">อันดับ</th>
-                        <th class="px-4 py-2" x-text="memberStatsType === 'faculty' ? 'คณะ' : 'สาขา'"></th>
-                        <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMemberStats('member')">
-                            นักศึกษา (คน) <span x-show="memberStatsSortColumn === 'member'"
-                                x-text="memberStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
-                        </th>
-                        <th class="px-4 py-2 text-right cursor-pointer hover:bg-gray-200 transition select-none"
-                            @click="sortMemberStats('professor')">
-                            อาจารย์ (คน) <span x-show="memberStatsSortColumn === 'professor'"
-                                x-text="memberStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                    <template x-for="(item, index) in activeMemberStats" :key="index">
-                        <tr class="bg-white hover:bg-slate-50 transition" x-show="index < memberStatsVisibleCount"
-                            x-transition>
-                            <td class="px-4 py-3 font-bold text-gray-600" x-text="item.rank"></td>
-                            <td class="px-4 py-3">
-                                <div class="font-medium text-slate-700" x-text="item.name"></div>
-                                <template x-if="memberStatsType === 'major'">
-                                    <div class="text-xs text-slate-400 mt-0.5" x-text="item.faculty_name"></div>
-                                </template>
-                            </td>
-                            <td class="px-4 py-3 text-right font-bold text-blue-500"
-                                x-text="item.student_count.toLocaleString()">
-                            </td>
-                            <td class="px-4 py-3 text-right font-bold text-emerald-500"
-                                x-text="item.professor_count.toLocaleString()"></td>
-                        </tr>
-                    </template>
-                    <template x-if="!activeMemberStats || activeMemberStats.length === 0">
+            <div x-show="majorMemberStatsLoading" class="animate-pulse">
+                <div class="h-8 bg-gray-200 rounded mb-4 w-full"></div>
+                <div class="space-y-2">
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                    <div class="h-12 bg-gray-100 rounded"></div>
+                </div>
+            </div>
+
+            <div x-show="!majorMemberStatsLoading" x-cloak class="overflow-x-auto rounded-lg">
+                <table class="w-full text-sm text-left text-gray-600 border border-gray-100">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
                         <tr>
-                            <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                            <th class="px-4 py-2">อันดับ</th>
+                            <th class="px-4 py-2">สาขา</th>
+                            <th class="px-4 py-2 text-right">
+                                นักศึกษา (คน) <span x-show="majorStatsSortColumn === 'member'"
+                                    x-text="majorStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
+                            <th class="px-4 py-2 text-right">
+                                อาจารย์ (คน) <span x-show="majorStatsSortColumn === 'professor'"
+                                    x-text="majorStatsSortOrder === 'ASC' ? '↑' : '↓'" x-cloak></span>
+                            </th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
-            <div class="flex justify-center gap-1 mt-4">
-                <button @click="memberStatsVisibleCount = Math.max(memberStatsVisibleCount - 10, 10)"
-                    x-show="activeMemberStats && memberStatsVisibleCount > 10" x-cloak
-                    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
-                    แสดงน้อยลง
-                </button>
-                <button
-                    @click="memberStatsVisibleCount = Math.min(memberStatsVisibleCount + 10, activeMemberStats.length)"
-                    x-show="activeMemberStats && memberStatsVisibleCount < activeMemberStats.length" x-cloak
-                    class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
-                    แสดงเพิ่มเติม
-                </button>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200">
+                        <template x-for="(item, index) in majorMemberStats" :key="index">
+                            <tr class="bg-white hover:bg-slate-50 transition"
+                                x-show="index < majorMemberStatsVisibleCount" x-transition>
+                                <td class="px-4 py-3 text-gray-600" x-text="item.rank"></td>
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-slate-700" x-text="item.name"></div>
+                                    <div class="text-xs text-slate-400 mt-0.5" x-text="item.faculty_name"></div>
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-blue-500"
+                                    x-text="item.student_count.toLocaleString()">
+                                </td>
+                                <td class="px-4 py-3 text-right font-bold text-emerald-500"
+                                    x-text="item.professor_count.toLocaleString()"></td>
+                            </tr>
+                        </template>
+                        <template x-if="!majorMemberStats || majorMemberStats.length === 0">
+                            <tr>
+                                <td colspan="4" class="px-4 py-6 text-center text-slate-500">ไม่มีข้อมูล</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="flex justify-center gap-1 mt-4">
+                    <button @click="majorMemberStatsVisibleCount = Math.max(majorMemberStatsVisibleCount - 10, 10)"
+                        x-show="majorMemberStats && majorMemberStatsVisibleCount > 10" x-cloak
+                        class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        แสดงน้อยลง
+                    </button>
+                    <button
+                        @click="majorMemberStatsVisibleCount = Math.min(majorMemberStatsVisibleCount + 10, majorMemberStats.length)"
+                        x-show="majorMemberStats && majorMemberStatsVisibleCount < majorMemberStats.length" x-cloak
+                        class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                        แสดงเพิ่มเติม
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -545,18 +628,20 @@
                 memberSortOrder: 'DESC',
                 facultyLeaderboard: [],
                 memberLeaderboard: [],
-                memberStatsType: 'faculty', // 'faculty' or 'major'
-                memberStatsSortColumn: 'member', // Default sort column for member stats
-                memberStatsSortOrder: 'DESC', // Default sort order for member stats
                 facultyMemberStats: [],
                 majorMemberStats: [],
-                memberStatsLoading: true,
-                memberStatsVisibleCount: 10,
+                facultyMemberStatsLoading: true,
+                majorMemberStatsLoading: true,
+                facultyMemberStatsVisibleCount: 10,
+                majorMemberStatsVisibleCount: 10,
+                facultyStatsSortColumn: 'member',
+                facultyStatsSortOrder: 'DESC',
+                majorStatsSortColumn: 'member',
+                majorStatsSortOrder: 'DESC',
 
                 get currentSummary() {
                     if (this.period === 'all') return this.dashboardData.summary || {};
-                    if (this.period === 'today') return this.dashboardData.summary_today || {};
-                    return this.dashboardData.summary_month || {};
+                    if (this.period === 'today') return this.dashboardData.summary_today || {}; return this.dashboardData.summary_month || {};
                 },
 
                 get periodText() {
@@ -576,15 +661,11 @@
                     this.$watch('memberSort', () => {
                         this.fetchMemberLeaderboard();
                     });
-                    this.$watch('memberStatsType', () => {
-                        this.fetchMemberStats();
-                    });
-                    this.$watch('memberStatsSortColumn', () => {
-                        this.fetchMemberStats();
-                    });
-                    this.$watch('memberStatsSortOrder', () => {
-                        this.fetchMemberStats();
-                    });
+
+                    this.$watch('facultyStatsSortColumn', () => this.fetchFacultyMemberStats());
+                    this.$watch('facultyStatsSortOrder', () => this.fetchFacultyMemberStats());
+                    this.$watch('majorStatsSortColumn', () => this.fetchMajorMemberStats());
+                    this.$watch('majorStatsSortOrder', () => this.fetchMajorMemberStats());
 
                     try {
                         const res = await fetch('/api/dashboards/center');
@@ -596,17 +677,13 @@
                         console.error('Error fetching dashboard data:', error);
                     }
 
-                    await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard(), this.fetchMemberStats()]);
+                    await Promise.all([this.fetchFacultyLeaderboard(), this.fetchMemberLeaderboard(), this.fetchFacultyMemberStats(), this.fetchMajorMemberStats()]);
                 },
 
-                get activeMemberStats() {
-                    return this.memberStatsType === 'faculty' ? this.facultyMemberStats : this.majorMemberStats;
-                },
-
-                async fetchMemberStats() {
-                    this.memberStatsLoading = true;
+                async fetchFacultyMemberStats() {
+                    this.facultyMemberStatsLoading = true;
                     try {
-                        const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.memberStatsSortColumn}&order=${this.memberStatsSortOrder}`);
+                        const facultyResponse = await fetch(`/api/faculties?show_branch=false&sort_by=${this.facultyStatsSortColumn}&order=${this.facultyStatsSortOrder}`);
                         const facultyResult = await facultyResponse.json();
                         if (facultyResult.success && facultyResult.data) {
                             this.facultyMemberStats = facultyResult.data.map((item, index) => ({
@@ -616,8 +693,17 @@
                                 professor_count: item.professor_count || 0,
                             }));
                         }
+                    } catch (error) {
+                        console.error('Error fetching faculty member stats:', error);
+                    } finally {
+                        this.facultyMemberStatsLoading = false;
+                    }
+                },
 
-                        const majorResponse = await fetch(`/api/majors?sort_by=${this.memberStatsSortColumn}&order=${this.memberStatsSortOrder}`);
+                async fetchMajorMemberStats() {
+                    this.majorMemberStatsLoading = true;
+                    try {
+                        const majorResponse = await fetch(`/api/majors?sort_by=${this.majorStatsSortColumn}&order=${this.majorStatsSortOrder}`);
                         const majorResult = await majorResponse.json();
                         if (majorResult.success && majorResult.data) {
                             this.majorMemberStats = majorResult.data.map((item, index) => ({
@@ -629,26 +715,33 @@
                             }));
                         }
                     } catch (error) {
-                        console.error('Error fetching member stats:', error);
+                        console.error('Error fetching major member stats:', error);
                     } finally {
-                        this.memberStatsLoading = false;
+                        this.majorMemberStatsLoading = false;
                     }
                 },
 
-                sortMemberStats(column) {
-                    if (this.memberStatsSortColumn === column) {
-                        this.memberStatsSortOrder = this.memberStatsSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                sortFacultyStats(column) {
+                    if (this.facultyStatsSortColumn === column) {
+                        this.facultyStatsSortOrder = this.facultyStatsSortOrder === 'ASC' ? 'DESC' : 'ASC';
                     } else {
-                        this.memberStatsSortColumn = column;
-                        this.memberStatsSortOrder = 'DESC';
+                        this.facultyStatsSortColumn = column;
+                        this.facultyStatsSortOrder = 'DESC';
                     }
-                    this.fetchMemberStats();
+                },
+
+                sortMajorStats(column) {
+                    if (this.majorStatsSortColumn === column) {
+                        this.majorStatsSortOrder = this.majorStatsSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                    } else {
+                        this.majorStatsSortColumn = column;
+                        this.majorStatsSortOrder = 'DESC';
+                    }
                 },
 
                 sortMembers(column) {
                     if (this.memberSort === column) {
-                        this.memberSortOrder = this.memberSortOrder === 'ASC' ? 'DESC' : 'ASC';
-                        this.fetchMemberLeaderboard();
+                        this.memberSortOrder = this.memberSortOrder === 'ASC' ? 'DESC' : 'ASC'; this.fetchMemberLeaderboard();
                     } else {
                         this.memberSortOrder = 'DESC';
                         this.memberSort = column; // การเปลี่ยนค่าตรงนี้จะไป trigger watch ให้ fetch ข้อมูลอัตโนมัติ
