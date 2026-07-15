@@ -59,6 +59,14 @@
         [x-cloak] {
             display: none !important;
         }
+
+        .nav-item {
+            transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+        }
+
+        .nav-item:hover {
+            transform: translateX(4px);
+        }
     </style>
 </head>
 
@@ -111,12 +119,12 @@
                     x-transition:leave-start="transform opacity-100 scale-100"
                     x-transition:leave-end="transform opacity-0 scale-95"
                     class="absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white border border-slate-200 py-2">
-                    <a href="#"
+                    <!-- <a href="#"
                         class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between px-3"><i
                             data-lucide="settings"></i> ตั้งค่า</a>
                     <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex justify-between"><i
                             data-lucide="user"></i> โปรไฟล์</a>
-                    <hr class="my-1">
+                    <hr class="my-1"> -->
                     <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex justify-between">
                         <i data-lucide="log-out"></i>ออกจากระบบ
                     </a>
@@ -125,24 +133,24 @@
         </header>
 
         <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-            class="fixed top-16 bottom-0 left-0 z-20 w-64 bg-white border-r border-slate-200 transform transition-transform duration-150 ease-in-out overflow-y-auto">
-            <div class="border-b-2 border-slate-400 w-full p-2 text-center">
-                <p class="text-sm text-slate-500">
-                    ผู้ดูแลระบบ
-                </p>
-                <h3 class="text-slate-600 text-lg flex items-center gap-2 justify-center">
+            class="fixed top-16 bottom-0 left-0 z-20 w-64 bg-white border-r border-slate-200 transform transition-transform duration-150 ease-in-out overflow-auto scrollbar-[5px] scrollbar-thumb-gray-300 scrollbar-track-gray-400">
+            <!-- <div class="border-b-2 border-slate-400 w-full p-2 text-center">
+                <h3 class="text-gray-600 text-lg flex items-center gap-2 justify-center">
                     <i data-lucide="square-user-round"></i>
                     <?php echo $user->member_name ?? "ตั้งชื่อผู้ใช้งาน"; ?>
                 </h3>
-            </div>
-            <nav class="p-4 space-y-2">
-                <div class="mb-6">
-                    <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">เมนู</p>
+                <span class="text-xs text-gray-400">
+                    ผู้ดูแลระบบ
+                </span>
+            </div> -->
+            <nav class="space-y-2">
+                <div class="mb-6 mt-6">
+                    <p class="px-4 text-xs font-semibold text-slate-500">เมนู</p>
                 </div>
 
                 <?php if ($page === "dashboard"): ?>
                     <a href="/admin"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-emerald-100 to-transparent text-emerald-700 transition-colors group border-l-8 border-emerald-600">
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-emerald-700 transition-colors group border-l-8 border-emerald-600">
                         <svg class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700" fill="currentColor"
                             viewBox="0 0 20 20">
                             <path
@@ -152,7 +160,7 @@
                     </a>
                 <?php else: ?>
                     <a href="/admin"
-                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-transparent text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
                         <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600" fill="currentColor"
                             viewBox="0 0 20 20">
                             <path
@@ -166,7 +174,7 @@
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">ธุรกรรม</p>
                     <?php if ($page === "wasteTransaction"): ?>
                         <a href="/admin/transactions/waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-emerald-100 to-transparent text-emerald-700 transition-colors group border-l-8 border-emerald-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-emerald-700 transition-colors group border-l-8 border-emerald-600">
                             <svg class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
@@ -180,7 +188,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/transactions/waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-transparent text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5">
@@ -196,7 +204,7 @@
 
                     <?php if ($page === "wasteClearance"): ?>
                         <a href="/admin/transactions/clear_waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-amber-100 to-transparent text-amber-700 transition-colors group border-l-8 border-amber-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-amber-700 transition-colors group border-l-8 border-amber-600">
                             <svg class="w-5 h-5 text-amber-600 group-hover:text-amber-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -207,7 +215,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/transactions/clear_waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-amber-50 hover:to-transparent text-slate-700 hover:text-amber-700 transition-colors group border-l-8 border-transparent hover:border-amber-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-50 text-slate-700 hover:text-amber-700 transition-colors group border-l-8 border-transparent hover:border-amber-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -220,7 +228,7 @@
 
                     <?php if ($page === "wasteSale"): ?>
                         <a href="/admin/transactions/waste_sale"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-sky-100 to-transparent text-sky-700 transition-colors group border-l-8 border-sky-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-sky-700 transition-colors group border-l-8 border-sky-600">
                             <svg class="w-5 h-5 text-sky-600 group-hover:text-sky-700" fill="currentColor"
                                 viewBox="0 0 20 20">
                                 <path
@@ -230,7 +238,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/transactions/waste_sale"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-sky-50 hover:to-transparent text-slate-700 hover:text-sky-700 transition-colors group border-l-8 border-transparent hover:border-sky-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-50 text-slate-700 hover:text-sky-700 transition-colors group border-l-8 border-transparent hover:border-sky-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-sky-600" fill="currentColor"
                                 viewBox="0 0 20 20">
                                 <path
@@ -242,7 +250,7 @@
 
                     <?php if ($page === "donationTransaction"): ?>
                         <a href="/admin/transactions/donation"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-purple-100 to-transparent text-purple-700 transition-colors group border-l-8 border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-purple-700 transition-colors group border-l-8 border-purple-600">
                             <svg class="w-5 h-5 text-purple-600 group-hover:text-purple-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -253,7 +261,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/transactions/donation"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-purple-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -266,7 +274,7 @@
 
                     <?php if ($page === "redeemItemTransaction"): ?>
                         <a href="/admin/transactions/redeem_item"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-pink-100 to-transparent text-pink-700 transition-colors group border-l-8 border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-pink-700 transition-colors group border-l-8 border-pink-600">
                             <svg class="w-5 h-5 text-pink-600 group-hover:text-pink-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -277,7 +285,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/transactions/redeem_item"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-pink-50 hover:to-transparent text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-pink-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -294,7 +302,7 @@
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">จัดการ</p>
                     <?php if ($page === "manageUsers" || $page === "manageUserDetail"): ?>
                         <a href="/admin/manage/users"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-pink-100 to-transparent text-pink-700 transition-colors group border-l-8 border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-pink-700 transition-colors group border-l-8 border-pink-600">
                             <svg class="w-5 h-5 text-pink-600 group-hover:text-pink-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 16 16">
                                 <path fill="currentColor"
@@ -310,7 +318,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/users"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-pink-50 hover:to-transparent text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-pink-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 16 16">
                                 <path fill="currentColor"
@@ -322,7 +330,7 @@
                     <?php endif; ?>
                     <?php if ($page === "manageFaculty"): ?>
                         <a href="/admin/manage/faculty"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-purple-100 to-transparent text-purple-700 transition-colors group border-l-8 border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-purple-700 transition-colors group border-l-8 border-purple-600">
                             <svg class="w-5 h-5 text-purple-600 group-hover:text-purple-700"
                                 xmlns="http://www.w3.org/2000/svg" width="30" height="24" viewBox="0 0 640 512">
                                 <path fill="currentColor"
@@ -333,7 +341,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/faculty"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-purple-600"
                                 xmlns="http://www.w3.org/2000/svg" width="30" height="24" viewBox="0 0 640 512">
                                 <path fill="currentColor"
@@ -345,7 +353,7 @@
                     <?php endif; ?>
                     <?php if ($page === "manageWasteType"): ?>
                         <a href="/admin/manage/waste_category"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-blue-100 to-transparent text-blue-700 transition-colors group border-l-8 border-blue-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-blue-700 transition-colors group border-l-8 border-blue-600">
                             <svg class="w-5 h-5 text-blue-600 group-hover:text-blue-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -356,7 +364,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/waste_category"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent text-slate-700 hover:text-blue-700 transition-colors group border-l-8 border-transparent hover:border-blue-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-blue-700 transition-colors group border-l-8 border-transparent hover:border-blue-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-blue-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -369,7 +377,7 @@
 
                     <?php if ($page === "manageRewardCategories"): ?>
                         <a href="/admin/manage/reward_category"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-rose-100 to-transparent text-rose-700 transition-colors group border-l-8 border-rose-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-rose-700 transition-colors group border-l-8 border-rose-600">
                             <svg class="w-5 h-5 text-rose-600 group-hover:text-rose-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -387,7 +395,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/reward_category"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-rose-50 hover:to-transparent text-slate-700 hover:text-rose-700 transition-colors group border-l-8 border-transparent hover:border-rose-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-rose-700 transition-colors group border-l-8 border-transparent hover:border-rose-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-rose-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -407,7 +415,7 @@
 
                     <?php if ($page === "manageRewards" || (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/manage/reward') === 0 && strpos($_SERVER['REQUEST_URI'], '_category') === false)): ?>
                         <a href="/admin/manage/reward"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-orange-100 to-transparent text-orange-700 transition-colors group border-l-8 border-orange-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-orange-700 transition-colors group border-l-8 border-orange-600">
                             <svg class="w-5 h-5 text-orange-600 group-hover:text-orange-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 56 56">
                                 <path fill="currentColor"
@@ -418,7 +426,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/reward"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-orange-50 hover:to-transparent text-slate-700 hover:text-orange-700 transition-colors group border-l-8 border-transparent hover:border-orange-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-orange-700 transition-colors group border-l-8 border-transparent hover:border-orange-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-orange-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 56 56">
                                 <path fill="currentColor"
@@ -431,7 +439,7 @@
 
                     <?php if ($page === "manageBadges" && (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/manage/badge') === 0)): ?>
                         <a href="/admin/manage/badge"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-yellow-100 to-transparent text-yellow-700 transition-colors group border-l-8 border-yellow-500">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-yellow-700 transition-colors group border-l-8 border-yellow-500">
                             <svg class="w-5 h-5 text-yellow-600 group-hover:text-yellow-700"
                                 xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2">
@@ -442,7 +450,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/manage/badge"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-yellow-50 hover:to-transparent text-slate-700 hover:text-yellow-700 transition-colors group border-l-8 border-transparent hover:border-yellow-500">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-yellow-700 transition-colors group border-l-8 border-transparent hover:border-yellow-500">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-yellow-600"
                                 xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2">
@@ -453,37 +461,13 @@
                         </a>
                     <?php endif; ?>
 
-                    <?php if ($page === "managePointGroup"): ?>
-                        <a href="/admin/manage/point_group"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-teal-100 to-transparent text-teal-700 transition-colors group border-l-8 border-teal-600">
-                            <svg class="w-5 h-5 text-teal-600 group-hover:text-teal-700" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="currentColor" fill-rule="evenodd"
-                                    d="M12 2.75a6.25 6.25 0 1 0 0 12.5a6.25 6.25 0 0 0 0-12.5M4.25 9a7.75 7.75 0 1 1 15.025 2.677l2.288 2.368c.257.267.471.489.631.674c.158.182.32.39.415.632c.334.845.066 1.845-.739 2.337c-.23.142-.494.2-.72.238c-.232.04-.526.07-.873.107l-.024.002c-.459.049-.546.064-.605.087a.68.68 0 0 0-.397.417c-.026.07-.041.173-.088.644l-.002.022c-.036.361-.066.664-.103.902c-.036.23-.09.494-.223.725c-.47.822-1.459 1.13-2.317.767c-.241-.102-.446-.273-.62-.435c-.18-.166-.393-.388-.65-.655l-.02-.02L12 17.09l-3.232 3.405l-.015.015c-.257.267-.471.489-.65.655c-.175.162-.38.333-.62.435c-.86.363-1.848.055-2.318-.767c-.132-.231-.187-.494-.223-.726c-.037-.237-.067-.54-.102-.9l-.003-.023c-.046-.471-.062-.573-.087-.644a.68.68 0 0 0-.397-.417c-.06-.023-.147-.038-.606-.087l-.023-.002c-.347-.037-.641-.068-.873-.107c-.226-.037-.49-.096-.721-.238c-.804-.492-1.072-1.492-.739-2.337c.096-.242.257-.45.415-.632c.16-.185.374-.407.632-.674l2.287-2.368A7.7 7.7 0 0 1 4.25 9m1.178 4.109l-1.896 1.963c-.276.286-.462.478-.592.629a1.2 1.2 0 0 0-.154.2c-.09.23 0 .424.119.503c.009.003.06.02.194.043c.18.03.43.057.806.097l.075.008c.34.035.641.067.91.17c.599.23 1.057.71 1.272 1.312c.096.269.126.573.16.927l.008.075c.038.389.064.649.094.84c.026.162.046.214.047.217c.08.135.244.201.425.125c0 0 .05-.027.186-.154c.145-.134.33-.325.605-.61l.002-.002l2.72-2.866a7.76 7.76 0 0 1-4.981-3.477m8.163 3.478a7.76 7.76 0 0 0 4.982-3.478l1.896 1.963c.276.286.461.478.591.629c.123.14.151.195.154.2c.09.23 0 .424-.118.503c-.01.003-.06.02-.194.043c-.181.03-.43.057-.807.097l-.075.008c-.339.035-.641.067-.91.17c-.598.23-1.057.71-1.272 1.312c-.096.269-.126.573-.16.927l-.008.075c-.038.389-.064.649-.094.84c-.025.162-.046.214-.046.217c-.08.135-.245.202-.427.125h.002s-.05-.027-.187-.154a17 17 0 0 1-.605-.61l-.002-.002zm-1.59-9.553q-.087.15-.2.354l-.098.176l-.022.04c-.079.144-.209.382-.426.547c-.221.168-.488.226-.643.26l-.043.009l-.191.043c-.176.04-.318.072-.44.103c.079.097.182.219.316.376l.13.152l.03.034c.108.125.283.325.363.585c.08.256.052.52.035.686l-.005.047l-.02.203a23 23 0 0 0-.041.46c.104-.046.222-.1.363-.165l.179-.082l.04-.02c.144-.067.394-.184.672-.184c.279 0 .528.117.672.185l.04.019l.18.082c.14.065.258.12.363.165l-.042-.46l-.02-.203l-.005-.047c-.017-.167-.044-.43.035-.686c.08-.26.255-.46.363-.585l.03-.034l.13-.152c.134-.157.237-.279.317-.376c-.122-.03-.265-.063-.44-.103l-.191-.043l-.043-.01c-.156-.033-.422-.091-.644-.26c-.217-.164-.347-.402-.425-.545l-.023-.041l-.098-.176q-.112-.204-.199-.354M11.013 5.8c.172-.225.485-.55.986-.55c.502 0 .815.325.987.55c.164.214.33.511.5.816l.022.041l.099.177l.056.1l.099.023l.19.043l.048.01c.328.075.653.148.903.247c.277.109.65.32.795.785c.142.455-.037.841-.193 1.09c-.145.23-.364.486-.59.749l-.03.035l-.13.153l-.082.097l.012.135l.02.203l.004.046c.035.352.068.692.055.964c-.012.286-.08.718-.468 1.011c-.4.304-.84.238-1.12.157c-.258-.073-.562-.214-.87-.355l-.043-.02l-.179-.083l-.085-.039l-.085.04l-.178.082l-.044.02c-.307.141-.612.282-.87.355c-.28.08-.72.147-1.12-.157c-.387-.293-.455-.725-.468-1.01c-.012-.273.02-.613.055-.965l.005-.046l.02-.203l.012-.135l-.083-.097l-.13-.153l-.03-.035c-.225-.263-.445-.52-.59-.75c-.156-.248-.334-.634-.193-1.09c.145-.463.519-.675.795-.784c.25-.099.576-.172.904-.246l.046-.01l.191-.044l.1-.023l.056-.1l.098-.177l.023-.041c.17-.305.335-.602.5-.816"
-                                    clip-rule="evenodd" stroke-width="0.5" stroke="currentColor" />
-                            </svg>
-                            <span class="text-sm font-medium">กลุ่มแต้ม</span>
-                        </a>
-                    <?php else: ?>
-                        <a href="/admin/manage/point_group"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-teal-50 hover:to-transparent text-slate-700 hover:text-teal-700 transition-colors group border-l-8 border-transparent hover:border-teal-600">
-                            <svg class="w-5 h-5 text-slate-400 group-hover:text-teal-600" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" viewBox="0 0 24 24">
-                                <path fill="currentColor" fill-rule="evenodd"
-                                    d="M12 2.75a6.25 6.25 0 1 0 0 12.5a6.25 6.25 0 0 0 0-12.5M4.25 9a7.75 7.75 0 1 1 15.025 2.677l2.288 2.368c.257.267.471.489.631.674c.158.182.32.39.415.632c.334.845.066 1.845-.739 2.337c-.23.142-.494.2-.72.238c-.232.04-.526.07-.873.107l-.024.002c-.459.049-.546.064-.605.087a.68.68 0 0 0-.397.417c-.026.07-.041.173-.088.644l-.002.022c-.036.361-.066.664-.103.902c-.036.23-.09.494-.223.725c-.47.822-1.459 1.13-2.317.767c-.241-.102-.446-.273-.62-.435c-.18-.166-.393-.388-.65-.655l-.02-.02L12 17.09l-3.232 3.405l-.015.015c-.257.267-.471.489-.65.655c-.175.162-.38.333-.62.435c-.86.363-1.848.055-2.318-.767c-.132-.231-.187-.494-.223-.726c-.037-.237-.067-.54-.102-.9l-.003-.023c-.046-.471-.062-.573-.087-.644a.68.68 0 0 0-.397-.417c-.06-.023-.147-.038-.606-.087l-.023-.002c-.347-.037-.641-.068-.873-.107c-.226-.037-.49-.096-.721-.238c-.804-.492-1.072-1.492-.739-2.337c.096-.242.257-.45.415-.632c.16-.185.374-.407.632-.674l2.287-2.368A7.7 7.7 0 0 1 4.25 9m1.178 4.109l-1.896 1.963c-.276.286-.462.478-.592.629a1.2 1.2 0 0 0-.154.2c-.09.23 0 .424.119.503c.009.003.06.02.194.043c.18.03.43.057.806.097l.075.008c.34.035.641.067.91.17c.599.23 1.057.71 1.272 1.312c.096.269.126.573.16.927l.008.075c.038.389.064.649.094.84c.026.162.046.214.047.217c.08.135.244.201.425.125c0 0 .05-.027.186-.154c.145-.134.33-.325.605-.61l.002-.002l2.72-2.866a7.76 7.76 0 0 1-4.981-3.477m8.163 3.478a7.76 7.76 0 0 0 4.982-3.478l1.896 1.963c.276.286.461.478.591.629c.123.14.151.195.154.2c.09.23 0 .424-.118.503c-.01.003-.06.02-.194.043c-.181.03-.43.057-.807.097l-.075.008c-.339.035-.641.067-.91.17c-.598.23-1.057.71-1.272 1.312c-.096.269-.126.573-.16.927l-.008.075c-.038.389-.064.649-.094.84c-.025.162-.046.214-.046.217c-.08.135-.245.202-.427.125h.002s-.05-.027-.187-.154a17 17 0 0 1-.605-.61l-.002-.002zm-1.59-9.553q-.087.15-.2.354l-.098.176l-.022.04c-.079.144-.209.382-.426.547c-.221.168-.488.226-.643.26l-.043.009l-.191.043c-.176.04-.318.072-.44.103c.079.097.182.219.316.376l.13.152l.03.034c.108.125.283.325.363.585c.08.256.052.52.035.686l-.005.047l-.02.203a23 23 0 0 0-.041.46c.104-.046.222-.1.363-.165l.179-.082l.04-.02c.144-.067.394-.184.672-.184c.279 0 .528.117.672.185l.04.019l.18.082c.14.065.258.12.363.165l-.042-.46l-.02-.203l-.005-.047c-.017-.167-.044-.43.035-.686c.08-.26.255-.46.363-.585l.03-.034l.13-.152c.134-.157.237-.279.317-.376c-.122-.03-.265-.063-.44-.103l-.191-.043l-.043-.01c-.156-.033-.422-.091-.644-.26c-.217-.164-.347-.402-.425-.545l-.023-.041l-.098-.176q-.112-.204-.199-.354M11.013 5.8c.172-.225.485-.55.986-.55c.502 0 .815.325.987.55c.164.214.33.511.5.816l.022.041l.099.177l.056.1l.099.023l.19.043l.048.01c.328.075.653.148.903.247c.277.109.65.32.795.785c.142.455-.037.841-.193 1.09c-.145.23-.364.486-.59.749l-.03.035l-.13.153l-.082.097l.012.135l.02.203l.004.046c.035.352.068.692.055.964c-.012.286-.08.718-.468 1.011c-.4.304-.84.238-1.12.157c-.258-.073-.562-.214-.87-.355l-.043-.02l-.179-.083l-.085-.039l-.085.04l-.178.082l-.044.02c-.307.141-.612.282-.87.355c-.28.08-.72.147-1.12-.157c-.387-.293-.455-.725-.468-1.01c-.012-.273.02-.613.055-.965l.005-.046l.02-.203l.012-.135l-.083-.097l-.13-.153l-.03-.035c-.225-.263-.445-.52-.59-.75c-.156-.248-.334-.634-.193-1.09c.145-.463.519-.675.795-.784c.25-.099.576-.172.904-.246l.046-.01l.191-.044l.1-.023l.056-.1l.098-.177l.023-.041c.17-.305.335-.602.5-.816"
-                                    clip-rule="evenodd" stroke-width="0.5" stroke="currentColor" />
-                            </svg>
-                            <span class="text-sm font-medium">กลุ่มแต้ม</span>
-                        </a>
-                    <?php endif; ?>
-
                 </div>
 
                 <div class="mt-6">
                     <p class="px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">คลังขยะ</p>
                     <?php if ($page === "manageWasteStock" && (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/stock/branchwaste') === 0)): ?>
                         <a href="/admin/stock/branchwaste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-cyan-100 to-transparent text-cyan-700 transition-colors group border-l-8 border-cyan-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-cyan-700 transition-colors group border-l-8 border-cyan-600">
                             <svg class="w-5 h-5 text-cyan-600 group-hover:text-cyan-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 15 15">
                                 <path fill="currentColor"
@@ -494,7 +478,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/stock/branchwaste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-cyan-50 hover:to-transparent text-slate-700 hover:text-cyan-700 transition-colors group border-l-8 border-transparent hover:border-cyan-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-cyan-700 transition-colors group border-l-8 border-transparent hover:border-cyan-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-cyan-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 15 15">
                                 <path fill="currentColor"
@@ -507,7 +491,7 @@
 
                     <?php if ($page === "manageWasteStock" && (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/stock/centerwaste') === 0)): ?>
                         <a href="/admin/stock/centerwaste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-indigo-100 to-transparent text-indigo-700 transition-colors group border-l-8 border-indigo-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-indigo-700 transition-colors group border-l-8 border-indigo-600">
                             <svg class="w-5 h-5 text-indigo-600 group-hover:text-indigo-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
                                 <path fill="currentColor"
@@ -518,7 +502,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/stock/centerwaste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-indigo-50 hover:to-transparent text-slate-700 hover:text-indigo-700 transition-colors group border-l-8 border-transparent hover:border-indigo-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-indigo-700 transition-colors group border-l-8 border-transparent hover:border-indigo-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-indigo-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 15 15">
                                 <path fill="currentColor"
@@ -536,7 +520,7 @@
 
                     <?php if ($page === "wasteTransactionHistory"): ?>
                         <a href="/admin/history/waste_transaction"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-emerald-100 to-transparent text-emerald-700 transition-colors group border-l-8 border-emerald-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-emerald-700 transition-colors group border-l-8 border-emerald-600">
                             <svg class="w-5 h-5 text-emerald-600 group-hover:text-emerald-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -547,7 +531,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/history/waste_transaction"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-emerald-50 hover:to-transparent text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-emerald-700 transition-colors group border-l-8 border-transparent hover:border-emerald-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-emerald-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -560,7 +544,7 @@
 
                     <?php if ($page === "clearWasteHistory"): ?>
                         <a href="/admin/history/clear_waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-amber-100 to-transparent text-amber-700 transition-colors group border-l-8 border-amber-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-amber-700 transition-colors group border-l-8 border-amber-600">
                             <svg class="w-5 h-5 text-amber-600 group-hover:text-amber-700" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -571,7 +555,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/history/clear_waste"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-amber-50 hover:to-transparent text-slate-700 hover:text-amber-700 transition-colors group border-l-8 border-transparent hover:border-amber-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-50 text-slate-700 hover:text-amber-700 transition-colors group border-l-8 border-transparent hover:border-amber-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-amber-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -584,7 +568,7 @@
 
                     <?php if ($page === "wasteSaleHistory"): ?>
                         <a href="/admin/history/waste_sale"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-sky-100 to-transparent text-sky-700 transition-colors group border-l-8 border-sky-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-sky-700 transition-colors group border-l-8 border-sky-600">
                             <svg class="w-5 h-5 text-sky-600 group-hover:text-sky-700" fill="currentColor"
                                 viewBox="0 0 20 20">
                                 <path
@@ -594,7 +578,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/history/waste_sale"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-sky-50 hover:to-transparent text-slate-700 hover:text-sky-700 transition-colors group border-l-8 border-transparent hover:border-sky-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-50 text-slate-700 hover:text-sky-700 transition-colors group border-l-8 border-transparent hover:border-sky-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-sky-600" fill="currentColor"
                                 viewBox="0 0 20 20">
                                 <path
@@ -606,7 +590,7 @@
 
                     <?php if ($page === "DonationHistory" && (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/history/donation') === 0)): ?>
                         <a href="/admin/history/donation"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-purple-100 to-transparent text-purple-700 transition-colors group border-l-8 border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-purple-700 transition-colors group border-l-8 border-purple-600">
                             <svg class="w-5 h-5 text-purple-600 group-hover:text-purple-700"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -617,7 +601,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/history/donation"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-purple-50 hover:to-transparent text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-purple-700 transition-colors group border-l-8 border-transparent hover:border-purple-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-purple-600"
                                 xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -630,7 +614,7 @@
 
                     <?php if ($page === "DonationHistory" && (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/admin/history/redeem') === 0)): ?>
                         <a href="/admin/history/redeem"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gradient-to-r from-pink-100 to-transparent text-pink-700 transition-colors group border-l-8 border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg bg-gray-50 text-pink-700 transition-colors group border-l-8 border-pink-600">
                             <svg class="w-5 h-5 text-pink-600 group-hover:text-pink-700" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
@@ -641,7 +625,7 @@
                         </a>
                     <?php else: ?>
                         <a href="/admin/history/redeem"
-                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gradient-to-r hover:from-pink-50 hover:to-transparent text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
+                            class="nav-item flex items-center gap-3 px-4 py-3 rounded-r-lg hover:bg-gray-100 text-slate-700 hover:text-pink-700 transition-colors group border-l-8 border-transparent hover:border-pink-600">
                             <svg class="w-5 h-5 text-slate-400 group-hover:text-pink-600" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" viewBox="0 0 24 24">
                                 <path fill="currentColor"
