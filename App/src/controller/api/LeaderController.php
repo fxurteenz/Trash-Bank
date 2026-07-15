@@ -42,7 +42,40 @@ class LeaderController
     {
         try {
             // use user auth
-            $result = self::$LeaderModel->LeadingFacultyDeposit(self::$queryString);
+            $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function GetFacultyLeaderDeposit()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingFacultyByDeposit(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -104,12 +137,79 @@ class LeaderController
         }
     }
 
+    public function GetMemberLeaderDeposit()
+    {
+        try {
+            // use user auth
+            $result = self::$LeaderModel->LeadingMemberByDeposit(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function GetMajorLeader()
     {
         try {
             // use user auth
             // $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
-            $result = self::$LeaderModel->LeadingMajorDeposit(self::$queryString);
+            $result = self::$LeaderModel->LeadingMajor(self::$queryString);
+
+            header('Content-Type: application/json');
+            http_response_code(200);
+            echo json_encode([
+                'success' => TRUE,
+                'data' => $result['stats'],
+                'total' => $result['total'],
+                'page' => (int) (self::$queryString['page'] ?? 1),
+                'limit' => (int) (self::$queryString['limit'] ?? 10),
+                'message' => 'successfully =)'
+            ]);
+        } catch (AuthenticationException $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 401);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            http_response_code($e->getCode() ?: 400);
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function GetMajorLeaderDeposit()
+    {
+        try {
+            // use user auth
+            // $result = self::$LeaderModel->LeadingFaculty(self::$queryString);
+            $result = self::$LeaderModel->LeadingMajorByDeposit(self::$queryString);
 
             header('Content-Type: application/json');
             http_response_code(200);
@@ -141,8 +241,8 @@ class LeaderController
     public function GetAll()
     {
         try {
-            $facultyResult = self::$LeaderModel->LeadingFacultyDeposit(self::$queryString);
-            $majorResult = self::$LeaderModel->LeadingMajorDeposit(self::$queryString);
+            $facultyResult = self::$LeaderModel->LeadingFaculty(self::$queryString);
+            $majorResult = self::$LeaderModel->LeadingMajor(self::$queryString);
             $memberResult = self::$LeaderModel->LeadingMember(self::$queryString);
 
             header('Content-Type: application/json');

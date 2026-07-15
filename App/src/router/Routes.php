@@ -329,7 +329,10 @@ class Routes
             ['GET', "/faculty", [LeaderController::class, "GetFacultyLeader"]],
             ['GET', "/member", [LeaderController::class, "GetMemberLeader"]],
             ['GET', "/major", [LeaderController::class, "GetMajorLeader"]],
-            ["GET", "/all", [LeaderController::class, "GetAll"]]
+            ["GET", "/all", [LeaderController::class, "GetAll"]],
+            ['GET', "/faculty/deposit", [LeaderController::class, "GetFacultyLeaderDeposit"]],
+            ['GET', "/member/deposit", [LeaderController::class, "GetMemberLeaderDeposit"]],
+            ['GET', "/major/deposit", [LeaderController::class, "GetMajorLeaderDeposit"]],
         ]);
         /* /api/center_stock */
         $this->addPrefixedRoutes("/api/center_stock", [

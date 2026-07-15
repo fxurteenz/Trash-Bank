@@ -15,7 +15,7 @@ class LeaderModel
         $this->Conn = self::$Database->connect();
     }
 
-    public function LeadingFaculty($query): array
+    public function LeadingFacultyByDeposit($query): array
     {
         try {
             $month = $query['month'] ?? null;
@@ -71,6 +71,114 @@ class LeaderModel
                     ORDER BY
                     {$orderBy} {$orderDirection}, f.faculty_name ASC";
 
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            if ($month) {
+                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
+            }
+            if ($year) {
+                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // นับจำนวนคณะทั้งหมดสำหรับ Pagination
+            $countSql = "SELECT COUNT(faculty_id) FROM faculty";
+            $countStmt = $this->Conn->prepare($countSql);
+            $countStmt->execute();
+            $totalRecords = (int) $countStmt->fetchColumn();
+
+            return ['stats' => $stats, 'total' => $totalRecords];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function LeadingMemberByDeposit($query): array
+    {
+        try {
+            $month = $query['month'] ?? null;
+            $year = $query['year'] ?? null;
+            $sort = $query['sort'] ?? 'point';
+            $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
+            $orderBy = 'total_point';
+
+            switch ($sort) {
+                case 'carbon':
+                    $orderBy = 'total_co2e';
+                    break;
+                case 'point':
+                    $orderBy = 'total_point';
+                    break;
+                case 'weight':
+                    $orderBy = 'total_weight';
+                    break;
+                case 'name':
+                    $orderBy = 'f.faculty_name';
+                    break;
+            }
+
+            $whereConditions = [];
+            if ($month) {
+                $whereConditions[] = "MONTH(w.created_at) = :month";
+            }
+            if ($year) {
+                $whereConditions[] = "YEAR(w.created_at) = :year";
+            }
+            $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
+
+            $sql = "SELECT
+                        m.member_id,
+                        m.member_personal_id,
+                        m.member_name,
+                        m.member_phone,
+                        m.member_email,
+                        m.role_id,
+                        r.role_name_th,
+                        r.role_name,
+                        f.faculty_id,
+                        f.faculty_name,
+                        mj.major_id,
+                        mj.major_name,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM
+                        member m
+                    LEFT JOIN role r ON m.role_id = r.role_id
+                    LEFT JOIN faculty f ON m.faculty_id = f.faculty_id
+                    LEFT JOIN major mj ON m.major_id = mj.major_id
+                    LEFT JOIN (
+                        SELECT 
+                            w.member_id,
+                            w.waste_transaction_total_weight,
+                            w.waste_transaction_total_point,
+                            w.waste_transaction_total_co2e
+                        FROM waste_transaction w
+                        JOIN member m ON m.member_id = w.member_id
+                        {$whereClause}
+                    ) w ON m.member_id = w.member_id
+                    GROUP BY
+                        m.member_id
+                    ORDER BY
+                    {$orderBy} {$orderDirection}, m.member_id ASC";
 
             $isPagination = isset($query['page']) && isset($query['limit']);
             if ($isPagination) {
@@ -220,7 +328,103 @@ class LeaderModel
         }
     }
 
-    public function LeadingFacultyDeposit($query): array
+    public function LeadingMajorByDeposit($query): array
+    {
+        try {
+            $month = $query['month'] ?? null;
+            $year = $query['year'] ?? null;
+            $sort = $query['sort'] ?? 'point';
+            $orderDirection = isset($query['order']) && strtoupper($query['order']) === 'ASC' ? 'ASC' : 'DESC';
+            $orderBy = 'total_point';
+
+            switch ($sort) {
+                case 'carbon':
+                    $orderBy = 'total_co2e';
+                    break;
+                case 'point':
+                    $orderBy = 'total_point';
+                    break;
+                case 'weight':
+                    $orderBy = 'total_weight';
+                    break;
+                case 'name':
+                    $orderBy = 'f.faculty_name';
+                    break;
+            }
+
+            $whereConditions = [];
+            if ($month) {
+                $whereConditions[] = "MONTH(w.created_at) = :month";
+            }
+            if ($year) {
+                $whereConditions[] = "YEAR(w.created_at) = :year";
+            }
+            $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
+
+            $sql = "SELECT
+                        mj.major_id,
+                        mj.major_name,
+                        COALESCE(SUM(w.waste_transaction_total_weight), 0) AS total_weight,
+                        COALESCE(SUM(w.waste_transaction_total_point), 0) AS total_point,
+                        COALESCE(SUM(w.waste_transaction_total_co2e), 0) AS total_co2e
+                    FROM
+                        faculty f
+                    LEFT JOIN (
+                        SELECT 
+                            m.faculty_id,
+                            w.waste_transaction_total_weight,
+                            w.waste_transaction_total_point,
+                            w.waste_transaction_total_co2e
+                        FROM waste_transaction w
+                        JOIN member m ON w.member_id = m.member_id
+                        {$whereClause}
+                    ) w ON mj.major_id = m.major_id
+                    GROUP BY
+                        mj.major_id
+                    ORDER BY
+                    {$orderBy} {$orderDirection}, mj.major_name ASC";
+
+
+            $isPagination = isset($query['page']) && isset($query['limit']);
+            if ($isPagination) {
+                $page = (int) $query['page'];
+                $limit = (int) $query['limit'];
+                $offset = ($page - 1) * $limit;
+                $sql .= " LIMIT :limit OFFSET :offset";
+            }
+
+            $stmt = $this->Conn->prepare($sql);
+
+            if ($isPagination) {
+                $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            }
+
+            if ($month) {
+                $stmt->bindValue(':month', $month, PDO::PARAM_INT);
+            }
+            if ($year) {
+                $stmt->bindValue(':year', $year, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // นับจำนวนคณะทั้งหมดสำหรับ Pagination
+            $countSql = "SELECT COUNT(faculty_id) FROM faculty";
+            $countStmt = $this->Conn->prepare($countSql);
+            $countStmt->execute();
+            $totalRecords = (int) $countStmt->fetchColumn();
+
+            return ['stats' => $stats, 'total' => $totalRecords];
+        } catch (PDOException $e) {
+            throw new Exception("Database error: " . $e->getMessage() . $sql, 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 400);
+        }
+    }
+
+    public function LeadingFaculty($query): array
     {
         try {
             $sort = $query['sort'] ?? 'point';
@@ -249,7 +453,7 @@ class LeaderModel
                 case 'name':
                     $orderBy = 'f.faculty_name';
                     break;
-               
+
                 case 'member':
                     $orderBy = 'total_member';
                     break;
@@ -314,7 +518,7 @@ class LeaderModel
         }
     }
 
-    public function LeadingMajorDeposit($query): array
+    public function LeadingMajor($query): array
     {
         try {
             $month = $query['month'] ?? null;
